@@ -70,8 +70,7 @@
   const BOARDS = [
     // —— 灵感工具 ——
     { id: "library", name: "灵感库", group: "灵感工具", desc: "全部内容的灵感库。可随机浏览，也可按爆款率 / 曝光 / 互动 / 类型 ROI 多指标排序与筛选；一键只看爆款(Top10%)。点标签加筛选，点卡片看详情，再进单帖深度分析。" },
-    // —— 看参考建议 ——
-    { id: "reference", name: "评估想法 / 找参考", group: "看参考建议", desc: "两个方向：①评估想法——输入你的内容想法，输出多维度评估结果；②找参考——没想法有目的时，输入你的目的，推荐匹配你目的的灵感内容。还有回测校准准确率。" },
+    { id: "reference", name: "评估想法 / 找参考", group: "灵感工具", desc: "两个方向：①评估想法——输入你的内容想法，输出多维度评估结果；②找参考——没想法有目的时，输入你的目的，推荐匹配你目的的灵感内容。还有回测校准准确率。" },
     // —— 看竞品情况 ——
     { id: "competitor", name: "竞品内容监测", group: "看竞品情况", desc: "选择单竞品 → 深度查看（整体数据 + 内容排序列表 + 形式/数据筛选 + 用户评价 + 运营节奏×表现 + Campaign 爆发监测）；也可看全部竞品排名。" },
     { id: "compare", name: "多竞品横向对比", group: "看竞品情况", desc: "勾选多个品牌横向对比：数据表现 + Top3 内容 + 用户情况，全面看标杆与差距。" },
@@ -310,7 +309,7 @@
         <button data-view="list" class="${state.view === "list" ? "on" : ""}">列表</button>
       </div>
       <button class="bx-launch" id="bx-launch" title="每日灵感盲盒">
-        <svg viewBox="0 0 24 24" class="ic"><path d="M4 9h16v11H4zM2 9l2-5h16l2 5M12 4v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        <svg viewBox="0 0 24 24" class="ic" style="width:16px;height:16px"><path d="M20 12v8H4v-8M22 7H2v5h20zM12 2l2 5h-4l2-5zM12 22v-5" fill="none" stroke="#ff5d8f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         每日灵感盲盒
       </button>
     </div>`;
@@ -2102,9 +2101,11 @@ ${topMatches || "（无强匹配）"}
     if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
     if (state.uvLayerCmp) return renderLayerCompare(U);
     if (state.uvLayerDrill && U.layers[state.uvLayerDrill]) return renderLayerDrill(state.uvLayerDrill);
-    // 参与度分层（按回复次数）
+    if (state.uvLayerDrill && state.uvLayerDrill.startsWith("intent_")) return renderIntentLayerDrill(state.uvLayerDrill);
+    // 参与度分层（按回复次数）+ 意图倾向分层
     const engLayerCards = renderEngLayers(U);
-    return `<div class="board-head"><div class="board-desc">${desc}</div></div>${uvLayers(U)}${engLayerCards}`;
+    const intentLayerCards = renderIntentLayers(U);
+    return `<div class="board-head"><div class="board-desc">${desc}</div></div>${uvLayers(U)}${engLayerCards}${intentLayerCards}`;
   }
 
   function renderEngLayers(U) {
@@ -2140,6 +2141,99 @@ ${topMatches || "（无强匹配）"}
     return `<div class="uv-block"><div class="uv-block-title">按参与度分层用户（按回复次数 · 全局 TOP100 用户）</div><div class="uv-layer-grid">${cards}</div></div>`;
   }
 
+  function renderIntentLayers(U) {
+    const users = U.topUsers || [];
+    const INTENT_KEYS = ["praise", "request", "question", "complaint", "banter"];
+    const INTENT_LABEL = { praise: "赞美型用户", request: "求购型用户", question: "提问型用户", complaint: "吐槽型用户", banter: "玩梗型用户" };
+    const INTENT_DESC = {
+      praise: "以正面赞美为主，对品牌有好感，适合做口碑传播与 UGC 激励。",
+      request: "以求购/合作意向为主，有明确需求，是转化与承接的最佳目标。",
+      question: "以提问为主，在评估决策中，需要内容教育打消疑虑。",
+      complaint: "以吐槽/不满为主，是产品改进的信号源，也需危机公关关注。",
+      banter: "以轻松玩梗/社交互动为主，是社群氛围的营造者，适合裂变活动。",
+    };
+    // 为每个用户确定主导意图
+    const intentGroups = {};
+    INTENT_KEYS.forEach((k) => { intentGroups[k] = []; });
+    users.forEach((u) => {
+      const it = u.intents || {};
+      let maxK = "praise", maxV = 0;
+      Object.entries(it).forEach(([k, v]) => { const vi = typeof v === "number" ? v : (v && v.count) || 0; if (vi > maxV) { maxV = vi; maxK = k; } });
+      if (intentGroups[maxK]) intentGroups[maxK].push(u);
+    });
+    const cards = INTENT_KEYS.filter((k) => intentGroups[k].length).map((k) => {
+      const grp = intentGroups[k];
+      const count = grp.length;
+      const share = uvPct(count, users.length);
+      const brands = aggregateByField(grp.map((u) => ({ account: u.topBrand || "—" })), "account").slice(0, 4);
+      const brandChips = brands.map((b) => `<span class="uv-chip">${esc(b.name)}<em>×${b.count}</em></span>`).join("");
+      const sTot = grp.reduce((s, u) => s + ((u.sents || {}).pos || 0) + ((u.sents || {}).neu || 0) + ((u.sents || {}).neg || 0), 0) || 1;
+      const posR = Math.round(grp.reduce((s, u) => s + ((u.sents || {}).pos || 0), 0) / sTot * 100);
+      const q = grp.slice(0, 3).map((u) => {
+        const s = (u.samples || [])[0];
+        return s ? `<div class="uv-quote">${uvLangTag(s.lang || "")} ${uvSentTag(s.sent || "")} <span class="uv-q-text">${esc(s.text || "")}</span></div>` : "";
+      }).join("");
+      const insight = `${INTENT_LABEL[k]} · ${fmt(count)} 人（${share}%）· 正面情感率 ${posR}%。${INTENT_DESC[k]}`;
+      return `<div class="uv-layer-card">
+        <div class="uv-layer-head"><span class="uv-layer-name">${INTENT_LABEL[k]}</span><span class="uv-layer-count">${fmt(count)} 人 · ${share}%</span></div>
+        <div class="uv-layer-desc">${INTENT_DESC[k]}</div>
+        <div class="uv-row"><b>主力品牌</b><div class="uv-tags">${brandChips || "—"}</div></div>
+        <div class="uv-row"><b>代表语录</b><div class="uv-quotes">${q || "—"}</div></div>
+        <div class="uv-insight" style="margin-top:8px">${insight}</div>
+        <div class="uv-layer-foot"><button class="btn-ghost uv-layer-enter" data-uv-layer="intent_${k}">🎯 该分层用户深度分析 →</button></div>
+      </div>`;
+    }).join("");
+    return `<div class="uv-block"><div class="uv-block-title">按意图倾向分层用户（根据主导意图归类 · 全局 TOP100 用户）</div><div class="uv-layer-grid">${cards}</div></div>`;
+  }
+
+  function renderIntentLayerDrill(key) {
+    const U = state.users;
+    const k = key.replace("intent_", "");
+    const INTENT_LABEL = { praise: "赞美型用户", request: "求购型用户", question: "提问型用户", complaint: "吐槽型用户", banter: "玩梗型用户" };
+    const users = U.topUsers || [];
+    const grp = users.filter((u) => {
+      const it = u.intents || {};
+      let maxK = "praise", maxV = 0;
+      Object.entries(it).forEach(([kk, v]) => { const vi = typeof v === "number" ? v : (v && v.count) || 0; if (vi > maxV) { maxV = vi; maxK = kk; } });
+      return maxK === k;
+    });
+    const sTot = grp.reduce((s, u) => s + ((u.sents || {}).pos || 0) + ((u.sents || {}).neu || 0) + ((u.sents || {}).neg || 0), 0) || 1;
+    const posR = Math.round(grp.reduce((s, u) => s + ((u.sents || {}).pos || 0), 0) / sTot * 100);
+    const negR = Math.round(grp.reduce((s, u) => s + ((u.sents || {}).neg || 0), 0) / sTot * 100);
+    // 品牌分布
+    const brandMap = {}; grp.forEach((u) => { const b = u.topBrand || "—"; brandMap[b] = (brandMap[b] || 0) + 1; });
+    const brandBars = uvBars(Object.entries(brandMap).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([b, n], i) => [b, n, PAL[i % PAL.length]]));
+    // 形式分布
+    const formMap = {}; grp.forEach((u) => { const f = u.topForm || "—"; formMap[f] = (formMap[f] || 0) + 1; });
+    const formBars = uvBars(Object.entries(formMap).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([f, n], i) => [f, n, PAL[(i + 3) % PAL.length]]));
+    // 代表语录
+    const samples = grp.slice(0, 8).map((u) => {
+      const s = (u.samples || [])[0];
+      return s ? `<div class="uv-layer-sample">${uvLangTag(s.lang || "")} ${uvSentTag(s.sent || "")} ${uvIntentTag(s.intent || "")} <span class="uv-sample-text">${esc(s.text || "")}</span> <span class="uv-sample-form">@${esc(u.name)} · ${esc(u.topBrand || "—")}</span></div>` : "";
+    }).join("");
+    const insight = `${INTENT_LABEL[k]} · ${fmt(grp.length)} 人 · 正面情感率 ${posR}% · 负面仅 ${negR}%。${k === "praise" ? "高好感用户群，适合做口碑放大、UGC 征集和品牌大使计划。" : k === "request" ? "高转化意向用户群，适合推送产品链接、限时优惠和购买引导。" : k === "question" ? "决策中用户群，适合做 FAQ 内容、对比评测和信任背书。" : k === "complaint" ? "不满用户群，需要及时回应、问题解决和品牌关怀。" : "社交型用户群，适合做互动活动、梗文化和社群裂变。"}`;
+    return `<div class="uv-drill">
+      <div class="uv-drill-head">
+        <button class="btn-ghost" data-uv-layer-back>← 返回分层</button>
+        <div class="uv-drill-title">${INTENT_LABEL[k]} · 深度分析</div>
+        <div class="uv-drill-count">${fmt(grp.length)} 人 · 全局 TOP100 占比 ${uvPct(grp.length, (U.topUsers || []).length)}%</div>
+      </div>
+      <div class="uv-insight">${insight}</div>
+      <div class="dp-section">
+        <div class="dp-sec-title">主要品牌来源</div>
+        ${brandBars}
+      </div>
+      <div class="dp-section">
+        <div class="dp-sec-title">内容形式偏好</div>
+        ${formBars}
+      </div>
+      <div class="dp-section">
+        <div class="dp-sec-title">代表用户语录</div>
+        <div class="uv-layer-samples">${samples}</div>
+      </div>
+    </div>`;
+  }
+
   function bindUserTier() {
     $$("[data-uv-layer]", $("#board")).forEach((b) => b.addEventListener("click", () => { state.uvLayerDrill = b.dataset.uvLayer; renderBoard(); }));
     const back = $("[data-uv-layer-back]", $("#board"));
@@ -2148,6 +2242,7 @@ ${topMatches || "（无强匹配）"}
     if (cmp) cmp.addEventListener("click", () => { state.uvLayerCmp = true; renderBoard(); });
     const cmpBack = $("[data-uv-layer-cmp-back]", $("#board"));
     if (cmpBack) cmpBack.addEventListener("click", () => { state.uvLayerCmp = false; renderBoard(); });
+    // 意图分层返回（复用 data-uv-layer-back）
   }
 
   /* ---------- 空态 ---------- */
@@ -2749,6 +2844,7 @@ ${sim || "（无同主题关联帖）"}
       const bxLaunch = $("#bx-launch"); if (bxLaunch) bxLaunch.addEventListener("click", openBlindboxModal);
     }
     // 参考建议中枢
+    // 看参考建议（现在在灵感工具组下，但保持绑定）
     if (state.board === "reference") bindReference();
     // 竞品内容库 / 多品牌对比
     if (["competitor", "compare"].includes(state.board)) bindCompetitor();
@@ -2959,12 +3055,12 @@ ${sim || "（无同主题关联帖）"}
     syncFilterUI();
     renderActiveFilters();
     renderBoard();
-    // 左下角盲盒入口（不自动打开弹层，等待用户点击）
+    // 右下角盲盒入口（不自动打开弹层，等待用户点击）
     if (!$("#bx-reopen")) {
       const ro = document.createElement("button");
       ro.id = "bx-reopen";
       ro.className = "bx-reopen";
-      ro.textContent = "🎁 盲盒";
+      ro.textContent = "🎁 每日灵感盲盒";
       ro.onclick = openBlindboxModal;
       document.body.appendChild(ro);
     }
