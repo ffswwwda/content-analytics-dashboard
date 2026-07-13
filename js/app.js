@@ -1213,12 +1213,15 @@ ${topMatches || "（无强匹配）"}
     const U = state.users;
     const desc = BOARDS.find((b) => b.id === "uservoice").desc;
     if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
-    const tabs = [["say", "用户在说什么"], ["language", "用户语料库分析"], ["form", "分内容形式"]];
+    const tabs = [["say", "用户在说什么"], ["topic", "分内容主题"], ["intent", "分营销目的"], ["emotion", "分情绪风格"], ["language", "用户语料库分析"], ["form", "分内容形式"]];
     const tabBar = `<div class="uv-tabs">${tabs.map(([id, name]) => `<button class="uv-tab${state.uvTab === id ? " on" : ""}" data-uv="${id}">${name}</button>`).join("")}</div>`;
     const m = U.meta;
     const meta = `<div class="uv-meta">真实用户回帖 <b>${fmt(m.genuine_replies_in_window)}</b> · 独立用户 <b>${fmt(m.genuine_users)}</b> · 多帖用户 <b>${fmt(m.multi_reply_users)}</b> · 窗口 ${m.window[0]} ~ ${m.window[1]}<span class="uv-meta-sub">（已过滤品牌官方回复 ${fmt(m.brand_reply_filtered)} 条）</span></div>`;
     let body = "";
     if (state.uvTab === "say") body = uvSay(U);
+    else if (state.uvTab === "topic") body = uvTopic(U);
+    else if (state.uvTab === "intent") body = uvIntent(U);
+    else if (state.uvTab === "emotion") body = uvEmotion(U);
     else if (state.uvTab === "language") body = uvLanguage(U);
     else body = uvForm(U);
     return `<div class="board-head"><div class="board-desc">${desc}</div></div>${meta}${tabBar}${body}`;
@@ -1465,6 +1468,102 @@ ${topMatches || "（无强匹配）"}
       </div>`;
     }).join("");
     return `<div class="uv-block"><div class="uv-block-title">分内容形式（用户参与了什么形式、怎么聊它）</div><div class="uv-form-grid">${cards}</div></div>`;
+  }
+
+  // 维度下钻卡牌共用的「代表语录」渲染
+  function uvDimQuote(s) {
+    if (!s) return "";
+    return `<div class="uv-quote">${uvLangTag(s.lang)} ${uvSentTag(s.sent)} ${uvIntentTag(s.intent)} <span class="uv-q-text">${esc(dispVoice(s))}</span> <span class="uv-corp-brand">${esc(s.brand || "")}</span> <a class="uv-link" href="${esc(s.link || "#")}" target="_blank" rel="noreferrer">↗</a></div>`;
+  }
+  function uvDimBrands(arr) {
+    if (!arr || !arr.length) return `<span class="uv-muted">—</span>`;
+    return arr.map((b) => `<span class="uv-chip">${esc(b.b)}<em>×${b.n}</em></span>`).join("");
+  }
+  function uvDimIntents(arr) {
+    if (!arr || !arr.length) return `<span class="uv-muted">—</span>`;
+    return arr.map((x) => `<span class="uv-chip uv-chip-intent">${uvIntentTag(x.k).replace(/^<span[^>]*>|<\/span>$/g, "")}<em>×${x.n}</em></span>`).join("");
+  }
+  function uvDimTopics(arr) {
+    if (!arr || !arr.length) return `<span class="uv-muted">—</span>`;
+    return arr.map((x) => `<span class="uv-chip">${esc(x.t)}<em>×${x.n}</em></span>`).join("");
+  }
+
+  /* ---------- 用户讨论与语言 · 分内容主题 ---------- */
+  function uvTopic(U) {
+    const list = (U.dimBreakdown && U.dimBreakdown.topicBreakdown) || [];
+    if (!list.length) return `<div class="uv-block"><div class="uv-note">暂无分主题数据（运行 scripts/build_users.py 重建）。</div></div>`;
+    const cards = list.map((t) => {
+      const sPairs = [["正面", t.sentiment.pos || 0, COL.pos], ["中性", t.sentiment.neu || 0, COL.neu], ["负面", t.sentiment.neg || 0, COL.neg]];
+      const quotes = (t.samples || []).slice(0, 4).map(uvDimQuote).join("");
+      return `<div class="uv-form-card">
+        <div class="uv-form-head"><span class="uv-form-name">${esc(t.name)}</span><span class="uv-form-count">${fmt(t.count)} 条</span></div>
+        ${uvBars(sPairs)}
+        <div class="uv-row"><b>主要品牌</b><div class="uv-tags">${uvDimBrands(t.brands)}</div></div>
+        <div class="uv-row"><b>用户意图</b><div class="uv-tags">${uvDimIntents(t.intents)}</div></div>
+        <div class="uv-row"><b>代表语录</b><div class="uv-quotes">${quotes}</div></div>
+      </div>`;
+    }).join("");
+    return `<div class="uv-block">
+      <div class="uv-block-title">分内容主题（用户围绕哪个产品类目讨论得最多、各自什么情绪与意图）</div>
+      <div class="uv-form-grid">${cards}</div>
+    </div>`;
+  }
+
+  /* ---------- 用户讨论与语言 · 分营销目的（意图） ---------- */
+  function uvIntent(U) {
+    const c = U.corpus;
+    const list = (U.dimBreakdown && U.dimBreakdown.intentBreakdown) || [];
+    if (!list.length) return `<div class="uv-block"><div class="uv-note">暂无分意图数据（运行 scripts/build_users.py 重建）。</div></div>`;
+    const iPairs = Object.entries(c.intent).map(([k, v]) => [INTENT_NAME[k] || k, v, INTENT_COL[k] || COL.slate]);
+    const cards = list.map((it) => {
+      const sPairs = [["正面", it.sentiment.pos || 0, COL.pos], ["中性", it.sentiment.neu || 0, COL.neu], ["负面", it.sentiment.neg || 0, COL.neg]];
+      const quotes = (it.samples || []).slice(0, 4).map(uvDimQuote).join("");
+      return `<div class="uv-form-card">
+        <div class="uv-form-head"><span class="uv-form-name">${esc(it.name)}</span><span class="uv-form-count">${fmt(it.count)} 条 · ${uvPct(it.count, c.total || 1)}%</span></div>
+        ${uvBars(sPairs)}
+        <div class="uv-row"><b>主要品牌</b><div class="uv-tags">${uvDimBrands(it.brands)}</div></div>
+        <div class="uv-row"><b>关联主题</b><div class="uv-tags">${uvDimTopics(it.topics)}</div></div>
+        <div class="uv-row"><b>代表语录</b><div class="uv-quotes">${quotes}</div></div>
+      </div>`;
+    }).join("");
+    return `<div class="uv-block">
+      <div class="uv-block-title">① 营销目的总览（用户来这里的意图分布）</div>
+      ${uvBars(iPairs)}
+      <div class="uv-block-title" style="margin-top:18px">② 分营销目的下钻（每种目的背后：情绪、品牌、关联主题、原帖）</div>
+      <div class="uv-form-grid">${cards}</div>
+    </div>`;
+  }
+
+  /* ---------- 用户讨论与语言 · 分情绪风格 ---------- */
+  function uvEmotion(U) {
+    const c = U.corpus;
+    const list = (U.dimBreakdown && U.dimBreakdown.sentimentBreakdown) || [];
+    if (!list.length) return `<div class="uv-block"><div class="uv-note">暂无分情绪数据（运行 scripts/build_users.py 重建）。</div></div>`;
+    const sPairs = [["正面", c.sentiment.pos || 0, COL.pos], ["中性", c.sentiment.neu || 0, COL.neu], ["负面", c.sentiment.neg || 0, COL.neg]];
+    const cards = list.map((s) => {
+      const tot = s.count || 1;
+      const emojiR = Math.round((s.style.emoji || 0) / tot * 100);
+      const slangR = Math.round((s.style.slang || 0) / tot * 100);
+      const capsR = Math.round((s.style.caps || 0) / tot * 100);
+      const quotes = (s.samples || []).slice(0, 4).map(uvDimQuote).join("");
+      return `<div class="uv-form-card">
+        <div class="uv-form-head"><span class="uv-form-name">${esc(s.name)}</span><span class="uv-form-count">${fmt(s.count)} 条 · ${uvPct(s.count, c.total || 1)}%</span></div>
+        <div class="uv-row"><b>主要意图</b><div class="uv-tags">${uvDimIntents(s.intents)}</div></div>
+        <div class="uv-row"><b>主要品牌</b><div class="uv-tags">${uvDimBrands(s.brands)}</div></div>
+        <div class="uv-row"><b>风格标记</b><div class="uv-tags">
+          <span class="uv-chip">Emoji <em>${emojiR}%</em></span>
+          <span class="uv-chip">口语/俚语 <em>${slangR}%</em></span>
+          <span class="uv-chip">全大写 <em>${capsR}%</em></span>
+        </div></div>
+        <div class="uv-row"><b>代表语录</b><div class="uv-quotes">${quotes}</div></div>
+      </div>`;
+    }).join("");
+    return `<div class="uv-block">
+      <div class="uv-block-title">① 情绪总览（正面 / 中性 / 负面）</div>
+      ${uvBars(sPairs)}
+      <div class="uv-block-title" style="margin-top:18px">② 分情绪下钻（每种情绪背后：意图、品牌、语言风格、原帖）</div>
+      <div class="uv-form-grid">${cards}</div>
+    </div>`;
   }
 
   /* ---------- 品牌-用户讨论（独立板块） ---------- */
