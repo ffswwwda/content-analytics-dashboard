@@ -100,7 +100,7 @@
     dim: "brand", dimBrands: new Set(), topicWeights: { viral: 35, eng: 25, rec: 20, cov: 20 },
     blindbox: null, bxSeed: null, refMode: "eval", backtests: [], maxExposure: 1,
     users: null, uvTab: "language", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all", uvCorpusMarker: "all", uvLayerDrill: null, uvLayerCmp: false,
-    brandUserSel: null, brandUserCmp: "", brandUserRankAll: false,
+    brandUserSel: null, brandUserCmp: [], brandUserCompare: false, brandUserRankAll: false,
     libMode: "sort", libQuick: "all",
     compSel: new Set(), cmpSel: new Set(),
     compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false },
@@ -892,30 +892,19 @@ ${topMatches || "（无强匹配）"}
       if (g.id === "review" && c.commentQuality && Object.keys(c.commentQuality).length) return true;
       return false;
     }).length;
-    const presets = GOAL_PRESETS.map((g) => `<button class="chip ec-chip find-preset" data-goal="${g.id}">${g.name}<span class="ec-cnt">${cnt(g)}</span></button>`).join("");
-    const topicCount = new Map();
-    all.forEach((c) => (c.topicTags || []).forEach((t) => { if (t) topicCount.set(t, (topicCount.get(t) || 0) + 1); }));
-    const topTopics = [...topicCount.entries()].sort((a, b) => b[1] - a[1]).filter(([, n]) => n >= 2).slice(0, 6);
-    const auto = topTopics.map(([t, n]) => `<button class="chip ec-chip find-topic" data-topic="${esc(t)}">${esc(t)}<span class="ec-cnt">${n}</span></button>`).join("");
-    return { presets, auto };
+    return GOAL_PRESETS.map((g) => `<button class="chip ec-chip find-preset" data-goal="${g.id}">${g.name}<span class="ec-cnt">${cnt(g)}</span></button>`).join("");
   }
   function renderFind() {
-    const { presets, auto } = findPurposeChips();
+    const presets = findPurposeChips();
     const dims = [["type", "形式"], ["topic", "主题"], ["emotion", "情绪"], ["platform", "平台"], ["keyword", "关键词"], ["perf", "表现"]];
     const dimHTML = dims.map(([k, l]) => `<label class="dim-toggle on" data-dim="${k}"><input type="checkbox" checked> ${l}</label>`).join("");
     return `<div class="predictor-wrap">
-      <div class="board-desc" style="margin-bottom:12px"><b>② 找参考</b> · 没想法有目的找参考：输入你的目的，推荐匹配你目的的灵感内容。可多选常用目的 / 真实帖子主题，并在下方输入目的详述做多维度匹配；结果展示<strong>原贴 + 整体说明</strong>。</div>
-      <div class="find-block">
-        <div class="find-label">常用目的（沿用现有分类，括号为真实匹配数）</div>
+      <div class="board-desc" style="margin-bottom:10px"><b>② 找参考</b> · 没想法有目的找参考：输入你的目的，推荐匹配你目的的灵感内容。下方是常用目的模板，可点选一键载入到输入框。</div>
+      <details class="find-preset-toggle"><summary>📋 常用目的（点击自动填入输入框 · ${GOAL_PRESETS.length} 个模板）</summary>
         <div class="example-chips" id="find-presets">${presets}</div>
-      </div>
-      <div class="find-block">
-        <div class="find-label">根据真实帖子发现的主题（点选即按该主题匹配）</div>
-        <div class="example-chips" id="find-topics">${auto || '<span class="uv-muted">暂无足够主题样本</span>'}</div>
-      </div>
-      <div class="find-block">
-        <div class="find-label">目的详述（自由输入，用于多维度匹配）</div>
-        <textarea id="goal-detail" class="goal-textarea" rows="3" placeholder="例如：想给美国男性用户推一款高端 Anal 玩具，主打成分安全与体验升级，希望引发讨论和测评，而不是硬广…"></textarea>
+      </details>
+      <div class="find-block" style="margin-top:12px">
+        <textarea id="goal-detail" class="goal-textarea" rows="3" placeholder="输入你的目的…例如：想给美国男性用户推一款高端 Anal 玩具，主打成分安全与体验升级，希望引发讨论和测评，而不是硬广"></textarea>
       </div>
       <div class="find-block">
         <div class="find-label">匹配维度（可关掉不相关的）</div>
@@ -932,7 +921,7 @@ ${topMatches || "（无强匹配）"}
     return [...out];
   }
   function matchScoreMulti(c, ctx) {
-    const { g, topic, detail, dims } = ctx;
+    const { g, detail, dims } = ctx;
     let score = 0; const reasons = []; const dimHits = [];
     const cText = (c.text || "").toLowerCase();
     if (g) {
@@ -997,18 +986,13 @@ ${topMatches || "（无强匹配）"}
     </div>`;
   }
   function bindFind() {
-    const fstate = { goalId: null, topic: null, dims: new Set(["type", "topic", "emotion", "platform", "keyword", "perf"]) };
+    const fstate = { goalId: null, dims: new Set(["type", "topic", "emotion", "platform", "keyword", "perf"]) };
+    // 常用目的点击 → 填入输入框（不立即搜索）
     $$("#find-presets .ec-chip").forEach((b) => b.addEventListener("click", () => {
-      $$("#find-presets .ec-chip").forEach((x) => x.classList.remove("on"));
-      $$("#find-topics .ec-chip").forEach((x) => x.classList.remove("on"));
-      b.classList.add("on"); fstate.goalId = b.dataset.goal; fstate.topic = null;
-      runFind(fstate);
-    }));
-    $$("#find-topics .ec-chip").forEach((b) => b.addEventListener("click", () => {
-      $$("#find-topics .ec-chip").forEach((x) => x.classList.remove("on"));
-      $$("#find-presets .ec-chip").forEach((x) => x.classList.remove("on"));
-      b.classList.add("on"); fstate.topic = b.dataset.topic; fstate.goalId = null;
-      runFind(fstate);
+      const g = GOAL_PRESETS.find((x) => x.id === b.dataset.goal);
+      const ta = $("#goal-detail");
+      if (ta && g) ta.value = g.name + ": " + (g.desc || "");
+      fstate.goalId = b.dataset.goal;
     }));
     $$("#find-dims .dim-toggle").forEach((el) => el.addEventListener("change", () => {
       const k = el.dataset.dim; const on = el.querySelector("input").checked;
@@ -1023,18 +1007,45 @@ ${topMatches || "（无强匹配）"}
     const detail = (($("#goal-detail") ? $("#goal-detail").value : "") || "").trim();
     const scored = [];
     for (const c of data) {
-      const r = matchScoreMulti(c, { g, topic: fstate.topic, detail, dims: fstate.dims });
+      const r = matchScoreMulti(c, { g, topic: null, detail, dims: fstate.dims });
       if (r.score > 0) scored.push({ c, ...r });
     }
     scored.sort((a, b) => b.score - a.score);
-    const top = scored.slice(0, 8);
+    const top = scored.slice(0, 15);
     const box = $("#find-result");
     if (!box) return;
     if (!top.length) { box.innerHTML = emptyState("没有匹配的内容，试试放宽维度或调整目的"); return; }
-    const label = g ? g.name : (fstate.topic ? `主题「${fstate.topic}」` : (detail ? "自定义目的" : "全部内容（按表现排序）"));
-    box.innerHTML = `<div class="find-intro">为「<b>${esc(label)}</b>」按多维度匹配出 <b>${top.length}</b> 条最相关历史内容（综合匹配分越高越契合）：</div>
-      <div class="match-grid">${top.map(({ c, score, reasons, dimHits }) => matchCardHTML(c, score, reasons, dimHits)).join("")}</div>`;
-    $$(".match-card", box).forEach((el) => el.addEventListener("click", () => openDrawer(el.dataset.id)));
+    const label = g ? g.name : (detail ? "自定义目的" : "全部内容（按表现排序）");
+
+    // ===== 可视化看板 =====
+    const avgScore = Math.round(top.reduce((s, x) => s + x.score, 0) / top.length);
+    const formDist = {}; top.forEach(({c}) => { const f = c.contentType || "—"; formDist[f] = (formDist[f] || 0) + 1; });
+    const emoDist = {}; top.forEach(({c}) => { const e = c.emotion || "—"; emoDist[e] = (emoDist[e] || 0) + 1; });
+    const topAcc = {}; top.forEach(({c}) => { topAcc[c.account] = (topAcc[c.account] || 0) + 1; });
+    const topAvgRate = Math.round(top.reduce((s, {c}) => s + rate(c), 0) / top.length);
+    const topCount = top.filter(({c}) => c.isTop).length;
+    const topEngAvg = Math.round(top.reduce((s, {c}) => s + (c.engagement || 0), 0) / top.length);
+    const formBars = uvBars(Object.entries(formDist).sort((a,b)=>b[1]-a[1]).map(([k,v],i) => [k, v, PAL[i % PAL.length]]));
+    const emoBars = uvBars(Object.entries(emoDist).sort((a,b)=>b[1]-a[1]).map(([k,v],i) => [k, v, PAL[(i+2)%PAL.length]]));
+    const dashHTML = `<div class="find-dash">
+      <div class="find-dash-title">📊 匹配度可视化看板 · 「${esc(label)}」</div>
+      <div class="bud-stats" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
+        <div class="bud-stat"><div class="bud-stat-val">${top.length}</div><div class="bud-stat-lab">匹配内容</div></div>
+        <div class="bud-stat"><div class="bud-stat-val">${avgScore}</div><div class="bud-stat-lab">平均匹配分</div></div>
+        <div class="bud-stat"><div class="bud-stat-val" style="color:var(--hot)">${topAvgRate}%</div><div class="bud-stat-lab">平均爆款率</div></div>
+        <div class="bud-stat"><div class="bud-stat-val" style="color:var(--hot)">${topCount}</div><div class="bud-stat-lab">已爆款数</div></div>
+        <div class="bud-stat"><div class="bud-stat-val">${fmt(topEngAvg)}</div><div class="bud-stat-lab">平均互动</div></div>
+      </div>
+      <div class="find-dash-row">
+        <div class="vd-col"><div class="vd-title">内容形式分布</div>${formBars}</div>
+        <div class="vd-col"><div class="vd-title">情绪风格分布</div>${emoBars}</div>
+      </div>
+    </div>`;
+
+    box.innerHTML = `${dashHTML}
+      <div class="find-cards-title" style="margin-top:16px">匹配内容列表（点击卡片进入单帖深度分析）</div>
+      <div class="match-grid">${top.slice(0, 10).map(({ c, score, reasons, dimHits }) => matchCardHTML(c, score, reasons, dimHits)).join("")}</div>`;
+    $$(".match-card", box).forEach((el) => el.addEventListener("click", () => openDeepAnalysis(el.dataset.id)));
   }
 
   /* 回测：预测 vs 真实 */
@@ -1756,7 +1767,6 @@ ${topMatches || "（无强匹配）"}
     const st = d.sentiment || {}; const sTot = (st.pos || 0) + (st.neu || 0) + (st.neg || 0) || 1;
     const posRate = Math.round((st.pos || 0) / sTot * 100);
     const others = (U.brandUsers || []).filter((x) => x.brand !== brand);
-    const cmpOptions = others.map((x) => `<option value="${esc(x.brand)}" ${state.brandUserCmp === x.brand ? "selected" : ""}>${esc(x.brand)}（${fmt(x.userCount)} 用户）</option>`).join("");
 
     // 概览指标
     const stats = `<div class="bud-stats">
@@ -1835,11 +1845,20 @@ ${topMatches || "（无强匹配）"}
     const rankToggle = d.topUsers.length > 8 ? `<button class="uv-rank-toggle" data-bud-rank-toggle>${state.brandUserRankAll ? "收起（仅看 Top 8）" : `展开全部 ${d.topUsers.length} 人 →`}</button>` : "";
     const usersHTML = `<div class="bud-panel"><div class="bud-panel-t">高互动用户明细（Top ${shown} / 共 ${d.topUsers.length} 位深度用户） ${rankToggle}</div><div class="uv-user-grid">${userRows}</div></div>`;
 
-    // 跨品牌对比（多选 + 可视化条形图）
+    // 跨品牌对比（多选 + 点击对比按钮触发）
     const cmpChips = others.map((x) => {
       const ckd = state.brandUserCmp.includes(x.brand) ? "checked" : "";
       return `<label class="bud-cmp-chip"><input type="checkbox" data-bud-cmp-chk value="${esc(x.brand)}" ${ckd}>${esc(x.brand)} (${fmt(x.userCount)})</label>`;
     }).join("");
+    const cmpBtn = state.brandUserCmp.length >= 1 ? `<button class="btn-primary bud-cmp-go" data-bud-cmp-go>📊 开始对比（已选 ${state.brandUserCmp.length} 个品牌）</button>` : "";
+
+    // 如果处于对比模式，整页替换为双品牌并排可视化
+    if (state.brandUserCompare) {
+      const cmpBrands = [d, ...state.brandUserCmp.map((bn) => budFind(U, bn)).filter(Boolean)];
+      if (cmpBrands.length >= 2) return budCompareFull(U, cmpBrands);
+    }
+
+    // 跨品牌对比结果（仅预览模式——轻量条形图）
     let cmpHTML = "";
     if (state.brandUserCmp.length) {
       const cmpBrands = [d, ...state.brandUserCmp.map((bn) => budFind(U, bn)).filter(Boolean)];
@@ -1868,7 +1887,7 @@ ${topMatches || "（无强匹配）"}
       <div class="bud-top">
         <button class="btn-ghost bud-back" data-bud-back>← 返回品牌列表</button>
         <div class="bud-title">🎯 ${esc(brand)} · 品牌互动用户深度分析</div>
-        <div class="bud-cmp-pick"><span>对比品牌（多选）：</span><div class="bud-cmp-chips">${cmpChips}</div></div>
+        <div class="bud-cmp-pick"><span>对比品牌（多选）：</span><div class="bud-cmp-chips">${cmpChips}</div>${cmpBtn}</div>
       </div>
       ${stats}
       ${tendency}
@@ -1932,6 +1951,67 @@ ${topMatches || "（无强匹配）"}
     </div>`;
   }
 
+  function budCompareFull(U, brands) {
+    const posR = (x) => { const s = x.sentiment||{}; const t = (s.pos||0)+(s.neu||0)+(s.neg||0)||1; return Math.round((s.pos||0)/t*100); };
+    const lpR = (x,k) => (x.wcLayerPct||{})[k]||0;
+    const epR = (x,k) => (x.engLayerPct||{})[k]||0;
+    const [a, b] = [brands[0], brands[brands.length-1]];
+    if (!a || !b) return "请至少选择两个品牌对比。";
+
+    // 并排统计卡片
+    const statCard = (b) => {
+      const pr = posR(b); const l4 = lpR(b,"l4"); const heavy = epR(b,"heavy");
+      return `<div class="bud-comp-stat">
+        <div class="bud-comp-stat-name">${esc(b.brand)}</div>
+        <div class="bud-comp-stat-row"><span>用户</span><b>${fmt(b.userCount)}</b></div>
+        <div class="bud-comp-stat-row"><span>互动率</span><b>${b.avgLikes}/条</b></div>
+        <div class="bud-comp-stat-row"><span>正面率</span><b>${pr}%</b></div>
+        <div class="bud-comp-stat-row"><span>深度表达%</span><b>${l4}%</b></div>
+        <div class="bud-comp-stat-row"><span>铁粉%</span><b>${heavy}%</b></div>
+        <div class="bud-comp-stat-row"><span>集中度</span><b>${(b.concentration||{}).top10Share||0}%</b></div>
+      </div>`;
+    };
+    // 指标条形图对比
+    const metrics = [
+      ["独立用户数", (x)=>x.userCount, fmt],
+      ["多次互动占比%", (x)=>x.multiReplyShare, (v)=>v+"%"],
+      ["人均回复", (x)=>x.avgRepliesPerUser, (v)=>v],
+      ["正面情感率%", posR, (v)=>v+"%"],
+      ["长回复占比%", (x)=>lpR(x,"l4"), (v)=>v+"%"],
+      ["铁粉占比%", (x)=>epR(x,"heavy"), (v)=>v+"%"],
+      ["Top10集中度%", (x)=>(x.concentration||{}).top10Share||0, (v)=>v+"%"],
+    ];
+    const barsHTML = metrics.map(([label, fn, fmtFn]) => {
+      const maxV = Math.max(...brands.map(fn), 1);
+      const bars = brands.map((b,i) => {
+        const v=fn(b); const pct=Math.round(v/maxV*100);
+        return `<div class="bud-mbar-row">
+          <span class="bud-mbar-label" style="color:${i===0?'var(--accent)':'#ffd166'}">${esc(b.brand)}</span>
+          <span class="bud-mbar-track"><i style="width:${pct}%;${i===0?'':'background:linear-gradient(90deg,#ffd166,#ff5d8f)'}"></i></span>
+          <span class="bud-mbar-val">${fmtFn(v)}</span>
+        </div>`;
+      }).join("");
+      return `<div class="bud-mbar-group"><div class="bud-mbar-title">${label}</div>${bars}</div>`;
+    }).join("");
+    // 结论
+    const aWin = metrics.map(([l,fn])=>fn(a)>=fn(b)?l:null).filter(Boolean);
+    const bWin = metrics.map(([l,fn])=>fn(b)>fn(a)?l:null).filter(Boolean);
+    const conclusion = `<div class="uv-insight" style="margin-top:14px">
+      <b>对比结论：</b>${esc(a.brand)} 在 <b>${aWin.slice(0,3).join("、")}</b> 方面领先；${esc(b.brand)} 在 <b>${bWin.slice(0,3).join("、")}</b> 方面更优。
+      ${posR(a)>posR(b)?`用户对 ${esc(a.brand)} 的态度更为正面，适合口碑运营。`: posR(b)>posR(a)?`用户对 ${esc(b.brand)} 的态度更为正面，适合口碑运营。`:""}
+      ${lpR(a,"l4")>lpR(b,"l4")?`${esc(a.brand)} 更能驱动深度表达，内容策略更有效。`:lpR(b,"l4")>lpR(a,"l4")?`${esc(b.brand)} 更能驱动深度表达，内容策略更有效。`:""}
+    </div>`;
+
+    return `<div class="board-head"><div class="board-desc">品牌互动用户深度对比</div></div>
+      <div class="bud-comp-top">
+        <button class="btn-ghost" data-bud-cmp-back>← 返回品牌详情</button>
+        <div class="bud-title">${esc(a.brand)} vs ${esc(b.brand)} · 多维度可视化对比</div>
+      </div>
+      <div class="bud-comp-grid">${statCard(a)}${statCard(b)}</div>
+      <div class="bud-mbar-grid" style="margin-top:16px">${barsHTML}</div>
+      ${conclusion}`;
+  }
+
   function bindBrandUser() {
     const board = $("#board");
     // 进入某品牌深度分析
@@ -1942,12 +2022,18 @@ ${topMatches || "（无强匹配）"}
     const back = $("[data-bud-back]", board);
     if (back) back.addEventListener("click", () => { state.brandUserSel = null; state.brandUserCmp = []; renderBoard(); });
     // 多选对比品牌
-    $$("[data-bud-cmp-chk]", board).forEach((cb) => cb.addEventListener("change", () => {
-      const v = cb.value;
-      if (cb.checked) { if (!state.brandUserCmp.includes(v)) state.brandUserCmp.push(v); }
-      else state.brandUserCmp = state.brandUserCmp.filter((x) => x !== v);
-      renderBoard();
-    }));
+      $$("[data-bud-cmp-chk]", board).forEach((cb) => cb.addEventListener("change", () => {
+        const v = cb.value;
+        if (cb.checked) { if (!state.brandUserCmp.includes(v)) state.brandUserCmp.push(v); }
+        else state.brandUserCmp = state.brandUserCmp.filter((x) => x !== v);
+        state.brandUserCompare = false; renderBoard();
+      }));
+      // 点击对比按钮
+      const cmpGo = $("[data-bud-cmp-go]", board);
+      if (cmpGo) cmpGo.addEventListener("click", () => { state.brandUserCompare = true; renderBoard(); });
+      // 对比模式返回
+      const cmpBack = $("[data-bud-cmp-back]", board);
+      if (cmpBack) cmpBack.addEventListener("click", () => { state.brandUserCompare = false; renderBoard(); });
     // Top 用户展开
     const rt = $("[data-bud-rank-toggle]", board);
     if (rt) rt.addEventListener("click", () => { state.brandUserRankAll = !state.brandUserRankAll; renderBoard(); });
