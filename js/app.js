@@ -99,7 +99,7 @@
     detailId: null, predictor: null,
     dim: "brand", dimBrands: new Set(), topicWeights: { viral: 35, eng: 25, rec: 20, cov: 20 },
     blindbox: null, bxSeed: null, refMode: "eval", backtests: [], maxExposure: 1,
-    users: null, uvTab: "language", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all", uvCorpusMarker: "all", uvLayerDrill: null, uvLayerCmp: false, uvDeep: false,
+    users: null, uvTab: "language", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all", uvCorpusMarker: "all", uvLayerDrill: null, uvLayerCmp: false, uvDeep: false, uvSegDeep: false,
     brandUserSel: null, brandUserCmp: [], brandUserCompare: false, brandUserRankAll: false,
     libMode: "sort", libQuick: "all",
     compSel: new Set(), cmpSel: new Set(),
@@ -2227,7 +2227,55 @@ ${topMatches || "（无强匹配）"}
     const U = state.users;
     const desc = boardDesc("userseg");
     if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
-    return `<div class="board-head"><div class="board-desc">${desc}</div></div>${uvRank(U)}`;
+    if (state.uvSegDeep) return renderUserSegDeep(U);
+    return `<div class="board-head"><div class="board-desc">${desc}</div></div>
+      <div style="margin-bottom:12px"><button class="btn-ghost uv-deep-btn" data-uv-seg-deep>📊 高互动用户综合深度分析 →</button></div>
+      ${uvRank(U)}`;
+  }
+  function renderUserSegDeep(U) {
+    const users = U.topUsers || [];
+    const tot = users.length;
+    if (!tot) return `<div class="uv-muted">暂无高互动用户数据</div>`;
+    // 品牌分布
+    const brandCnt = {}; users.forEach((u) => { const b = u.topBrand || "—"; brandCnt[b] = (brandCnt[b] || 0) + (u.replyCount || 0); });
+    const brandUsers = {}; users.forEach((u) => { const b = u.topBrand || "—"; if (!brandUsers[b]) brandUsers[b] = []; brandUsers[b].push(u); });
+    const brandData = Object.entries(brandCnt).sort((a, b) => b[1] - a[1]).slice(0, 10);
+    const brandBars = brandData.map(([b, n], i) => {
+      const uCnt = (brandUsers[b] || []).length;
+      return `<div class="qc-bar"><span class="qc-name" style="width:110px">${esc(b)}</span><span class="qc-track"><i style="width:${Math.round(n/Math.max(brandData[0][1],1)*100)}%;background:${PAL[i%PAL.length]}"></i></span><span class="qc-val">${fmt(n)}条<small>${uCnt}人</small></span></div>`;
+    }).join("");
+    // 总声量
+    const totalReplies = users.reduce((s, u) => s + (u.replyCount || 0), 0);
+    const totalLikes = users.reduce((s, u) => s + (u.totalLikes || 0), 0);
+    const avgWords = Math.round(users.reduce((s, u) => s + (u.avgWords || 0), 0) / Math.max(tot, 1));
+    // 意图分布
+    const intentAcc = {}; users.forEach((u) => { Object.entries(u.intents || {}).forEach(([k, v]) => { intentAcc[k] = (intentAcc[k] || 0) + v; }); });
+    const intentBars = uvBars(Object.entries(intentAcc).sort((a, b) => b[1] - a[1]).map(([k, v], i) => [INTENT_NAME[k]||k, v, INTENT_COL[k]||PAL[i%PAL.length]]));
+    // 情感分布
+    const sentAcc = { pos: 0, neu: 0, neg: 0 }; users.forEach((u) => { const s = u.sents || {}; sentAcc.pos += s.pos||0; sentAcc.neu += s.neu||0; sentAcc.neg += s.neg||0; });
+    const sentPairs = [["正面", sentAcc.pos, COL.pos], ["中性", sentAcc.neu, COL.neu], ["负面", sentAcc.neg, COL.neg]];
+    // 形式分布
+    const formAcc = {}; users.forEach((u) => { const f = u.topForm || "—"; formAcc[f] = (formAcc[f] || 0) + 1; });
+    const formBars = uvBars(Object.entries(formAcc).sort((a, b) => b[1] - a[1]).map(([k, v], i) => [k, v, PAL[(i+3)%PAL.length]]));
+    // 语录
+    const samples = users.slice(0, 8).flatMap((u) => (u.samples || []).slice(0, 1)).filter(Boolean).map((s) =>
+      `<div class="uv-layer-sample">${uvLangTag(s.lang||"")} ${uvSentTag(s.sent||"")} ${uvIntentTag(s.intent||"")} <span class="uv-sample-text">${esc(s.text||"")}</span></div>`
+    ).join("");
+    const insight = `${fmt(tot)} 位深度用户合计贡献 ${fmt(totalReplies)} 条回复、${fmt(totalLikes)} 点赞，平均每人 ${Math.round(totalReplies/tot)} 条回复、${avgWords} 词/条。主品牌 <b>${esc(brandData[0]?.[0]||"—")}</b> 占最大声量（${fmt(brandData[0]?.[1]||0)} 条），覆盖 ${brandData.length} 个品牌。意图以 <b>${Object.entries(intentAcc).sort((a,b)=>b[1]-a[1])[0]?.[0]?INTENT_NAME[Object.entries(intentAcc).sort((a,b)=>b[1]-a[1])[0][0]]||Object.entries(intentAcc).sort((a,b)=>b[1]-a[1])[0][0]:"—"}</b> 为主，整体正面情感率 ${sentAcc.pos+neu+neg>0?Math.round(sentAcc.pos/Math.max(sentAcc.pos+sentAcc.neu+sentAcc.neg,1)*100):0}%。`;
+    return `<div class="uv-drill">
+      <div class="uv-drill-head">
+        <button class="btn-ghost" data-uv-seg-back>← 返回排行</button>
+        <div class="uv-drill-title">📊 高互动用户综合深度分析</div>
+        <div class="uv-drill-count">汇总 Top ${fmt(tot)} 位深度用户 · 共 ${fmt(totalReplies)} 条回复</div>
+      </div>
+      <div class="uv-insight">${insight}</div>
+      <div class="dp-section"><div class="dp-sec-title">🏆 品牌声量分布（按贡献回复量）</div>${brandBars}</div>
+      <div class="bud-two"><div class="bud-panel"><div class="bud-panel-t">情感分布</div>${uvBars(sentPairs)}</div>
+        <div class="bud-panel"><div class="bud-panel-t">意图倾向</div>${intentBars}</div>
+      </div>
+      <div class="dp-section"><div class="dp-sec-title">🎨 内容形式偏好</div>${formBars}</div>
+      <div class="dp-section"><div class="dp-sec-title">💬 代表语录（Top 8 用户各 1 条）</div><div class="uv-layer-samples">${samples || "—"}</div></div>
+    </div>`;
   }
 
   // 单分层下钻：该层用户在说什么 / 哪些品牌·内容形式这类用户更多 / 反向总结
@@ -2319,6 +2367,9 @@ ${topMatches || "（无强匹配）"}
   function bindUserSeg() {
     const rt = $("[data-uv-rank-toggle]", $("#board"));
     if (rt) rt.addEventListener("click", () => { state.uvRankAll = !state.uvRankAll; renderBoard(); });
+    $$("[data-uv-seg-deep]", $("#board")).forEach((b) => b.addEventListener("click", () => { state.uvSegDeep = true; renderBoard(); }));
+    const back = $("[data-uv-seg-back]", $("#board"));
+    if (back) back.addEventListener("click", () => { state.uvSegDeep = false; renderBoard(); });
   }
 
   /* ---------- 用户分层分析（独立板块）：按字数+参与度分层 → 下钻 → 四层对比 ---------- */
@@ -2850,6 +2901,9 @@ ${sim || "（无同主题关联帖）"}
 3) 结合该账号的风格/形式分布，给我 2-3 个延展选题建议。`;
   }
   function openDeepAnalysis(id) {
+    // 如果盲盒弹层开着，先关掉
+    const bxM = $("#bx-modal"); const bxO = $("#bx-overlay");
+    if (bxM && bxM.classList.contains("show")) { bxM.classList.remove("show"); bxO.classList.remove("show"); }
     const c = state.analysis.contents.find((x) => x.id === id);
     if (!c) return;
     state.deepId = id; state.deepView = "main"; state.deepCompare = [];
