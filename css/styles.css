@@ -763,6 +763,32 @@ body::after {
 .uv-layer-det summary { cursor: pointer; color: var(--accent-strong); user-select: none; }
 .uv-layer-sample { font-size: 12.5px; line-height: 1.5; padding: 7px 0; border-top: 1px solid var(--glass-line); color: var(--text-2); }
 .uv-layer-sample .uv-sample-text { color: var(--text); }
+.uv-layer-foot { margin-top: 12px; }
+.uv-layer-enter { width: 100%; justify-content: center; font-size: 12.5px; }
+.uv-sample-form { display: inline-block; font-size: 10.5px; color: var(--accent-strong); background: rgba(0,240,255,.1); border: 1px solid rgba(0,240,255,.3); border-radius: 6px; padding: 0 6px; margin-left: 4px; }
+.uv-layer-samples { margin-top: 6px; max-height: 320px; overflow-y: auto; }
+
+/* —— 单分层下钻 —— */
+.uv-drill { animation: uvIn .22s ease; }
+.uv-drill-head { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; flex-wrap: wrap; }
+.uv-drill-title { font-size: 17px; font-weight: 720; color: var(--text); }
+.uv-drill-count { font-size: 12.5px; color: var(--text-3); font-family: var(--font-mono); }
+.uv-drill-desc { font-size: 12.5px; color: var(--text-3); line-height: 1.6; margin-bottom: 8px; background: var(--glass-bg-strong); border: 1px solid var(--glass-line); border-left: 3px solid var(--accent); border-radius: 8px; padding: 9px 12px; }
+.uv-two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.uv-two-col { min-width: 0; }
+.uv-sub { font-size: 12.5px; font-weight: 640; color: var(--text-2); margin-bottom: 4px; }
+.uv-insight { font-size: 13px; line-height: 1.7; color: var(--text); background: linear-gradient(135deg, rgba(0,240,255,.1), rgba(168,85,247,.1)); border: 1px solid var(--glass-line); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; }
+.uv-insight b { color: var(--accent-strong); }
+.uv-skew-block { margin-bottom: 4px; }
+.uv-skew-h { font-size: 11.5px; color: var(--text-3); font-weight: 640; margin: 2px 0; }
+.uv-skew-list { display: flex; flex-direction: column; gap: 6px; }
+.uv-skew-row { display: flex; align-items: center; gap: 9px; font-size: 12px; }
+.uv-skew-name { width: 110px; flex-shrink: 0; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.uv-skew-track { flex: 1; height: 8px; background: var(--glass-bg-strong); border-radius: 6px; overflow: hidden; border: 1px solid var(--glass-line); }
+.uv-skew-track i { display: block; height: 100%; border-radius: 6px; }
+.uv-skew-val { width: 86px; flex-shrink: 0; text-align: right; color: var(--text); font-family: var(--font-mono); font-size: 12px; }
+.uv-skew-val em { color: var(--text-3); font-style: normal; margin-left: 4px; font-size: 10.5px; }
+@media (max-width: 760px) { .uv-two { grid-template-columns: 1fr; } .uv-skew-name { width: 84px; } }
 
 .uv-user-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 14px; }
 .uv-user-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 0; box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.06); overflow: hidden; transition: border-color .2s; }
