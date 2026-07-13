@@ -53,7 +53,7 @@
     detailId: null, predictor: null,
     dim: "brand", dimBrands: new Set(), topicWeights: { viral: 35, eng: 25, rec: 20, cov: 20 },
     blindbox: null, refMode: "eval", backtests: [], maxExposure: 1,
-    users: null, uvTab: "framework", uvCorpusQ: "",
+    users: null, uvTab: "framework", uvCorpusQ: "", uvRankAll: false,
     libMode: "sort", libQuick: "all",
     compSel: new Set(), cmpSel: new Set(),
     opsBrands: [], opsRefs: new Set(["rhythm", "topic", "format", "style", "metric"]),
@@ -995,24 +995,62 @@ ${topMatches || "（无强匹配）"}
   }
 
   function uvRank(U) {
-    const users = U.topUsers.slice(0, 50);
+    const all = U.topUsers.length;
+    const shown = state.uvRankAll ? all : Math.min(50, all);
+    const users = U.topUsers.slice(0, shown);
     const rows = users.map((u, i) => {
       const brandChips = u.brands.slice(0, 5).map((b) => `<span class="uv-chip">${esc(b.b)}<em>×${b.n}</em></span>`).join("");
       const langChips = Object.entries(u.langs).map(([k, v]) => `<span class="uv-chip">${LANG_NAME[k] || k}<em>×${v}</em></span>`).join("");
       const formChips = u.forms.slice(0, 4).map((f) => `<span class="uv-chip">${esc(f.f)}<em>×${f.n}</em></span>`).join("");
       const s = u.sents || {};
       const sPairs = [["正面", s.pos || 0, COL.pos], ["中性", s.neu || 0, COL.neu], ["负面", s.neg || 0, COL.neg]];
+      const iPairs = Object.entries(u.intents || {}).map(([k, v]) => [INTENT_NAME[k] || k, v, INTENT_COL[k] || COL.slate]);
       const quotes = u.samples.slice(0, 2).map((q) => `<div class="uv-quote">${uvLangTag(q.lang)} ${uvSentTag(q.sent)} ${uvIntentTag(q.intent)} <span class="uv-q-text">${esc(q.text)}</span></div>`).join("");
-      return `<div class="uv-user-card">
-        <div class="uv-user-head"><span class="uv-rank">#${i + 1}</span><span class="uv-uname">@${esc(u.name)}</span><span class="uv-ucount">${u.replyCount} 次回复</span><span class="uv-uavg">${u.avgWords} 词/条</span></div>
-        <div class="uv-user-line"><b>品牌归属</b><span class="uv-chips">${brandChips || "—"}</span></div>
-        <div class="uv-user-line"><b>语言模式</b><span class="uv-chips">${langChips || "—"}</span></div>
-        <div class="uv-user-line"><b>参与形式</b><span class="uv-chips">${formChips || "—"}</span></div>
-        <div class="uv-user-line"><b>倾向</b><span class="uv-bars-inline">${uvBars(sPairs)}</span></div>
-        <div class="uv-user-quotes"><b>代表语录</b>${quotes}</div>
+      // 展开后的深度画像：全部语录（带赞数与原帖链接）+ 完整意图分布 + 活跃周期
+      const deepQuotes = (u.samples || []).map((q) => `<div class="uv-quote uv-dq">
+        <span class="uv-q-tags">${uvLangTag(q.lang)} ${uvSentTag(q.sent)} ${uvIntentTag(q.intent)}</span>
+        <span class="uv-q-text">${esc(q.text)}</span>
+        <span class="uv-q-meta">♥${fmt(q.likes || 0)} · ${esc(q.brand || "")} · ${esc(q.form || "")} · ${esc(q.date || "")}</span>
+        ${q.link ? `<a class="uv-link" href="${esc(q.link)}" target="_blank" rel="noreferrer">查看原帖 ↗</a>` : ""}
+      </div>`).join("");
+      const deep = `<div class="uv-user-deep">
+        <div class="uv-deep-grid">
+          <div class="uv-deep-cell"><b>活跃周期</b>${esc(u.first)} → ${esc(u.last)}</div>
+          <div class="uv-deep-cell"><b>总字数 / 平均</b>${fmt(u.totalWords)} / ${u.avgWords}</div>
+          <div class="uv-deep-cell"><b>主品牌</b>${esc(u.topBrand || "—")}</div>
+          <div class="uv-deep-cell"><b>语言模式</b>${langChips || "—"}</div>
+        </div>
+        <div class="uv-deep-row"><b>完整意图分布</b>${uvBars(iPairs)}</div>
+        <div class="uv-deep-row"><b>品牌归属</b><span class="uv-chips">${u.brands.map((b) => `<span class="uv-chip">${esc(b.b)}<em>×${b.n}</em></span>`).join("") || "—"}</span></div>
+        <div class="uv-deep-row"><b>参与形式</b><span class="uv-chips">${u.forms.map((f) => `<span class="uv-chip">${esc(f.f)}<em>×${f.n}</em></span>`).join("") || "—"}</span></div>
+        <div class="uv-deep-row"><b>全部代表语录（${u.samples.length}）</b><div class="uv-deep-quotes">${deepQuotes}</div></div>
       </div>`;
+      return `<details class="uv-user-card">
+        <summary class="uv-user-summary">
+          <span class="uv-rank">#${i + 1}</span>
+          <span class="uv-uname">@${esc(u.name)}</span>
+          <span class="uv-ucount">${u.replyCount} 次回复</span>
+          <span class="uv-uavg">${u.avgWords} 词/条</span>
+          <span class="uv-uchev">▾</span>
+        </summary>
+        <div class="uv-user-body">
+          <div class="uv-user-line"><b>品牌归属</b><span class="uv-chips">${brandChips || "—"}</span></div>
+          <div class="uv-user-line"><b>语言模式</b><span class="uv-chips">${langChips || "—"}</span></div>
+          <div class="uv-user-line"><b>参与形式</b><span class="uv-chips">${formChips || "—"}</span></div>
+          <div class="uv-user-line"><b>倾向</b><span class="uv-bars-inline">${uvBars(sPairs)}</span></div>
+          <div class="uv-user-quotes"><b>代表语录</b>${quotes}</div>
+          <div class="uv-deep-toggle-hint">点击卡片展开完整深度画像 ↓</div>
+          ${deep}
+        </div>
+      </details>`;
     }).join("");
-    return `<div class="uv-block"><div class="uv-block-title">高互动用户排行（窗口内回复数 Top 50 / 共分析 ${U.topUsers.length} 人）</div><div class="uv-user-grid">${rows}</div></div>`;
+    const toggleBtn = `<button class="uv-rank-toggle" data-uv-rank-toggle>${state.uvRankAll ? `收起（仅看 Top 50）` : `展开全部 ${all} 人 →`}</button>`;
+    const hint = state.uvRankAll ? "" : `<div class="uv-muted uv-rank-hint">已显示窗口内回复数最高的 50 人；点击「展开全部」查看共 ${all} 位高互动用户。每个卡片可点开看完整深度画像。</div>`;
+    return `<div class="uv-block">
+      <div class="uv-block-title">高互动用户排行（窗口内回复数 · 已显示 Top ${shown} / 共分析 ${all} 人） ${toggleBtn}</div>
+      ${hint}
+      <div class="uv-user-grid">${rows}</div>
+    </div>`;
   }
 
   function uvBrand(U) {
@@ -1417,6 +1455,8 @@ ${topMatches || "（无强匹配）"}
     $$(".uv-tab", $("#board")).forEach((b) => b.addEventListener("click", () => {
       state.uvTab = b.dataset.uv; renderBoard();
     }));
+    const rt = $("[data-uv-rank-toggle]", $("#board"));
+    if (rt) rt.addEventListener("click", () => { state.uvRankAll = !state.uvRankAll; renderBoard(); });
     const cs = $("#uv-corpus-search");
     if (cs) cs.addEventListener("input", (e) => {
       const q = e.target.value.trim().toLowerCase();
