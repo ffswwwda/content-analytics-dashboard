@@ -558,6 +558,24 @@ body::after {
 .bx-actions { margin-top: auto; display: flex; gap: 8px; padding-top: 12px; }
 .bx-actions .mini-btn { flex: 1; }
 
+/* —— 每日盲盒浮窗（可拖动 + 分享生图）—— */
+.bx-float { position: fixed; right: 24px; bottom: 24px; width: 340px; max-height: 82vh; z-index: 80; display: none; flex-direction: column; background: var(--glass-bg-light); border: 1px solid var(--glass-line-strong); border-radius: var(--radius); box-shadow: 0 24px 60px rgba(0,0,0,.5), var(--glow); backdrop-filter: blur(18px); overflow: hidden; }
+.bx-float.show { display: flex; }
+.bx-float-head { display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; cursor: move; background: linear-gradient(135deg, rgba(0,240,255,.16), rgba(168,85,247,.16)); border-bottom: 1px solid var(--glass-line); user-select: none; }
+.bx-float-title { font-size: 14px; font-weight: 700; color: var(--accent-strong); }
+.bx-float-tools { display: flex; gap: 6px; }
+.bx-float-tools .mini-btn { padding: 4px 10px; font-size: 11.5px; }
+.bx-float-body { padding: 14px; overflow-y: auto; }
+.bx-float-grid { display: flex; flex-direction: column; gap: 14px; }
+.bx-float .bx-card { min-height: 420px; }
+.bx-reopen { position: fixed; right: 24px; bottom: 24px; z-index: 80; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border: none; border-radius: 24px; padding: 12px 20px; font-size: 13.5px; font-weight: 700; cursor: pointer; box-shadow: var(--glow); }
+
+/* —— 正文语言切换（导航中文不动，仅切内容/回复正文）—— */
+.btn-lang { display: inline-flex; align-items: center; gap: 3px; background: var(--glass-bg-strong); border: 1px solid var(--glass-line-strong); border-radius: 20px; padding: 3px 10px; font-size: 12.5px; font-family: var(--font-mono); cursor: pointer; }
+.btn-lang .lang-opt { color: var(--text-3); padding: 2px 7px; border-radius: 14px; transition: all .15s; }
+.btn-lang .lang-opt.on { background: var(--accent); color: #04121a; font-weight: 700; box-shadow: var(--glow); }
+.btn-lang .lang-sep { color: var(--text-3); }
+
 /* ============ 参考建议中枢 ============ */
 .ref-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
 .ref-tab { background: var(--glass-bg-light); border: 1px solid var(--glass-line); color: var(--text-2); padding: 9px 16px; border-radius: 22px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .18s; }
