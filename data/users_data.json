@@ -9105,11 +9105,80 @@
     "question": 116,
     "complaint": 18
    },
+   "brands": [
+    {
+     "b": "Lovense",
+     "n": 1931
+    },
+    {
+     "b": "Tantaly",
+     "n": 726
+    },
+    {
+     "b": "Hismith",
+     "n": 494
+    },
+    {
+     "b": "Fleshlight",
+     "n": 360
+    },
+    {
+     "b": "Kiiroo",
+     "n": 78
+    },
+    {
+     "b": "LELO",
+     "n": 20
+    },
+    {
+     "b": "TENGA",
+     "n": 14
+    },
+    {
+     "b": "Aneros",
+     "n": 11
+    },
+    {
+     "b": "Motorbunny",
+     "n": 9
+    },
+    {
+     "b": "RosemaryDoll",
+     "n": 7
+    }
+   ],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 1766
+    },
+    {
+     "f": "视频",
+     "n": 1390
+    },
+    {
+     "f": "GIF",
+     "n": 234
+    },
+    {
+     "f": "纯文本",
+     "n": 158
+    },
+    {
+     "f": "引用转发",
+     "n": 88
+    },
+    {
+     "f": "投票",
+     "n": 22
+    }
+   ],
    "samples": [
     {
      "text": "@Aneros Interested  Dm check",
      "wc": 4,
      "brand": "Aneros",
+     "form": "图片",
      "lang": "en",
      "sent": "pos",
      "intent": "request",
@@ -9119,6 +9188,7 @@
      "text": "@Aneros I'm interested",
      "wc": 3,
      "brand": "Aneros",
+     "form": "图片",
      "lang": "en",
      "sent": "pos",
      "intent": "request",
@@ -9128,6 +9198,7 @@
      "text": "@Aneros I would love to",
      "wc": 5,
      "brand": "Aneros",
+     "form": "图片",
      "lang": "en",
      "sent": "pos",
      "intent": "praise",
@@ -9137,6 +9208,7 @@
      "text": "@Aneros Looks awesome",
      "wc": 3,
      "brand": "Aneros",
+     "form": "图片",
      "lang": "en",
      "sent": "pos",
      "intent": "praise",
@@ -9146,6 +9218,7 @@
      "text": "@Aneros I'm Interested",
      "wc": 3,
      "brand": "Aneros",
+     "form": "视频",
      "lang": "en",
      "sent": "pos",
      "intent": "request",
@@ -9155,10 +9228,31 @@
      "text": "@Aneros Dm Me",
      "wc": 3,
      "brand": "Aneros",
+     "form": "视频",
      "lang": "en",
      "sent": "neu",
      "intent": "request",
      "link": "https://x.com/i/status/1977251907728294348"
+    },
+    {
+     "text": "@Aneros @YouTube Interested",
+     "wc": 3,
+     "brand": "Aneros",
+     "form": "图片",
+     "lang": "en",
+     "sent": "pos",
+     "intent": "request",
+     "link": "https://x.com/i/status/1975758928924573978"
+    },
+    {
+     "text": "@Aneros @YouTube I'm interest",
+     "wc": 4,
+     "brand": "Aneros",
+     "form": "图片",
+     "lang": "en",
+     "sent": "pos",
+     "intent": "praise",
+     "link": "https://x.com/i/status/1965431334115180623"
     }
    ]
   },
@@ -9181,11 +9275,80 @@
     "banter": 145,
     "complaint": 64
    },
+   "brands": [
+    {
+     "b": "Lovense",
+     "n": 3006
+    },
+    {
+     "b": "Tantaly",
+     "n": 699
+    },
+    {
+     "b": "Fleshlight",
+     "n": 603
+    },
+    {
+     "b": "Hismith",
+     "n": 178
+    },
+    {
+     "b": "Kiiroo",
+     "n": 74
+    },
+    {
+     "b": "TENGA",
+     "n": 27
+    },
+    {
+     "b": "LELO",
+     "n": 26
+    },
+    {
+     "b": "RosemaryDoll",
+     "n": 18
+    },
+    {
+     "b": "Motorbunny",
+     "n": 8
+    },
+    {
+     "b": "RealDoll",
+     "n": 6
+    }
+   ],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 2622
+    },
+    {
+     "f": "视频",
+     "n": 1310
+    },
+    {
+     "f": "GIF",
+     "n": 472
+    },
+    {
+     "f": "纯文本",
+     "n": 153
+    },
+    {
+     "f": "引用转发",
+     "n": 54
+    },
+    {
+     "f": "投票",
+     "n": 41
+    }
+   ],
    "samples": [
     {
      "text": "@Aneros @YouTube I’d like to experience it.",
      "wc": 8,
      "brand": "Aneros",
+     "form": "图片",
      "lang": "en",
      "sent": "pos",
      "intent": "praise",
@@ -9195,6 +9358,7 @@
      "text": "@Fleshlight @Alexis_Texas https://t.co/Oka1CpPERo",
      "wc": 8,
      "brand": "Fleshlight",
+     "form": "视频",
      "lang": "en",
      "sent": "neu",
      "intent": "other",
@@ -9204,6 +9368,7 @@
      "text": "@Fleshlight @Alexis_Texas Even at 41 she still got a fantastic 🍑👅😍🔥😈🍆💦 x",
      "wc": 11,
      "brand": "Fleshlight",
+     "form": "视频",
      "lang": "en",
      "sent": "pos",
      "intent": "praise",
@@ -9213,6 +9378,7 @@
      "text": "@Fleshlight @Alexis_Texas Looking beautiful and gorgeous babe",
      "wc": 8,
      "brand": "Fleshlight",
+     "form": "视频",
      "lang": "en",
      "sent": "pos",
      "intent": "praise",
@@ -9222,6 +9388,7 @@
      "text": "@Fleshlight @Alexis_Texas when are you going to make @HaileyRoseFucks an fleshlight girl. it is long overdue",
      "wc": 17,
      "brand": "Fleshlight",
+     "form": "视频",
      "lang": "en",
      "sent": "neu",
      "intent": "other",
@@ -9231,10 +9398,31 @@
      "text": "@Fleshlight @Alexis_Texas @Alexis_Texas fucking best ass ever 🤤",
      "wc": 9,
      "brand": "Fleshlight",
+     "form": "视频",
      "lang": "en",
      "sent": "pos",
      "intent": "praise",
      "link": "https://x.com/i/status/2067341145491869822"
+    },
+    {
+     "text": "@Fleshlight @Alexis_Texas Magnificent axx she calling me to fxxx it",
+     "wc": 11,
+     "brand": "Fleshlight",
+     "form": "视频",
+     "lang": "en",
+     "sent": "neu",
+     "intent": "other",
+     "link": "https://x.com/i/status/2070077550634696989"
+    },
+    {
+     "text": "@Fleshlight @Alexis_Texas @H0llywoodCash  round2",
+     "wc": 6,
+     "brand": "Fleshlight",
+     "form": "视频",
+     "lang": "en",
+     "sent": "neu",
+     "intent": "other",
+     "link": "https://x.com/i/status/2065733903222997208"
     }
    ]
   },
@@ -9257,11 +9445,80 @@
     "other": 23,
     "banter": 12
    },
+   "brands": [
+    {
+     "b": "Lovense",
+     "n": 1000
+    },
+    {
+     "b": "Fleshlight",
+     "n": 75
+    },
+    {
+     "b": "Tantaly",
+     "n": 59
+    },
+    {
+     "b": "Hismith",
+     "n": 34
+    },
+    {
+     "b": "Kiiroo",
+     "n": 22
+    },
+    {
+     "b": "LELO",
+     "n": 12
+    },
+    {
+     "b": "RealDoll",
+     "n": 3
+    },
+    {
+     "b": "TENGA",
+     "n": 2
+    },
+    {
+     "b": "Aneros",
+     "n": 1
+    },
+    {
+     "b": "RosemaryDoll",
+     "n": 1
+    }
+   ],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 859
+    },
+    {
+     "f": "视频",
+     "n": 167
+    },
+    {
+     "f": "GIF",
+     "n": 138
+    },
+    {
+     "f": "纯文本",
+     "n": 26
+    },
+    {
+     "f": "引用转发",
+     "n": 14
+    },
+    {
+     "f": "投票",
+     "n": 5
+    }
+   ],
    "samples": [
     {
      "text": "@Aneros I have an offer for you that you might like for publicity and promotion do you mind following me so I can send you a message?",
      "wc": 27,
      "brand": "Aneros",
+     "form": "视频",
      "lang": "en",
      "sent": "pos",
      "intent": "question",
@@ -9271,6 +9528,7 @@
      "text": "@Fleshlight So where's the rest of the models and the pictures? This roll out has been pretty disappointing because of how unprepared you all were after all the hype.",
      "wc": 29,
      "brand": "Fleshlight",
+     "form": "图片",
      "lang": "en",
      "sent": "neg",
      "intent": "complaint",
@@ -9280,6 +9538,7 @@
      "text": "@Fleshlight I would love to see some more real mainstream Chinese or especially Japanese porn stars as fleshlight models for future purchases. I hope this information gives your hiring staff some food for thought.",
      "wc": 34,
      "brand": "Fleshlight",
+     "form": "图片",
      "lang": "en",
      "sent": "pos",
      "intent": "request",
@@ -9289,6 +9548,7 @@
      "text": "@Fleshlight All names are decent...but if there's someone you truly want. \"Intimacy\" is what I believe it's called. Plus it helps bring attention to your favorite content creators.",
      "wc": 29,
      "brand": "Fleshlight",
+     "form": "图片",
      "lang": "en",
      "sent": "neu",
      "intent": "request",
@@ -9298,6 +9558,7 @@
      "text": "@Fleshlight @Alexis_Texas @Fleshlight  I’m sorry to bother you here, but I really need assistance with my registration. Could you please check our private messages when you have a moment? I would be very grateful for your help. Thank you.",
      "wc": 41,
      "brand": "Fleshlight",
+     "form": "图片",
      "lang": "en",
      "sent": "pos",
      "intent": "question",
@@ -9307,10 +9568,31 @@
      "text": "@Fleshlight @Alexis_Texas @worldofmann hope you can get @Alexis_Texas and work for a scene you two both are perfect duo to collab",
      "wc": 23,
      "brand": "Fleshlight",
+     "form": "图片",
      "lang": "en",
      "sent": "pos",
      "intent": "request",
      "link": "https://x.com/i/status/2055446979384385666"
+    },
+    {
+     "text": "@Fleshlight @Alexis_Texas You'll never see a woman more beautiful than miss @Alexis_Texas like EVER, she's a definition of true Texan Beauty 😍 nobody comes close",
+     "wc": 26,
+     "brand": "Fleshlight",
+     "form": "图片",
+     "lang": "en",
+     "sent": "pos",
+     "intent": "praise",
+     "link": "https://x.com/i/status/2055336769692770596"
+    },
+    {
+     "text": "@Fleshlight @BonnieBlue_xoxo Why did the timer on the site show that the show was scheduled for today at 3PM CST? #IWASTHEREWAITING  🤷‍♂️",
+     "wc": 22,
+     "brand": "Fleshlight",
+     "form": "图片",
+     "lang": "en",
+     "sent": "neu",
+     "intent": "question",
+     "link": "https://x.com/i/status/2057200341545017498"
     }
    ]
   },
@@ -9332,11 +9614,60 @@
     "question": 4,
     "banter": 2
    },
+   "brands": [
+    {
+     "b": "Lovense",
+     "n": 88
+    },
+    {
+     "b": "Fleshlight",
+     "n": 4
+    },
+    {
+     "b": "Tantaly",
+     "n": 3
+    },
+    {
+     "b": "Kiiroo",
+     "n": 2
+    },
+    {
+     "b": "Motorbunny",
+     "n": 1
+    }
+   ],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 69
+    },
+    {
+     "f": "GIF",
+     "n": 14
+    },
+    {
+     "f": "视频",
+     "n": 8
+    },
+    {
+     "f": "纯文本",
+     "n": 3
+    },
+    {
+     "f": "引用转发",
+     "n": 2
+    },
+    {
+     "f": "投票",
+     "n": 2
+    }
+   ],
    "samples": [
     {
      "text": "@Fleshlight @Alexis_Texas I've lived in Okinawa, Japan. I've been to South Korea. I've been to the Philippine Islands and I've lived in eight different states here in the US and I can say with absolute confidence that Alexis Texas is one of",
      "wc": 52,
      "brand": "Fleshlight",
+     "form": "图片",
      "lang": "en",
      "sent": "pos",
      "intent": "praise",
@@ -9346,6 +9677,7 @@
      "text": "@Fleshlight @BonnieBlue_xoxo “May your future life be filled with love, peace, and endless happiness❤️ May all your dreams come true, and may you succeed in every path of life. Always keep smiling, because your smile is truly beautiful🌸 Eve",
      "wc": 52,
      "brand": "Fleshlight",
+     "form": "图片",
      "lang": "en",
      "sent": "pos",
      "intent": "praise",
@@ -9355,6 +9687,7 @@
      "text": "@Fleshlight you only pretend to be a nice person but it's just a facade, in reality  you're cruel. Autumn Falls, you were in a relationship with Markus Dupree for 5 years and 3 months ago you broke up with him and now you're  partying with ",
      "wc": 51,
      "brand": "Fleshlight",
+     "form": "引用转发",
      "lang": "en",
      "sent": "neg",
      "intent": "complaint",
@@ -9364,6 +9697,7 @@
      "text": "@Kiiroo Why I'm NOT buying Keon 2:\n\n1) It appears that I can't use it with the hands-free Pillow accessory that I already own for the OG Keon.\n\n2) Price point.  If I need a desk-clamp anyway for hands-free use, I'm getting an SR6 for around",
      "wc": 52,
      "brand": "Kiiroo",
+     "form": "图片",
      "lang": "en",
      "sent": "neu",
      "intent": "request",
@@ -9373,6 +9707,7 @@
      "text": "@Lovense Pony’ by Ginuwine instantly gets me in the mood that beat drops and my hips start grinding like I’m already riding 😈🍑 By the time the song’s over I’m soaked and breathless. A Lovense toy would turn my me-time into a dripping wet ro",
      "wc": 55,
      "brand": "Lovense",
+     "form": "GIF",
      "lang": "en",
      "sent": "pos",
      "intent": "request",
@@ -9382,12 +9717,179 @@
      "text": "@Lovense At an outdoor concert,right up against the stage, with the crowd jumping all around me.Nobody would know the sound system was blasting just as my favorite artist played their hottest song..and I was trying not to moan during the ch",
      "wc": 53,
      "brand": "Lovense",
+     "form": "图片",
      "lang": "de",
      "sent": "pos",
      "intent": "praise",
      "link": "https://x.com/i/status/2048921871228268798"
+    },
+    {
+     "text": "@Lovense my mood setting is putting my hand down my pants n slightly moaning then looking over at him pull my hand out n snap my fingers n point to my pussy he knows to drop to them knees quick or I simply say u want me to suck ur cock lol ",
+     "wc": 60,
+     "brand": "Lovense",
+     "form": "GIF",
+     "lang": "en",
+     "sent": "pos",
+     "intent": "request",
+     "link": "https://x.com/i/status/2064696022694011250"
+    },
+    {
+     "text": "@Lovense Wash your toy w/ warm water, using a toy cleaner solution. Allow to air dry or pat dry with a soft cotton lint free towel, never dry w/ paper towels/napkins. After the toy is dry, apply unbleached corn starch to restore smoothness,",
+     "wc": 53,
+     "brand": "Lovense",
+     "form": "图片",
+     "lang": "en",
+     "sent": "pos",
+     "intent": "praise",
+     "link": "https://x.com/i/status/2065931763843510289"
     }
    ]
+  }
+ },
+ "layerMatrix": {
+  "byBrand": {
+   "Aneros": {
+    "l1": 11,
+    "l2": 1,
+    "l3": 1,
+    "l4": 0,
+    "total": 13
+   },
+   "Fleshlight": {
+    "l1": 360,
+    "l2": 603,
+    "l3": 75,
+    "l4": 4,
+    "total": 1042
+   },
+   "Hismith": {
+    "l1": 494,
+    "l2": 178,
+    "l3": 34,
+    "l4": 0,
+    "total": 706
+   },
+   "Kiiroo": {
+    "l1": 78,
+    "l2": 74,
+    "l3": 22,
+    "l4": 2,
+    "total": 176
+   },
+   "LELO": {
+    "l1": 20,
+    "l2": 26,
+    "l3": 12,
+    "l4": 0,
+    "total": 58
+   },
+   "Lovehoney": {
+    "l1": 2,
+    "l2": 0,
+    "l3": 0,
+    "l4": 0,
+    "total": 2
+   },
+   "Lovense": {
+    "l1": 1931,
+    "l2": 3006,
+    "l3": 1000,
+    "l4": 88,
+    "total": 6025
+   },
+   "Motorbunny": {
+    "l1": 9,
+    "l2": 8,
+    "l3": 0,
+    "l4": 1,
+    "total": 18
+   },
+   "RealDoll": {
+    "l1": 5,
+    "l2": 6,
+    "l3": 3,
+    "l4": 0,
+    "total": 14
+   },
+   "RosemaryDoll": {
+    "l1": 7,
+    "l2": 18,
+    "l3": 1,
+    "l4": 0,
+    "total": 26
+   },
+   "TENGA": {
+    "l1": 14,
+    "l2": 27,
+    "l3": 2,
+    "l4": 0,
+    "total": 43
+   },
+   "Tantaly": {
+    "l1": 726,
+    "l2": 699,
+    "l3": 59,
+    "l4": 3,
+    "total": 1487
+   },
+   "The Handy": {
+    "l1": 0,
+    "l2": 6,
+    "l3": 0,
+    "l4": 0,
+    "total": 6
+   },
+   "Tracy's Dog": {
+    "l1": 1,
+    "l2": 0,
+    "l3": 0,
+    "l4": 0,
+    "total": 1
+   }
+  },
+  "byForm": {
+   "图片": {
+    "l1": 1766,
+    "l2": 2622,
+    "l3": 859,
+    "l4": 69,
+    "total": 5316
+   },
+   "视频": {
+    "l1": 1390,
+    "l2": 1310,
+    "l3": 167,
+    "l4": 8,
+    "total": 2875
+   },
+   "引用转发": {
+    "l1": 88,
+    "l2": 54,
+    "l3": 14,
+    "l4": 2,
+    "total": 158
+   },
+   "GIF": {
+    "l1": 234,
+    "l2": 472,
+    "l3": 138,
+    "l4": 14,
+    "total": 858
+   },
+   "纯文本": {
+    "l1": 158,
+    "l2": 153,
+    "l3": 26,
+    "l4": 3,
+    "total": 340
+   },
+   "投票": {
+    "l1": 22,
+    "l2": 41,
+    "l3": 5,
+    "l4": 2,
+    "total": 70
+   }
   }
  },
  "brandEval": [
