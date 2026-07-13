@@ -28,5 +28,16 @@ const DataLoader = (function () {
     }
   }
 
-  return { load, loadInsights };
+  async function loadUsers() {
+    try {
+      const res = await fetch("data/users_data.json?t=" + Date.now());
+      if (res.ok) return await res.json();
+      throw new Error("users_data.json not found");
+    } catch (e) {
+      console.warn("未找到用户分析数据", e);
+      return null;
+    }
+  }
+
+  return { load, loadInsights, loadUsers };
 })();
