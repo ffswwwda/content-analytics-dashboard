@@ -2078,6 +2078,7 @@ ${sim || "（无同主题关联帖）"}
         <div class="dp-cmp-metric"><div class="cm-k">互动率</div><div class="cm-v">${p.engagementRate.toFixed(2)}%</div></div>
         <div class="dp-cmp-metric"><div class="cm-k">发布</div><div class="cm-v" style="font-size:12px">${p.publishDate}</div></div>
       </div>
+      <div class="dp-cmp-actions"><button class="btn-primary dp-cmp-deep" data-deep-id="${p.id}">深度分析 →</button></div>
     </div>`).join("");
     return `<div class="dp-back-row"><button class="btn-ghost" id="dcb-back">← 返回深度分析</button></div>
       <div class="dp-sec-title">多帖同看 · 并排对比（${posts.length} 条）<span class="dp-sec-note">横向看形式 / 主题 / 表现的异同</span></div>
@@ -2108,6 +2109,14 @@ ${sim || "（无同主题关联帖）"}
     const dcbGo = $("#dcb-go"); if (dcbGo) dcbGo.addEventListener("click", () => { if (!state.deepCompare.length) { toast("先勾选至少 1 条关联帖"); return; } state.deepView = "compare"; renderDeepBody(); });
     const dcbClear = $("#dcb-clear"); if (dcbClear) dcbClear.addEventListener("click", () => { state.deepCompare = []; renderDeepBody(); });
     const back = $("#dcb-back"); if (back) back.addEventListener("click", () => { state.deepView = "main"; renderDeepBody(); });
+    // 多贴同看 → 进入某帖的独立深度分析
+    $$(".dp-cmp-deep", $("#deep-body")).forEach((b) => b.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const id = b.dataset.deepId;
+      if (!id || !state.analysis.contents.find((x) => x.id === id)) return;
+      state.deepId = id; state.deepView = "main"; state.deepCompare = [];
+      renderDeepBody();
+    }));
   }
 
   /* ============ 事件绑定 ============ */
