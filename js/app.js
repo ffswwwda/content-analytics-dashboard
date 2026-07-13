@@ -71,15 +71,14 @@
     // —— 灵感工具 ——
     { id: "library", name: "灵感库", group: "灵感工具", desc: "全部内容的灵感库。可随机浏览，也可按爆款率 / 曝光 / 互动 / 类型 ROI 多指标排序与筛选；一键只看爆款(Top10%)。点标签加筛选，点卡片看详情，再进单帖深度分析。" },
     // —— 看参考建议 ——
-    { id: "reference", name: "评估想法", group: "看参考建议", desc: "一个工具两个方向：有想法→评估质量（多维评分卡 + 用户风评）；没灵感→输入目的主动推荐参考内容。还有回测校准准确率。" },
+    { id: "reference", name: "评估想法 / 找参考", group: "看参考建议", desc: "两个方向：①评估想法——输入你的内容想法，输出多维度评估结果；②找参考——没想法有目的时，输入你的目的，推荐匹配你目的的灵感内容。还有回测校准准确率。" },
     // —— 看竞品情况 ——
     { id: "competitor", name: "竞品内容监测", group: "看竞品情况", desc: "选择单竞品 → 深度查看（整体数据 + 内容排序列表 + 形式/数据筛选 + 用户评价 + 运营节奏×表现 + Campaign 爆发监测）；也可看全部竞品排名。" },
     { id: "compare", name: "多竞品横向对比", group: "看竞品情况", desc: "勾选多个品牌横向对比：数据表现 + Top3 内容 + 用户情况，全面看标杆与差距。" },
     // —— 了解用户 ——
-    { id: "uservoice", name: "用户讨论与语言", group: "了解用户", desc: "看用户讨论什么、用什么语言——学习美国用户的表达与话题讨论方式（用户语料 skill 后续接入）。" },
-    { id: "format", name: "内容形式与风格", group: "了解用户", desc: "内容形式（含风格 / 情绪调性）表现对比——用户偏爱什么形式与调性。" },
-    { id: "topic", name: "主题洞察", group: "了解用户", desc: "主题维度下钻：爆款率 / 参与度 / 时效 / 内容量，按权重合成综合爆款潜力分（滑块可调）。" },
-    { id: "platform", name: "平台特点", group: "了解用户", desc: "同一内容在不同平台的特点与表现差异。" },
+    { id: "uservoice", name: "用户讨论与语言", group: "了解用户", desc: "基于用户语料的深度分析：情绪倾向、语言风格、词频、美式本土化表达、分内容形式——学习美国用户的表达与话题讨论方式。" },
+    { id: "branduser", name: "品牌-用户讨论", group: "了解用户", desc: "分品牌查看用户对该品牌的讨论：情感极性、内容形式、用户倾向、高频词与主题、代表语录——全面看每个品牌的用户声音。" },
+    { id: "userseg", name: "用户分层", group: "了解用户", desc: "按回复字数（投入度）将用户分层，不同层级对应不同运营动作：浏览型→引导、参与型→互动、深度型→培养为KOC。" },
     // —— 我方运营 ——
     { id: "myops", name: "我方运营", group: "我方运营", desc: "选一个或多个竞品 → 勾选要参考的维度（节奏 / 选题 / 形式 / 风格 / 指标）→ 生成可执行的运营方案，支持导出。" },
   ];
@@ -260,9 +259,8 @@
       case "competitor": html = renderCompetitorLib(); break;
       case "compare": html = renderCompareBoard(); break;
       case "uservoice": html = renderUserBoard(); break;
-      case "format": html = renderDimFormat(); break;
-      case "topic": html = renderDimTopic(); break;
-      case "platform": html = renderDimPlatform(); break;
+      case "branduser": html = renderBrandUser(); break;
+      case "userseg": html = renderUserSeg(); break;
       case "myops": html = renderMyOps(); break;
     }
     if (!["myops", "reference", "insights"].includes(state.board)) html += renderSectionInsight(state.board);
@@ -510,7 +508,7 @@
 
   function renderPredictor() {
     return `<div class="predictor-wrap">
-      <div class="board-head"><div class="board-desc">${BOARDS.find((b) => b.id === "reference").desc}</div></div>
+      <div class="board-head"><div class="board-desc"><b>① 评估想法</b> · 输入你的内容想法，输出多维度评估结果</div></div>
       <div class="example-chips">
         <span class="ec-label">内置示例（点击载入）：</span>
         ${EXAMPLE_IDEAS.map((e) => `<button class="chip ec-chip" data-example="${esc(e.text)}">${esc(e.label)}</button>`).join("")}
@@ -915,7 +913,7 @@ ${topMatches || "（无强匹配）"}
     const dims = [["type", "形式"], ["topic", "主题"], ["emotion", "情绪"], ["platform", "平台"], ["keyword", "关键词"], ["perf", "表现"]];
     const dimHTML = dims.map(([k, l]) => `<label class="dim-toggle on" data-dim="${k}"><input type="checkbox" checked> ${l}</label>`).join("");
     return `<div class="predictor-wrap">
-      <div class="board-desc" style="margin-bottom:12px">输入你的<strong>运营目的</strong>，或选常用目的 / 真实帖子主题，工具按<strong>多维度</strong>主动推荐最匹配的历史内容，并展示<strong>原贴 + 整体说明</strong>——区别于灵感库的被动浏览。</div>
+      <div class="board-desc" style="margin-bottom:12px"><b>② 找参考</b> · 没想法有目的找参考：输入你的目的，推荐匹配你目的的灵感内容。可多选常用目的 / 真实帖子主题，并在下方输入目的详述做多维度匹配；结果展示<strong>原贴 + 整体说明</strong>。</div>
       <div class="find-block">
         <div class="find-label">常用目的（沿用现有分类，括号为真实匹配数）</div>
         <div class="example-chips" id="find-presets">${presets}</div>
@@ -1228,16 +1226,14 @@ ${topMatches || "（无强匹配）"}
     const U = state.users;
     const desc = BOARDS.find((b) => b.id === "uservoice").desc;
     if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
-    const tabs = [["say", "用户在说什么"], ["language", "用户语料库分析"], ["layers", "用户分层"], ["rank", "高互动用户"], ["brand", "分品牌评价"], ["form", "分内容形式"]];
+    const tabs = [["say", "用户在说什么"], ["language", "用户语料库分析"], ["rank", "高互动用户"], ["form", "分内容形式"]];
     const tabBar = `<div class="uv-tabs">${tabs.map(([id, name]) => `<button class="uv-tab${state.uvTab === id ? " on" : ""}" data-uv="${id}">${name}</button>`).join("")}</div>`;
     const m = U.meta;
     const meta = `<div class="uv-meta">真实用户回帖 <b>${fmt(m.genuine_replies_in_window)}</b> · 独立用户 <b>${fmt(m.genuine_users)}</b> · 多帖用户 <b>${fmt(m.multi_reply_users)}</b> · 窗口 ${m.window[0]} ~ ${m.window[1]}<span class="uv-meta-sub">（已过滤品牌官方回复 ${fmt(m.brand_reply_filtered)} 条）</span></div>`;
     let body = "";
     if (state.uvTab === "say") body = uvSay(U);
     else if (state.uvTab === "language") body = uvLanguage(U);
-    else if (state.uvTab === "layers") body = uvLayers(U);
     else if (state.uvTab === "rank") body = uvRank(U);
-    else if (state.uvTab === "brand") body = uvBrand(U);
     else body = uvForm(U);
     return `<div class="board-head"><div class="board-desc">${desc}</div></div>${meta}${tabBar}${body}`;
   }
@@ -1484,31 +1480,50 @@ ${topMatches || "（无强匹配）"}
     return `<div class="uv-block"><div class="uv-block-title">分内容形式（用户参与了什么形式、怎么聊它）</div><div class="uv-form-grid">${cards}</div></div>`;
   }
 
+  /* ---------- 品牌-用户讨论（独立板块） ---------- */
+  function renderBrandUser() {
+    const U = state.users;
+    const desc = boardDesc("branduser");
+    if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
+    const cards = U.brandEval.map((b) => {
+      const sPairs = [["正面", b.sentiment.pos || 0, COL.pos], ["中性", b.sentiment.neu || 0, COL.neu], ["负面", b.sentiment.neg || 0, COL.neg]];
+      const kw = (b.keywords || []).slice(0, 14).map((k) => `<span class="uv-tag">${esc(k.w)}<em>×${k.n}</em></span>`).join("");
+      const tp = (b.topics || []).slice(0, 5).map((t) => `<span class="uv-chip">${esc(t.t)}<em>×${t.n}</em></span>`).join("");
+      const forms = (b.forms || []).slice(0, 5).map((f) => `<span class="uv-chip">${esc(f.f)}<em>×${f.n}</em></span>`).join("");
+      const intents = Object.entries(b.intents || {}).slice(0, 5).map(([k, v]) => `<span class="uv-chip uv-chip-intent">${INTENT_NAME[k] || k}<em>×${v}</em></span>`).join("");
+      const tu = (b.topUsers || []).slice(0, 4).map((t) => `<span class="uv-chip">${esc(t.u)}<em>×${t.n}</em></span>`).join("");
+      const q = (b.quotes || []).slice(0, 3).map((qq) => `<div class="uv-quote">${uvLangTag(qq.lang)} ${uvSentTag(qq.sent)} <span class="uv-q-text">${esc(dispVoice(qq))}</span> <a class="uv-link" href="${esc(qq.link || "#")}" target="_blank" rel="noreferrer">↗</a></div>`).join("");
+      return `<div class="uv-brand-card">
+        <div class="uv-brand-head"><span class="uv-brand-name">${esc(b.brand)}</span><span class="uv-brand-count">${fmt(b.replyCount)} 条用户声音</span></div>
+        ${uvBars(sPairs)}
+        <div class="uv-row"><b>高频词</b><div class="uv-tags">${kw}</div></div>
+        <div class="uv-row"><b>主题</b><div class="uv-tags">${tp}</div></div>
+        <div class="uv-row"><b>内容形式</b><div class="uv-tags">${forms || "—"}</div></div>
+        <div class="uv-row"><b>用户倾向</b><div class="uv-tags">${intents || "—"}</div></div>
+        <div class="uv-row"><b>高互动用户</b><div class="uv-tags">${tu}</div></div>
+        <div class="uv-row"><b>代表语录</b><div class="uv-quotes">${q}</div></div>
+      </div>`;
+    }).join("");
+    return `<div class="board-head"><div class="board-desc">${desc}</div></div>
+      <div class="uv-block"><div class="uv-block-title">分品牌用户讨论（用户对各个品牌的整体声音：情感 / 内容形式 / 倾向 / 高频词 / 主题 / 代表语录）</div><div class="uv-brand-grid">${cards}</div></div>`;
+  }
+  function bindBrandUser() { /* 品牌卡片为静态渲染，链接与标签订阅由 bindBoard 统一处理 */ }
+
+  /* ---------- 用户分层（独立板块） ---------- */
+  function renderUserSeg() {
+    const U = state.users;
+    const desc = boardDesc("userseg");
+    if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
+    return `<div class="board-head"><div class="board-desc">${desc}</div></div>${uvLayers(U)}`;
+  }
+  function bindUserSeg() { /* 分层卡片为静态渲染，样例展开由 <details> 原生处理 */ }
+
   /* ---------- 空态 ---------- */
   function emptyState(msg = "没有符合当前筛选的内容") {
     return `<div class="empty"><div class="em-ic">🔍</div><div class="em-t">${esc(msg)}<br>试试放宽顶部筛选条件</div></div>`;
   }
 
-  /* ============ 维度分析（品牌/平台/用户/内容形式/主题）============ */
-  const DIM_TABS = [
-    { id: "brand", name: "品牌" },
-    { id: "platform", name: "平台" },
-    { id: "user", name: "用户" },
-    { id: "format", name: "内容形式" },
-    { id: "topic", name: "主题" },
-  ];
-
-  function renderDimensions() {
-    const tabs = `<div class="dim-tabs">${DIM_TABS.map((t) => `<button class="dim-tab${state.dim === t.id ? " on" : ""}" data-dim="${t.id}">${t.name}</button>`).join("")}</div>`;
-    let body = "";
-    if (state.dim === "brand") body = renderDimBrand();
-    else if (state.dim === "platform") body = renderDimPlatform();
-    else if (state.dim === "user") body = renderDimUser();
-    else if (state.dim === "format") body = renderDimFormat();
-    else if (state.dim === "topic") body = renderDimTopic();
-    return `<div class="board-head"><div class="board-desc">按维度下钻分析：先选维度，再看该维度下的爆款率 / 参与度 / 数据 / 关键词。所有结果均受顶部全局筛选约束（账号·平台·形式·主题·风格·爆款率·时间）。</div></div>${tabs}${body}`;
-  }
-
+  /* ============ 维度分析工具（仍被我方运营等复用）============ */
   function aggregateByField(data, field) {
     const map = new Map();
     data.forEach((c) => {
@@ -1531,17 +1546,6 @@ ${topMatches || "（无强匹配）"}
   function barHTML(label, val) {
     const w = Math.max(0, Math.min(100, val));
     return `<div class="qc-bar"><span class="qc-name">${label}</span><span class="qc-track"><i style="width:${w}%"></i></span><span class="qc-val">${Math.round(val)}</span></div>`;
-  }
-  function fmtDimCard(d, facetKey, facetLabel) {
-    return `<div class="dim-card" data-dfacet="${facetKey}" data-dval="${esc(d.name)}">
-      <div class="dc-top"><span class="dc-name">${esc(d.name)}</span><span class="dc-tag">${facetLabel}</span></div>
-      <div class="dc-metrics">
-        <div class="dc-m"><span>内容</span><b>${d.count}</b></div>
-        <div class="dc-m"><span>平均爆款率</span><b style="color:var(--hot)">${d.avgRate}</b></div>
-        <div class="dc-m"><span>爆款数</span><b>${d.topCount}</b></div>
-        <div class="dc-m"><span>总曝光</span><b>${fmt(d.totalExposure)}</b></div>
-      </div>
-    </div>`;
   }
 
   /* ============ 看竞品：竞品内容库（整合）+ 多品牌对比 ============ */
@@ -1758,117 +1762,6 @@ ${topMatches || "（无强匹配）"}
         renderBoard();
       }));
     }
-  }
-
-  /* 平台维度 */
-  function renderDimPlatform() {
-    const data = getFiltered();
-    const rows = aggregateByField(data, "platform");
-    return `<div class="dim-note">同一维度下看各平台内容特点。点击卡片把全局筛选切到该平台。</div>
-      <div class="dim-grid">${rows.map((p) => `<div class="dim-card" data-dfacet="platforms" data-dval="${esc(p.name)}">
-        <div class="dc-top"><span class="dc-name">${esc(p.name)}</span></div>
-        <div class="dc-metrics">
-          <div class="dc-m"><span>内容</span><b>${p.count}</b></div>
-          <div class="dc-m"><span>平均爆款率</span><b style="color:var(--hot)">${p.avgRate}</b></div>
-          <div class="dc-m"><span>爆款数</span><b>${p.topCount}</b></div>
-          <div class="dc-m"><span>总曝光</span><b>${fmt(p.totalExposure)}</b></div>
-        </div>
-        <div class="dc-platforms">${p.accounts.map((a) => `<span class="tag">${esc(a)}</span>`).join("")}</div>
-      </div>`).join("")}</div>`;
-  }
-
-  /* 用户维度 */
-  function renderDimUser() {
-    const voices = (state.raw && state.raw.userVoices) || [];
-    if (!voices.length) return `<div class="dim-note">暂无用户语料数据。接入评论抓取 / 飞书后，这里会展示最高赞用户评价、原帖链接与语料库。</div>` + emptyState("用户语料待接入");
-    const sorted = [...voices].sort((a, b) => b.likes - a.likes);
-    const cards = sorted.map((v) => `<div class="uv-card">
-      <div class="uv-top"><span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span><span class="uv-likes">♥ ${fmt(v.likes)}</span></div>
-      <div class="uv-text">${esc(dispVoice(v))}</div>
-      <div class="uv-meta">${esc(v.account)} · ${esc(v.platform)}</div>
-      <a class="uv-link" href="${esc(v.originalLink)}" target="_blank" rel="noreferrer">查看原帖 ↗</a>
-    </div>`).join("");
-    return `<div class="dim-note">单独看用户：最高赞用户评价 + 原帖链接。下方「用户语料 skill」为规划中的独立交付。</div>
-      <div class="dim-grid uv-grid">${cards}</div>
-      <div class="panel" style="margin-top:16px"><div class="panel-title">用户语料 skill（规划中）</div><div class="panel-sub">学习美国用户语言、提炼本土化表达——需接入 GPT 语料分析，后续以独立 skill 交付；也可结合品牌方发送内容做品牌本土化 skill。</div></div>`;
-  }
-
-  /* 内容形式维度（含风格 / 原「情绪」） */
-  function renderDimFormat() {
-    const data = getFiltered();
-    const types = aggregateByField(data, "contentType");
-    const styles = aggregateByField(data, "emotion");
-    const typeCards = types.map((t) => fmtDimCard(t, "types", "形式")).join("");
-    const styleCards = styles.map((s) => fmtDimCard(s, "emotions", "风格")).join("");
-    return `<div class="dim-note">内容形式维度（含风格 / 原「情绪」）：形式看 ROI，风格看情绪调性表现。点击卡片加入全局筛选。</div>
-      <div class="dim-subtitle">内容形式</div><div class="dim-grid">${typeCards}</div>
-      <div class="dim-subtitle">风格 / 情绪调性</div><div class="dim-grid">${styleCards}</div>`;
-  }
-
-  /* 主题维度（权重可调） */
-  function renderDimTopic() {
-    const w = state.topicWeights;
-    const labels = { viral: "爆款率", eng: "参与度", rec: "时效", cov: "内容量" };
-    const sliders = `<div class="weight-panel" id="weight-panel">
-      <div class="wp-title">综合爆款潜力分 · 默认权重可调（拖动实时重算）</div>
-      <div class="wp-rows">${["viral", "eng", "rec", "cov"].map((k) => `<div class="wp-row"><label>${labels[k]}</label><input type="range" class="wslider" data-w="${k}" min="0" max="100" value="${w[k]}"><span class="wp-val" id="wp-${k}">${w[k]}</span></div>`).join("")}</div>
-    </div>`;
-    return `<div class="dim-note">主题维度下钻：每个主题的爆款率、参与度、时效、内容量，及按权重合成的「综合爆款潜力分」。拖动滑块自定义权重，实时重算排序。</div>
-      ${sliders}
-      <div id="topic-grid" class="dim-grid">${topicGridHTML()}</div>`;
-  }
-  function topicGridHTML() {
-    const data = getFiltered();
-    const topics = aggregateByField(data, "topicTags");
-    if (!topics.length) return emptyState("当前筛选下无主题数据");
-    const dates = topics.map((t) => t.latest).filter(Boolean).sort();
-    const minD = dates[0], maxD = dates[dates.length - 1];
-    const maxCount = Math.max(...topics.map((t) => t.count), 1);
-    const w = state.topicWeights;
-    const wsum = w.viral + w.eng + w.rec + w.cov || 1;
-    const scored = topics.map((t) => {
-      const viralN = t.avgRate;
-      const engN = Math.min(100, t.avgEng * 10);
-      const recN = (maxD && minD && maxD !== minD) ? ((new Date(t.latest) - new Date(minD)) / (new Date(maxD) - new Date(minD)) * 100) : 50;
-      const covN = (t.count / maxCount) * 100;
-      const composite = (viralN * w.viral + engN * w.eng + recN * w.rec + covN * w.cov) / wsum;
-      return { ...t, viralN, engN, recN, covN, composite: Math.round(composite) };
-    }).sort((a, b) => b.composite - a.composite);
-    return scored.map((t) => `<div class="dim-card topic-card" data-dfacet="topics" data-dval="${esc(t.name)}">
-      <div class="dc-top"><span class="dc-name">${esc(t.name)}</span><span class="dc-composite">${t.composite}</span></div>
-      <div class="dc-bars">
-        ${barHTML("爆款率", t.viralN)}
-        ${barHTML("参与度", t.engN)}
-        ${barHTML("时效", t.recN)}
-        ${barHTML("内容量", t.covN)}
-      </div>
-      <div class="dc-metrics"><div class="dc-m"><span>内容</span><b>${t.count}</b></div><div class="dc-m"><span>爆款数</span><b>${t.topCount}</b></div><div class="dc-m"><span>总曝光</span><b>${fmt(t.totalExposure)}</b></div></div>
-    </div>`).join("");
-  }
-
-  function bindDimensions() {
-    $$(".dim-tab").forEach((b) => b.addEventListener("click", () => { state.dim = b.dataset.dim; renderBoard(); }));
-    $$(".brand-card").forEach((el) => el.addEventListener("click", (e) => {
-      if (e.target.closest("[data-only]")) return;
-      const name = el.dataset.brand;
-      if (state.dimBrands.has(name)) state.dimBrands.delete(name); else state.dimBrands.add(name);
-      renderBoard();
-    }));
-    $$("[data-only]").forEach((btn) => btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      state.filters.accounts.clear(); state.filters.accounts.add(btn.dataset.only); onFilterChange();
-    }));
-    $$("[data-dfacet]").forEach((el) => el.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const key = el.dataset.dfacet, val = el.dataset.dval;
-      const set = state.filters[key];
-      if (set && !set.has(val)) { set.add(val); onFilterChange(); } else if (set) toast("已筛选：" + val);
-    }));
-    $$(".wslider").forEach((s) => s.addEventListener("input", () => {
-      state.topicWeights[s.dataset.w] = +s.value;
-      const lbl = $("#wp-" + s.dataset.w); if (lbl) lbl.textContent = s.value;
-      const g = $("#topic-grid"); if (g) g.innerHTML = topicGridHTML();
-    }));
   }
 
   /* ============ 详情抽屉 ============ */
@@ -2144,14 +2037,14 @@ ${sim || "（无同主题关联帖）"}
     }
     // 参考建议中枢
     if (state.board === "reference") bindReference();
-    // 维度透视（了解用户 3 项）
-    if (["format", "topic", "platform"].includes(state.board)) bindDimensions();
     // 竞品内容库 / 多品牌对比
     if (["competitor", "compare"].includes(state.board)) bindCompetitor();
     // 我方运营
     if (state.board === "myops") bindMyOps();
-    // 了解用户：用户讨论与语言（富用户分析中枢）
+    // 了解用户：用户讨论与语言 / 品牌-用户讨论 / 用户分层
     if (state.board === "uservoice") bindUserBoard();
+    if (state.board === "branduser") bindBrandUser();
+    if (state.board === "userseg") bindUserSeg();
   }
 
   /* ============ 每板块整体洞察 ============ */
