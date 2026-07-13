@@ -22,15 +22,14 @@
     competitor: '<path d="M4 21V6l8-3 8 3v15M9 21v-6h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
   };
   const BOARDS = [
-    // —— 找灵感 ——
-    { id: "blindbox", name: "每日盲盒", group: "找灵感", desc: "每天开 3 张灵感卡，翻一张看：品牌 / 内容形式 / 内容 / 数据情况 / 可借鉴方式 / 最高赞用户评价。可生图。" },
-    { id: "library", name: "灵感库", group: "找灵感", desc: "全部内容的灵感库。可随机浏览，也可按爆款率 / 曝光 / 互动 / 类型 ROI 多指标排序与筛选；一键只看爆款(Top10%)。点标签加筛选，点卡片看详情。" },
+    // —— 灵感工具 ——
+    { id: "library", name: "灵感库", group: "灵感工具", desc: "全部内容的灵感库。可随机浏览，也可按爆款率 / 曝光 / 互动 / 类型 ROI 多指标排序与筛选；一键只看爆款(Top10%)。点标签加筛选，点卡片看详情，再进单帖深度分析。" },
+    { id: "reference", name: "评估想法", group: "灵感工具", desc: "一个工具两个方向：有想法→评估质量（多维评分卡 + 用户风评）；没灵感→输入目的主动推荐参考内容。还有回测校准准确率。" },
+    // —— 看竞品情况 ——
+    { id: "competitor", name: "竞品内容监测", group: "看竞品情况", desc: "选择单竞品 → 深度查看（整体数据 + 内容排序列表 + 形式/数据筛选 + 用户评价 + 运营节奏×表现 + Campaign 爆发监测）；也可看全部竞品排名。" },
+    { id: "compare", name: "多竞品横向对比", group: "看竞品情况", desc: "勾选多个品牌横向对比：数据表现 + Top3 内容 + 用户情况，全面看标杆与差距。" },
     // —— 看参考建议 ——
-    { id: "reference", name: "参考建议", group: "看参考建议", desc: "一个工具两个方向：有想法→评估质量（多维评分卡 + 用户风评）；没灵感→输入目的主动推荐参考内容。还有回测校准准确率。" },
     { id: "insights", name: "AI 洞察", group: "看参考建议", desc: "定时管线由大模型生成的选题方向 / 爆款特征 / 行动建议，打开即看。" },
-    // —— 看竞品 ——
-    { id: "competitor", name: "竞品内容库", group: "看竞品", desc: "选择竞品 → 进入该竞品的深度整合分析：它的内容、用户对它的评价、数据表现、运营节奏（频率×表现、Campaign）一站式呈现。" },
-    { id: "compare", name: "多品牌对比", group: "看竞品", desc: "勾选多个品牌横向对比：内容量 / 爆款率 / 曝光 / 互动，找出标杆与差距。" },
     // —— 了解用户 ——
     { id: "uservoice", name: "用户讨论与语言", group: "了解用户", desc: "看用户讨论什么、用什么语言——学习美国用户的表达与话题讨论方式（用户语料 skill 后续接入）。" },
     { id: "format", name: "内容形式与风格", group: "了解用户", desc: "内容形式（含风格 / 情绪调性）表现对比——用户偏爱什么形式与调性。" },
@@ -44,6 +43,7 @@
   /* ---------- 状态 ---------- */
   const state = {
     raw: null, analysis: null, maxViral: 1, board: "library", insights: null,
+    lang: (function () { try { return localStorage.getItem("ca_lang") || "en"; } catch (e) { return "en"; } })(),
     filters: { search: "", accounts: new Set(), platforms: new Set(), types: new Set(), topics: new Set(), emotions: new Set(), viralMin: 0, dateFrom: "", dateTo: "", topOnly: false },
     sort: "viral", view: "grid",
     topThreshold: 0,
@@ -71,6 +71,10 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  /* 中/EN 内容切换：导航中文不动，仅帖子/回复正文在 英文原文 ↔ 中文翻译 间切换。
+     中文翻译字段约定为 text_zh（用户后续在原始数据补充）；缺失时回退英文原文。 */
+  const dispText = (item) => (state.lang === "zh" && item && (item.text_zh || item.translation) ? (item.text_zh || item.translation) : (item ? item.text : ""));
+  const dispVoice = (v) => (state.lang === "zh" && v && (v.text_zh || v.translation) ? (v.text_zh || v.translation) : (v ? v.text : ""));
   const fmt = (n) => (n >= 10000 ? (n / 10000).toFixed(1) + "万" : String(Math.round(n)));
   const rate = (c) => Math.max(0, Math.min(100, Math.round((c.viralScore / state.maxViral) * 100)));
   function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("show"), 1900); }
@@ -204,7 +208,6 @@
     const data = getFiltered();
     let html = "";
     switch (state.board) {
-      case "blindbox": html = renderBlindbox(data); break;
       case "library": html = renderLibrary(data); break;
       case "reference": html = renderReference(); break;
       case "insights": html = renderInsights(); break;
@@ -282,7 +285,7 @@
         <span class="tag" data-facet="accounts" data-val="${esc(c.account)}">${esc(c.account)}</span>
         <span class="tag" data-facet="types" data-val="${esc(c.contentType)}">${esc(c.contentType)}</span>
       </div>
-      <div class="card-text">${esc(c.text)}</div>
+      <div class="card-text">${esc(dispText(c))}</div>
       <div class="card-meta">${c.topicTags.map((t) => `<span class="tag topic" data-facet="topics" data-val="${esc(t)}">${esc(t)}</span>`).join("")}</div>
       <div class="card-meta"><span>${esc(c.platform)}</span><span class="dot"></span><span>${c.publishDate}</span><span class="dot"></span><span>${esc(c.emotion)}</span></div>
       <div class="card-score"><span class="score-num">${rate(c)}<small>/100</small></span><div class="score-bar"><i style="width:${rate(c)}%"></i></div></div>
@@ -290,7 +293,7 @@
   }
   function listHTML(c) {
     return `<div class="list-row" data-id="${c.id}">
-      <div><div class="lr-text">${esc(c.text)}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.contentType)} · ${c.publishDate}</div></div>
+      <div><div class="lr-text">${esc(dispText(c))}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.contentType)} · ${c.publishDate}</div></div>
       <div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div>
       <div class="lr-num">${fmt(c.engagement)}<small>互动</small></div>
       <div><div class="lr-num">${rate(c)}<small>爆款率</small></div><div class="mini-bar" style="margin-top:5px"><i style="width:${rate(c)}%"></i></div></div>
@@ -306,7 +309,7 @@
     const head = `<div class="board-head"><div class="board-desc">${BOARDS[1].desc}<br>当前显示 <b style="color:var(--hot)">${ranked.length}</b> 条头部内容（门槛 ${state.topThreshold}）。</div>${tools}</div>`;
     if (!ranked.length) return head + emptyState();
     return head + ranked.map((c, i) => `<div class="list-row" data-id="${c.id}">
-      <div><div class="lr-text">${i < 3 ? "🔥 " : ""}${esc(c.text)}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div></div>
+      <div><div class="lr-text">${i < 3 ? "🔥 " : ""}${esc(dispText(c))}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div></div>
       <div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div>
       <div class="lr-num">${fmt(c.engagement)}<small>互动</small></div>
       <div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款率</small></div><div class="mini-bar" style="margin-top:5px"><i style="width:${rate(c)}%"></i></div></div>
@@ -340,7 +343,7 @@
       ${commonHTML(vc.activityTag && vc.activityTag.filter((x) => x.name !== "无"), "活动标签")}
     </div>`;
     const list = top.sort((a, b) => b.viralScore - a.viralScore).map((c, i) => `<div class="list-row" data-id="${c.id}">
-      <div><div class="lr-text">${esc(c.text)}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.contentType)} · ${c.topicTags.join("/")}</div></div>
+      <div><div class="lr-text">${esc(dispText(c))}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.contentType)} · ${c.topicTags.join("/")}</div></div>
       <div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div>
       <div class="lr-num">${fmt(c.engagement)}<small>互动</small></div>
       <div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款率</small></div><div class="mini-bar" style="margin-top:5px"><i style="width:${rate(c)}%"></i></div></div>
@@ -485,7 +488,7 @@
       const topBadge = c.isTop ? `<span class="badge-top">爆款</span>` : "";
       return `<div class="match-card" data-id="${c.id}">
         <div class="match-card-top">${topBadge}<span class="match-score">相关度 ${c.matchScore}</span></div>
-        <div class="match-text">${esc(c.text)}</div>
+        <div class="match-text">${esc(dispText(c))}</div>
         <div class="match-meta">${esc(c.account)} · ${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div>
         <div class="match-reason"><span>匹配原因：</span>${esc(c.matchReason)}</div>
         <div class="match-mini-metrics">
@@ -558,7 +561,7 @@
     const topMatches = r.matches.items.slice(0, 4).map((c) => {
       const maxV = Math.max(...state.analysis.contents.map((x) => x.viralScore), 0.0001);
       const viralRate = Math.round((c.viralScore / maxV) * 100);
-      return `- ${c.text}（${c.account} · ${c.contentType} · 爆款率 ${viralRate} · 匹配原因：${c.matchReason}）`;
+      return `- ${dispText(c)}（${c.account} · ${c.contentType} · 爆款率 ${viralRate} · 匹配原因：${c.matchReason}）`;
     }).join("\n");
     const ctx = `【内容选题深度分析请求】
 我的内容想法：${idea}
@@ -631,17 +634,18 @@ ${topMatches || "（无强匹配）"}
     if (sameAcc.length) return sameAcc[0];
     return voices.slice().sort((a, b) => b.likes - a.likes)[0];
   }
-  function renderBlindbox(data) {
-    const pool = data && data.length ? data : state.analysis.contents;
+  /* ============ 每日盲盒（浮窗：可拖动 + 翻牌 + 分享生图）============ */
+  function bxCardsHTML() {
+    const pool = state.analysis.contents;
     state.blindbox = sampleN(pool, 3).map((c) => ({ c, rarity: rollRarity(), flipped: false }));
-    const cards = state.blindbox.map((p, i) => {
+    return state.blindbox.map((p, i) => {
       const c = p.c;
       const v = topVoiceFor(c);
       const cover = c.image
         ? `<img class="bx-cover-img" src="${esc(c.image)}" alt="">`
         : `<div class="bx-cover-grad"><div class="bx-cover-brand">${esc(c.account)}</div><div class="bx-cover-type">${esc(c.contentType)}</div></div>`;
       const voiceHTML = v
-        ? `<div class="bx-voice"><div class="bx-voice-head">最高赞用户评价 · <span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span> <span class="uv-likes">♥ ${fmt(v.likes)}</span></div><div class="bx-voice-text">${esc(v.text)}</div><a class="uv-link" href="${esc(v.originalLink || "#")}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div>`
+        ? `<div class="bx-voice"><div class="bx-voice-head">最高赞用户评价 · <span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span> <span class="uv-likes">♥ ${fmt(v.likes)}</span></div><div class="bx-voice-text">${esc(dispVoice(v))}</div><a class="uv-link" href="${esc(v.originalLink || "#")}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div>`
         : `<div class="bx-voice bx-muted">暂无该内容的用户评价数据</div>`;
       return `<div class="bx-card face-down" data-bx="${i}">
         <div class="bx-face bx-front">${cover}<div class="bx-front-foot"><div class="bx-q">?</div><div class="bx-hint">点击翻牌</div></div></div>
@@ -650,23 +654,117 @@ ${topMatches || "（无强匹配）"}
           <div class="bx-reveal">
             <div class="bx-row"><span class="bx-k">品牌</span><span class="bx-v">${esc(c.account)}</span></div>
             <div class="bx-row"><span class="bx-k">内容形式</span><span class="bx-v">${esc(c.contentType)}</span></div>
-            <div class="bx-row bx-row-text"><span class="bx-k">内容</span><span class="bx-v">${esc(c.text)}</span></div>
+            <div class="bx-row bx-row-text"><span class="bx-k">内容</span><span class="bx-v">${esc(dispText(c))}</span></div>
             <div class="bx-row"><span class="bx-k">数据情况</span><span class="bx-v">曝光 ${fmt(c.exposure)} · 互动 ${fmt(c.engagement)} · 爆款率 ${rate(c)}${c.isTop ? " · 🔥爆款" : ""}</span></div>
             <div class="bx-row bx-row-text"><span class="bx-k">可借鉴</span><span class="bx-v">${esc(borrowTip(c))}</span></div>
             ${voiceHTML}
           </div>
-          <div class="bx-actions"><button class="mini-btn" data-use="${c.id}">点开详情</button><button class="mini-btn ghost" data-gen="${c.id}">生图</button></div>
+          <div class="bx-actions"><button class="mini-btn" data-use="${c.id}">点开详情</button><button class="mini-btn ghost" data-share="${i}">分享生图</button></div>
         </div></div>`;
     }).join("");
-    return `<div class="board-head"><div class="board-desc">${boardDesc("blindbox")}</div></div>
-      <div class="blindbox-bar"><button class="btn-primary" id="bx-redraw">🎲 重新抽 3 张</button><span class="bx-tip">稀有度：普通 60% · 稀有 30% · 金色传说 10%</span></div>
-      <div class="blindbox-grid">${cards}</div>`;
   }
-  function bindBlindbox() {
-    const rd = $("#bx-redraw"); if (rd) rd.addEventListener("click", () => renderBoard());
-    $$(".bx-card.face-down").forEach((el) => el.addEventListener("click", () => { el.classList.remove("face-down"); el.classList.add("flipped"); }));
-    $$("[data-use]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); openDrawer(b.dataset.use); }));
-    $$("[data-gen]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); toast("生图功能待接入小云雀（届时用你提供的图片生成背面配图）"); }));
+
+  function initBlindboxFloat(forceOpen) {
+    let box = $("#bx-float");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "bx-float";
+      box.className = "bx-float";
+      box.innerHTML = `<div class="bx-float-head" id="bx-float-head">
+          <span class="bx-float-title">🎁 每日盲盒</span>
+          <div class="bx-float-tools">
+            <button class="mini-btn" id="bx-redraw">🎲 重抽</button>
+            <button class="mini-btn ghost" id="bx-close">×</button>
+          </div>
+        </div>
+        <div class="bx-float-body" id="bx-float-body"><div class="blindbox-grid bx-float-grid">${bxCardsHTML()}</div></div>`;
+      document.body.appendChild(box);
+      bindBlindboxFloat(box);
+      box.classList.add("show");
+    } else {
+      // 已存在：仅重绘卡牌（如语言切换 / 重抽），不改变显隐状态
+      $("#bx-float-body", box).innerHTML = `<div class="blindbox-grid bx-float-grid">${bxCardsHTML()}</div>`;
+      bindBlindboxFloat(box);
+      if (forceOpen) box.classList.add("show");
+    }
+    const reopen = $("#bx-reopen");
+    if (reopen) reopen.style.display = box.classList.contains("show") ? "none" : "";
+  }
+
+  function bindBlindboxFloat(box) {
+    // 拖动
+    const head = $("#bx-float-head", box);
+    head.onmousedown = (e) => {
+      if (e.target.closest("button")) return;
+      const r = box.getBoundingClientRect();
+      const dx = e.clientX - r.left, dy = e.clientY - r.top;
+      box.style.transition = "none";
+      const mv = (ev) => { box.style.left = ev.clientX - dx + "px"; box.style.top = ev.clientY - dy + "px"; box.style.right = "auto"; };
+      const up = () => { document.removeEventListener("mousemove", mv); document.removeEventListener("mouseup", up); box.style.transition = ""; };
+      document.addEventListener("mousemove", mv); document.addEventListener("mouseup", up);
+    };
+    // 重抽
+    const rd = $("#bx-redraw", box); if (rd) rd.onclick = (e) => { e.stopPropagation(); $("#bx-float-body", box).innerHTML = `<div class="blindbox-grid bx-float-grid">${bxCardsHTML()}</div>`; bindBlindboxFloat(box); };
+    // 关闭
+    const cl = $("#bx-close", box); if (cl) cl.onclick = (e) => { e.stopPropagation(); box.classList.remove("show"); let ro = $("#bx-reopen"); if (!ro) { ro = document.createElement("button"); ro.id = "bx-reopen"; ro.className = "bx-reopen"; ro.textContent = "🎁 盲盒"; ro.onclick = () => initBlindboxFloat(true); document.body.appendChild(ro); } ro.style.display = ""; };
+    // 翻牌
+    $$(".bx-card.face-down", box).forEach((el) => el.onclick = () => { el.classList.remove("face-down"); el.classList.add("flipped"); });
+    // 点开详情
+    $$("[data-use]", box).forEach((b) => b.onclick = (e) => { e.stopPropagation(); openDrawer(b.dataset.use); });
+    // 分享生图
+    $$("[data-share]", box).forEach((b) => b.onclick = (e) => { e.stopPropagation(); blindboxShareImage(state.blindbox[+b.dataset.share]); });
+  }
+
+  // 把一张盲盒卡牌绘制成霓虹 PNG 并下载
+  function blindboxShareImage(p) {
+    if (!p) return;
+    const c = p.c, r = p.rarity;
+    const W = 480, H = 640;
+    const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+    let x = null;
+    try { x = cv.getContext("2d"); } catch (e) { x = null; }
+    if (!x) { toast("当前环境不支持生成图片"); return; }
+    const g = x.createLinearGradient(0, 0, W, H);
+    g.addColorStop(0, "#0a0e1a"); g.addColorStop(1, "#16203a");
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+    // 霓虹边框
+    const border = r.cls === "legend" ? "#ffd166" : r.cls === "rare" ? "#a06bff" : "#00f0ff";
+    x.strokeStyle = border; x.lineWidth = 3; x.shadowColor = border; x.shadowBlur = 18;
+    x.strokeRect(14, 14, W - 28, H - 28); x.shadowBlur = 0;
+    // 稀有度
+    x.fillStyle = border; x.font = "700 16px system-ui,sans-serif"; x.textAlign = "center";
+    x.fillText(r.label, W / 2, 48);
+    // 品牌 / 形式
+    x.fillStyle = "#e7eefc"; x.font = "700 26px system-ui,sans-serif"; x.fillText(c.account, W / 2, 92);
+    x.fillStyle = "#8fa3c8"; x.font = "15px system-ui,sans-serif"; x.fillText("内容形式 · " + c.contentType, W / 2, 120);
+    // 内容（自动换行）
+    x.fillStyle = "#cdd9f0"; x.font = "16px system-ui,sans-serif"; x.textAlign = "left";
+    const text = dispText(c); const maxW = W - 60; let y = 160; const lineH = 24;
+    const words = text.split(/(\s+)/); let line = "";
+    for (const w of words) {
+      const test = line + w;
+      if (x.measureText(test).width > maxW && line) { x.fillText(line, 30, y); y += lineH; line = w; if (y > 420) break; }
+      else line = test;
+    }
+    if (y <= 420) x.fillText(line, 30, y);
+    // 数据条
+    const stats = [`曝光 ${fmt(c.exposure)}`, `互动 ${fmt(c.engagement)}`, `爆款率 ${rate(c)}`];
+    x.textAlign = "center"; x.fillStyle = "#00f0ff"; x.font = "700 15px system-ui,sans-serif";
+    stats.forEach((s, i) => x.fillText(s, 30 + (W - 60) * (i + 0.5) / 3, 500));
+    // 可借鉴
+    x.fillStyle = "#9fb2d6"; x.font = "13px system-ui,sans-serif"; x.textAlign = "left";
+    let by = 536; const tip = borrowTip(c); const tw = tip.split(/(\s+)/); let tl = "";
+    for (const w of tw) { const t = tl + w; if (x.measureText(t).width > maxW && tl) { x.fillText(tl, 30, by); by += 20; tl = w; if (by > 590) break; } else tl = t; }
+    x.fillText(tl, 30, by);
+    // 页脚
+    x.fillStyle = "#5f7099"; x.font = "12px system-ui,sans-serif"; x.textAlign = "center";
+    x.fillText("内容监测分析 · 每日盲盒", W / 2, H - 22);
+    // 下载
+    try {
+      const url = cv.toDataURL("image/png");
+      const a = document.createElement("a"); a.href = url; a.download = `盲盒_${c.account}_${c.id}.png`; a.click();
+      toast("已生成分享图，开始下载");
+    } catch (e) { toast("生图失败：" + e.message); }
   }
 
   /* ============ 参考建议中枢（评估想法 / 找参考 / 回测）============ */
@@ -740,7 +838,7 @@ ${topMatches || "（无强匹配）"}
     box.innerHTML = `<div class="find-intro">为「<b>${esc(label)}</b>」推荐 ${scored.length} 条最匹配的历史内容（按目的匹配度排序）：</div>
       <div class="match-grid">${scored.map(({ c, score, reasons }) => `<div class="match-card" data-id="${c.id}">
         <div class="match-card-top"><span class="badge-top">匹配 ${score}</span></div>
-        <div class="match-text">${esc(c.text)}</div>
+        <div class="match-text">${esc(dispText(c))}</div>
         <div class="match-meta">${esc(c.account)} · ${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div>
         <div class="match-reason"><span>为何推荐：</span>${esc(reasons.join("；"))}</div>
         <div class="match-mini-metrics"><span>爆款率 <b>${rate(c)}</b></span><span>曝光 <b>${fmt(c.exposure)}</b></span><span>互动 <b>${fmt(c.engagement)}</b></span></div>
@@ -766,7 +864,7 @@ ${topMatches || "（无强匹配）"}
   }
   function renderBacktest() {
     const list = state.backtests || [];
-    const options = state.analysis.contents.map((c) => `<option value="${c.id}">${esc(c.text.slice(0, 40))}</option>`).join("");
+    const options = state.analysis.contents.map((c) => `<option value="${c.id}">${esc(dispText(c).slice(0, 40))}</option>`).join("");
     const agg = backtestAccuracy(list);
     return `<div class="predictor-wrap">
       <div class="board-desc" style="margin-bottom:10px">回测：拿真实活动来，回填实际表现，对比「预测 vs 真实」，累积准确率以校准工具权重。</div>
@@ -855,7 +953,7 @@ ${topMatches || "（无强匹配）"}
         if (refs.has("style")) { sec += opsSec("④ 风格调性", `<li>推荐情绪调性：<b>${esc(topEmo[0])}</b></li>`); mdSec += `### ④ 风格调性\n- ${topEmo[0]}\n`; }
         if (refs.has("metric")) { sec += opsSec("⑤ 要观测的指标 + 阈值", `<li>爆款率：周均值 ≥ ${avgRate}</li><li>互动率：≥ ${avgEng}%</li><li>发布频率：稳定 ≥ ${freq} 条/周</li><li>异常预警：单条爆款率连续 2 周低于基准即复盘</li>`); mdSec += `### ⑤ 指标阈值\n- 爆款率≥${avgRate}\n- 互动率≥${avgEng}%\n- 频率≥${freq}条/周\n`; }
         const topContent = items.slice().sort((a, b) => b.viralScore - a.viralScore).slice(0, 3);
-        const tcHTML = topContent.map((c) => `<div class="list-row" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(c.text)}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)}</div></div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款率</small></div></div>`).join("");
+        const tcHTML = topContent.map((c) => `<div class="list-row" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(dispText(c))}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)}</div></div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款率</small></div></div>`).join("");
         sec += opsSec("该竞品优质内容（可借鉴）", tcHTML);
         mdSec += `### 优质内容\n` + topContent.map((c, i) => `${i + 1}. ${c.text}（${c.contentType}·爆款率${rate(c)}）`).join("\n") + `\n`;
         html += `<div class="ops-plan"><div class="ops-head">对标 <b>${esc(name)}</b> 的运营方案</div>${sec}</div>`;
@@ -1005,11 +1103,11 @@ ${topMatches || "（无强匹配）"}
       const s = u.sents || {};
       const sPairs = [["正面", s.pos || 0, COL.pos], ["中性", s.neu || 0, COL.neu], ["负面", s.neg || 0, COL.neg]];
       const iPairs = Object.entries(u.intents || {}).map(([k, v]) => [INTENT_NAME[k] || k, v, INTENT_COL[k] || COL.slate]);
-      const quotes = u.samples.slice(0, 2).map((q) => `<div class="uv-quote">${uvLangTag(q.lang)} ${uvSentTag(q.sent)} ${uvIntentTag(q.intent)} <span class="uv-q-text">${esc(q.text)}</span></div>`).join("");
+      const quotes = u.samples.slice(0, 2).map((q) => `<div class="uv-quote">${uvLangTag(q.lang)} ${uvSentTag(q.sent)} ${uvIntentTag(q.intent)} <span class="uv-q-text">${esc(dispVoice(q))}</span></div>`).join("");
       // 展开后的深度画像：全部语录（带赞数与原帖链接）+ 完整意图分布 + 活跃周期
       const deepQuotes = (u.samples || []).map((q) => `<div class="uv-quote uv-dq">
         <span class="uv-q-tags">${uvLangTag(q.lang)} ${uvSentTag(q.sent)} ${uvIntentTag(q.intent)}</span>
-        <span class="uv-q-text">${esc(q.text)}</span>
+        <span class="uv-q-text">${esc(dispVoice(q))}</span>
         <span class="uv-q-meta">♥${fmt(q.likes || 0)} · ${esc(q.brand || "")} · ${esc(q.form || "")} · ${esc(q.date || "")}</span>
         ${q.link ? `<a class="uv-link" href="${esc(q.link)}" target="_blank" rel="noreferrer">查看原帖 ↗</a>` : ""}
       </div>`).join("");
@@ -1059,7 +1157,7 @@ ${topMatches || "（无强匹配）"}
       const kw = b.keywords.slice(0, 14).map((k) => `<span class="uv-tag">${esc(k.w)}<em>×${k.n}</em></span>`).join("");
       const tp = b.topics.slice(0, 5).map((t) => `<span class="uv-chip">${esc(t.t)}<em>×${t.n}</em></span>`).join("");
       const tu = b.topUsers.slice(0, 4).map((t) => `<span class="uv-chip">${esc(t.u)}<em>×${t.n}</em></span>`).join("");
-      const q = b.quotes.slice(0, 3).map((qq) => `<div class="uv-quote">${uvLangTag(qq.lang)} ${uvSentTag(qq.sent)} <span class="uv-q-text">${esc(qq.text)}</span> <a class="uv-link" href="${esc(qq.link || "#")}" target="_blank" rel="noreferrer">↗</a></div>`).join("");
+      const q = b.quotes.slice(0, 3).map((qq) => `<div class="uv-quote">${uvLangTag(qq.lang)} ${uvSentTag(qq.sent)} <span class="uv-q-text">${esc(dispVoice(qq))}</span> <a class="uv-link" href="${esc(qq.link || "#")}" target="_blank" rel="noreferrer">↗</a></div>`).join("");
       return `<div class="uv-brand-card">
         <div class="uv-brand-head"><span class="uv-brand-name">${esc(b.brand)}</span><span class="uv-brand-count">${fmt(b.replyCount)} 条用户声音</span></div>
         ${uvBars(sPairs)}
@@ -1076,7 +1174,7 @@ ${topMatches || "（无强匹配）"}
     const cards = U.formEval.map((f) => {
       const sPairs = [["正面", f.sentiment.pos || 0, COL.pos], ["中性", f.sentiment.neu || 0, COL.neu], ["负面", f.sentiment.neg || 0, COL.neg]];
       const kw = f.keywords.slice(0, 12).map((k) => `<span class="uv-tag">${esc(k.w)}<em>×${k.n}</em></span>`).join("");
-      const q = f.quotes.slice(0, 3).map((qq) => `<div class="uv-quote">${uvLangTag(qq.lang)} ${uvSentTag(qq.sent)} <span class="uv-q-text">${esc(qq.text)}</span> <a class="uv-link" href="${esc(qq.link || "#")}" target="_blank" rel="noreferrer">↗</a></div>`).join("");
+      const q = f.quotes.slice(0, 3).map((qq) => `<div class="uv-quote">${uvLangTag(qq.lang)} ${uvSentTag(qq.sent)} <span class="uv-q-text">${esc(dispVoice(qq))}</span> <a class="uv-link" href="${esc(qq.link || "#")}" target="_blank" rel="noreferrer">↗</a></div>`).join("");
       return `<div class="uv-form-card">
         <div class="uv-form-head"><span class="uv-form-name">${esc(f.form)}</span><span class="uv-form-count">${fmt(f.replyCount)} 条参与</span></div>
         ${uvBars(sPairs)}
@@ -1180,9 +1278,9 @@ ${topMatches || "（无强匹配）"}
     const handles = metas.map((a) => `<a class="comp-handle" href="${esc(a.account_link || "#")}" target="_blank" rel="noreferrer">${esc(a.handle || a.account)} ↗</a>`).join(" · ");
     const voices = ((state.raw && state.raw.userVoices) || []).filter((v) => v.account === name).sort((a, b) => b.likes - a.likes);
     const voiceHTML = voices.length
-      ? `<div class="uv-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:8px">${voices.slice(0, 4).map((v) => `<div class="uv-card"><div class="uv-top"><span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span><span class="uv-likes">♥ ${fmt(v.likes)}</span></div><div class="uv-text">${esc(v.text)}</div><a class="uv-link" href="${esc(v.originalLink || "#")}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div>`).join("")}</div>`
+      ? `<div class="uv-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:8px">${voices.slice(0, 4).map((v) => `<div class="uv-card"><div class="uv-top"><span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span><span class="uv-likes">♥ ${fmt(v.likes)}</span></div><div class="uv-text">${esc(dispVoice(v))}</div><a class="uv-link" href="${esc(v.originalLink || "#")}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div>`).join("")}</div>`
       : `<div style="color:var(--text-3);font-size:12.5px;margin-top:6px">暂无该竞品的用户评价数据</div>`;
-    const contentHTML = `<div class="list-rows">${items.slice().sort((a, b) => b.viralScore - a.viralScore).slice(0, 8).map((c) => `<div class="list-row" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(c.text)}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div></div><div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div><div class="lr-num">${fmt(c.engagement)}<small>互动</small></div><div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款率</small></div></div>${c.post_link ? `<a class="lr-link" href="${esc(c.post_link)}" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">原帖↗</a>` : ""}`).join("")}</div>`;
+    const contentHTML = `<div class="list-rows">${items.slice().sort((a, b) => b.viralScore - a.viralScore).slice(0, 8).map((c) => `<div class="list-row" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(dispText(c))}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div></div><div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div><div class="lr-num">${fmt(c.engagement)}<small>互动</small></div><div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款率</small></div></div>${c.post_link ? `<a class="lr-link" href="${esc(c.post_link)}" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">原帖↗</a>` : ""}`).join("")}</div>`;
     const weeks = aggregateWeeks(items);
     const rhythmHTML = weeks.length ? `<div class="panel" style="margin-top:12px"><div class="panel-title">运营节奏 · 频率 × 表现</div><div class="panel-sub">柱=当周发布数 · 线=当周平均爆款率</div>${comboSVG(weeks)}</div>` : "";
     const bursts = burstsFor(items);
@@ -1277,7 +1375,7 @@ ${topMatches || "（无强匹配）"}
     const sorted = [...voices].sort((a, b) => b.likes - a.likes);
     const cards = sorted.map((v) => `<div class="uv-card">
       <div class="uv-top"><span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span><span class="uv-likes">♥ ${fmt(v.likes)}</span></div>
-      <div class="uv-text">${esc(v.text)}</div>
+      <div class="uv-text">${esc(dispVoice(v))}</div>
       <div class="uv-meta">${esc(v.account)} · ${esc(v.platform)}</div>
       <a class="uv-link" href="${esc(v.originalLink)}" target="_blank" rel="noreferrer">查看原帖 ↗</a>
     </div>`).join("");
@@ -1372,7 +1470,7 @@ ${topMatches || "（无强匹配）"}
     const qc = c.commentQuality || {};
     const maxQ = Math.max(...Object.values(qc), 1);
     const drawer = $("#drawer");
-    drawer.innerHTML = `<div class="drawer-head"><div class="dh-text">${esc(c.text)}</div><button class="drawer-close" id="drawer-close">×</button></div>
+    drawer.innerHTML = `<div class="drawer-head"><div class="dh-text">${esc(dispText(c))}</div><button class="drawer-close" id="drawer-close">×</button></div>
       <div class="drawer-body">
         <div class="dr-tags">${c.isTop ? '<span class="badge-top">爆款</span>' : ""}${c.isActivity ? `<span class="badge-act">${esc(c.activityTag)}</span>` : ""}
           <span class="tag">${esc(c.account)}</span><span class="tag">${esc(c.platform)}</span><span class="tag">${esc(c.contentType)}</span><span class="tag">${esc(c.emotion)}</span>
@@ -1401,7 +1499,7 @@ ${topMatches || "（无强匹配）"}
     $("#drawer-close").addEventListener("click", closeDrawer);
     $("#copy-detail").addEventListener("click", () => {
       const ctx = `【参考爆款内容深度分析】
-内容：${c.text}
+内容：${dispText(c)}
 账号/平台：${c.account} / ${c.platform} · 形式：${c.contentType} · 情绪：${c.emotion}
 主题标签：${c.topicTags.join("、")}
 爆款率：${rate(c)} · 曝光 ${fmt(c.exposure)} · 互动 ${fmt(c.engagement)} · 互动率 ${c.engagementRate.toFixed(2)}%
@@ -1443,8 +1541,6 @@ ${topMatches || "（无强匹配）"}
     if (["format", "topic", "platform"].includes(state.board)) bindDimensions();
     // 竞品内容库 / 多品牌对比
     if (["competitor", "compare"].includes(state.board)) bindCompetitor();
-    // 每日盲盒
-    if (state.board === "blindbox") bindBlindbox();
     // 我方运营
     if (state.board === "myops") bindMyOps();
     // 了解用户：用户讨论与语言（富用户分析中枢）
@@ -1484,7 +1580,20 @@ ${topMatches || "（无强匹配）"}
     // 抽屉关闭
     $("#drawer-overlay").addEventListener("click", closeDrawer);
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
+    // 正文语言切换（导航中文不动，仅帖子/回复正文 EN↔中）
+    const lt = $("#lang-toggle");
+    const syncLang = () => { $$(".lang-opt", lt).forEach((o) => o.classList.toggle("on", o.dataset.lang === state.lang)); };
+    syncLang();
+    $$(".lang-opt", lt).forEach((o) => o.addEventListener("click", (e) => {
+      e.stopPropagation();
+      state.lang = o.dataset.lang;
+      try { localStorage.setItem("ca_lang", state.lang); } catch (err) {}
+      syncLang();
+      renderBoard();
+      renderBlindboxFloat();
+    }));
   }
+  function renderBlindboxFloat() { initBlindboxFloat(false); }
 
   /* ============ 初始化 ============ */
   async function init() {
@@ -1510,6 +1619,7 @@ ${topMatches || "（无强匹配）"}
     syncFilterUI();
     renderActiveFilters();
     renderBoard();
+    initBlindboxFloat(true);
   }
   init();
 })();
