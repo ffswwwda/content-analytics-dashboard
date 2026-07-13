@@ -97,7 +97,7 @@
     detailId: null, predictor: null,
     dim: "brand", dimBrands: new Set(), topicWeights: { viral: 35, eng: 25, rec: 20, cov: 20 },
     blindbox: null, bxSeed: null, refMode: "eval", backtests: [], maxExposure: 1,
-    users: null, uvTab: "language", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all", uvCorpusMarker: "all",
+    users: null, uvTab: "language", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all", uvCorpusMarker: "all", uvLayerDrill: null,
     brandUserSel: null, brandUserCmp: "", brandUserRankAll: false,
     libMode: "sort", libQuick: "all",
     compSel: new Set(), cmpSel: new Set(),
@@ -242,6 +242,7 @@
   /* ============ 板块切换 ============ */
   function switchBoard(id) {
     state.board = id;
+    state.uvLayerDrill = null;
     renderNav();
     renderBoard();
     $("#board").scrollTop = 0;
@@ -1367,6 +1368,7 @@ ${topMatches || "（无强匹配）"}
         <div class="uv-layer-desc">${L.meta.desc}</div>
         <div class="uv-layer-bars">${uvBars(sPairs)}</div>
         <details class="uv-layer-det"><summary>看 ${L.samples.length} 条样例</summary>${samples}</details>
+        <div class="uv-layer-foot"><button class="btn-ghost uv-layer-enter" data-uv-layer="${k}">🎯 该分层用户深度分析 →</button></div>
       </div>`;
     }).join("");
     return `<div class="uv-block"><div class="uv-block-title">按回复字数分层用户（不同「投入度」对应不同运营动作）</div><div class="uv-layer-grid">${cards}</div></div>`;
@@ -1674,11 +1676,102 @@ ${topMatches || "（无强匹配）"}
     const U = state.users;
     const desc = boardDesc("userseg");
     if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
+    if (state.uvLayerDrill && U.layers[state.uvLayerDrill]) return renderLayerDrill(state.uvLayerDrill);
     return `<div class="board-head"><div class="board-desc">${desc}</div></div>${uvLayers(U)}${uvRank(U)}`;
+  }
+
+  // 单分层下钻：该层用户在说什么 / 哪些品牌·内容形式这类用户更多 / 反向总结
+  const PAL = ["#00f0ff", "#a06bff", "#ffd166", "#ff5d8f", "#4ade80", "#6b7a99", "#f97316", "#22d3ee", "#c084fc", "#34d399"];
+  function layerTalkSkew(matrix) {
+    return Object.entries(matrix || {}).map(([name, m]) => {
+      const total = m.total || 1;
+      return { name, total, deep: (m.l3 + m.l4) / total * 100, silent: m.l1 / total * 100, l4: m.l4 / total * 100, m };
+    });
+  }
+  function layerSkewRows(list, metric, color, minTotal) {
+    const rows = list.filter((x) => x.total >= (minTotal || 0)).sort((a, b) => b[metric] - a[metric]).slice(0, 5);
+    if (!rows.length) return `<div class="uv-muted">样本不足</div>`;
+    const max = Math.max(...rows.map((r) => r[metric]), 1);
+    return `<div class="uv-skew-list">` + rows.map((r) => `<div class="uv-skew-row">
+      <span class="uv-skew-name" title="${esc(r.name)}">${esc(r.name)}</span>
+      <span class="uv-skew-track"><i style="width:${(r[metric] / max * 100).toFixed(0)}%;background:${color}"></i></span>
+      <span class="uv-skew-val">${r[metric].toFixed(0)}%<em>${fmt(r.total)}条</em></span>
+    </div>`).join("") + `</div>`;
+  }
+  function renderLayerDrill(k) {
+    const U = state.users;
+    const L = U.layers[k];
+    const totAll = U.meta.genuine_replies_in_window || 1;
+    const share = uvPct(L.count, totAll);
+    const intentPairs = Object.entries(L.intent || {}).map(([ik, iv], i) => [INTENT_NAME[ik] || ik, iv, INTENT_COL[ik] || PAL[i % PAL.length]]);
+    const sentPairs = [["正面", L.sentiment.pos || 0, COL.pos], ["中性", L.sentiment.neu || 0, COL.neu], ["负面", L.sentiment.neg || 0, COL.neg]];
+    const brandBars = uvBars((L.brands || []).map((x, i) => [x.b, x.n, PAL[i % PAL.length]]));
+    const formBars = uvBars((L.forms || []).map((x, i) => [x.f, x.n, PAL[(i + 3) % PAL.length]]));
+    const samples = (L.samples || []).map((s) => `<div class="uv-layer-sample">${uvLangTag(s.lang)} ${uvSentTag(s.sent)} ${uvIntentTag(s.intent)} <span class="uv-sample-text">${esc(s.text)}</span> ${s.form ? `<span class="uv-sample-form">${esc(s.form)}</span>` : ""} <a class="uv-link" href="${esc(s.link || "#")}" target="_blank" rel="noreferrer">↗</a></div>`).join("");
+    // 反向总结：品牌 / 内容形式 在「深度表达 vs 沉默」上的倾向
+    const brandSkew = layerTalkSkew(U.layerMatrix && U.layerMatrix.byBrand);
+    const formSkew = layerTalkSkew(U.layerMatrix && U.layerMatrix.byForm);
+    const deepBrands = layerSkewRows(brandSkew, "deep", COL.pos, 30);
+    const silentBrands = layerSkewRows(brandSkew, "silent", COL.neg, 30);
+    const deepForms = layerSkewRows(formSkew, "deep", COL.pos, 60);
+    const silentForms = layerSkewRows(formSkew, "silent", COL.neg, 60);
+    const dTopB = brandSkew.filter((x) => x.total >= 30).sort((a, b) => b.deep - a.deep)[0];
+    const sTopB = brandSkew.filter((x) => x.total >= 30).sort((a, b) => b.silent - a.silent)[0];
+    const dTopF = formSkew.filter((x) => x.total >= 60).sort((a, b) => b.deep - a.deep)[0];
+    const sTopF = formSkew.filter((x) => x.total >= 60).sort((a, b) => b.silent - a.silent)[0];
+    const insight = `综合看：最易引发「深度表达（中+长回复）」的是 <b>${dTopB ? esc(dTopB.name) + " 品牌" : "—"}</b> 与 <b>${dTopF ? esc(dTopF.name) + " 形式" : "—"}</b>；最「沉默（极短回复）」的是 <b>${sTopB ? esc(sTopB.name) + " 品牌" : "—"}</b> 与 <b>${sTopF ? esc(sTopF.name) + " 形式" : "—"}</b>。说明前者更能驱动用户展开表达，后者更适合做轻互动 / 转化引导。`;
+    return `<div class="uv-drill">
+      <div class="uv-drill-head">
+        <button class="btn-ghost" data-uv-layer-back>← 返回分层</button>
+        <div class="uv-drill-title">${L.meta.name} · 用户深度分析</div>
+        <div class="uv-drill-count">${fmt(L.count)} 条 · 占全部回复 ${share}%</div>
+      </div>
+      <div class="uv-drill-desc">${L.meta.desc}</div>
+
+      <div class="dp-section">
+        <div class="dp-sec-title">用户在说什么 <span class="dp-sec-note">这一层用户的意图与情感</span></div>
+        <div class="uv-two">
+          <div class="uv-two-col"><div class="uv-sub">意图倾向</div>${uvBars(intentPairs)}</div>
+          <div class="uv-two-col"><div class="uv-sub">情感分布</div>${uvBars(sentPairs)}</div>
+        </div>
+        <div class="uv-sub" style="margin-top:12px">代表语录（${L.samples ? L.samples.length : 0} 条）</div>
+        <div class="uv-layer-samples">${samples}</div>
+      </div>
+
+      <div class="dp-section">
+        <div class="dp-sec-title">哪些品牌分布这类用户更多 <span class="dp-sec-note">本层回复来自哪些品牌（绝对量 Top10）</span></div>
+        ${brandBars}
+      </div>
+
+      <div class="dp-section">
+        <div class="dp-sec-title">哪些内容形式分布这类用户更多 <span class="dp-sec-note">本层回复集中在哪种内容形式（绝对量 Top10）</span></div>
+        ${formBars}
+      </div>
+
+      <div class="dp-section">
+        <div class="dp-sec-title">反向总结 · 品牌的运营情况 <span class="dp-sec-note">跨所有分层，看哪些品牌 / 形式「吸引用户说」，哪些让用户「沉默」</span></div>
+        <div class="uv-insight">${insight}</div>
+        <div class="uv-two">
+          <div class="uv-two-col">
+            <div class="uv-sub">🗣️ 最易引发「深度表达」的（中+长回复占比高）</div>
+            <div class="uv-skew-block"><div class="uv-skew-h">品牌</div>${deepBrands}</div>
+            <div class="uv-skew-h" style="margin-top:10px">内容形式</div>${deepForms}
+          </div>
+          <div class="uv-two-col">
+            <div class="uv-sub">🤐 最「沉默」的（极短回复占比高）</div>
+            <div class="uv-skew-block"><div class="uv-skew-h">品牌</div>${silentBrands}</div>
+            <div class="uv-skew-h" style="margin-top:10px">内容形式</div>${silentForms}
+          </div>
+        </div>
+      </div>
+    </div>`;
   }
   function bindUserSeg() {
     const rt = $("[data-uv-rank-toggle]", $("#board"));
     if (rt) rt.addEventListener("click", () => { state.uvRankAll = !state.uvRankAll; renderBoard(); });
+    $$("[data-uv-layer]", $("#board")).forEach((b) => b.addEventListener("click", () => { state.uvLayerDrill = b.dataset.uvLayer; renderBoard(); }));
+    const back = $("[data-uv-layer-back]", $("#board"));
+    if (back) back.addEventListener("click", () => { state.uvLayerDrill = null; renderBoard(); });
   }
 
   /* ---------- 空态 ---------- */
