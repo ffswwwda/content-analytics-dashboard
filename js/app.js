@@ -4,9 +4,49 @@
   const A = window.Analysis;
 
   const BX_COVERS = [
-    "assets/7660891523756442137.jpeg",
-    "assets/7660891533562937881.jpeg",
-    "assets/7660891536582918681.jpeg",
+    "assets/blindbox/7660891523756442137.jpeg",
+    "assets/blindbox/7660891533562937881.jpeg",
+    "assets/blindbox/7660891536582918681.jpeg",
+    "assets/blindbox/7660891536674882073.jpeg",
+    "assets/blindbox/7660891548142338585.jpeg",
+    "assets/blindbox/7660891564692324889.jpeg",
+    "assets/blindbox/7660892096980075032.jpeg",
+    "assets/blindbox/7660892111152316952.jpeg",
+    "assets/blindbox/7660892142163952152.jpeg",
+    "assets/blindbox/7660892155783168536.jpeg",
+    "assets/blindbox/7660892156965749272.jpeg",
+    "assets/blindbox/7660892160233243160.jpeg",
+    "assets/blindbox/7660892167707181592.jpeg",
+    "assets/blindbox/7660892167707542040.jpeg",
+    "assets/blindbox/7660892203489215000.jpeg",
+    "assets/blindbox/7660892407396352536.jpeg",
+    "assets/blindbox/7660892425938600472.jpeg",
+    "assets/blindbox/7660892460130632216.jpeg",
+    "assets/blindbox/7660892461292028440.jpeg",
+    "assets/blindbox/7660892461292093976.jpeg",
+    "assets/blindbox/7660892472964383256.jpeg",
+    "assets/blindbox/7660892472964416024.jpeg",
+    "assets/blindbox/7660892616780202520.jpeg",
+    "assets/blindbox/7660892635414708760.jpeg",
+    "assets/blindbox/7660892645459984920.jpeg",
+    "assets/blindbox/7660892669597450776.jpeg",
+    "assets/blindbox/7660892693865710104.jpeg",
+    "assets/blindbox/7660892693865775640.jpeg",
+    "assets/blindbox/7660893159552467518.jpeg",
+    "assets/blindbox/7660893175251550782.jpeg",
+    "assets/blindbox/7660893194028958270.jpeg",
+    "assets/blindbox/7660893207764828734.jpeg",
+    "assets/blindbox/7660893230975943230.jpeg",
+    "assets/blindbox/7660893402670973502.jpeg",
+    "assets/blindbox/7660893425907024446.jpeg",
+    "assets/blindbox/7660893425907221054.jpeg",
+    "assets/blindbox/7660893444260414014.jpeg",
+    "assets/blindbox/7660893471356027454.jpeg",
+    "assets/blindbox/7660893589829075518.jpeg",
+    "assets/blindbox/7660893591338549822.jpeg",
+    "assets/blindbox/7660893608652866110.jpeg",
+    "assets/blindbox/7660893608652997182.jpeg",
+    "assets/blindbox/7660893646320910910.jpeg",
   ];
 
   /* ---------- 板块定义 ---------- */
@@ -58,7 +98,7 @@
     campaignSort: "lift",
     detailId: null, predictor: null,
     dim: "brand", dimBrands: new Set(), topicWeights: { viral: 35, eng: 25, rec: 20, cov: 20 },
-    blindbox: null, refMode: "eval", backtests: [], maxExposure: 1,
+    blindbox: null, bxSeed: null, refMode: "eval", backtests: [], maxExposure: 1,
     users: null, uvTab: "framework", uvCorpusQ: "", uvRankAll: false,
     libMode: "sort", libQuick: "all",
     compSel: new Set(), cmpSel: new Set(),
@@ -643,13 +683,56 @@ ${topMatches || "（无强匹配）"}
     return voices.slice().sort((a, b) => b.likes - a.likes)[0];
   }
   /* ============ 每日盲盒（浮窗：可拖动 + 翻牌 + 分享生图）============ */
+  // 每日随机抽：以「日期」为种子 → 同一天稳定、跨天不同。一个月每天都是新一轮随机。
+  function dateSeed() {
+    const d = new Date();
+    return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+  }
+  function todayStr() {
+    const d = new Date();
+    return String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  // 从封面池按 rng 不重复抽 n 张
+  function dailyCovers(n, rng) {
+    const pool = BX_COVERS.slice();
+    const out = [];
+    for (let i = 0; i < n && pool.length; i++) {
+      const k = Math.floor(rng() * pool.length);
+      out.push(pool.splice(k, 1)[0]);
+    }
+    while (out.length < n) out.push(BX_COVERS[Math.floor(rng() * BX_COVERS.length)]);
+    return out;
+  }
+  // 按 rng 从内容池不重复抽 n 条
+  function seededSample(pool, n, rng) {
+    const arr = pool.slice();
+    const out = [];
+    for (let i = 0; i < n && arr.length; i++) {
+      const k = Math.floor(rng() * arr.length);
+      out.push(arr.splice(k, 1)[0]);
+    }
+    return out;
+  }
+
   function bxCardsHTML() {
     const pool = state.analysis.contents;
-    state.blindbox = sampleN(pool, 3).map((c) => ({ c, rarity: rollRarity(), flipped: false }));
+    const seeded = (state.bxSeed != null);
+    const rng = seeded ? mulberry32(state.bxSeed) : Math.random;
+    const picks = seeded ? seededSample(pool, 3, rng) : sampleN(pool, 3);
+    state.blindbox = picks.map((c) => ({ c, rarity: rollRarity(), flipped: false }));
+    const covers = dailyCovers(state.blindbox.length, rng);
     return state.blindbox.map((p, i) => {
       const c = p.c;
       const v = topVoiceFor(c);
-      const coverImg = BX_COVERS[i % BX_COVERS.length];
+      const coverImg = covers[i];
       const cover = `<div class="bx-cover-wrap">
         <img class="bx-cover-img" src="${esc(coverImg)}" alt="盲盒卡片" crossorigin="anonymous">
         <div class="bx-cover-mask"></div>
@@ -681,8 +764,10 @@ ${topMatches || "（无强匹配）"}
       box = document.createElement("div");
       box.id = "bx-float";
       box.className = "bx-float";
+      // 首次打开：按当天日期定下「每日抽」的种子（当天稳定、跨天不同）
+      state.bxSeed = dateSeed();
       box.innerHTML = `<div class="bx-float-head" id="bx-float-head">
-          <span class="bx-float-title">🎁 每日盲盒</span>
+          <span class="bx-float-title" id="bx-float-title">🎁 每日盲盒 · ${todayStr()}</span>
           <div class="bx-float-tools">
             <button class="mini-btn" id="bx-redraw">🎲 重抽</button>
             <button class="mini-btn ghost" id="bx-close">×</button>
@@ -714,8 +799,8 @@ ${topMatches || "（无强匹配）"}
       const up = () => { document.removeEventListener("mousemove", mv); document.removeEventListener("mouseup", up); box.style.transition = ""; };
       document.addEventListener("mousemove", mv); document.addEventListener("mouseup", up);
     };
-    // 重抽
-    const rd = $("#bx-redraw", box); if (rd) rd.onclick = (e) => { e.stopPropagation(); $("#bx-float-body", box).innerHTML = `<div class="blindbox-grid bx-float-grid">${bxCardsHTML()}</div>`; bindBlindboxFloat(box); };
+    // 重抽：清空每日种子 → 立即换新一组（真随机）
+    const rd = $("#bx-redraw", box); if (rd) rd.onclick = (e) => { e.stopPropagation(); state.bxSeed = null; $("#bx-float-body", box).innerHTML = `<div class="blindbox-grid bx-float-grid">${bxCardsHTML()}</div>`; bindBlindboxFloat(box); };
     // 关闭
     const cl = $("#bx-close", box); if (cl) cl.onclick = (e) => { e.stopPropagation(); box.classList.remove("show"); let ro = $("#bx-reopen"); if (!ro) { ro = document.createElement("button"); ro.id = "bx-reopen"; ro.className = "bx-reopen"; ro.textContent = "🎁 盲盒"; ro.onclick = () => initBlindboxFloat(true); document.body.appendChild(ro); } ro.style.display = ""; };
     // 翻牌
