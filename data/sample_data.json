@@ -1,0 +1,1107 @@
+{
+  "meta": {
+    "updated_at": "2026-07-10T11:35:33",
+    "source": "sample",
+    "account_count": 3,
+    "content_count": 36,
+    "date_range": [
+      "2026-04-01",
+      "2026-07-10"
+    ]
+  },
+  "contents": [
+    {
+      "id": "c001",
+      "account": "品牌主号",
+      "platform": "抖音",
+      "publish_time": "2026-07-02T22:45:00+08:00",
+      "content_type": "测评",
+      "topic_tags": [
+        "教程",
+        "成分科普",
+        "平替"
+      ],
+      "emotion": "高级",
+      "activity_tag": "新品首发",
+      "is_activity": true,
+      "campaign_name": "新品首发专题",
+      "text": "实用 | 出差极简护肤包怎么装",
+      "exposure": 121592,
+      "likes": 3315,
+      "shares": 391,
+      "comments": 595,
+      "collections": 475,
+      "brand_replies": 32,
+      "avg_reply_time_minutes": 174,
+      "comment_quality": {
+        "赞美": 239,
+        "提问": 90,
+        "分享体验": 89,
+        "开玩笑": 73,
+        "抱怨": 104
+      }
+    },
+    {
+      "id": "c002",
+      "account": "品牌主号",
+      "platform": "微博",
+      "publish_time": "2026-04-12T22:30:00+08:00",
+      "content_type": "清单",
+      "topic_tags": [
+        "赠礼",
+        "平替",
+        "成分科普"
+      ],
+      "emotion": "搞笑",
+      "activity_tag": "双11",
+      "is_activity": true,
+      "campaign_name": "双11专题",
+      "text": "周年庆攻略 | 怎么买最划算一篇讲透",
+      "exposure": 206424,
+      "likes": 11953,
+      "shares": 1769,
+      "comments": 3324,
+      "collections": 1690,
+      "brand_replies": 493,
+      "avg_reply_time_minutes": 41,
+      "comment_quality": {
+        "赞美": 859,
+        "提问": 481,
+        "分享体验": 402,
+        "开玩笑": 771,
+        "抱怨": 811
+      }
+    },
+    {
+      "id": "c003",
+      "account": "种草官号",
+      "platform": "微博",
+      "publish_time": "2026-04-25T18:45:00+08:00",
+      "content_type": "测评",
+      "topic_tags": [
+        "节日"
+      ],
+      "emotion": "实用",
+      "activity_tag": "周年庆",
+      "is_activity": true,
+      "campaign_name": "周年庆专题",
+      "text": "妆容 | 纯欲风眼妆 step by step",
+      "exposure": 296892,
+      "likes": 12235,
+      "shares": 2211,
+      "comments": 2608,
+      "collections": 3338,
+      "brand_replies": 452,
+      "avg_reply_time_minutes": 55,
+      "comment_quality": {
+        "赞美": 548,
+        "提问": 606,
+        "分享体验": 225,
+        "开玩笑": 482,
+        "抱怨": 747
+      }
+    },
+    {
+      "id": "c004",
+      "account": "种草官号",
+      "platform": "小红书",
+      "publish_time": "2026-06-18T13:30:00+08:00",
+      "content_type": "清单",
+      "topic_tags": [
+        "节日"
+      ],
+      "emotion": "高级",
+      "activity_tag": "618",
+      "is_activity": true,
+      "campaign_name": "618专题",
+      "text": "平替 | 大牌同厂平替到底值不值",
+      "exposure": 31901,
+      "likes": 1103,
+      "shares": 239,
+      "comments": 289,
+      "collections": 89,
+      "brand_replies": 64,
+      "avg_reply_time_minutes": 91,
+      "comment_quality": {
+        "赞美": 138,
+        "提问": 60,
+        "分享体验": 44,
+        "开玩笑": 16,
+        "抱怨": 31
+      }
+    },
+    {
+      "id": "c005",
+      "account": "种草官号",
+      "platform": "小红书",
+      "publish_time": "2026-04-10T22:15:00+08:00",
+      "content_type": "视频",
+      "topic_tags": [
+        "测评",
+        "穿搭",
+        "成分科普"
+      ],
+      "emotion": "搞笑",
+      "activity_tag": "无",
+      "is_activity": false,
+      "campaign_name": null,
+      "text": "节日 | 情人节送礼指南不出错清单",
+      "exposure": 177045,
+      "likes": 4480,
+      "shares": 872,
+      "comments": 1525,
+      "collections": 854,
+      "brand_replies": 101,
+      "avg_reply_time_minutes": 132,
+      "comment_quality": {
+        "赞美": 356,
+        "提问": 531,
+        "分享体验": 193,
+        "开玩笑": 75,
+        "抱怨": 370
+      }
+    },
+    {
+      "id": "c006",
+      "account": "副线账号",
+      "platform": "微博",
+      "publish_time": "2026-05-22T13:15:00+08:00",
+      "content_type": "清单",
+      "topic_tags": [
+        "产品介绍",
+        "节日",
+        "抽奖"
+      ],
+      "emotion": "治愈",
+      "activity_tag": "无",
+      "is_activity": false,
+      "campaign_name": null,
+      "text": "成分科普 | 早C晚A到底能不能一起用",
+      "exposure": 266916,
+      "likes": 7562,
+      "shares": 1755,
+      "comments": 1771,
+      "collections": 2195,
+      "brand_replies": 346,
+      "avg_reply_time_minutes": 141,
+      "comment_quality": {
+        "赞美": 628,
+        "提问": 288,
+        "分享体验": 200,
+        "开玩笑": 216,
+        "抱怨": 439
+      }
+    },
+    {
+      "id": "c007",
+      "account": "种草官号",
+      "platform": "微博",
+      "publish_time": "2026-04-12T22:30:00+08:00",
+      "content_type": "测评",
+      "topic_tags": [
+        "妆容"
+      ],
+      "emotion": "高级",
+      "activity_tag": "双11",
+      "is_activity": true,
+      "campaign_name": "双11专题",
+      "text": "直播切片 | 主播力荐的3支神仙单品",
+      "exposure": 320274,
+      "likes": 14094,
+      "shares": 2385,
+      "comments": 2536,
+      "collections": 1433,
+      "brand_replies": 152,
+      "avg_reply_time_minutes": 123,
+      "comment_quality": {
+        "赞美": 722,
+        "提问": 276,
+        "分享体验": 522,
+        "开玩笑": 312,
+        "抱怨": 704
+      }
+    },
+    {
+      "id": "c008",
+      "account": "副线账号",
+      "platform": "微博",
+      "publish_time": "2026-04-25T22:45:00+08:00",
+      "content_type": "测评",
+      "topic_tags": [
+        "穿搭"
+      ],
+      "emotion": "治愈",
+      "activity_tag": "周年庆",
+      "is_activity": true,
+      "campaign_name": "周年庆专题",
+      "text": "共鸣 | 谁懂啊 换季烂脸真的太崩溃了",
+      "exposure": 400202,
+      "likes": 13231,
+      "shares": 3206,
+      "comments": 2984,
+      "collections": 3496,
+      "brand_replies": 739,
+      "avg_reply_time_minutes": 117,
+      "comment_quality": {
+        "赞美": 958,
+        "提问": 980,
+        "分享体验": 433,
+        "开玩笑": 178,
+        "抱怨": 435
+      }
+    },
+    {
+      "id": "c009",
+      "account": "品牌主号",
+      "platform": "微博",
+      "publish_time": "2026-05-17T22:45:00+08:00",
+      "content_type": "视频",
+      "topic_tags": [
+        "节日",
+        "产品介绍",
+        "妆容"
+      ],
+      "emotion": "高级",
+      "activity_tag": "无",
+      "is_activity": false,
+      "campaign_name": null,
+      "text": "约会妆容灵感 | 温柔到犯规的伪素颜",
+      "exposure": 368295,
+      "likes": 17020,
+      "shares": 3447,
+      "comments": 3387,
+      "collections": 2396,
+      "brand_replies": 174,
+      "avg_reply_time_minutes": 94,
+      "comment_quality": {
+        "赞美": 736,
+        "提问": 706,
+        "分享体验": 592,
+        "开玩笑": 364,
+        "抱怨": 989
+      }
+    },
+    {
+      "id": "c010",
+      "account": "副线账号",
+      "platform": "微博",
+      "publish_time": "2026-05-22T19:45:00+08:00",
+      "content_type": "清单",
+      "topic_tags": [
+        "赠礼",
+        "抽奖"
+      ],
+      "emotion": "搞笑",
+      "activity_tag": "宠粉日",
+      "is_activity": true,
+      "campaign_name": "宠粉日专题",
+      "text": "搞笑 | 当男朋友第一次帮你挑口红色号",
+      "exposure": 344087,
+      "likes": 20891,
+      "shares": 2866,
+      "comments": 3837,
+      "collections": 3145,
+      "brand_replies": 313,
+      "avg_reply_time_minutes": 158,
+      "comment_quality": {
+        "赞美": 1505,
+        "提问": 717,
+        "分享体验": 362,
+        "开玩笑": 566,
+        "抱怨": 687
+      }
+    },
+    {
+      "id": "c011",
+      "account": "副线账号",
+      "platform": "抖音",
+      "publish_time": "2026-06-16T13:45:00+08:00",
+      "content_type": "视频",
+      "topic_tags": [
+        "限定",
+        "联名",
+        "妆容"
+      ],
+      "emotion": "共鸣",
+      "activity_tag": "618",
+      "is_activity": true,
+      "campaign_name": "618专题",
+      "text": "震惊 | 原来洗脸这么多人都洗错了",
+      "exposure": 408673,
+      "likes": 10991,
+      "shares": 2648,
+      "comments": 2378,
+      "collections": 2910,
+      "brand_replies": 209,
+      "avg_reply_time_minutes": 148,
+      "comment_quality": {
+        "赞美": 825,
+        "提问": 526,
+        "分享体验": 334,
+        "开玩笑": 109,
+        "抱怨": 584
+      }
+    },
+    {
+      "id": "c012",
+      "account": "品牌主号",
+      "platform": "小红书",
+      "publish_time": "2026-06-25T18:30:00+08:00",
+      "content_type": "直播切片",
+      "topic_tags": [
+        "平替",
+        "测评"
+      ],
+      "emotion": "搞笑",
+      "activity_tag": "无",
+      "is_activity": false,
+      "campaign_name": null,
+      "text": "治愈 | 周末宅家护肤仪式感拉满",
+      "exposure": 18006,
+      "likes": 772,
+      "shares": 175,
+      "comments": 187,
+      "collections": 198,
+      "brand_replies": 36,
+      "avg_reply_time_minutes": 148,
+      "comment_quality": {
+        "赞美": 64,
+        "提问": 36,
+        "分享体验": 32,
+        "开玩笑": 13,
+        "抱怨": 42
+      }
+    },
+    {
+      "id": "c013",
+      "account": "种草官号",
+      "platform": "小红书",
+      "publish_time": "2026-07-03T22:15:00+08:00",
+      "content_type": "直播切片",
+      "topic_tags": [
+        "平替"
+      ],
+      "emotion": "治愈",
+      "activity_tag": "新品首发",
+      "is_activity": true,
+      "campaign_name": "新品首发专题",
+      "text": "成分党必看 | 烟酰胺到底怎么选不踩雷",
+      "exposure": 123172,
+      "likes": 5788,
+      "shares": 782,
+      "comments": 1759,
+      "collections": 676,
+      "brand_replies": 418,
+      "avg_reply_time_minutes": 96,
+      "comment_quality": {
+        "赞美": 691,
+        "提问": 351,
+        "分享体验": 280,
+        "开玩笑": 93,
+        "抱怨": 344
+      }
+    },
+    {
+      "id": "c014",
+      "account": "种草官号",
+      "platform": "抖音",
+      "publish_time": "2026-07-04T09:45:00+08:00",
+      "content_type": "直播切片",
+      "topic_tags": [
+        "限定",
+        "产品介绍"
+      ],
+      "emotion": "高级",
+      "activity_tag": "无",
+      "is_activity": false,
+      "campaign_name": null,
+      "text": "震惊 | 这支眉笔居然能画一整天不掉",
+      "exposure": 157078,
+      "likes": 4980,
+      "shares": 886,
+      "comments": 1258,
+      "collections": 655,
+      "brand_replies": 107,
+      "avg_reply_time_minutes": 87,
+      "comment_quality": {
+        "赞美": 549,
+        "提问": 284,
+        "分享体验": 171,
+        "开玩笑": 73,
+        "抱怨": 181
+      }
+    },
+    {
+      "id": "c015",
+      "account": "品牌主号",
+      "platform": "抖音",
+      "publish_time": "2026-04-14T09:15:00+08:00",
+      "content_type": "图文",
+      "topic_tags": [
+        "测评",
+        "妆容"
+      ],
+      "emotion": "震惊",
+      "activity_tag": "双11",
+      "is_activity": true,
+      "campaign_name": "双11专题",
+      "text": "测评 | 热门身体乳留香时长横评",
+      "exposure": 117416,
+      "likes": 6498,
+      "shares": 1136,
+      "comments": 1413,
+      "collections": 603,
+      "brand_replies": 139,
+      "avg_reply_time_minutes": 41,
+      "comment_quality": {
+        "赞美": 364,
+        "提问": 403,
+        "分享体验": 313,
+        "开玩笑": 115,
+        "抱怨": 218
+      }
+    },
+    {
+      "id": "c016",
+      "account": "品牌主号",
+      "platform": "微博",
+      "publish_time": "2026-07-07T13:45:00+08:00",
+      "content_type": "清单",
+      "topic_tags": [
+        "联名"
+      ],
+      "emotion": "共鸣",
+      "activity_tag": "无",
+      "is_activity": false,
+      "campaign_name": null,
+      "text": "大牌平替合集 | 学生党也能用的宝藏好物",
+      "exposure": 130782,
+      "likes": 4285,
+      "shares": 603,
+      "comments": 998,
+      "collections": 1509,
+      "brand_replies": 113,
+      "avg_reply_time_minutes": 163,
+      "comment_quality": {
+        "赞美": 449,
+        "提问": 142,
+        "分享体验": 150,
+        "开玩笑": 68,
+        "抱怨": 189
+      }
+    },
+    {
+      "id": "c017",
+      "account": "副线账号",
+      "platform": "小红书",
+      "publish_time": "2026-04-25T18:30:00+08:00",
+      "content_type": "图文",
+      "topic_tags": [
+        "限定",
+        "产品介绍"
+      ],
+      "emotion": "震惊",
+      "activity_tag": "周年庆",
+      "is_activity": true,
+      "campaign_name": "周年庆专题",
+      "text": "宠粉抽奖 | 评论区抽3位送正装礼盒",
+      "exposure": 353045,
+      "likes": 12327,
+      "shares": 2799,
+      "comments": 3440,
+      "collections": 2797,
+      "brand_replies": 306,
+      "avg_reply_time_minutes": 117,
+      "comment_quality": {
+        "赞美": 1610,
+        "提问": 479,
+        "分享体验": 635,
+        "开玩笑": 221,
+        "抱怨": 495
+      }
+    },
+    {
+      "id": "c018",
+      "account": "副线账号",
+      "platform": "抖音",
+      "publish_time": "2026-04-25T22:30:00+08:00",
+      "content_type": "直播切片",
+      "topic_tags": [
+        "穿搭",
+        "教程",
+        "赠礼"
+      ],
+      "emotion": "搞笑",
+      "activity_tag": "周年庆",
+      "is_activity": true,
+      "campaign_name": "周年庆专题",
+      "text": "实用 | 化妆品保质期对照表建议收藏",
+      "exposure": 108573,
+      "likes": 5604,
+      "shares": 923,
+      "comments": 1288,
+      "collections": 874,
+      "brand_replies": 132,
+      "avg_reply_time_minutes": 59,
+      "comment_quality": {
+        "赞美": 274,
+        "提问": 345,
+        "分享体验": 235,
+        "开玩笑": 186,
+        "抱怨": 248
+      }
+    },
+    {
+      "id": "c019",
+      "account": "种草官号",
+      "platform": "抖音",
+      "publish_time": "2026-04-04T19:45:00+08:00",
+      "content_type": "清单",
+      "topic_tags": [
+        "穿搭",
+        "妆容",
+        "平替"
+      ],
+      "emotion": "搞笑",
+      "activity_tag": "无",
+      "is_activity": false,
+      "campaign_name": null,
+      "text": "测评 | 9.9和199的洗面奶差别在哪",
+      "exposure": 407221,
+      "likes": 18532,
+      "shares": 2511,
+      "comments": 4377,
+      "collections": 1404,
+      "brand_replies": 882,
+      "avg_reply_time_minutes": 47,
+      "comment_quality": {
+        "赞美": 789,
+        "提问": 1068,
+        "分享体验": 908,
+        "开玩笑": 553,
+        "抱怨": 1059
+      }
+    },
+    {
+      "id": "c020",
+      "account": "品牌主号",
+      "platform": "小红书",
+      "publish_time": "2026-04-14T22:00:00+08:00",
+      "content_type": "图文",
+      "topic_tags": [
+        "平替",
+        "妆容"
+      ],
+      "emotion": "高级",
+      "activity_tag": "双11",
+      "is_activity": true,
+      "campaign_name": "双11专题",
+      "text": "节日 | 圣诞倒数礼盒开箱现场",
+      "exposure": 237507,
+      "likes": 10614,
+      "shares": 2020,
+      "comments": 2772,
+      "collections": 1123,
+      "brand_replies": 424,
+      "avg_reply_time_minutes": 163,
+      "comment_quality": {
+        "赞美": 662,
+        "提问": 507,
+        "分享体验": 434,
+        "开玩笑": 513,
+        "抱怨": 656
+      }
+    },
+    {
+      "id": "c021",
+      "account": "副线账号",
+      "platform": "抖音",
+      "publish_time": "2026-07-09T18:15:00+08:00",
+      "content_type": "测评",
+      "topic_tags": [
+        "平替",
+        "教程",
+        "联名"
+      ],
+      "emotion": "高级",
+      "activity_tag": "无",
+      "is_activity": false,
+      "campaign_name": null,
+      "text": "赠礼 | 送给妈妈的护肤套装实测",
+      "exposure": 169573,
+      "likes": 5013,
+      "shares": 845,
+      "comments": 1443,
+      "collections": 289,
+      "brand_replies": 322,
+      "avg_reply_time_minutes": 131,
+      "comment_quality": {
+        "赞美": 245,
+        "提问": 306,
+        "分享体验": 187,
+        "开玩笑": 194,
+        "抱怨": 511
+      }
+    },
+    {
+      "id": "c022",
+      "account": "副线账号",
+      "platform": "小红书",
+      "publish_time": "2026-06-17T20:00:00+08:00",
+      "content_type": "视频",
+      "topic_tags": [
+        "平替",
+        "教程",
+        "限定"
+      ],
+      "emotion": "高级",
+      "activity_tag": "618",
+      "is_activity": true,
+      "campaign_name": "618专题",
+      "text": "穿搭 | 秋冬氛围感围巾搭配公式",
+      "exposure": 31288,
+      "likes": 774,
+      "shares": 132,
+      "comments": 254,
+      "collections": 221,
+      "brand_replies": 42,
+      "avg_reply_time_minutes": 166,
+      "comment_quality": {
+        "赞美": 76,
+        "提问": 60,
+        "分享体验": 51,
+        "开玩笑": 31,
+        "抱怨": 36
+      }
+    },
+    {
+      "id": "c023",
+      "account": "品牌主号",
+      "platform": "小红书",
+      "publish_time": "2026-04-10T20:30:00+08:00",
+      "content_type": "测评",
+      "topic_tags": [
+        "产品介绍"
+      ],
+      "emotion": "高级",
+      "activity_tag": "无",
+      "is_activity": false,
+      "campaign_name": null,
+      "text": "搞笑 | 化妆翻车现场之眼线手抖星人",
+      "exposure": 340330,
+      "likes": 7313,
+      "shares": 1086,
+      "comments": 2423,
+      "collections": 1357,
+      "brand_replies": 434,
+      "avg_reply_time_minutes": 137,
+      "comment_quality": {
+        "赞美": 906,
+        "提问": 387,
+        "分享体验": 254,
+        "开玩笑": 148,
+        "抱怨": 728
+      }
+    },
+    {
+      "id": "c024",
+      "account": "品牌主号",
+      "platform": "小红书",
+      "publish_time": "2026-05-21T20:45:00+08:00",
+      "content_type": "直播切片",
+      "topic_tags": [
+        "成分科普",
+        "教程"
+      ],
+      "emotion": "实用",
+      "activity_tag": "宠粉日",
+      "is_activity": true,
+      "campaign_name": "宠粉日专题",
+      "text": "新品首发 | 早C晚A精华到底谁更适合你",
+      "exposure": 391767,
+      "likes": 22997,
+      "shares": 4317,
+      "comments": 5335,
+      "collections": 891,
+      "brand_replies": 725,
+      "avg_reply_time_minutes": 49,
+      "comment_quality": {
+        "赞美": 2569,
+        "提问": 1239,
+        "分享体验": 580,
+        "开玩笑": 249,
+        "抱怨": 698
+      }
+    },
+    {
+      "id": "c025",
+      "account": "副线账号",
+      "platform": "抖音",
+      "publish_time": "2026-06-18T18:45:00+08:00",
+      "content_type": "图文",
+      "topic_tags": [
+        "测评"
+      ],
+      "emotion": "共鸣",
+      "activity_tag": "618",
+      "is_activity": true,
+      "campaign_name": "618专题",
+      "text": "熬夜脸急救 | 急救面膜实测哪款真的有用",
+      "exposure": 123641,
+      "likes": 4567,
+      "shares": 1060,
+      "comments": 1275,
+      "collections": 1268,
+      "brand_replies": 235,
+      "avg_reply_time_minutes": 174,
+      "comment_quality": {
+        "赞美": 298,
+        "提问": 402,
+        "分享体验": 159,
+        "开玩笑": 207,
+        "抱怨": 209
+      }
+    },
+    {
+      "id": "c026",
+      "account": "种草官号",
+      "platform": "微博",
+      "publish_time": "2026-07-03T13:00:00+08:00",
+      "content_type": "图文",
+      "topic_tags": [
+        "限定",
+        "节日"
+      ],
+      "emotion": "高级",
+      "activity_tag": "新品首发",
+      "is_activity": true,
+      "campaign_name": "新品首发专题",
+      "text": "618清单 | 囤货前先看这份避坑指南",
+      "exposure": 29483,
+      "likes": 1018,
+      "shares": 197,
+      "comments": 270,
+      "collections": 186,
+      "brand_replies": 66,
+      "avg_reply_time_minutes": 28,
+      "comment_quality": {
+        "赞美": 59,
+        "提问": 92,
+        "分享体验": 46,
+        "开玩笑": 17,
+        "抱怨": 56
+      }
+    },
+    {
+      "id": "c027",
+      "account": "品牌主号",
+      "platform": "微博",
+      "publish_time": "2026-07-01T22:45:00+08:00",
+      "content_type": "测评",
+      "topic_tags": [
+        "妆容",
+        "成分科普"
+      ],
+      "emotion": "共鸣",
+      "activity_tag": "新品首发",
+      "is_activity": true,
+      "campaign_name": "新品首发专题",
+      "text": "清单 | 油皮亲妈级控油产品盘点",
+      "exposure": 186991,
+      "likes": 4180,
+      "shares": 934,
+      "comments": 1057,
+      "collections": 923,
+      "brand_replies": 178,
+      "avg_reply_time_minutes": 91,
+      "comment_quality": {
+        "赞美": 205,
+        "提问": 265,
+        "分享体验": 137,
+        "开玩笑": 142,
+        "抱怨": 308
+      }
+    },
+    {
+      "id": "c028",
+      "account": "品牌主号",
+      "platform": "抖音",
+      "publish_time": "2026-06-15T12:30:00+08:00",
+      "content_type": "清单",
+      "topic_tags": [
+        "限定",
+        "妆容",
+        "平替"
+      ],
+      "emotion": "震惊",
+      "activity_tag": "618",
+      "is_activity": true,
+      "campaign_name": "618专题",
+      "text": "治愈系开箱 | 把梳妆台变成小展厅",
+      "exposure": 131932,
+      "likes": 4120,
+      "shares": 965,
+      "comments": 1194,
+      "collections": 795,
+      "brand_replies": 172,
+      "avg_reply_time_minutes": 140,
+      "comment_quality": {
+        "赞美": 279,
+        "提问": 350,
+        "分享体验": 104,
+        "开玩笑": 127,
+        "抱怨": 334
+      }
+    },
+    {
+      "id": "c029",
+      "account": "副线账号",
+      "platform": "微博",
+      "publish_time": "2026-05-18T19:00:00+08:00",
+      "content_type": "测评",
+      "topic_tags": [
+        "产品介绍"
+      ],
+      "emotion": "共鸣",
+      "activity_tag": "无",
+      "is_activity": false,
+      "campaign_name": null,
+      "text": "共鸣 | 成年人崩溃从换季烂脸开始",
+      "exposure": 381643,
+      "likes": 7709,
+      "shares": 1150,
+      "comments": 1752,
+      "collections": 2304,
+      "brand_replies": 197,
+      "avg_reply_time_minutes": 31,
+      "comment_quality": {
+        "赞美": 536,
+        "提问": 344,
+        "分享体验": 244,
+        "开玩笑": 110,
+        "抱怨": 518
+      }
+    },
+    {
+      "id": "c030",
+      "account": "种草官号",
+      "platform": "抖音",
+      "publish_time": "2026-06-09T19:45:00+08:00",
+      "content_type": "测评",
+      "topic_tags": [
+        "教程"
+      ],
+      "emotion": "搞笑",
+      "activity_tag": "无",
+      "is_activity": false,
+      "campaign_name": null,
+      "text": "联名款抢先试色 | 这波不冲真的会后悔",
+      "exposure": 384686,
+      "likes": 11105,
+      "shares": 1663,
+      "comments": 2877,
+      "collections": 1721,
+      "brand_replies": 671,
+      "avg_reply_time_minutes": 101,
+      "comment_quality": {
+        "赞美": 1233,
+        "提问": 670,
+        "分享体验": 356,
+        "开玩笑": 233,
+        "抱怨": 385
+      }
+    },
+    {
+      "id": "c031",
+      "account": "副线账号",
+      "platform": "抖音",
+      "publish_time": "2026-05-06T09:30:00+08:00",
+      "content_type": "清单",
+      "topic_tags": [
+        "产品介绍",
+        "节日"
+      ],
+      "emotion": "搞笑",
+      "activity_tag": "无",
+      "is_activity": false,
+      "campaign_name": null,
+      "text": "联名 | 动漫联名彩妆真的会心动",
+      "exposure": 262859,
+      "likes": 6341,
+      "shares": 947,
+      "comments": 1118,
+      "collections": 655,
+      "brand_replies": 256,
+      "avg_reply_time_minutes": 158,
+      "comment_quality": {
+        "赞美": 400,
+        "提问": 198,
+        "分享体验": 140,
+        "开玩笑": 130,
+        "抱怨": 250
+      }
+    },
+    {
+      "id": "c032",
+      "account": "品牌主号",
+      "platform": "小红书",
+      "publish_time": "2026-04-17T22:30:00+08:00",
+      "content_type": "图文",
+      "topic_tags": [
+        "赠礼",
+        "限定",
+        "平替"
+      ],
+      "emotion": "治愈",
+      "activity_tag": "无",
+      "is_activity": false,
+      "campaign_name": null,
+      "text": "通勤淡妆教程 | 5分钟搞定伪素颜",
+      "exposure": 367168,
+      "likes": 13360,
+      "shares": 1856,
+      "comments": 3306,
+      "collections": 3793,
+      "brand_replies": 741,
+      "avg_reply_time_minutes": 47,
+      "comment_quality": {
+        "赞美": 527,
+        "提问": 792,
+        "分享体验": 300,
+        "开玩笑": 503,
+        "抱怨": 1184
+      }
+    },
+    {
+      "id": "c033",
+      "account": "副线账号",
+      "platform": "小红书",
+      "publish_time": "2026-04-25T22:30:00+08:00",
+      "content_type": "直播切片",
+      "topic_tags": [
+        "穿搭"
+      ],
+      "emotion": "高级",
+      "activity_tag": "周年庆",
+      "is_activity": true,
+      "campaign_name": "周年庆专题",
+      "text": "黄皮显白口红实测对比，到底是不是天花板",
+      "exposure": 81666,
+      "likes": 4115,
+      "shares": 541,
+      "comments": 945,
+      "collections": 470,
+      "brand_replies": 88,
+      "avg_reply_time_minutes": 18,
+      "comment_quality": {
+        "赞美": 227,
+        "提问": 215,
+        "分享体验": 163,
+        "开玩笑": 154,
+        "抱怨": 186
+      }
+    },
+    {
+      "id": "c034",
+      "account": "副线账号",
+      "platform": "微博",
+      "publish_time": "2026-04-19T21:45:00+08:00",
+      "content_type": "视频",
+      "topic_tags": [
+        "妆容",
+        "节日",
+        "穿搭"
+      ],
+      "emotion": "震惊",
+      "activity_tag": "无",
+      "is_activity": false,
+      "campaign_name": null,
+      "text": "限定 | 季节限定色调一口气试完",
+      "exposure": 229589,
+      "likes": 12104,
+      "shares": 2257,
+      "comments": 2575,
+      "collections": 829,
+      "brand_replies": 642,
+      "avg_reply_time_minutes": 30,
+      "comment_quality": {
+        "赞美": 594,
+        "提问": 798,
+        "分享体验": 342,
+        "开玩笑": 225,
+        "抱怨": 616
+      }
+    },
+    {
+      "id": "c035",
+      "account": "副线账号",
+      "platform": "小红书",
+      "publish_time": "2026-06-16T09:15:00+08:00",
+      "content_type": "清单",
+      "topic_tags": [
+        "穿搭",
+        "平替"
+      ],
+      "emotion": "共鸣",
+      "activity_tag": "618",
+      "is_activity": true,
+      "campaign_name": "618专题",
+      "text": "联名 | 和艺术家联名的包装也太美了",
+      "exposure": 179153,
+      "likes": 7033,
+      "shares": 1098,
+      "comments": 1894,
+      "collections": 197,
+      "brand_replies": 97,
+      "avg_reply_time_minutes": 41,
+      "comment_quality": {
+        "赞美": 331,
+        "提问": 394,
+        "分享体验": 342,
+        "开玩笑": 343,
+        "抱怨": 484
+      }
+    },
+    {
+      "id": "c036",
+      "account": "品牌主号",
+      "platform": "微博",
+      "publish_time": "2026-05-21T12:00:00+08:00",
+      "content_type": "直播切片",
+      "topic_tags": [
+        "节日",
+        "产品介绍",
+        "限定"
+      ],
+      "emotion": "实用",
+      "activity_tag": "宠粉日",
+      "is_activity": true,
+      "campaign_name": "宠粉日专题",
+      "text": "春日限定香氛开箱 | 一支让你闻起来很贵",
+      "exposure": 82958,
+      "likes": 2445,
+      "shares": 554,
+      "comments": 757,
+      "collections": 393,
+      "brand_replies": 154,
+      "avg_reply_time_minutes": 99,
+      "comment_quality": {
+        "赞美": 181,
+        "提问": 275,
+        "分享体验": 120,
+        "开玩笑": 70,
+        "抱怨": 111
+      }
+    }
+  ],
+  "userVoices": [
+    { "id": "uv01", "contentId": "c008", "account": "副线账号", "platform": "微博", "text": "谁懂啊 换季烂脸真的太崩溃了 狠狠共情了", "likes": 3200, "sentiment": "共鸣", "originalLink": "https://example.com/post/c008" },
+    { "id": "uv02", "contentId": "c011", "account": "副线账号", "platform": "抖音", "text": "原来我洗脸一直都错了 马上改", "likes": 2100, "sentiment": "震惊", "originalLink": "https://example.com/post/c011" },
+    { "id": "uv03", "contentId": "c019", "account": "种草官号", "platform": "抖音", "text": "求测评链接！蹲一个", "likes": 4500, "sentiment": "提问", "originalLink": "https://example.com/post/c019" },
+    { "id": "uv04", "contentId": "c024", "account": "品牌主号", "platform": "小红书", "text": "已下单 听劝", "likes": 5200, "sentiment": "赞美", "originalLink": "https://example.com/post/c024" },
+    { "id": "uv05", "contentId": "c032", "account": "品牌主号", "platform": "小红书", "text": "5分钟伪素颜太需要了 收藏了", "likes": 3800, "sentiment": "实用", "originalLink": "https://example.com/post/c032" },
+    { "id": "uv06", "contentId": "c017", "account": "副线账号", "platform": "小红书", "text": "抽我抽我！想要礼盒", "likes": 2900, "sentiment": "期待", "originalLink": "https://example.com/post/c017" },
+    { "id": "uv07", "contentId": "c030", "account": "种草官号", "platform": "抖音", "text": "这波不冲真的会后悔 已加购", "likes": 2600, "sentiment": "赞美", "originalLink": "https://example.com/post/c030" },
+    { "id": "uv08", "contentId": "c033", "account": "副线账号", "platform": "小红书", "text": "黄皮亲测显白！终于找到本命色", "likes": 2400, "sentiment": "赞美", "originalLink": "https://example.com/post/c033" }
+  ]
+}
