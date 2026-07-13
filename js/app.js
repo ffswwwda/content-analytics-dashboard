@@ -302,6 +302,10 @@
         <button data-view="grid" class="${state.view === "grid" ? "on" : ""}">卡片</button>
         <button data-view="list" class="${state.view === "list" ? "on" : ""}">列表</button>
       </div>
+      <button class="bx-launch" id="bx-launch" title="每日灵感盲盒">
+        <svg viewBox="0 0 24 24" class="ic"><path d="M4 9h16v11H4zM2 9l2-5h16l2 5M12 4v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        每日灵感盲盒
+      </button>
     </div>`;
     const head = `<div class="board-head"><div class="board-desc">${boardDesc("library")}<br><b style="color:var(--accent-strong)">${data.length}</b> 条符合筛选 · 随机模式打破信息茧房；指标模式含「只看爆款(Top10%) / 类型 ROI」等评估标准。点标签加筛选，点卡片看详情。</div>${tools}</div>`;
     if (!list.length) return head + emptyState();
@@ -738,59 +742,40 @@ ${topMatches || "（无强匹配）"}
     }).join("");
   }
 
-  function initBlindboxFloat(forceOpen) {
-    let box = $("#bx-float");
-    if (!box) {
-      box = document.createElement("div");
-      box.id = "bx-float";
-      box.className = "bx-float";
-      // 首次打开：按当天日期定下「每日抽」的种子（当天稳定、跨天不同）
-      state.bxSeed = dateSeed();
-      box.innerHTML = `<div class="bx-float-head" id="bx-float-head">
-          <span class="bx-float-title" id="bx-float-title">🎁 每日盲盒 · ${todayStr()}</span>
-          <div class="bx-float-tools">
-            <button class="mini-btn" id="bx-redraw">🎲 重抽</button>
-            <button class="mini-btn ghost" id="bx-close">×</button>
-          </div>
-        </div>
-        <div class="bx-float-body" id="bx-float-body"><div class="blindbox-grid bx-float-grid">${bxCardsHTML()}</div></div>`;
-      document.body.appendChild(box);
-      bindBlindboxFloat(box);
-      box.classList.add("show");
-    } else {
-      // 已存在：仅重绘卡牌（如语言切换 / 重抽），不改变显隐状态
-      $("#bx-float-body", box).innerHTML = `<div class="blindbox-grid bx-float-grid">${bxCardsHTML()}</div>`;
-      bindBlindboxFloat(box);
-      if (forceOpen) box.classList.add("show");
-    }
+  function openBlindboxModal() {
+    state.bxSeed = state.bxSeed || dateSeed();
+    const dateEl = $("#bx-modal-date");
+    if (dateEl) dateEl.textContent = todayStr();
+    const grid = $("#bx-grid");
+    if (grid) grid.innerHTML = bxCardsHTML();
+    bindBlindboxModal();
+    $("#bx-modal").classList.add("show");
+    $("#bx-overlay").classList.add("show");
     const reopen = $("#bx-reopen");
-    if (reopen) reopen.style.display = box.classList.contains("show") ? "none" : "";
+    if (reopen) reopen.style.display = "none";
   }
-
-  function bindBlindboxFloat(box) {
-    // 拖动
-    const head = $("#bx-float-head", box);
-    head.onmousedown = (e) => {
-      if (e.target.closest("button")) return;
-      const r = box.getBoundingClientRect();
-      const dx = e.clientX - r.left, dy = e.clientY - r.top;
-      box.style.transition = "none";
-      const mv = (ev) => { box.style.left = ev.clientX - dx + "px"; box.style.top = ev.clientY - dy + "px"; box.style.right = "auto"; };
-      const up = () => { document.removeEventListener("mousemove", mv); document.removeEventListener("mouseup", up); box.style.transition = ""; };
-      document.addEventListener("mousemove", mv); document.addEventListener("mouseup", up);
-    };
+  function closeBlindboxModal() {
+    $("#bx-modal").classList.remove("show");
+    $("#bx-overlay").classList.remove("show");
+    const reopen = $("#bx-reopen");
+    if (reopen) reopen.style.display = "";
+  }
+  function bindBlindboxModal() {
+    const modal = $("#bx-modal");
     // 重抽：清空每日种子 → 立即换新一组（真随机）
-    const rd = $("#bx-redraw", box); if (rd) rd.onclick = (e) => { e.stopPropagation(); state.bxSeed = null; $("#bx-float-body", box).innerHTML = `<div class="blindbox-grid bx-float-grid">${bxCardsHTML()}</div>`; bindBlindboxFloat(box); };
+    const rd = $("#bx-redraw"); if (rd) rd.onclick = (e) => { e.stopPropagation(); state.bxSeed = null; $("#bx-grid").innerHTML = bxCardsHTML(); bindBlindboxModal(); };
     // 关闭
-    const cl = $("#bx-close", box); if (cl) cl.onclick = (e) => { e.stopPropagation(); box.classList.remove("show"); let ro = $("#bx-reopen"); if (!ro) { ro = document.createElement("button"); ro.id = "bx-reopen"; ro.className = "bx-reopen"; ro.textContent = "🎁 盲盒"; ro.onclick = () => initBlindboxFloat(true); document.body.appendChild(ro); } ro.style.display = ""; };
+    const cl = $("#bx-close"); if (cl) cl.onclick = (e) => { e.stopPropagation(); closeBlindboxModal(); };
+    // 点击遮罩关闭
+    const ov = $("#bx-overlay"); if (ov) ov.onclick = closeBlindboxModal;
     // 翻牌
-    $$(".bx-card.face-down", box).forEach((el) => el.onclick = () => { el.classList.remove("face-down"); el.classList.add("flipped"); });
+    $$(".bx-card.face-down", modal).forEach((el) => el.onclick = () => { el.classList.remove("face-down"); el.classList.add("flipped"); });
     // 点开详情 → 直接打开单帖深度分析
-    $$("[data-use]", box).forEach((b) => b.onclick = (e) => { e.stopPropagation(); openDeepAnalysis(b.dataset.use); });
+    $$("[data-use]", modal).forEach((b) => b.onclick = (e) => { e.stopPropagation(); openDeepAnalysis(b.dataset.use); });
     // 分享生图
-    $$("[data-share]", box).forEach((b) => b.onclick = (e) => { e.stopPropagation(); blindboxShareImage(state.blindbox[+b.dataset.share]); });
+    $$("[data-share]", modal).forEach((b) => b.onclick = (e) => { e.stopPropagation(); blindboxShareImage(state.blindbox[+b.dataset.share]); });
     // 复制图片
-    $$("[data-copy]", box).forEach((b) => b.onclick = (e) => { e.stopPropagation(); blindboxCopyImage(state.blindbox[+b.dataset.copy]); });
+    $$("[data-copy]", modal).forEach((b) => b.onclick = (e) => { e.stopPropagation(); blindboxCopyImage(state.blindbox[+b.dataset.copy]); });
   }
 
   // 把一张盲盒卡牌内容绘制成霓虹 PNG canvas
@@ -2116,6 +2101,7 @@ ${sim || "（无同主题关联帖）"}
       $$("#lib-mode button").forEach((b) => b.addEventListener("click", () => { state.libMode = b.dataset.mode; renderBoard(); }));
       $$("#lib-eval button").forEach((b) => b.addEventListener("click", () => { state.libQuick = b.dataset.eval; renderBoard(); }));
       const rs = $("#lib-reshuffle"); if (rs) rs.addEventListener("click", () => renderBoard());
+      const bxLaunch = $("#bx-launch"); if (bxLaunch) bxLaunch.addEventListener("click", openBlindboxModal);
     }
     // 参考建议中枢
     if (state.board === "reference") bindReference();
@@ -2276,7 +2262,7 @@ ${sim || "（无同主题关联帖）"}
     $("#top-only").addEventListener("change", (e) => { state.filters.topOnly = e.target.checked; onFilterChange(); });
     // 抽屉关闭
     $("#drawer-overlay").addEventListener("click", closeDrawer);
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if ($("#deep-modal").classList.contains("show")) closeDeep(); else closeDrawer(); } });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if ($("#bx-modal").classList.contains("show")) closeBlindboxModal(); else if ($("#deep-modal").classList.contains("show")) closeDeep(); else closeDrawer(); } });
     // 正文语言切换（导航中文不动，仅帖子/回复正文 EN↔中）
     const lt = $("#lang-toggle");
     const syncLang = () => { $$(".lang-opt", lt).forEach((o) => o.classList.toggle("on", o.dataset.lang === state.lang)); };
@@ -2290,7 +2276,18 @@ ${sim || "（无同主题关联帖）"}
       renderBlindboxFloat();
     }));
   }
-  function renderBlindboxFloat() { initBlindboxFloat(false); }
+  function renderBlindboxModal() {
+    // 若弹层已打开，重新渲染卡牌（语言切换等）
+    const modal = $("#bx-modal");
+    if (modal && modal.classList.contains("show")) {
+      const dateEl = $("#bx-modal-date");
+      if (dateEl) dateEl.textContent = todayStr();
+      const grid = $("#bx-grid");
+      if (grid) grid.innerHTML = bxCardsHTML();
+      bindBlindboxModal();
+    }
+  }
+  function renderBlindboxFloat() { renderBlindboxModal(); }
 
   /* ============ 初始化 ============ */
   async function init() {
@@ -2316,7 +2313,15 @@ ${sim || "（无同主题关联帖）"}
     syncFilterUI();
     renderActiveFilters();
     renderBoard();
-    initBlindboxFloat(true);
+    // 左下角盲盒入口（不自动打开弹层，等待用户点击）
+    if (!$("#bx-reopen")) {
+      const ro = document.createElement("button");
+      ro.id = "bx-reopen";
+      ro.className = "bx-reopen";
+      ro.textContent = "🎁 盲盒";
+      ro.onclick = openBlindboxModal;
+      document.body.appendChild(ro);
+    }
   }
   init();
 })();
