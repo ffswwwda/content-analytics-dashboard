@@ -895,6 +895,8 @@ body::after {
 .dp-cmp-col-rate { font-size: 13px; font-weight: 700; color: var(--hot); font-family: var(--font-mono); }
 .dp-cmp-col-text { font-size: 13px; line-height: 1.55; color: var(--text); }
 .dp-cmp-col-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin-top: 2px; }
+.dp-cmp-actions { margin-top: auto; padding-top: 10px; }
+.dp-cmp-actions .btn-primary { width: 100%; justify-content: center; font-size: 12.5px; padding: 8px 12px; }
 .dp-cmp-metric { background: var(--glass-bg-strong); border-radius: var(--radius-xs); padding: 8px 10px; }
 .dp-cmp-metric .cm-k { font-size: 11px; color: var(--text-3); }
 .dp-cmp-metric .cm-v { font-size: 14px; font-weight: 700; margin-top: 2px; font-family: var(--font-mono); }
