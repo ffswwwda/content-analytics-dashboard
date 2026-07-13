@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>内容灵感台 · Content Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- 侧边栏：独立板块导航 -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">C</div>
+        <div class="brand-text">
+          <div class="brand-name">内容灵感台</div>
+          <div class="brand-sub">Content Studio</div>
+        </div>
+      </div>
+      <nav class="nav" id="nav"></nav>
+      <div class="sidebar-foot">
+        <div class="src-pill" id="src-pill">演示数据</div>
+        <div class="foot-hint">定时管线接入飞书后自动切换真实数据源</div>
+      </div>
+    </aside>
+
+    <!-- 主区 -->
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 class="board-title" id="board-title">灵感库</h1>
+          <span class="board-sub" id="board-sub"></span>
+        </div>
+        <div class="topbar-right">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" class="ic"><path d="M21 21l-4.3-4.3M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <input id="global-search" type="text" placeholder="搜索内容文案…" autocomplete="off" />
+          </div>
+          <button class="btn-filter" id="filter-toggle">
+            <svg viewBox="0 0 24 24" class="ic"><path d="M3 5h18M6 12h12M10 19h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            筛选 <span class="filter-count" id="filter-count"></span>
+          </button>
+        </div>
+      </header>
+
+      <!-- 全局筛选面板（跨板块生效 = 组合筛选） -->
+      <div class="filter-panel" id="filter-panel">
+        <div class="fp-facets" id="fp-facets"></div>
+        <div class="fp-range">
+          <div class="fp-range-group">
+            <label>爆款率下限</label>
+            <input type="range" id="viral-min" min="0" max="100" value="0" step="1" />
+            <span class="range-val" id="viral-min-val">0</span>
+          </div>
+          <div class="fp-range-group">
+            <label>时间范围</label>
+            <input type="date" id="date-from" />
+            <span class="range-sep">~</span>
+            <input type="date" id="date-to" />
+          </div>
+          <div class="fp-range-group fp-top">
+            <label class="chk"><input type="checkbox" id="top-only" /> 只看爆款 (Top 10%)</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 已选筛选条件（可单独移除 = 二次细分） -->
+      <div class="active-filters" id="active-filters"></div>
+
+      <!-- 板块内容 -->
+      <section class="board" id="board"></section>
+    </main>
+  </div>
+
+  <!-- 详情抽屉 -->
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <aside class="drawer" id="drawer"></aside>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/analysis.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
