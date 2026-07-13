@@ -955,6 +955,12 @@ ${topMatches || "（无强匹配）"}
       else if (vr >= 30) { score += 6; }
       dimHits.push("perf");
     }
+    // 保底：任何内容都至少有"整体表现"分；避免输入目的无解时空白
+    if (score < 1) {
+      const vr = rate(c);
+      score = Math.max(1, Math.round(vr / 5));
+      if (isFallback) reasons.length = 0;
+    }
     return { score: Math.round(Math.min(100, score)), reasons, dimHits: [...new Set(dimHits)] };
   }
   function postSummary(c, reasons) {
@@ -1010,11 +1016,17 @@ ${topMatches || "（无强匹配）"}
       const r = matchScoreMulti(c, { g, topic: null, detail, dims: fstate.dims });
       if (r.score > 0) scored.push({ c, ...r });
     }
-    scored.sort((a, b) => b.score - a.score);
-    const top = scored.slice(0, 15);
+    // 无任何严格匹配时回退：按爆款率/表现排序，让看板永远有输出
+    const isFallback = scored.length === 0;
+    const fallback = data.slice().sort((a, b) => (rate(b) - rate(a)) || ((b.engagement || 0) - (a.engagement || 0))).slice(0, 15).map((c) => ({
+      c, score: rate(c),
+      reasons: [isFallback ? "无严格匹配 · 按整体爆款率排序" : "整体表现优异"],
+      dimHits: ["perf"],
+    }));
+    const list = isFallback ? fallback : scored.sort((a, b) => b.score - a.score);
+    const top = list.slice(0, 15);
     const box = $("#find-result");
     if (!box) return;
-    if (!top.length) { box.innerHTML = emptyState("没有匹配的内容，试试放宽维度或调整目的"); return; }
     const label = g ? g.name : (detail ? "自定义目的" : "全部内容（按表现排序）");
 
     // ===== 可视化看板 =====
@@ -1029,6 +1041,7 @@ ${topMatches || "（无强匹配）"}
     const emoBars = uvBars(Object.entries(emoDist).sort((a,b)=>b[1]-a[1]).map(([k,v],i) => [k, v, PAL[(i+2)%PAL.length]]));
     const dashHTML = `<div class="find-dash">
       <div class="find-dash-title">📊 匹配度可视化看板 · 「${esc(label)}」</div>
+      ${isFallback ? `<div class="uv-insight" style="margin-bottom:10px;font-size:12.5px">⚠️ 当前目的下未找到严格匹配的内容。已自动回退为<b>整体爆款率排序</b>的 Top 内容。在输入框补充更多具体词（如品牌、形式、风格）可获得更精准匹配。</div>` : ""}
       <div class="bud-stats" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
         <div class="bud-stat"><div class="bud-stat-val">${top.length}</div><div class="bud-stat-lab">匹配内容</div></div>
         <div class="bud-stat"><div class="bud-stat-val">${avgScore}</div><div class="bud-stat-lab">平均匹配分</div></div>
