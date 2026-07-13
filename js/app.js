@@ -2051,20 +2051,9 @@ ${topMatches || "（无强匹配）"}
       <div class="bud-sec-t">多品牌用户对比可视化（${brands.map((b) => esc(b.brand)).join(" vs ")}）</div>
       <div class="bud-mbar-grid">${barsHTML}</div>
       <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="btn-ghost" onclick="budCopyChart()">📋 复制图表图片</button>
-        <button class="btn-ghost" onclick="budDownloadChart()">⬇ 下载图表 PNG</button>
+        <button class="btn-ghost" data-bud-cmp-copy>📋 复制图表为文本</button>
+        <button class="btn-ghost" data-bud-cmp-dl>⬇ 下载图表 SVG</button>
       </div>
-      <script>
-        window.budCopyChart = function() {
-          const el = document.getElementById('bud-cmp-chart');
-          window.__copyEl = el;
-          html2canvas ? html2canvas(el).then(c => navigator.clipboard.write([new ClipboardItem({'image/png': new Promise(r => c.toBlob(r))})])) : toast('需要 html2canvas 库');
-        };
-        window.budDownloadChart = function() {
-          const el = document.getElementById('bud-cmp-chart');
-          html2canvas ? html2canvas(el).then(c => { const a = document.createElement('a'); a.href = c.toDataURL(); a.download = 'brand_compare.png'; a.click(); }) : toast('需要 html2canvas 库');
-        };
-      </script>
     </div>`;
   }
 
@@ -2151,6 +2140,40 @@ ${topMatches || "（无强匹配）"}
       // 对比模式返回
       const cmpBack = $("[data-bud-cmp-back]", board);
       if (cmpBack) cmpBack.addEventListener("click", () => { state.brandUserCompare = false; renderBoard(); });
+      // 复制图表为文本
+      const copyBtn = $("[data-bud-cmp-copy]", board);
+      if (copyBtn) copyBtn.addEventListener("click", () => {
+        const el = $("#bud-cmp-chart");
+        if (!el) return;
+        const rows = [...el.querySelectorAll(".bud-mbar-group")].map((g) => {
+          const title = g.querySelector(".bud-mbar-title")?.textContent || "";
+          const bars = [...g.querySelectorAll(".bud-mbar-row")].map((r) => {
+            const label = r.querySelector(".bud-mbar-label")?.textContent || "";
+            const val = r.querySelector(".bud-mbar-val")?.textContent || "";
+            return `  ${label}: ${val}`;
+          }).join("\n");
+          return `${title}\n${bars}`;
+        }).join("\n\n");
+        navigator.clipboard.writeText(rows).then(() => toast("已复制对比数据")).catch(() => toast("复制失败"));
+      });
+      // 下载图表 SVG
+      const dlBtn = $("[data-bud-cmp-dl]", board);
+      if (dlBtn) dlBtn.addEventListener("click", () => {
+        const el = $("#bud-cmp-chart");
+        if (!el) return;
+        const clone = el.cloneNode(true);
+        // 移除按钮
+        [...clone.querySelectorAll("button")].forEach((b) => b.remove());
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="${Math.max(400, clone.scrollHeight + 40)}">
+          <foreignObject width="800" height="${Math.max(400, clone.scrollHeight + 40)}">
+            <div xmlns="http://www.w3.org/1999/xhtml" style="background:#0b0f1a;color:#cfd8f0;font-family:system-ui;padding:16px">
+              ${clone.innerHTML}
+            </div>
+          </foreignObject>
+        </svg>`;
+        const url = "data:image/svg+xml," + encodeURIComponent(svg);
+        const a = document.createElement("a"); a.href = url; a.download = "brand_compare.svg"; a.click();
+      });
     // Top 用户展开
     const rt = $("[data-bud-rank-toggle]", board);
     if (rt) rt.addEventListener("click", () => { state.brandUserRankAll = !state.brandUserRankAll; renderBoard(); });
