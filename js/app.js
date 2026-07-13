@@ -1835,11 +1835,15 @@ ${topMatches || "（无强匹配）"}
     const rankToggle = d.topUsers.length > 8 ? `<button class="uv-rank-toggle" data-bud-rank-toggle>${state.brandUserRankAll ? "收起（仅看 Top 8）" : `展开全部 ${d.topUsers.length} 人 →`}</button>` : "";
     const usersHTML = `<div class="bud-panel"><div class="bud-panel-t">高互动用户明细（Top ${shown} / 共 ${d.topUsers.length} 位深度用户） ${rankToggle}</div><div class="uv-user-grid">${userRows}</div></div>`;
 
-    // 跨品牌对比
+    // 跨品牌对比（多选 + 可视化条形图）
+    const cmpChips = others.map((x) => {
+      const ckd = state.brandUserCmp.includes(x.brand) ? "checked" : "";
+      return `<label class="bud-cmp-chip"><input type="checkbox" data-bud-cmp-chk value="${esc(x.brand)}" ${ckd}>${esc(x.brand)} (${fmt(x.userCount)})</label>`;
+    }).join("");
     let cmpHTML = "";
-    if (state.brandUserCmp && state.brandUserCmp !== brand) {
-      const e = budFind(U, state.brandUserCmp);
-      if (e) cmpHTML = budCompare(d, e);
+    if (state.brandUserCmp.length) {
+      const cmpBrands = [d, ...state.brandUserCmp.map((bn) => budFind(U, bn)).filter(Boolean)];
+      if (cmpBrands.length >= 2) cmpHTML = budMultiCompare(cmpBrands);
     }
 
     // 用户词云 + 关注主题排序 + 内容形式参与（品牌×用户内容交叉分析）
@@ -1864,7 +1868,7 @@ ${topMatches || "（无强匹配）"}
       <div class="bud-top">
         <button class="btn-ghost bud-back" data-bud-back>← 返回品牌列表</button>
         <div class="bud-title">🎯 ${esc(brand)} · 品牌互动用户深度分析</div>
-        <div class="bud-cmp-pick"><span>对比品牌：</span><select class="bud-cmp-sel" data-bud-cmp><option value="">— 选择另一品牌 —</option>${cmpOptions}</select></div>
+        <div class="bud-cmp-pick"><span>对比品牌（多选）：</span><div class="bud-cmp-chips">${cmpChips}</div></div>
       </div>
       ${stats}
       ${tendency}
@@ -1876,39 +1880,55 @@ ${topMatches || "（无强匹配）"}
       ${cmpHTML}`;
   }
 
-  function budCompare(a, b) {
-    const posR = (x) => { const s = x.sentiment || {}; const t = (s.pos || 0) + (s.neu || 0) + (s.neg || 0) || 1; return Math.round((s.pos || 0) / t * 100); };
-    const l4R = (x) => { const w = x.wcLayers || {}; const t = (w.l1 || 0) + (w.l2 || 0) + (w.l3 || 0) + (w.l4 || 0) || 1; return Math.round((w.l4 || 0) / t * 100); };
-    const lpR = (x, k) => { const p = x.wcLayerPct || {}; return (p[k] || 0) + "%"; };
-    const epR = (x, k) => { const p = x.engLayerPct || {}; return (p[k] || 0) + "%"; };
-    const rows = [
-      ["独立用户数", fmt(a.userCount), fmt(b.userCount), a.userCount >= b.userCount ? "a" : "b"],
-      ["用户声音数", fmt(a.replyCount), fmt(b.replyCount), a.replyCount >= b.replyCount ? "a" : "b"],
-      ["多次互动用户占比", a.multiReplyShare + "%", b.multiReplyShare + "%", a.multiReplyShare >= b.multiReplyShare ? "a" : "b"],
-      ["人均回复（参与度）", a.avgRepliesPerUser, b.avgRepliesPerUser, a.avgRepliesPerUser >= b.avgRepliesPerUser ? "a" : "b"],
-      ["平均点赞/条（互动率）", a.avgLikes, b.avgLikes, a.avgLikes >= b.avgLikes ? "a" : "b"],
-      ["正面情感率", posR(a) + "%", posR(b) + "%", posR(a) >= posR(b) ? "a" : "b"],
-      // 新增：占比维度 —— 看各层用户占品牌自身的比例，而非绝对数量
-      ["├ 长回复占比（深度表达%）", lpR(a, "l4"), lpR(b, "l4"), (a.wcLayerPct || {}).l4 >= (b.wcLayerPct || {}).l4 ? "a" : "b"],
-      ["├ 极短回复占比（沉默%）", lpR(a, "l1"), lpR(b, "l1"), (a.wcLayerPct || {}).l1 >= (b.wcLayerPct || {}).l1 ? "b" : "a"],
-      ["├ 重度用户占比（铁粉%）", epR(a, "heavy"), epR(b, "heavy"), (a.engLayerPct || {}).heavy >= (b.engLayerPct || {}).heavy ? "a" : "b"],
-      ["├ 一次性用户占比（路人%）", epR(a, "once"), epR(b, "once"), (a.engLayerPct || {}).once >= (b.engLayerPct || {}).once ? "b" : "a"],
-      ["重度用户数（铁粉·绝对值）", fmt((a.engLayers || {}).heavy || 0), fmt((b.engLayers || {}).heavy || 0), ((a.engLayers || {}).heavy || 0) >= ((b.engLayers || {}).heavy || 0) ? "a" : "b"],
-      ["活跃用户数", fmt((a.engLayers || {}).active || 0), fmt((b.engLayers || {}).active || 0), ((a.engLayers || {}).active || 0) >= ((b.engLayers || {}).active || 0) ? "a" : "b"],
-      ["Top10 声量集中度", (a.concentration || {}).top10Share + "%", (b.concentration || {}).top10Share + "%", ((a.concentration || {}).top10Share || 0) >= ((b.concentration || {}).top10Share || 0) ? "a" : "b"],
+  function budMultiCompare(brands) {
+    const posR = (x) => { const s = x.sentiment || {}; const t = (s.pos||0)+(s.neu||0)+(s.neg||0)||1; return Math.round((s.pos||0)/t*100); };
+    const lpR = (x, k) => { const p = x.wcLayerPct || {}; return (p[k]||0); };
+    const epR = (x, k) => { const p = x.engLayerPct || {}; return (p[k]||0); };
+    const metrics = [
+      ["独立用户数", (x) => x.userCount, fmt],
+      ["用户声音数", (x) => x.replyCount, fmt],
+      ["多次互动占比%", (x) => x.multiReplyShare, (v) => v + "%"],
+      ["人均回复（参与度）", (x) => x.avgRepliesPerUser, (v) => v],
+      ["平均点赞/条", (x) => x.avgLikes, (v) => v],
+      ["正面情感率%", posR, (v) => v + "%"],
+      ["长回复占比%", (x) => lpR(x, "l4"), (v) => v + "%"],
+      ["重度用户占比%", (x) => epR(x, "heavy"), (v) => v + "%"],
+      ["Top10集中度%", (x) => (x.concentration||{}).top10Share||0, (v) => v + "%"],
     ];
-    const body = rows.map((r) => `<tr>
-      <td class="bud-cmp-metric">${esc(r[0])}</td>
-      <td class="bud-cmp-v ${r[3] === "a" ? "win" : ""}">${r[1]}</td>
-      <td class="bud-cmp-v ${r[3] === "b" ? "win" : ""}">${r[2]}</td>
-    </tr>`).join("");
-    return `<div class="bud-cmp-block">
-      <div class="bud-sec-t">跨品牌用户对比：${esc(a.brand)} vs ${esc(b.brand)}</div>
-      <table class="bud-cmp-table">
-        <thead><tr><th>指标</th><th>${esc(a.brand)}</th><th>${esc(b.brand)}</th></tr></thead>
-        <tbody>${body}</tbody>
-      </table>
-      <div class="bud-conc-note">高亮值为两品牌中更高的一方。<b>注意占比 vs 绝对值</b>：├ 开头的行是「占自身比例」，能区分「因为体量大所以该层用户多」vs「真正拥有高比例深度用户」。如果某品牌绝对值高但占比低，说明是大盘优势而非结构优势。</div>
+    const barsHTML = metrics.map(([label, fn, fmtFn]) => {
+      const maxV = Math.max(...brands.map(fn), 1);
+      const bars = brands.map((b) => {
+        const v = fn(b);
+        const pct = Math.round(v / maxV * 100);
+        return `<div class="bud-mbar-row">
+          <span class="bud-mbar-label">${esc(b.brand)}</span>
+          <span class="bud-mbar-track"><i style="width:${pct}%"></i></span>
+          <span class="bud-mbar-val">${fmtFn(v)}</span>
+        </div>`;
+      }).join("");
+      return `<div class="bud-mbar-group">
+        <div class="bud-mbar-title">${label}</div>
+        ${bars}
+      </div>`;
+    }).join("");
+    return `<div class="bud-cmp-block" id="bud-cmp-chart">
+      <div class="bud-sec-t">多品牌用户对比可视化（${brands.map((b) => esc(b.brand)).join(" vs ")}）</div>
+      <div class="bud-mbar-grid">${barsHTML}</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn-ghost" onclick="budCopyChart()">📋 复制图表图片</button>
+        <button class="btn-ghost" onclick="budDownloadChart()">⬇ 下载图表 PNG</button>
+      </div>
+      <script>
+        window.budCopyChart = function() {
+          const el = document.getElementById('bud-cmp-chart');
+          window.__copyEl = el;
+          html2canvas ? html2canvas(el).then(c => navigator.clipboard.write([new ClipboardItem({'image/png': new Promise(r => c.toBlob(r))})])) : toast('需要 html2canvas 库');
+        };
+        window.budDownloadChart = function() {
+          const el = document.getElementById('bud-cmp-chart');
+          html2canvas ? html2canvas(el).then(c => { const a = document.createElement('a'); a.href = c.toDataURL(); a.download = 'brand_compare.png'; a.click(); }) : toast('需要 html2canvas 库');
+        };
+      </script>
     </div>`;
   }
 
@@ -1916,14 +1936,18 @@ ${topMatches || "（无强匹配）"}
     const board = $("#board");
     // 进入某品牌深度分析
     $$(".bud-enter", board).forEach((b) => b.addEventListener("click", () => {
-      state.brandUserSel = b.dataset.bud; state.brandUserCmp = ""; state.brandUserRankAll = false; renderBoard();
+      state.brandUserSel = b.dataset.bud; state.brandUserCmp = []; state.brandUserRankAll = false; renderBoard();
     }));
     // 返回列表
     const back = $("[data-bud-back]", board);
-    if (back) back.addEventListener("click", () => { state.brandUserSel = null; state.brandUserCmp = ""; renderBoard(); });
-    // 选择对比品牌
-    const cmp = $("[data-bud-cmp]", board);
-    if (cmp) cmp.addEventListener("change", (e) => { state.brandUserCmp = e.target.value; renderBoard(); });
+    if (back) back.addEventListener("click", () => { state.brandUserSel = null; state.brandUserCmp = []; renderBoard(); });
+    // 多选对比品牌
+    $$("[data-bud-cmp-chk]", board).forEach((cb) => cb.addEventListener("change", () => {
+      const v = cb.value;
+      if (cb.checked) { if (!state.brandUserCmp.includes(v)) state.brandUserCmp.push(v); }
+      else state.brandUserCmp = state.brandUserCmp.filter((x) => x !== v);
+      renderBoard();
+    }));
     // Top 用户展开
     const rt = $("[data-bud-rank-toggle]", board);
     if (rt) rt.addEventListener("click", () => { state.brandUserRankAll = !state.brandUserRankAll; renderBoard(); });
