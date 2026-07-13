@@ -12181,11 +12181,23 @@
     "l1": 1931,
     "l4": 88
    },
+   "wcLayerPct": {
+    "l3": 16.6,
+    "l2": 49.9,
+    "l1": 32.0,
+    "l4": 1.5
+   },
    "engLayers": {
     "heavy": 67,
     "active": 345,
     "light": 1174,
     "once": 665
+   },
+   "engLayerPct": {
+    "heavy": 3.0,
+    "active": 15.3,
+    "light": 52.2,
+    "once": 29.5
    },
    "concentration": {
     "top10Replies": 283,
@@ -12911,6 +12923,115 @@
       }
      ]
     }
+   ],
+   "keywords": [
+    {
+     "w": "lovense",
+     "n": 6266
+    },
+    {
+     "w": "love",
+     "n": 553
+    },
+    {
+     "w": "solace",
+     "n": 496
+    },
+    {
+     "w": "hush",
+     "n": 364
+    },
+    {
+     "w": "vibemateapp",
+     "n": 360
+    },
+    {
+     "w": "lush",
+     "n": 331
+    },
+    {
+     "w": "edge",
+     "n": 253
+    },
+    {
+     "w": "need",
+     "n": 213
+    },
+    {
+     "w": "gush",
+     "n": 206
+    },
+    {
+     "w": "while",
+     "n": 204
+    },
+    {
+     "w": "want",
+     "n": 199
+    },
+    {
+     "w": "toys",
+     "n": 191
+    },
+    {
+     "w": "play",
+     "n": 183
+    },
+    {
+     "w": "make",
+     "n": 183
+    },
+    {
+     "w": "good",
+     "n": 181
+    },
+    {
+     "w": "https",
+     "n": 181
+    },
+    {
+     "w": "time",
+     "n": 180
+    },
+    {
+     "w": "lovenseorgy",
+     "n": 172
+    },
+    {
+     "w": "because",
+     "n": 169
+    },
+    {
+     "w": "warm",
+     "n": 158
+    }
+   ],
+   "topics": [],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 3509
+    },
+    {
+     "f": "视频",
+     "n": 1187
+    },
+    {
+     "f": "GIF",
+     "n": 835
+    },
+    {
+     "f": "纯文本",
+     "n": 319
+    },
+    {
+     "f": "引用转发",
+     "n": 107
+    },
+    {
+     "f": "投票",
+     "n": 68
+    }
    ]
   },
   {
@@ -12941,11 +13062,23 @@
     "l3": 59,
     "l4": 3
    },
+   "wcLayerPct": {
+    "l1": 48.8,
+    "l2": 47.0,
+    "l3": 4.0,
+    "l4": 0.2
+   },
    "engLayers": {
     "heavy": 26,
     "active": 60,
     "light": 201,
     "once": 102
+   },
+   "engLayerPct": {
+    "heavy": 6.7,
+    "active": 15.4,
+    "light": 51.7,
+    "once": 26.2
    },
    "concentration": {
     "top10Replies": 415,
@@ -13739,6 +13872,111 @@
       }
      ]
     }
+   ],
+   "keywords": [
+    {
+     "w": "tantalyglobal",
+     "n": 1436
+    },
+    {
+     "w": "love",
+     "n": 92
+    },
+    {
+     "w": "tantaly",
+     "n": 88
+    },
+    {
+     "w": "tantalyhub",
+     "n": 88
+    },
+    {
+     "w": "https",
+     "n": 85
+    },
+    {
+     "w": "anniversary",
+     "n": 65
+    },
+    {
+     "w": "looks",
+     "n": 58
+    },
+    {
+     "w": "happy",
+     "n": 47
+    },
+    {
+     "w": "doll",
+     "n": 42
+    },
+    {
+     "w": "good",
+     "n": 38
+    },
+    {
+     "w": "candice",
+     "n": 37
+    },
+    {
+     "w": "daisy",
+     "n": 36
+    },
+    {
+     "w": "france",
+     "n": 36
+    },
+    {
+     "w": "need",
+     "n": 35
+    },
+    {
+     "w": "beautiful",
+     "n": 35
+    },
+    {
+     "w": "amazing",
+     "n": 32
+    },
+    {
+     "w": "want",
+     "n": 31
+    },
+    {
+     "w": "united",
+     "n": 29
+    },
+    {
+     "w": "states",
+     "n": 29
+    },
+    {
+     "w": "look",
+     "n": 26
+    }
+   ],
+   "topics": [],
+   "forms": [
+    {
+     "f": "视频",
+     "n": 807
+    },
+    {
+     "f": "图片",
+     "n": 666
+    },
+    {
+     "f": "引用转发",
+     "n": 11
+    },
+    {
+     "f": "投票",
+     "n": 2
+    },
+    {
+     "f": "纯文本",
+     "n": 1
+    }
    ]
   },
   {
@@ -13769,11 +14007,23 @@
     "l3": 75,
     "l4": 4
    },
+   "wcLayerPct": {
+    "l1": 34.5,
+    "l2": 57.9,
+    "l3": 7.2,
+    "l4": 0.4
+   },
    "engLayers": {
     "heavy": 9,
     "active": 44,
     "light": 194,
     "once": 160
+   },
+   "engLayerPct": {
+    "heavy": 2.2,
+    "active": 10.8,
+    "light": 47.7,
+    "once": 39.3
    },
    "concentration": {
     "top10Replies": 264,
@@ -14530,6 +14780,103 @@
       }
      ]
     }
+   ],
+   "keywords": [
+    {
+     "w": "fleshlight",
+     "n": 1171
+    },
+    {
+     "w": "bonnieblue",
+     "n": 109
+    },
+    {
+     "w": "xoxo",
+     "n": 109
+    },
+    {
+     "w": "vannabardot",
+     "n": 106
+    },
+    {
+     "w": "https",
+     "n": 77
+    },
+    {
+     "w": "haileyrosefucks",
+     "n": 75
+    },
+    {
+     "w": "theemmamag",
+     "n": 73
+    },
+    {
+     "w": "alexis",
+     "n": 72
+    },
+    {
+     "w": "texas",
+     "n": 70
+    },
+    {
+     "w": "kayleygunner",
+     "n": 62
+    },
+    {
+     "w": "love",
+     "n": 60
+    },
+    {
+     "w": "violetsaucy",
+     "n": 60
+    },
+    {
+     "w": "anafoxxx",
+     "n": 57
+    },
+    {
+     "w": "imevesweet",
+     "n": 56
+    },
+    {
+     "w": "kslibrarygirl",
+     "n": 52
+    },
+    {
+     "w": "make",
+     "n": 46
+    },
+    {
+     "w": "blkblssm",
+     "n": 43
+    },
+    {
+     "w": "ellyclutchxo",
+     "n": 42
+    },
+    {
+     "w": "thenicolekitt",
+     "n": 42
+    },
+    {
+     "w": "need",
+     "n": 40
+    }
+   ],
+   "topics": [],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 596
+    },
+    {
+     "f": "视频",
+     "n": 424
+    },
+    {
+     "f": "引用转发",
+     "n": 22
+    }
    ]
   },
   {
@@ -14559,11 +14906,22 @@
     "l2": 178,
     "l3": 34
    },
+   "wcLayerPct": {
+    "l1": 70.0,
+    "l2": 25.2,
+    "l3": 4.8
+   },
    "engLayers": {
     "heavy": 14,
     "active": 50,
     "light": 95,
     "once": 52
+   },
+   "engLayerPct": {
+    "heavy": 6.6,
+    "active": 23.7,
+    "light": 45.0,
+    "once": 24.6
    },
    "concentration": {
     "top10Replies": 145,
@@ -15255,6 +15613,103 @@
       }
      ]
     }
+   ],
+   "keywords": [
+    {
+     "w": "officialhismith",
+     "n": 607
+    },
+    {
+     "w": "interested",
+     "n": 161
+    },
+    {
+     "w": "hismithglobal",
+     "n": 103
+    },
+    {
+     "w": "want",
+     "n": 28
+    },
+    {
+     "w": "need",
+     "n": 21
+    },
+    {
+     "w": "love",
+     "n": 21
+    },
+    {
+     "w": "machine",
+     "n": 20
+    },
+    {
+     "w": "testen",
+     "n": 16
+    },
+    {
+     "w": "test",
+     "n": 15
+    },
+    {
+     "w": "great",
+     "n": 15
+    },
+    {
+     "w": "sobafreaak",
+     "n": 14
+    },
+    {
+     "w": "coconutcrazy",
+     "n": 14
+    },
+    {
+     "w": "tubatiddie",
+     "n": 14
+    },
+    {
+     "w": "lewdrafs",
+     "n": 14
+    },
+    {
+     "w": "tiki",
+     "n": 14
+    },
+    {
+     "w": "looks",
+     "n": 13
+    },
+    {
+     "w": "products",
+     "n": 12
+    },
+    {
+     "w": "gerne",
+     "n": 12
+    },
+    {
+     "w": "jessie",
+     "n": 12
+    },
+    {
+     "w": "starrr",
+     "n": 12
+    }
+   ],
+   "topics": [],
+   "forms": [
+    {
+     "f": "视频",
+     "n": 366
+    },
+    {
+     "f": "图片",
+     "n": 337
+    },
+    {
+     "f": "GIF",
+     "n": 3
+    }
    ]
   },
   {
@@ -15285,10 +15740,21 @@
     "l3": 22,
     "l4": 2
    },
+   "wcLayerPct": {
+    "l2": 42.0,
+    "l1": 44.3,
+    "l3": 12.5,
+    "l4": 1.1
+   },
    "engLayers": {
     "heavy": 3,
     "active": 10,
     "light": 35
+   },
+   "engLayerPct": {
+    "heavy": 6.2,
+    "active": 20.8,
+    "light": 72.9
    },
    "concentration": {
     "top10Replies": 94,
@@ -15989,6 +16455,107 @@
       }
      ]
     }
+   ],
+   "keywords": [
+    {
+     "w": "kiiroo",
+     "n": 182
+    },
+    {
+     "w": "misslacylennon",
+     "n": 26
+    },
+    {
+     "w": "keon",
+     "n": 14
+    },
+    {
+     "w": "happy",
+     "n": 12
+    },
+    {
+     "w": "britney",
+     "n": 12
+    },
+    {
+     "w": "beautiful",
+     "n": 10
+    },
+    {
+     "w": "amber",
+     "n": 10
+    },
+    {
+     "w": "best",
+     "n": 8
+    },
+    {
+     "w": "tanyatate",
+     "n": 8
+    },
+    {
+     "w": "love",
+     "n": 8
+    },
+    {
+     "w": "skylerlo",
+     "n": 8
+    },
+    {
+     "w": "powershot",
+     "n": 8
+    },
+    {
+     "w": "amazing",
+     "n": 6
+    },
+    {
+     "w": "used",
+     "n": 6
+    },
+    {
+     "w": "make",
+     "n": 6
+    },
+    {
+     "w": "callmemissmolly",
+     "n": 6
+    },
+    {
+     "w": "most",
+     "n": 6
+    },
+    {
+     "w": "gorgeous",
+     "n": 6
+    },
+    {
+     "w": "birthday",
+     "n": 6
+    },
+    {
+     "w": "hands",
+     "n": 6
+    }
+   ],
+   "topics": [],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 100
+    },
+    {
+     "f": "视频",
+     "n": 42
+    },
+    {
+     "f": "引用转发",
+     "n": 18
+    },
+    {
+     "f": "GIF",
+     "n": 16
+    }
    ]
   },
   {
@@ -16016,9 +16583,18 @@
     "l1": 20,
     "l3": 12
    },
+   "wcLayerPct": {
+    "l2": 44.8,
+    "l1": 34.5,
+    "l3": 20.7
+   },
    "engLayers": {
     "active": 4,
     "light": 20
+   },
+   "engLayerPct": {
+    "active": 16.7,
+    "light": 83.3
    },
    "concentration": {
     "top10Replies": 30,
@@ -16681,6 +17257,107 @@
       }
      ]
     }
+   ],
+   "keywords": [
+    {
+     "w": "lelo",
+     "n": 62
+    },
+    {
+     "w": "official",
+     "n": 60
+    },
+    {
+     "w": "love",
+     "n": 12
+    },
+    {
+     "w": "ready",
+     "n": 6
+    },
+    {
+     "w": "toys",
+     "n": 6
+    },
+    {
+     "w": "move",
+     "n": 4
+    },
+    {
+     "w": "said",
+     "n": 4
+    },
+    {
+     "w": "rabbit",
+     "n": 4
+    },
+    {
+     "w": "well",
+     "n": 4
+    },
+    {
+     "w": "most",
+     "n": 4
+    },
+    {
+     "w": "take",
+     "n": 4
+    },
+    {
+     "w": "hair",
+     "n": 4
+    },
+    {
+     "w": "design",
+     "n": 2
+    },
+    {
+     "w": "looks",
+     "n": 2
+    },
+    {
+     "w": "incredible",
+     "n": 2
+    },
+    {
+     "w": "hehehe",
+     "n": 2
+    },
+    {
+     "w": "should",
+     "n": 2
+    },
+    {
+     "w": "make",
+     "n": 2
+    },
+    {
+     "w": "become",
+     "n": 2
+    },
+    {
+     "w": "wnba",
+     "n": 2
+    }
+   ],
+   "topics": [],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 30
+    },
+    {
+     "f": "视频",
+     "n": 24
+    },
+    {
+     "f": "GIF",
+     "n": 2
+    },
+    {
+     "f": "纯文本",
+     "n": 2
+    }
    ]
   },
   {
@@ -16710,10 +17387,20 @@
     "l1": 14,
     "l3": 2
    },
+   "wcLayerPct": {
+    "l2": 62.8,
+    "l1": 32.6,
+    "l3": 4.7
+   },
    "engLayers": {
     "active": 2,
     "light": 2,
     "once": 30
+   },
+   "engLayerPct": {
+    "active": 5.9,
+    "light": 5.9,
+    "once": 88.2
    },
    "concentration": {
     "top10Replies": 19,
@@ -17305,6 +17992,107 @@
       }
      ]
     }
+   ],
+   "keywords": [
+    {
+     "w": "tenga",
+     "n": 47
+    },
+    {
+     "w": "global",
+     "n": 43
+    },
+    {
+     "w": "should",
+     "n": 3
+    },
+    {
+     "w": "time",
+     "n": 3
+    },
+    {
+     "w": "spinner",
+     "n": 3
+    },
+    {
+     "w": "tried",
+     "n": 2
+    },
+    {
+     "w": "shibukaho",
+     "n": 2
+    },
+    {
+     "w": "wish",
+     "n": 2
+    },
+    {
+     "w": "made",
+     "n": 2
+    },
+    {
+     "w": "something",
+     "n": 2
+    },
+    {
+     "w": "looks",
+     "n": 2
+    },
+    {
+     "w": "then",
+     "n": 2
+    },
+    {
+     "w": "reuse",
+     "n": 2
+    },
+    {
+     "w": "love",
+     "n": 2
+    },
+    {
+     "w": "flip",
+     "n": 2
+    },
+    {
+     "w": "interested",
+     "n": 2
+    },
+    {
+     "w": "handing",
+     "n": 1
+    },
+    {
+     "w": "easter",
+     "n": 1
+    },
+    {
+     "w": "gave",
+     "n": 1
+    },
+    {
+     "w": "someone",
+     "n": 1
+    }
+   ],
+   "topics": [],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 20
+    },
+    {
+     "f": "纯文本",
+     "n": 17
+    },
+    {
+     "f": "视频",
+     "n": 4
+    },
+    {
+     "f": "GIF",
+     "n": 2
+    }
    ]
   },
   {
@@ -17331,10 +18119,20 @@
     "l1": 7,
     "l3": 1
    },
+   "wcLayerPct": {
+    "l2": 69.2,
+    "l1": 26.9,
+    "l3": 3.8
+   },
    "engLayers": {
     "active": 2,
     "light": 3,
     "once": 8
+   },
+   "engLayerPct": {
+    "active": 15.4,
+    "light": 23.1,
+    "once": 61.5
    },
    "concentration": {
     "top10Replies": 23,
@@ -17738,6 +18536,95 @@
       }
      ]
     }
+   ],
+   "keywords": [
+    {
+     "w": "rosemary",
+     "n": 27
+    },
+    {
+     "w": "dolls",
+     "n": 27
+    },
+    {
+     "w": "hello",
+     "n": 6
+    },
+    {
+     "w": "open",
+     "n": 5
+    },
+    {
+     "w": "collaborations",
+     "n": 4
+    },
+    {
+     "w": "male",
+     "n": 3
+    },
+    {
+     "w": "creators",
+     "n": 3
+    },
+    {
+     "w": "https",
+     "n": 3
+    },
+    {
+     "w": "wonderful",
+     "n": 3
+    },
+    {
+     "w": "model",
+     "n": 3
+    },
+    {
+     "w": "sooooooo",
+     "n": 2
+    },
+    {
+     "w": "sexy",
+     "n": 2
+    },
+    {
+     "w": "doll",
+     "n": 2
+    },
+    {
+     "w": "thank",
+     "n": 2
+    },
+    {
+     "w": "thanks",
+     "n": 2
+    },
+    {
+     "w": "girl",
+     "n": 2
+    },
+    {
+     "w": "know",
+     "n": 2
+    },
+    {
+     "w": "collabs",
+     "n": 2
+    },
+    {
+     "w": "collaborate",
+     "n": 1
+    },
+    {
+     "w": "lovely",
+     "n": 1
+    }
+   ],
+   "topics": [],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 26
+    }
    ]
   },
   {
@@ -17765,9 +18652,18 @@
     "l4": 1,
     "l2": 8
    },
+   "wcLayerPct": {
+    "l1": 50.0,
+    "l4": 5.6,
+    "l2": 44.4
+   },
    "engLayers": {
     "light": 4,
     "once": 9
+   },
+   "engLayerPct": {
+    "light": 30.8,
+    "once": 69.2
    },
    "concentration": {
     "top10Replies": 15,
@@ -18139,6 +19035,103 @@
       }
      ]
     }
+   ],
+   "keywords": [
+    {
+     "w": "motorbunny",
+     "n": 18
+    },
+    {
+     "w": "romi",
+     "n": 10
+    },
+    {
+     "w": "rain",
+     "n": 10
+    },
+    {
+     "w": "brazzers",
+     "n": 3
+    },
+    {
+     "w": "https",
+     "n": 3
+    },
+    {
+     "w": "worthless",
+     "n": 2
+    },
+    {
+     "w": "scared",
+     "n": 2
+    },
+    {
+     "w": "blue",
+     "n": 2
+    },
+    {
+     "w": "check",
+     "n": 2
+    },
+    {
+     "w": "mark",
+     "n": 2
+    },
+    {
+     "w": "beautiful",
+     "n": 1
+    },
+    {
+     "w": "matter",
+     "n": 1
+    },
+    {
+     "w": "bunch",
+     "n": 1
+    },
+    {
+     "w": "pieces",
+     "n": 1
+    },
+    {
+     "w": "shit",
+     "n": 1
+    },
+    {
+     "w": "truth",
+     "n": 1
+    },
+    {
+     "w": "know",
+     "n": 1
+    },
+    {
+     "w": "answering",
+     "n": 1
+    },
+    {
+     "w": "bitch",
+     "n": 1
+    },
+    {
+     "w": "rita",
+     "n": 1
+    }
+   ],
+   "topics": [],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 11
+    },
+    {
+     "f": "视频",
+     "n": 6
+    },
+    {
+     "f": "纯文本",
+     "n": 1
+    }
    ]
   },
   {
@@ -18167,9 +19160,18 @@
     "l2": 6,
     "l3": 3
    },
+   "wcLayerPct": {
+    "l1": 35.7,
+    "l2": 42.9,
+    "l3": 21.4
+   },
    "engLayers": {
     "light": 2,
     "once": 9
+   },
+   "engLayerPct": {
+    "light": 18.2,
+    "once": 81.8
    },
    "concentration": {
     "top10Replies": 13,
@@ -18496,6 +19498,99 @@
       }
      ]
     }
+   ],
+   "keywords": [
+    {
+     "w": "realdollhq",
+     "n": 14
+    },
+    {
+     "w": "robot",
+     "n": 4
+    },
+    {
+     "w": "damm",
+     "n": 2
+    },
+    {
+     "w": "robots",
+     "n": 2
+    },
+    {
+     "w": "doll",
+     "n": 2
+    },
+    {
+     "w": "dolls",
+     "n": 2
+    },
+    {
+     "w": "make",
+     "n": 2
+    },
+    {
+     "w": "comes",
+     "n": 2
+    },
+    {
+     "w": "delilah",
+     "n": 1
+    },
+    {
+     "w": "cass",
+     "n": 1
+    },
+    {
+     "w": "timmoss",
+     "n": 1
+    },
+    {
+     "w": "redrangerzero",
+     "n": 1
+    },
+    {
+     "w": "starkraven",
+     "n": 1
+    },
+    {
+     "w": "taggin",
+     "n": 1
+    },
+    {
+     "w": "friends",
+     "n": 1
+    },
+    {
+     "w": "hehe",
+     "n": 1
+    },
+    {
+     "w": "guys",
+     "n": 1
+    },
+    {
+     "w": "exhibiting",
+     "n": 1
+    },
+    {
+     "w": "exxxotica",
+     "n": 1
+    },
+    {
+     "w": "weekend",
+     "n": 1
+    }
+   ],
+   "topics": [],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 9
+    },
+    {
+     "f": "视频",
+     "n": 5
+    }
    ]
   },
   {
@@ -18521,9 +19616,18 @@
     "l2": 1,
     "l3": 1
    },
+   "wcLayerPct": {
+    "l1": 84.6,
+    "l2": 7.7,
+    "l3": 7.7
+   },
    "engLayers": {
     "light": 3,
     "once": 7
+   },
+   "engLayerPct": {
+    "light": 30.0,
+    "once": 70.0
    },
    "concentration": {
     "top10Replies": 13,
@@ -18810,6 +19914,87 @@
       }
      ]
     }
+   ],
+   "keywords": [
+    {
+     "w": "aneros",
+     "n": 13
+    },
+    {
+     "w": "interested",
+     "n": 7
+    },
+    {
+     "w": "youtube",
+     "n": 3
+    },
+    {
+     "w": "check",
+     "n": 1
+    },
+    {
+     "w": "love",
+     "n": 1
+    },
+    {
+     "w": "looks",
+     "n": 1
+    },
+    {
+     "w": "awesome",
+     "n": 1
+    },
+    {
+     "w": "experience",
+     "n": 1
+    },
+    {
+     "w": "interest",
+     "n": 1
+    },
+    {
+     "w": "offer",
+     "n": 1
+    },
+    {
+     "w": "might",
+     "n": 1
+    },
+    {
+     "w": "publicity",
+     "n": 1
+    },
+    {
+     "w": "promotion",
+     "n": 1
+    },
+    {
+     "w": "mind",
+     "n": 1
+    },
+    {
+     "w": "following",
+     "n": 1
+    },
+    {
+     "w": "send",
+     "n": 1
+    },
+    {
+     "w": "message",
+     "n": 1
+    }
+   ],
+   "topics": [],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 8
+    },
+    {
+     "f": "视频",
+     "n": 5
+    }
    ]
   },
   {
@@ -18834,8 +20019,14 @@
    "wcLayers": {
     "l2": 6
    },
+   "wcLayerPct": {
+    "l2": 100.0
+   },
    "engLayers": {
     "once": 6
+   },
+   "engLayerPct": {
+    "once": 100.0
    },
    "concentration": {
     "top10Replies": 6,
@@ -19007,6 +20198,99 @@
       }
      ]
     }
+   ],
+   "keywords": [
+    {
+     "w": "itsthehandy",
+     "n": 6
+    },
+    {
+     "w": "kickstarter",
+     "n": 2
+    },
+    {
+     "w": "congrats",
+     "n": 1
+    },
+    {
+     "w": "incredibly",
+     "n": 1
+    },
+    {
+     "w": "successful",
+     "n": 1
+    },
+    {
+     "w": "campaign",
+     "n": 1
+    },
+    {
+     "w": "possible",
+     "n": 1
+    },
+    {
+     "w": "opportunity",
+     "n": 1
+    },
+    {
+     "w": "promote",
+     "n": 1
+    },
+    {
+     "w": "product",
+     "n": 1
+    },
+    {
+     "w": "https",
+     "n": 1
+    },
+    {
+     "w": "thats",
+     "n": 1
+    },
+    {
+     "w": "huge",
+     "n": 1
+    },
+    {
+     "w": "demand",
+     "n": 1
+    },
+    {
+     "w": "lemme",
+     "n": 1
+    },
+    {
+     "w": "post",
+     "n": 1
+    },
+    {
+     "w": "goony",
+     "n": 1
+    },
+    {
+     "w": "review",
+     "n": 1
+    },
+    {
+     "w": "many",
+     "n": 1
+    },
+    {
+     "w": "possibilities",
+     "n": 1
+    }
+   ],
+   "topics": [],
+   "forms": [
+    {
+     "f": "视频",
+     "n": 5
+    },
+    {
+     "f": "图片",
+     "n": 1
+    }
    ]
   },
   {
@@ -19027,8 +20311,14 @@
    "wcLayers": {
     "l1": 2
    },
+   "wcLayerPct": {
+    "l1": 100.0
+   },
    "engLayers": {
     "light": 1
+   },
+   "engLayerPct": {
+    "light": 100.0
    },
    "concentration": {
     "top10Replies": 2,
@@ -19056,6 +20346,19 @@
      "last": "2025-10-26",
      "samples": []
     }
+   ],
+   "keywords": [
+    {
+     "w": "lovehoney",
+     "n": 2
+    }
+   ],
+   "topics": [],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 2
+    }
    ]
   },
   {
@@ -19076,8 +20379,14 @@
    "wcLayers": {
     "l1": 1
    },
+   "wcLayerPct": {
+    "l1": 100.0
+   },
    "engLayers": {
     "once": 1
+   },
+   "engLayerPct": {
+    "once": 100.0
    },
    "concentration": {
     "top10Replies": 1,
@@ -19113,6 +20422,23 @@
        "link": "https://x.com/i/status/2035097439825535420"
       }
      ]
+    }
+   ],
+   "keywords": [
+    {
+     "w": "ilovetracysdog",
+     "n": 1
+    },
+    {
+     "w": "interested",
+     "n": 1
+    }
+   ],
+   "topics": [],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 1
     }
    ]
   }
