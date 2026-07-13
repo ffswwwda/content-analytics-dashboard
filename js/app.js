@@ -77,8 +77,9 @@
     { id: "compare", name: "多竞品横向对比", group: "看竞品情况", desc: "勾选多个品牌横向对比：数据表现 + Top3 内容 + 用户情况，全面看标杆与差距。" },
     // —— 了解用户 ——
     { id: "uservoice", name: "用户讨论与语言", group: "了解用户", desc: "基于用户语料的深度分析：情绪倾向、语言风格、词频、美式本土化表达、分内容形式——学习美国用户的表达与话题讨论方式。" },
-    { id: "branduser", name: "品牌-用户讨论", group: "了解用户", desc: "分品牌查看用户对该品牌的讨论：情感极性、内容形式、用户倾向、高频词与主题、代表语录——全面看每个品牌的用户声音。" },
-    { id: "userseg", name: "高互动用户", group: "了解用户", desc: "高互动用户：①用户分层——按回复字数（投入度）将用户分层，不同层级对应不同运营动作（浏览型→引导、参与型→互动、深度型→培养为KOC）；②高互动用户排行——窗口内回复数最高的活跃用户及其深度画像。" },
+    { id: "branduser", name: "品牌-用户讨论", group: "了解用户", desc: "分品牌查看用户对该品牌的讨论：情感极性、内容形式、用户倾向、高频词与主题、代表语录——全面看每个品牌的用户声音。可点进品牌看品牌互动用户深度分析（用户词云、主题排序、分层占比、跨品牌对比）。" },
+    { id: "usertier", name: "用户分层分析", group: "了解用户", desc: "按「回复字数」和「参与度」将用户分层——不是研究单个用户，而是研究「某一类用户」的整体特征：他们关注什么品牌、聊什么话题、情绪倾向如何、偏好什么内容形式。每层可下钻看细节，支持四层横向对比。" },
+    { id: "userseg", name: "高互动用户", group: "了解用户", desc: "窗口内回复数最高的活跃用户排行——研究「单个深度用户」：他是谁、活跃周期、品牌归属、语言模式、参与形式、情感/意图倾向、全部代表语录。支持展开深度画像、跨品牌用户对比。" },
     // —— 我方运营 ——
     { id: "myops", name: "我方运营", group: "我方运营", desc: "选一个或多个竞品 → 勾选要参考的维度（节奏 / 选题 / 形式 / 风格 / 指标）→ 生成可执行的运营方案，支持导出。" },
   ];
@@ -262,6 +263,7 @@
       case "compare": html = renderCompareBoard(); break;
       case "uservoice": html = renderUserBoard(); break;
       case "branduser": html = renderBrandUser(); break;
+      case "usertier": html = renderUserTier(); break;
       case "userseg": html = renderUserSeg(); break;
       case "myops": html = renderMyOps(); break;
     }
@@ -1867,9 +1869,7 @@ ${topMatches || "（无强匹配）"}
     const U = state.users;
     const desc = boardDesc("userseg");
     if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
-    if (state.uvLayerCmp) return renderLayerCompare(U);
-    if (state.uvLayerDrill && U.layers[state.uvLayerDrill]) return renderLayerDrill(state.uvLayerDrill);
-    return `<div class="board-head"><div class="board-desc">${desc}</div></div>${uvLayers(U)}${uvRank(U)}`;
+    return `<div class="board-head"><div class="board-desc">${desc}</div></div>${uvRank(U)}`;
   }
 
   // 单分层下钻：该层用户在说什么 / 哪些品牌·内容形式这类用户更多 / 反向总结
@@ -1961,10 +1961,57 @@ ${topMatches || "（无强匹配）"}
   function bindUserSeg() {
     const rt = $("[data-uv-rank-toggle]", $("#board"));
     if (rt) rt.addEventListener("click", () => { state.uvRankAll = !state.uvRankAll; renderBoard(); });
+  }
+
+  /* ---------- 用户分层分析（独立板块）：按字数+参与度分层 → 下钻 → 四层对比 ---------- */
+  function renderUserTier() {
+    const U = state.users;
+    const desc = boardDesc("usertier");
+    if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
+    if (state.uvLayerCmp) return renderLayerCompare(U);
+    if (state.uvLayerDrill && U.layers[state.uvLayerDrill]) return renderLayerDrill(state.uvLayerDrill);
+    // 参与度分层（按回复次数）
+    const engLayerCards = renderEngLayers(U);
+    return `<div class="board-head"><div class="board-desc">${desc}</div></div>${uvLayers(U)}${engLayerCards}`;
+  }
+
+  function renderEngLayers(U) {
+    const EM = (U.meta && U.meta.eng_meta) || {};
+    const order = ["heavy", "active", "light", "once"];
+    const ENG_COL = { heavy: "#ffd166", active: "#a06bff", light: "#00f0ff", once: "#6b7a99" };
+    const ENG_DESC = {
+      heavy: "对该品牌反复发声，是铁粉 / KOC 候选，最值得单独运营。",
+      active: "稳定参与者，已建立品牌认知，可培养为深度用户。",
+      light: "偶尔回来互动，处在观望期，需内容持续触达。",
+      once: "路人 / 首次接触，规模最大，是拉新与转化的入口。",
+    };
+    // 从全部用户列表计算参与度分层（非品牌粒度，全局视角）
+    const topUsers = U.topUsers || [];
+    const engCounts = { heavy: 0, active: 0, light: 0, once: 0 };
+    const nUsers = topUsers.length;
+    topUsers.forEach((u) => {
+      const c = u.replyCount || 0;
+      if (c >= 10) engCounts.heavy++;
+      else if (c >= 4) engCounts.active++;
+      else if (c >= 2) engCounts.light++;
+      else engCounts.once++;
+    });
+    const cards = order.map((k) => {
+      const name = (EM[k] && EM[k].name) || k;
+      const count = engCounts[k] || 0;
+      const share = uvPct(count, nUsers);
+      return `<div class="uv-layer-card">
+        <div class="uv-layer-head"><span class="uv-layer-name">${esc(name)}</span><span class="uv-layer-count">${fmt(count)} 人 · ${share}%</span></div>
+        <div class="uv-layer-desc">${ENG_DESC[k] || ""}</div>
+      </div>`;
+    }).join("");
+    return `<div class="uv-block"><div class="uv-block-title">按参与度分层用户（按回复次数 · 全局 TOP100 用户）</div><div class="uv-layer-grid">${cards}</div></div>`;
+  }
+
+  function bindUserTier() {
     $$("[data-uv-layer]", $("#board")).forEach((b) => b.addEventListener("click", () => { state.uvLayerDrill = b.dataset.uvLayer; renderBoard(); }));
     const back = $("[data-uv-layer-back]", $("#board"));
     if (back) back.addEventListener("click", () => { state.uvLayerDrill = null; renderBoard(); });
-    // 四层对比
     const cmp = $("[data-uv-layer-cmp]", $("#board"));
     if (cmp) cmp.addEventListener("click", () => { state.uvLayerCmp = true; renderBoard(); });
     const cmpBack = $("[data-uv-layer-cmp-back]", $("#board"));
@@ -2575,9 +2622,10 @@ ${sim || "（无同主题关联帖）"}
     if (["competitor", "compare"].includes(state.board)) bindCompetitor();
     // 我方运营
     if (state.board === "myops") bindMyOps();
-    // 了解用户：用户讨论与语言 / 品牌-用户讨论 / 高互动用户
+    // 了解用户：用户讨论与语言 / 品牌-用户讨论 / 用户分层分析 / 高互动用户
     if (state.board === "uservoice") bindUserBoard();
     if (state.board === "branduser") bindBrandUser();
+    if (state.board === "usertier") bindUserTier();
     if (state.board === "userseg") bindUserSeg();
   }
 
