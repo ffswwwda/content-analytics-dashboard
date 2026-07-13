@@ -23,27 +23,23 @@
   };
   const BOARDS = [
     // —— 找灵感 ——
-    { id: "blindbox", name: "每日盲盒", group: "找灵感", desc: "每天开 3 张灵感卡，翻一张看详情，稀有度从普通到金色传说——用随机打破信息茧房。" },
-    { id: "library", name: "灵感库", group: "找灵感", desc: "全部内容的灵感库。可随机浏览，也可按账号/形式/主题/风格/爆款率多指标排序与筛选；点标签即加入筛选，点卡片看详情。" },
-    { id: "top", name: "高表现内容", group: "找灵感", desc: "仅看头部内容，按爆款率排序。配合顶部「只看爆款 / 爆款率门槛」做二次细分，是找标杆最快的入口。" },
-    { id: "viral", name: "爆款识别", group: "找灵感", desc: "自动标记 Top 10% 爆款，拆解它们共同的「形式 / 主题 / 风格 / 时段」特征，告诉你爆款长什么样。" },
-    { id: "roi", name: "类型 ROI", group: "找灵感", desc: "内容形式（图文/视频/测评…）的爆款率与互动效率排行，指导内容配比。" },
+    { id: "blindbox", name: "每日盲盒", group: "找灵感", desc: "每天开 3 张灵感卡，翻一张看：品牌 / 内容形式 / 内容 / 数据情况 / 可借鉴方式 / 最高赞用户评价。可生图。" },
+    { id: "library", name: "灵感库", group: "找灵感", desc: "全部内容的灵感库。可随机浏览，也可按爆款率 / 曝光 / 互动 / 类型 ROI 多指标排序与筛选；一键只看爆款(Top10%)。点标签加筛选，点卡片看详情。" },
     // —— 看参考建议 ——
-    { id: "reference", name: "参考建议", group: "看参考建议", desc: "一个工具两个方向：有想法→评估质量（多维评分卡）；没灵感→输入目的主动推荐参考内容。还有回测校准准确率。" },
+    { id: "reference", name: "参考建议", group: "看参考建议", desc: "一个工具两个方向：有想法→评估质量（多维评分卡 + 用户风评）；没灵感→输入目的主动推荐参考内容。还有回测校准准确率。" },
     { id: "insights", name: "AI 洞察", group: "看参考建议", desc: "定时管线由大模型生成的选题方向 / 爆款特征 / 行动建议，打开即看。" },
     // —— 看竞品 ——
-    { id: "competitor", name: "竞品内容库", group: "看竞品", desc: "按品牌（竞品=品牌）下钻：内容量、平均爆款率、爆款数、总曝光；勾选多个品牌可横向对标。" },
-    { id: "usereval", name: "用户对竞品评价", group: "看竞品", desc: "最高赞用户评价 + 原帖链接——看用户怎么评价竞品。" },
-    { id: "freq", name: "竞品运营节奏", group: "看竞品", desc: "发布频率与表现的关系。定位竞品最佳发布节奏。" },
-    { id: "campaign", name: "Campaign 监测", group: "看竞品", desc: "识别活动期间的集中爆发，对比日常频次倍数与表现提升。" },
+    { id: "competitor", name: "竞品内容库", group: "看竞品", desc: "选择竞品 → 进入该竞品的深度整合分析：它的内容、用户对它的评价、数据表现、运营节奏（频率×表现、Campaign）一站式呈现。" },
+    { id: "compare", name: "多品牌对比", group: "看竞品", desc: "勾选多个品牌横向对比：内容量 / 爆款率 / 曝光 / 互动，找出标杆与差距。" },
     // —— 了解用户 ——
     { id: "uservoice", name: "用户讨论与语言", group: "了解用户", desc: "看用户讨论什么、用什么语言——学习美国用户的表达与话题讨论方式（用户语料 skill 后续接入）。" },
-    { id: "format", name: "内容形式与风格", group: "了解用户", desc: "内容形式（含风格/情绪调性）表现对比——用户偏爱什么形式与调性。" },
-    { id: "topic", name: "主题洞察", group: "了解用户", desc: "主题维度下钻：爆款率/参与度/时效/内容量，按权重合成综合爆款潜力分（滑块可调）。" },
+    { id: "format", name: "内容形式与风格", group: "了解用户", desc: "内容形式（含风格 / 情绪调性）表现对比——用户偏爱什么形式与调性。" },
+    { id: "topic", name: "主题洞察", group: "了解用户", desc: "主题维度下钻：爆款率 / 参与度 / 时效 / 内容量，按权重合成综合爆款潜力分（滑块可调）。" },
     { id: "platform", name: "平台特点", group: "了解用户", desc: "同一内容在不同平台的特点与表现差异。" },
     // —— 我方运营 ——
-    { id: "myops", name: "我方运营", group: "我方运营", desc: "选一个竞品对标 → 给出模仿/参考方案：运营节奏、内容形式建议、要观测的指标+阈值，输出可执行清单。" },
+    { id: "myops", name: "我方运营", group: "我方运营", desc: "选一个或多个竞品 → 勾选要参考的维度（节奏 / 选题 / 形式 / 风格 / 指标）→ 生成可执行的运营方案，支持导出。" },
   ];
+  const boardDesc = (id) => (BOARDS.find((b) => b.id === id) || {}).desc || "";
 
   /* ---------- 状态 ---------- */
   const state = {
@@ -57,6 +53,9 @@
     detailId: null, predictor: null,
     dim: "brand", dimBrands: new Set(), topicWeights: { viral: 35, eng: 25, rec: 20, cov: 20 },
     blindbox: null, refMode: "eval", backtests: [], maxExposure: 1,
+    libMode: "sort", libQuick: "all",
+    compSel: new Set(), cmpSel: new Set(),
+    opsBrands: [], opsRefs: new Set(["rhythm", "topic", "format", "style", "metric"]),
   };
 
   const FACETS = [
@@ -206,15 +205,10 @@
     switch (state.board) {
       case "blindbox": html = renderBlindbox(data); break;
       case "library": html = renderLibrary(data); break;
-      case "top": html = renderTop(data); break;
-      case "viral": html = renderViral(data); break;
-      case "freq": html = renderFreq(data); break;
-      case "roi": html = renderRoi(data); break;
-      case "campaign": html = renderCampaign(data); break;
       case "reference": html = renderReference(); break;
       case "insights": html = renderInsights(); break;
-      case "competitor": html = renderDimBrand(); break;
-      case "usereval": html = renderDimUser(); break;
+      case "competitor": html = renderCompetitorLib(); break;
+      case "compare": html = renderCompareBoard(); break;
       case "uservoice": html = renderUserLang(); break;
       case "format": html = renderDimFormat(); break;
       case "topic": html = renderDimTopic(); break;
@@ -225,31 +219,58 @@
     bindBoard(data);
   }
 
-  /* ---------- 灵感库 ---------- */
+  /* ---------- 灵感库（整合：随机浏览 + 指标排序 + 只看爆款 + 类型ROI）---------- */
   function renderLibrary(data) {
-    const sorted = sortContents(data, state.sort);
+    let list = [...data];
+    if (state.libQuick === "top") list = list.filter((c) => c.isTop);
+    if (state.libMode === "rand") {
+      list = sampleN(list, Math.max(12, list.length));
+    } else if (state.sort === "roi") {
+      const roiMap = new Map(state.analysis.contentTypeROI.map((t) => [t.type, t.avgViralScore]));
+      list = [...list].sort((a, b) => (roiMap.get(b.contentType) || 0) - (roiMap.get(a.contentType) || 0));
+    } else {
+      list = sortContents(list, state.sort);
+    }
     const tools = `<div class="board-tools">
+      <div class="seg" id="lib-mode">
+        <button data-mode="rand" class="${state.libMode === "rand" ? "on" : ""}">🎲 随机浏览</button>
+        <button data-mode="sort" class="${state.libMode === "sort" ? "on" : ""}">📊 指标排序</button>
+      </div>
+      <div class="seg" id="lib-eval">
+        <button data-eval="all" class="${state.libQuick === "all" ? "on" : ""}">全部</button>
+        <button data-eval="top" class="${state.libQuick === "top" ? "on" : ""}">只看爆款</button>
+        <button data-eval="roi" class="${state.libQuick === "roi" ? "on" : ""}">类型ROI</button>
+      </div>
+      <select class="sel" id="sort-sel">
+        <option value="viral"${state.sort === "viral" ? " selected" : ""}>按爆款率</option>
+        <option value="exposure"${state.sort === "exposure" ? " selected" : ""}>按曝光</option>
+        <option value="engagement"${state.sort === "engagement" ? " selected" : ""}>按互动</option>
+        <option value="date"${state.sort === "date" ? " selected" : ""}>按最新</option>
+        <option value="roi"${state.sort === "roi" ? " selected" : ""}>按类型ROI</option>
+      </select>
       <div class="seg" id="view-seg">
         <button data-view="grid" class="${state.view === "grid" ? "on" : ""}">卡片</button>
         <button data-view="list" class="${state.view === "list" ? "on" : ""}">列表</button>
       </div>
-      <select class="sel" id="sort-sel">
-        <option value="viral"${state.sort === "viral" ? " selected" : ""}>按爆款率</option>
-        <option value="date"${state.sort === "date" ? " selected" : ""}>按最新</option>
-        <option value="exposure"${state.sort === "exposure" ? " selected" : ""}>按曝光</option>
-      </select></div>`;
-    const head = `<div class="board-head"><div class="board-desc">${BOARDS[0].desc}<br><b style="color:var(--accent-strong)">${data.length}</b> 条内容符合当前筛选 · 点主题标签可加入筛选，点卡片看详情</div>${tools}</div>`;
-    if (!sorted.length) return head + emptyState();
-    const body = state.view === "grid"
-      ? `<div class="grid">${sorted.map(cardHTML).join("")}</div>`
-      : sorted.map(listHTML).join("");
-    return head + body;
+    </div>`;
+    const head = `<div class="board-head"><div class="board-desc">${boardDesc("library")}<br><b style="color:var(--accent-strong)">${data.length}</b> 条符合筛选 · 随机模式打破信息茧房；指标模式含「只看爆款(Top10%) / 类型 ROI」等评估标准。点标签加筛选，点卡片看详情。</div>${tools}</div>`;
+    if (!list.length) return head + emptyState();
+    let roiPanel = "";
+    if (state.libQuick === "roi" || state.sort === "roi") {
+      const maxV = Math.max(...state.analysis.contents.map((c) => c.viralScore), 0.0001);
+      roiPanel = `<div class="panel" style="margin-bottom:14px"><div class="panel-title">内容形式 ROI 概览（按平均爆款指数排序）</div><div class="panel-sub">作为「高 ROI 形式」的评估标准——哪种形式最值得借鉴</div>
+        ${state.analysis.contentTypeROI.map((t) => `<div class="qc-bar"><span class="qc-name" style="width:90px">${esc(t.type)}</span><span class="qc-track"><i style="width:${((t.avgViralScore / maxV) * 100).toFixed(0)}%"></i></span><span class="qc-val">${t.count}条 · 互动率${(t.avgEngagementRate * 100).toFixed(1)}%</span></div>`).join("")}</div>`;
+    }
+    const body = state.view === "grid" ? `<div class="grid">${list.map(cardHTML).join("")}</div>` : list.map(listHTML).join("");
+    const randBar = state.libMode === "rand" ? `<div class="blindbox-bar"><button class="btn-primary" id="lib-reshuffle">🎲 重新随机</button><span class="bx-tip">当前为随机抽样 ${list.length} 条，用于灵感发散</span></div>` : "";
+    return head + roiPanel + randBar + body;
   }
   function sortContents(data, mode) {
     const a = [...data];
     if (mode === "viral") a.sort((x, y) => y.viralScore - x.viralScore);
     else if (mode === "date") a.sort((x, y) => y.publish_time.localeCompare(x.publish_time));
     else if (mode === "exposure") a.sort((x, y) => y.exposure - x.exposure);
+    else if (mode === "engagement") a.sort((x, y) => y.engagement - x.engagement);
     return a;
   }
   function cardHTML(c) {
@@ -481,6 +502,18 @@
       <div class="stat"><div class="stat-label">平均爆款率</div><div class="stat-val">${ms.avgViralRate}</div></div>
     </div>` : "";
 
+    const um = r.userMetrics;
+    const userHTML = um && um.topKeywords.length ? `<div class="panel" style="margin-bottom:16px"><div class="panel-title">用户指标与风评</div><div class="panel-sub">基于匹配到的历史内容，提炼用户侧的互动表现与口碑倾向</div>
+      <div class="stat-row" style="margin-bottom:12px">
+        <div class="stat"><div class="stat-label">平均互动</div><div class="stat-val">${fmt(um.avgEngagement)}</div></div>
+        <div class="stat"><div class="stat-label">平均评论</div><div class="stat-val">${fmt(um.avgComments)}</div></div>
+        <div class="stat"><div class="stat-label">平均点赞</div><div class="stat-val">${fmt(um.avgLikes)}</div></div>
+        <div class="stat"><div class="stat-label">评价倾向</div><div class="stat-val" style="color:var(--accent-2)">${esc(um.reviewTone)}</div></div>
+      </div>
+      <div class="hit-tags"><span class="hit-label">用户高频关键词：</span>${um.topKeywords.map((t) => `<span class="tag topic">${esc(t)}</span>`).join("")}</div>
+      <div style="margin-top:10px">${um.reviewDist.map((x) => barHTML("评价·" + x.name, x.count)).join("")}</div>
+    </div>` : "";
+
     const keyFeaturesHTML = r.keyTakeaways.length ? `<div class="panel" style="margin-bottom:16px"><div class="panel-title">这类内容的关键特征</div><div class="panel-sub">基于匹配到的历史内容提炼，非空泛结论</div><ul class="sugg-list">${r.keyTakeaways.map((k) => `<li>${esc(k)}</li>`).join("")}</ul></div>` : "";
 
     const matchedPanelHTML = ms.count ? `<div class="panel" style="margin-bottom:16px"><div class="panel-title">匹配到的参考内容（按相关度）</div><div class="panel-sub">点击查看详情，可作为选题对标或灵感来源</div><div class="match-grid">${matchedCards}</div></div>` : "";
@@ -505,6 +538,7 @@
         </div>
       </div>
       ${matchStatsHTML}
+      ${userHTML}
       ${keyFeaturesHTML}
       ${matchedPanelHTML}
       <div class="sugg-box"><h4>优化方向建议（脚本快评）</h4><ul class="sugg-list">${r.suggestions.map((s) => `<li>${esc(s)}</li>`).join("")}</ul></div>
@@ -533,6 +567,7 @@
 同主题历史爆款率：${r.topicViralRate}% | 同情绪历史爆款率：${r.emotionViralRate}%
 命中关键词数：${r.keywordHits}
 匹配历史内容：${r.matches.total} 条，其中 ${(r.matchedStats.topRate * 100).toFixed(0)}% 为爆款
+用户侧：平均互动 ${fmt(r.userMetrics.avgEngagement)} · 平均评论 ${fmt(r.userMetrics.avgComments)} · 评价倾向「${r.userMetrics.reviewTone}」 · 用户高频关键词：${r.userMetrics.topKeywords.join("、")}
 
 —— 匹配到的关键历史内容 ——
 ${topMatches || "（无强匹配）"}
@@ -554,11 +589,11 @@ ${topMatches || "（无强匹配）"}
   /* ---------- AI 洞察 ---------- */
   function renderInsights() {
     const ins = state.insights;
-    if (!ins) return `<div class="board-head"><div class="board-desc">${BOARDS[7].desc}</div></div>` + emptyState("洞察报告尚未生成（定时管线运行后会自动出现）");
+    if (!ins) return `<div class="board-head"><div class="board-desc">${boardDesc("insights")}</div></div>` + emptyState("洞察报告尚未生成（定时管线运行后会自动出现）");
     const dir = (ins.directions || []).map((d) => `<li><b>${esc(d.title)}</b> — ${esc(d.why)}<div class="dir-ex">示例：${esc(d.example || "")}</div></li>`).join("");
     const feat = (ins.hitFeatures || []).map((f) => `<li><b>${esc(f.title)}</b> — ${esc(f.detail)}</li>`).join("");
     const lists = (arr) => (arr || []).map((x) => `<li>${esc(x)}</li>`).join("");
-    return `<div class="board-head"><div class="board-desc">${BOARDS[7].desc} · 生成于 ${esc(ins.generatedAt || "")}</div></div>
+    return `<div class="board-head"><div class="board-desc">${boardDesc("insights")} · 生成于 ${esc(ins.generatedAt || "")}</div></div>
       <div class="insight-summary">${esc(ins.summary || "")}</div>
       <div class="insight-grid">
         <div class="icard"><h4><span class="ic-dot"></span>爆款共性特征</h4><ul>${feat || '<li>暂无</li>'}</ul></div>
@@ -581,18 +616,48 @@ ${topMatches || "（无强匹配）"}
     for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
     return a.slice(0, n);
   }
+  function borrowTip(c) {
+    if (c.isTop) return "已进入 Top10% 爆款，可借鉴其形式结构与钩子设计，复用到同类选题。";
+    const t = (c.topicTags || [])[0];
+    return t ? `围绕「${t}」主题，可借鉴其「${c.contentType}」形式与「${c.emotion}」调性做延展。` : `可借鉴其「${c.contentType}」形式与「${c.emotion}」调性。`;
+  }
+  function topVoiceFor(c) {
+    const voices = (state.raw && state.raw.userVoices) || [];
+    if (!voices.length) return null;
+    const mine = voices.find((v) => v.contentId === c.id);
+    if (mine) return mine;
+    const sameAcc = voices.filter((v) => v.account === c.account).sort((a, b) => b.likes - a.likes);
+    if (sameAcc.length) return sameAcc[0];
+    return voices.slice().sort((a, b) => b.likes - a.likes)[0];
+  }
   function renderBlindbox(data) {
     const pool = data && data.length ? data : state.analysis.contents;
     state.blindbox = sampleN(pool, 3).map((c) => ({ c, rarity: rollRarity(), flipped: false }));
-    const cards = state.blindbox.map((p, i) => `<div class="bx-card face-down" data-bx="${i}">
-      <div class="bx-face bx-front"><div class="bx-q">?</div><div class="bx-hint">点击翻牌</div></div>
-      <div class="bx-face bx-back">
-        <div class="bx-rarity ${p.rarity.cls}">${p.rarity.label}</div>
-        <div class="bx-text">${esc(p.c.text)}</div>
-        <div class="bx-meta">${esc(p.c.account)} · ${esc(p.c.contentType)} · ${p.c.publishDate}</div>
-        <div class="bx-actions"><button class="mini-btn" data-use="${p.c.id}">用作灵感</button><button class="mini-btn ghost" data-gen="${p.c.id}">生图</button></div>
-      </div></div>`).join("");
-    return `<div class="board-head"><div class="board-desc">${BOARDS.find((b) => b.id === "blindbox").desc}</div></div>
+    const cards = state.blindbox.map((p, i) => {
+      const c = p.c;
+      const v = topVoiceFor(c);
+      const cover = c.image
+        ? `<img class="bx-cover-img" src="${esc(c.image)}" alt="">`
+        : `<div class="bx-cover-grad"><div class="bx-cover-brand">${esc(c.account)}</div><div class="bx-cover-type">${esc(c.contentType)}</div></div>`;
+      const voiceHTML = v
+        ? `<div class="bx-voice"><div class="bx-voice-head">最高赞用户评价 · <span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span> <span class="uv-likes">♥ ${fmt(v.likes)}</span></div><div class="bx-voice-text">${esc(v.text)}</div><a class="uv-link" href="${esc(v.originalLink || "#")}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div>`
+        : `<div class="bx-voice bx-muted">暂无该内容的用户评价数据</div>`;
+      return `<div class="bx-card face-down" data-bx="${i}">
+        <div class="bx-face bx-front">${cover}<div class="bx-front-foot"><div class="bx-q">?</div><div class="bx-hint">点击翻牌</div></div></div>
+        <div class="bx-face bx-back">
+          <div class="bx-rarity ${p.rarity.cls}">${p.rarity.label}</div>
+          <div class="bx-reveal">
+            <div class="bx-row"><span class="bx-k">品牌</span><span class="bx-v">${esc(c.account)}</span></div>
+            <div class="bx-row"><span class="bx-k">内容形式</span><span class="bx-v">${esc(c.contentType)}</span></div>
+            <div class="bx-row bx-row-text"><span class="bx-k">内容</span><span class="bx-v">${esc(c.text)}</span></div>
+            <div class="bx-row"><span class="bx-k">数据情况</span><span class="bx-v">曝光 ${fmt(c.exposure)} · 互动 ${fmt(c.engagement)} · 爆款率 ${rate(c)}${c.isTop ? " · 🔥爆款" : ""}</span></div>
+            <div class="bx-row bx-row-text"><span class="bx-k">可借鉴</span><span class="bx-v">${esc(borrowTip(c))}</span></div>
+            ${voiceHTML}
+          </div>
+          <div class="bx-actions"><button class="mini-btn" data-use="${c.id}">点开详情</button><button class="mini-btn ghost" data-gen="${c.id}">生图</button></div>
+        </div></div>`;
+    }).join("");
+    return `<div class="board-head"><div class="board-desc">${boardDesc("blindbox")}</div></div>
       <div class="blindbox-bar"><button class="btn-primary" id="bx-redraw">🎲 重新抽 3 张</button><span class="bx-tip">稀有度：普通 60% · 稀有 30% · 金色传说 10%</span></div>
       <div class="blindbox-grid">${cards}</div>`;
   }
@@ -600,7 +665,7 @@ ${topMatches || "（无强匹配）"}
     const rd = $("#bx-redraw"); if (rd) rd.addEventListener("click", () => renderBoard());
     $$(".bx-card.face-down").forEach((el) => el.addEventListener("click", () => { el.classList.remove("face-down"); el.classList.add("flipped"); }));
     $$("[data-use]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); openDrawer(b.dataset.use); }));
-    $$("[data-gen]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); toast("生图功能待接入小云雀"); }));
+    $$("[data-gen]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); toast("生图功能待接入小云雀（届时用你提供的图片生成背面配图）"); }));
   }
 
   /* ============ 参考建议中枢（评估想法 / 找参考 / 回测）============ */
@@ -730,44 +795,74 @@ ${topMatches || "（无强匹配）"}
   }
 
   /* ============ 我方运营 ============ */
+  function opsSec(title, lis) { return `<div class="ops-section"><div class="ops-sec-title">${title}</div><ul>${lis}</ul></div>`; }
+  function downloadText(filename, text) {
+    try {
+      const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+      setTimeout(() => { try { document.body.removeChild(a); URL.revokeObjectURL(url); } catch (e) {} }, 100);
+    } catch (e) { toast("导出失败：" + e.message); }
+  }
   function renderMyOps() {
     const brands = aggregateByField(getFiltered(), "account");
-    const sel = `<select id="ops-brand" class="sel">${brands.map((b) => `<option value="${esc(b.name)}">${esc(b.name)}</option>`).join("")}</select>`;
-    return `<div class="board-head"><div class="board-desc">${BOARDS.find((b) => b.id === "myops").desc}</div></div>
-      <div class="ops-bar">对标竞品：${sel}<button class="btn-primary" id="ops-gen">生成运营方案</button></div>
+    const brandChips = brands.map((b) => `<span class="chip ops-brand${state.opsBrands.includes(b.name) ? " on" : ""}" data-brand="${esc(b.name)}">${esc(b.name)} (${b.count})</span>`).join("");
+    const refs = [["rhythm", "运营节奏"], ["topic", "选题/内容"], ["format", "内容形式"], ["style", "风格调性"], ["metric", "指标阈值"]];
+    const refChecks = refs.map(([k, label]) => `<label class="ops-ref"><input type="checkbox" data-ref="${k}" ${state.opsRefs.has(k) ? "checked" : ""}> ${label}</label>`).join("");
+    return `<div class="board-head"><div class="board-desc">${boardDesc("myops")}</div></div>
+      <div class="dim-note">选一个或多个竞品对标，勾选要参考的维度，生成可执行的运营方案。${state.opsBrands.length ? '<button class="mini-btn" id="ops-clear">清空</button>' : ""}</div>
+      <div class="fp-chips" style="margin-bottom:12px">${brandChips}</div>
+      <div class="ops-refs"><span class="ops-refs-label">参考维度：</span>${refChecks}</div>
+      <button class="btn-primary" id="ops-gen" style="margin-top:12px">生成运营方案</button>
       <div id="ops-result"></div>`;
   }
   function bindMyOps() {
+    $$(".ops-brand").forEach((el) => el.addEventListener("click", () => {
+      const name = el.dataset.brand;
+      if (state.opsBrands.includes(name)) state.opsBrands = state.opsBrands.filter((x) => x !== name);
+      else state.opsBrands.push(name);
+      renderBoard();
+    }));
+    const cl = $("#ops-clear"); if (cl) cl.addEventListener("click", () => { state.opsBrands = []; renderBoard(); });
+    $$(".ops-ref").forEach((el) => el.addEventListener("change", () => {
+      const k = el.dataset.ref;
+      if (el.querySelector("input").checked) state.opsRefs.add(k); else state.opsRefs.delete(k);
+    }));
     const g = $("#ops-gen"); if (!g) return;
     g.addEventListener("click", () => {
-      const name = $("#ops-brand").value;
-      const items = getFiltered().filter((c) => c.account === name);
-      if (!items.length) { $("#ops-result").innerHTML = emptyState("该竞品无数据"); return; }
-      const types = {}; items.forEach((c) => (types[c.contentType] = (types[c.contentType] || 0) + 1));
-      const topType = Object.entries(types).sort((a, b) => b[1] - a[1])[0];
-      const weeks = new Set(items.map((c) => c.publishDate.slice(0, 7))).size || 1;
-      const freq = (items.length / weeks).toFixed(1);
-      const avgRate = Math.round(items.reduce((s, c) => s + rate(c), 0) / items.length);
-      const topCount = items.filter((c) => c.isTop).length;
-      const emotions = {}; items.forEach((c) => (emotions[c.emotion] = (emotions[c.emotion] || 0) + 1));
-      const topEmo = Object.entries(emotions).sort((a, b) => b[1] - a[1])[0];
-      const avgEng = Math.min(3, items.reduce((s, c) => s + c.engagementRate, 0) / items.length).toFixed(2);
-      $("#ops-result").innerHTML = `<div class="ops-plan">
-        <div class="ops-head">对标 <b>${esc(name)}</b> 的运营方案</div>
-        <div class="ops-section"><div class="ops-sec-title">① 运营节奏</div><ul>
-          <li>建议发布频率：<b>${freq}</b> 条/周（参照该竞品历史节奏）</li>
-          <li>爆款率基准：${avgRate} · 爆款数 ${topCount}/${items.length}，可作为目标值</li></ul></div>
-        <div class="ops-section"><div class="ops-sec-title">② 内容形式建议</div><ul>
-          <li>主力形式：<b>${esc(topType[0])}</b>（占 ${topType[1]}/${items.length}）</li>
-          <li>推荐情绪调性：<b>${esc(topEmo[0])}</b></li>
-          <li>配比建议：以主力形式为核，搭配 1-2 种实验形式测试</li></ul></div>
-        <div class="ops-section"><div class="ops-sec-title">③ 要观测的指标 + 阈值</div><ul>
-          <li>爆款率：周均值 ≥ ${avgRate}</li>
-          <li>互动率：≥ ${avgEng}%</li>
-          <li>发布频率：稳定 ≥ ${freq} 条/周</li>
-          <li>异常预警：单条爆款率连续 2 周低于基准即复盘</li></ul></div>
-        <div class="ops-note">※ 当前为基于历史数据的规则化方案；接入 GPT 后可生成更精细的文案与节奏建议。</div>
-      </div>`;
+      if (!state.opsBrands.length) { $("#ops-result").innerHTML = emptyState("请先选择至少一个对标竞品"); return; }
+      const refs = state.opsRefs;
+      let md = `# 我方运营方案\n对标竞品：${state.opsBrands.join("、")}\n参考维度：${[...refs].join("、")}\n生成时间：${new Date().toLocaleString()}\n\n`;
+      let html = "";
+      state.opsBrands.forEach((name) => {
+        const items = getFiltered().filter((c) => c.account === name);
+        if (!items.length) return;
+        const weeks = new Set(items.map((c) => c.publishDate.slice(0, 7))).size || 1;
+        const freq = (items.length / weeks).toFixed(1);
+        const avgRate = Math.round(items.reduce((s, c) => s + rate(c), 0) / items.length);
+        const topCount = items.filter((c) => c.isTop).length;
+        const types = {}; items.forEach((c) => (types[c.contentType] = (types[c.contentType] || 0) + 1));
+        const topType = Object.entries(types).sort((a, b) => b[1] - a[1])[0] || ["—", 0];
+        const emotions = {}; items.forEach((c) => (emotions[c.emotion] = (emotions[c.emotion] || 0) + 1));
+        const topEmo = Object.entries(emotions).sort((a, b) => b[1] - a[1])[0] || ["—", 0];
+        const avgEng = Math.min(3, items.reduce((s, c) => s + c.engagementRate, 0) / items.length).toFixed(2);
+        let sec = "", mdSec = "";
+        if (refs.has("rhythm")) { sec += opsSec("① 运营节奏", `<li>建议发布频率：<b>${freq}</b> 条/周（参照该竞品历史节奏）</li><li>爆款率基准：${avgRate} · 爆款数 ${topCount}/${items.length}</li>`); mdSec += `### ① 运营节奏\n- 发布频率 ${freq} 条/周\n- 爆款率基准 ${avgRate}\n`; }
+        if (refs.has("topic")) { const tops = [...new Set(items.flatMap((c) => c.topicTags))].slice(0, 5).join("、") || "—"; const actPct = Math.round(items.filter((c) => c.isActivity).length / items.length * 100); sec += opsSec("② 选题 / 内容", `<li>高频主题：${esc(tops)}</li><li>活动型内容占比：${actPct}%</li>`); mdSec += `### ② 选题/内容\n- 高频主题 ${tops}\n- 活动占比 ${actPct}%\n`; }
+        if (refs.has("format")) { sec += opsSec("③ 内容形式建议", `<li>主力形式：<b>${esc(topType[0])}</b>（占 ${topType[1]}/${items.length}）</li>`); mdSec += `### ③ 内容形式\n- 主力 ${topType[0]}\n`; }
+        if (refs.has("style")) { sec += opsSec("④ 风格调性", `<li>推荐情绪调性：<b>${esc(topEmo[0])}</b></li>`); mdSec += `### ④ 风格调性\n- ${topEmo[0]}\n`; }
+        if (refs.has("metric")) { sec += opsSec("⑤ 要观测的指标 + 阈值", `<li>爆款率：周均值 ≥ ${avgRate}</li><li>互动率：≥ ${avgEng}%</li><li>发布频率：稳定 ≥ ${freq} 条/周</li><li>异常预警：单条爆款率连续 2 周低于基准即复盘</li>`); mdSec += `### ⑤ 指标阈值\n- 爆款率≥${avgRate}\n- 互动率≥${avgEng}%\n- 频率≥${freq}条/周\n`; }
+        const topContent = items.slice().sort((a, b) => b.viralScore - a.viralScore).slice(0, 3);
+        const tcHTML = topContent.map((c) => `<div class="list-row" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(c.text)}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)}</div></div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款率</small></div></div>`).join("");
+        sec += opsSec("该竞品优质内容（可借鉴）", tcHTML);
+        mdSec += `### 优质内容\n` + topContent.map((c, i) => `${i + 1}. ${c.text}（${c.contentType}·爆款率${rate(c)}）`).join("\n") + `\n`;
+        html += `<div class="ops-plan"><div class="ops-head">对标 <b>${esc(name)}</b> 的运营方案</div>${sec}</div>`;
+        md += `## 对标 ${name}\n${mdSec}\n`;
+      });
+      md += `\n---\n※ 基于历史数据的规则化方案；接入 GPT 后可生成更精细文案与节奏建议。\n`;
+      $("#ops-result").innerHTML = html + `<button class="btn-primary" id="ops-export" style="margin-top:14px">⬇ 导出方案（Markdown）</button>`;
+      const ex = $("#ops-export"); if (ex) ex.addEventListener("click", () => downloadText(`运营方案_${state.opsBrands.join("_")}.md`, md));
     });
   }
 
@@ -847,30 +942,76 @@ ${topMatches || "（无强匹配）"}
     </div>`;
   }
 
-  /* 品牌维度（含多品牌对标） */
-  function renderDimBrand() {
+  /* ============ 看竞品：竞品内容库（整合）+ 多品牌对比 ============ */
+  function burstsFor(items) {
+    const map = new Map();
+    items.filter((c) => c.isActivity && c.campaignName).forEach((c) => { if (!map.has(c.campaignName)) map.set(c.campaignName, []); map.get(c.campaignName).push(c); });
+    const all = getFiltered();
+    const allNon = all.filter((c) => !c.isActivity).length || 1;
+    const normalDaily = allNon / Math.max(1, new Set(all.filter((c) => !c.isActivity).map((c) => c.publishDate)).size || 1);
+    let rows = Array.from(map.entries()).map(([name, arr]) => {
+      const dates = arr.map((c) => c.publishDate).sort();
+      const dur = Math.max(1, (new Date(dates[dates.length - 1]) - new Date(dates[0])) / 86400000 + 1);
+      const freq = arr.length / dur;
+      return { name, count: arr.length, dur, lift: normalDaily > 0 ? freq / normalDaily : 0, avgRate: Math.round(arr.reduce((s, c) => s + rate(c), 0) / arr.length) };
+    });
+    rows.sort((a, b) => b.lift - a.lift);
+    return rows;
+  }
+  function competitorSection(data, name) {
+    const items = data.filter((c) => c.account === name);
+    if (!items.length) return "";
+    const avgRate = Math.round(items.reduce((s, c) => s + rate(c), 0) / items.length);
+    const topCount = items.filter((c) => c.isTop).length;
+    const totalExp = items.reduce((s, c) => s + c.exposure, 0);
+    const avgEng = (items.reduce((s, c) => s + c.engagementRate, 0) / items.length).toFixed(2);
+    const voices = ((state.raw && state.raw.userVoices) || []).filter((v) => v.account === name).sort((a, b) => b.likes - a.likes);
+    const voiceHTML = voices.length
+      ? `<div class="uv-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:8px">${voices.slice(0, 4).map((v) => `<div class="uv-card"><div class="uv-top"><span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span><span class="uv-likes">♥ ${fmt(v.likes)}</span></div><div class="uv-text">${esc(v.text)}</div><a class="uv-link" href="${esc(v.originalLink || "#")}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div>`).join("")}</div>`
+      : `<div style="color:var(--text-3);font-size:12.5px;margin-top:6px">暂无该竞品的用户评价数据</div>`;
+    const contentHTML = `<div class="list-rows">${items.slice().sort((a, b) => b.viralScore - a.viralScore).slice(0, 8).map((c) => `<div class="list-row" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(c.text)}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div></div><div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div><div class="lr-num">${fmt(c.engagement)}<small>互动</small></div><div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款率</small></div></div></div>`).join("")}</div>`;
+    const weeks = aggregateWeeks(items);
+    const rhythmHTML = weeks.length ? `<div class="panel" style="margin-top:12px"><div class="panel-title">运营节奏 · 频率 × 表现</div><div class="panel-sub">柱=当周发布数 · 线=当周平均爆款率</div>${comboSVG(weeks)}</div>` : "";
+    const bursts = burstsFor(items);
+    const burstHTML = bursts.length ? `<div class="panel" style="margin-top:12px"><div class="panel-title">Campaign 爆发监测</div>${bursts.map((r) => `<div class="qc-bar"><span class="qc-name">${esc(r.name)}</span><span class="qc-track"><i style="width:${Math.min(100, r.lift * 20)}%"></i></span><span class="qc-val">${r.lift.toFixed(1)}× · ${r.count}条</span></div>`).join("")}</div>` : "";
+    return `<div class="comp-section">
+      <div class="comp-sec-head"><span class="comp-sec-name">${esc(name)}</span><span class="comp-sec-badge">内容 ${items.length} · 平均爆款率 ${avgRate} · 爆款 ${topCount}</span></div>
+      <div class="stat-row" style="margin:10px 0">
+        <div class="stat"><div class="stat-label">内容量</div><div class="stat-val">${items.length}</div></div>
+        <div class="stat"><div class="stat-label">平均爆款率</div><div class="stat-val" style="color:var(--hot)">${avgRate}</div></div>
+        <div class="stat"><div class="stat-label">爆款数</div><div class="stat-val">${topCount}</div></div>
+        <div class="stat"><div class="stat-label">总曝光</div><div class="stat-val">${fmt(totalExp)}</div></div>
+        <div class="stat"><div class="stat-label">平均互动率</div><div class="stat-val">${avgEng}%</div></div>
+      </div>
+      <div class="comp-sub">竞品的内容（按爆款率）</div>${contentHTML}
+      <div class="comp-sub">用户对竞品的评价（最高赞）</div>${voiceHTML}
+      ${rhythmHTML}${burstHTML}
+    </div>`;
+  }
+  function renderCompetitorLib() {
     const data = getFiltered();
     const brands = aggregateByField(data, "account");
-    const cards = brands.map((b) => {
-      const sel = state.dimBrands.has(b.name);
-      return `<div class="dim-card brand-card${sel ? " sel" : ""}" data-brand="${esc(b.name)}">
-        <div class="dc-top"><span class="dc-name">${esc(b.name)}</span><span class="dc-check">${sel ? "✓ 已选入对比" : "＋ 选入对比"}</span></div>
-        <div class="dc-metrics">
-          <div class="dc-m"><span>内容</span><b>${b.count}</b></div>
-          <div class="dc-m"><span>平均爆款率</span><b style="color:var(--hot)">${b.avgRate}</b></div>
-          <div class="dc-m"><span>爆款数</span><b>${b.topCount}</b></div>
-          <div class="dc-m"><span>总曝光</span><b>${fmt(b.totalExposure)}</b></div>
-        </div>
-        <div class="dc-platforms">${b.platforms.map((p) => `<span class="tag">${esc(p)}</span>`).join("")}</div>
-        <div class="dc-actions"><button class="mini-btn" data-only="${esc(b.name)}">仅看该品牌</button></div>
-      </div>`;
-    }).join("");
-    const compare = state.dimBrands.size >= 2 ? renderBrandCompare(brands) : "";
-    return `<div class="dim-note">勾选多个品牌可横向对比（对标 / 找差距）；点击「仅看该品牌」会把全局筛选切到该账号。当前共 ${brands.length} 个品牌。</div>
-      <div class="dim-grid">${cards}</div>${compare}`;
+    const sel = state.compSel.size ? [...state.compSel] : [brands[0].name];
+    const chips = brands.map((b) => `<span class="chip comp-chip${sel.includes(b.name) ? " on" : ""}" data-brand="${esc(b.name)}">${esc(b.name)} (${b.count})</span>`).join("");
+    const sections = sel.map((name) => competitorSection(data, name)).join("");
+    return `<div class="board-head"><div class="board-desc">${boardDesc("competitor")}</div></div>
+      <div class="dim-note">勾选竞品（可多选）进入其深度整合分析：内容 / 用户评价 / 数据 / 运营节奏一站式。
+        ${state.compSel.size ? '<button class="mini-btn" id="comp-clear">清空选择</button>' : ""}</div>
+      <div class="fp-chips" style="margin-bottom:16px">${chips}</div>
+      ${sections}`;
   }
-  function renderBrandCompare(all) {
-    const sel = all.filter((b) => state.dimBrands.has(b.name));
+  function renderCompareBoard() {
+    const data = getFiltered();
+    const brands = aggregateByField(data, "account");
+    const chips = brands.map((b) => `<span class="chip cmp-chip${state.cmpSel.has(b.name) ? " on" : ""}" data-brand="${esc(b.name)}">${esc(b.name)}</span>`).join("");
+    const sel = brands.filter((b) => state.cmpSel.has(b.name));
+    const compare = sel.length >= 2 ? renderBrandCompare(sel) : `<div class="dim-note">勾选 2 个及以上品牌，查看横向对比表与对标建议。</div>`;
+    return `<div class="board-head"><div class="board-desc">${boardDesc("compare")}</div></div>
+      <div class="dim-note">勾选多个品牌进行横向对比。</div>
+      <div class="fp-chips" style="margin-bottom:16px">${chips}</div>
+      ${compare}`;
+  }
+  function renderBrandCompare(sel) {
     if (sel.length < 2) return "";
     const metrics = [["平均爆款率", (b) => b.avgRate], ["爆款数", (b) => b.topCount], ["总曝光", (b) => fmt(b.totalExposure)], ["内容数", (b) => b.count]];
     const head = `<tr><th>指标</th>${sel.map((b) => `<th>${esc(b.name)}</th>`).join("")}</tr>`;
@@ -879,6 +1020,23 @@ ${topMatches || "（无强匹配）"}
     const benchmark = `<div class="bench-box"><b>对标建议：</b>以「${esc(top.name)}」为标杆（平均爆款率 ${top.avgRate}）。其余品牌可重点观测：发布频率、互动率、爆款形式占比，并据此设定追赶目标值。</div>`;
     return `<div class="panel" style="margin-top:16px"><div class="panel-title">品牌横向对比（${sel.length} 个）</div>
       <table class="cmp-table"><thead>${head}</thead><tbody>${rows}</tbody></table>${benchmark}</div>`;
+  }
+  function bindCompetitor() {
+    if (state.board === "competitor") {
+      $$(".comp-chip").forEach((el) => el.addEventListener("click", () => {
+        const name = el.dataset.brand;
+        if (state.compSel.has(name)) state.compSel.delete(name); else state.compSel.add(name);
+        renderBoard();
+      }));
+      const cl = $("#comp-clear"); if (cl) cl.addEventListener("click", () => { state.compSel.clear(); renderBoard(); });
+    }
+    if (state.board === "compare") {
+      $$(".cmp-chip").forEach((el) => el.addEventListener("click", () => {
+        const name = el.dataset.brand;
+        if (state.cmpSel.has(name)) state.cmpSel.delete(name); else state.cmpSel.add(name);
+        renderBoard();
+      }));
+    }
   }
 
   /* 平台维度 */
@@ -1061,24 +1219,16 @@ ${topMatches || "（无强匹配）"}
     if (state.board === "library") {
       $$("#view-seg button").forEach((b) => b.addEventListener("click", () => { state.view = b.dataset.view; renderBoard(); }));
       const ss = $("#sort-sel"); if (ss) ss.addEventListener("change", () => { state.sort = ss.value; renderBoard(); });
+      $$("#lib-mode button").forEach((b) => b.addEventListener("click", () => { state.libMode = b.dataset.mode; renderBoard(); }));
+      $$("#lib-eval button").forEach((b) => b.addEventListener("click", () => { state.libQuick = b.dataset.eval; renderBoard(); }));
+      const rs = $("#lib-reshuffle"); if (rs) rs.addEventListener("click", () => renderBoard());
     }
-    // 高表现门槛
-    if (state.board === "top") {
-      const tt = $("#top-threshold");
-      if (tt) tt.addEventListener("input", () => { state.topThreshold = +tt.value; $("#top-threshold-val").textContent = tt.value; renderBoard(); });
-    }
-    // 频率模式
-    if (state.board === "freq") {
-      $$("#freq-seg button").forEach((b) => b.addEventListener("click", () => { state.freqMode = b.dataset.mode; renderBoard(); }));
-    }
-    // ROI 排序
-    if (state.board === "roi") { const rs = $("#roi-sel"); if (rs) rs.addEventListener("change", () => { state.roiSort = rs.value; renderBoard(); }); }
-    // Campaign 排序
-    if (state.board === "campaign") { const cs = $("#camp-sel"); if (cs) cs.addEventListener("change", () => { state.campaignSort = cs.value; renderBoard(); }); }
     // 参考建议中枢
     if (state.board === "reference") bindReference();
-    // 维度透视（复用原维度渲染，挂在对应目的下）
-    if (["competitor", "usereval", "format", "topic", "platform"].includes(state.board)) bindDimensions();
+    // 维度透视（了解用户 3 项）
+    if (["format", "topic", "platform"].includes(state.board)) bindDimensions();
+    // 竞品内容库 / 多品牌对比
+    if (["competitor", "compare"].includes(state.board)) bindCompetitor();
     // 每日盲盒
     if (state.board === "blindbox") bindBlindbox();
     // 我方运营
