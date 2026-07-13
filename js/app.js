@@ -1700,7 +1700,7 @@ ${topMatches || "（无强匹配）"}
         const ca = U.corpusAnalysis || {};
         const markers = ca.markers || {};
         const total = Object.values(markers).reduce((s, v) => s + v, 0) || 1;
-        const markerBars = Object.entries(MARKER_NAMES||{}).map(([k, n]) => {
+        const markerBars = Object.entries(LOC_MARKER_NAME||{}).map(([k, n]) => {
           const v = markers[k]||0;
           return `<div class="qc-bar"><span class="qc-name" style="width:100px">${n}</span><span class="qc-track"><i style="width:${uvPct(v, total)}"></i></span><span class="qc-val">${fmt(v)}<small>${uvPct(v, total)}%</small></span></div>`;
         }).join("");
