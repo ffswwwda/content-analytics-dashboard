@@ -70,12 +70,11 @@
   const BOARDS = [
     // —— 灵感工具 ——
     { id: "library", name: "灵感库", group: "灵感工具", desc: "全部内容的灵感库。可随机浏览，也可按爆款率 / 曝光 / 互动 / 类型 ROI 多指标排序与筛选；一键只看爆款(Top10%)。点标签加筛选，点卡片看详情，再进单帖深度分析。" },
-    { id: "reference", name: "评估想法", group: "灵感工具", desc: "一个工具两个方向：有想法→评估质量（多维评分卡 + 用户风评）；没灵感→输入目的主动推荐参考内容。还有回测校准准确率。" },
+    // —— 看参考建议 ——
+    { id: "reference", name: "评估想法", group: "看参考建议", desc: "一个工具两个方向：有想法→评估质量（多维评分卡 + 用户风评）；没灵感→输入目的主动推荐参考内容。还有回测校准准确率。" },
     // —— 看竞品情况 ——
     { id: "competitor", name: "竞品内容监测", group: "看竞品情况", desc: "选择单竞品 → 深度查看（整体数据 + 内容排序列表 + 形式/数据筛选 + 用户评价 + 运营节奏×表现 + Campaign 爆发监测）；也可看全部竞品排名。" },
     { id: "compare", name: "多竞品横向对比", group: "看竞品情况", desc: "勾选多个品牌横向对比：数据表现 + Top3 内容 + 用户情况，全面看标杆与差距。" },
-    // —— 看参考建议 ——
-    { id: "insights", name: "AI 洞察", group: "看参考建议", desc: "定时管线由大模型生成的选题方向 / 爆款特征 / 行动建议，打开即看。" },
     // —— 了解用户 ——
     { id: "uservoice", name: "用户讨论与语言", group: "了解用户", desc: "看用户讨论什么、用什么语言——学习美国用户的表达与话题讨论方式（用户语料 skill 后续接入）。" },
     { id: "format", name: "内容形式与风格", group: "了解用户", desc: "内容形式（含风格 / 情绪调性）表现对比——用户偏爱什么形式与调性。" },
@@ -258,7 +257,6 @@
     switch (state.board) {
       case "library": html = renderLibrary(data); break;
       case "reference": html = renderReference(); break;
-      case "insights": html = renderInsights(); break;
       case "competitor": html = renderCompetitorLib(); break;
       case "compare": html = renderCompareBoard(); break;
       case "uservoice": html = renderUserBoard(); break;
@@ -267,8 +265,10 @@
       case "platform": html = renderDimPlatform(); break;
       case "myops": html = renderMyOps(); break;
     }
+    if (!["myops", "reference", "insights"].includes(state.board)) html += renderSectionInsight(state.board);
     $("#board").innerHTML = html;
     bindBoard(data);
+    bindSectionInsight();
   }
 
   /* ---------- 灵感库（整合：随机浏览 + 指标排序 + 只看爆款 + 类型ROI）---------- */
@@ -638,24 +638,6 @@ ${topMatches || "（无强匹配）"}
     }));
   }
 
-  /* ---------- AI 洞察 ---------- */
-  function renderInsights() {
-    const ins = state.insights;
-    if (!ins) return `<div class="board-head"><div class="board-desc">${boardDesc("insights")}</div></div>` + emptyState("洞察报告尚未生成（定时管线运行后会自动出现）");
-    const dir = (ins.directions || []).map((d) => `<li><b>${esc(d.title)}</b> — ${esc(d.why)}<div class="dir-ex">示例：${esc(d.example || "")}</div></li>`).join("");
-    const feat = (ins.hitFeatures || []).map((f) => `<li><b>${esc(f.title)}</b> — ${esc(f.detail)}</li>`).join("");
-    const lists = (arr) => (arr || []).map((x) => `<li>${esc(x)}</li>`).join("");
-    return `<div class="board-head"><div class="board-desc">${boardDesc("insights")} · 生成于 ${esc(ins.generatedAt || "")}</div></div>
-      <div class="insight-summary">${esc(ins.summary || "")}</div>
-      <div class="insight-grid">
-        <div class="icard"><h4><span class="ic-dot"></span>爆款共性特征</h4><ul>${feat || '<li>暂无</li>'}</ul></div>
-        <div class="icard"><h4><span class="ic-dot"></span>选题方向</h4><ul>${dir || '<li>暂无</li>'}</ul></div>
-        <div class="icard"><h4><span class="ic-dot"></span>关键洞察</h4><ul>${lists(ins.insights)}</ul></div>
-        <div class="icard"><h4><span class="ic-dot"></span>风险提示</h4><ul>${lists(ins.risks)}</ul></div>
-        <div class="icard" style="grid-column:1/-1"><h4><span class="ic-dot"></span>下一步行动</h4><ul>${lists(ins.nextActions)}</ul></div>
-      </div>`;
-  }
-
   /* ============ 每日盲盒 ============ */
   function rollRarity() {
     const r = Math.random();
@@ -913,53 +895,156 @@ ${topMatches || "（无强匹配）"}
     const ta = $("#idea-input"); if (ta) ta.addEventListener("keydown", (e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") runPredict(); });
     bindExampleChips();
   }
+  function findPurposeChips() {
+    const all = state.analysis.contents;
+    const cnt = (g) => all.filter((c) => {
+      if (g.emotion && g.emotion.includes(c.emotion)) return true;
+      if (g.type && g.type.some((t) => t === c.contentType)) return true;
+      if (g.id === "review" && c.commentQuality && Object.keys(c.commentQuality).length) return true;
+      return false;
+    }).length;
+    const presets = GOAL_PRESETS.map((g) => `<button class="chip ec-chip find-preset" data-goal="${g.id}">${g.name}<span class="ec-cnt">${cnt(g)}</span></button>`).join("");
+    const topicCount = new Map();
+    all.forEach((c) => (c.topicTags || []).forEach((t) => { if (t) topicCount.set(t, (topicCount.get(t) || 0) + 1); }));
+    const topTopics = [...topicCount.entries()].sort((a, b) => b[1] - a[1]).filter(([, n]) => n >= 2).slice(0, 6);
+    const auto = topTopics.map(([t, n]) => `<button class="chip ec-chip find-topic" data-topic="${esc(t)}">${esc(t)}<span class="ec-cnt">${n}</span></button>`).join("");
+    return { presets, auto };
+  }
   function renderFind() {
-    const chips = GOAL_PRESETS.map((g) => `<button class="chip ec-chip" data-goal="${g.id}">${g.name}</button>`).join("");
+    const { presets, auto } = findPurposeChips();
+    const dims = [["type", "形式"], ["topic", "主题"], ["emotion", "情绪"], ["platform", "平台"], ["keyword", "关键词"], ["perf", "表现"]];
+    const dimHTML = dims.map(([k, l]) => `<label class="dim-toggle on" data-dim="${k}"><input type="checkbox" checked> ${l}</label>`).join("");
     return `<div class="predictor-wrap">
-      <div class="board-desc" style="margin-bottom:10px">输入你的<strong>运营目的</strong>（如卖货、获取测评用户），工具按目的主动推荐匹配的历史内容，并给出匹配理由与指标——区别于灵感库的被动浏览。</div>
-      <div class="example-chips"><span class="ec-label">常用目的：</span>${chips}
-        <input id="goal-free" class="goal-input" placeholder="或输入自定义目的…" /></div>
-      <div class="predictor-input"><button class="btn-primary" id="find-btn">推荐参考内容</button></div>
+      <div class="board-desc" style="margin-bottom:12px">输入你的<strong>运营目的</strong>，或选常用目的 / 真实帖子主题，工具按<strong>多维度</strong>主动推荐最匹配的历史内容，并展示<strong>原贴 + 整体说明</strong>——区别于灵感库的被动浏览。</div>
+      <div class="find-block">
+        <div class="find-label">常用目的（沿用现有分类，括号为真实匹配数）</div>
+        <div class="example-chips" id="find-presets">${presets}</div>
+      </div>
+      <div class="find-block">
+        <div class="find-label">根据真实帖子发现的主题（点选即按该主题匹配）</div>
+        <div class="example-chips" id="find-topics">${auto || '<span class="uv-muted">暂无足够主题样本</span>'}</div>
+      </div>
+      <div class="find-block">
+        <div class="find-label">目的详述（自由输入，用于多维度匹配）</div>
+        <textarea id="goal-detail" class="goal-textarea" rows="3" placeholder="例如：想给美国男性用户推一款高端 Anal 玩具，主打成分安全与体验升级，希望引发讨论和测评，而不是硬广…"></textarea>
+      </div>
+      <div class="find-block">
+        <div class="find-label">匹配维度（可关掉不相关的）</div>
+        <div class="find-dims" id="find-dims">${dimHTML}</div>
+      </div>
+      <div class="predictor-input"><button class="btn-primary" id="find-btn">🔍 推荐参考内容</button></div>
       <div class="predict-result" id="find-result"></div></div>`;
   }
-  function goalScore(c, g) {
-    const w = g.w; let s = 0; const reasons = [];
-    if (w.engagement) { s += Math.min(40, c.engagementRate * 8 * w.engagement); if (c.engagementRate > 1) reasons.push(`互动率 ${c.engagementRate.toFixed(2)}%`); }
-    if (w.exposure) { const eN = state.maxExposure ? Math.min(100, (c.exposure / state.maxExposure) * 100) : 0; s += eN * 0.4 * w.exposure; if (c.exposure > 0) reasons.push(`曝光 ${fmt(c.exposure)}`); }
-    if (w.activity && c.isActivity) { s += 15 * w.activity; reasons.push("活动/促销型内容"); }
-    if (w.shares) { const sr = c.exposure ? (c.shares / c.exposure) * 100 : 0; s += Math.min(20, sr * w.shares); reasons.push(`转发 ${fmt(c.shares)}`); }
-    if (w.collections) { const cr = c.exposure ? (c.collections / c.exposure) * 100 : 0; s += Math.min(15, cr * w.collections); reasons.push(`收藏 ${fmt(c.collections)}`); }
-    if (g.emotion && g.emotion.includes(c.emotion)) { s += 12; reasons.push(`情绪「${c.emotion}」契合`); }
-    if (g.type && g.type.includes(c.contentType)) { s += 12; reasons.push(`形式「${c.contentType}」契合`); }
-    if (g.id === "review" && c.commentQuality && (c.commentQuality["提问"] || 0) > 0) { s += 10; reasons.push("含用户提问/讨论"); }
-    return { score: Math.round(Math.min(100, s)), reasons };
+  function tokenize(text) {
+    const t = (text || "").toLowerCase();
+    const words = (t.match(/[a-z0-9]+/g) || []).filter((w) => w.length >= 2);
+    const out = new Set(words);
+    if (/[一-龥]/.test(t)) out.add(t.replace(/\s+/g, ""));
+    return [...out];
+  }
+  function matchScoreMulti(c, ctx) {
+    const { g, topic, detail, dims } = ctx;
+    let score = 0; const reasons = []; const dimHits = [];
+    const cText = (c.text || "").toLowerCase();
+    if (g) {
+      if (g.emotion && g.emotion.includes(c.emotion)) { score += 18; reasons.push(`情绪「${c.emotion}」契合目的`); dimHits.push("emotion"); }
+      if (g.type && g.type.includes(c.contentType)) { score += 18; reasons.push(`形式「${c.contentType}」契合目的`); dimHits.push("type"); }
+      if (g.activity && c.isActivity) { score += 14; reasons.push("活动/促销型内容"); dimHits.push("type"); }
+      if (g.id === "review" && c.commentQuality && Object.keys(c.commentQuality).length) { score += 12; reasons.push("含用户提问/讨论（利于测评）"); dimHits.push("keyword"); }
+    }
+    if (topic) {
+      const tl = topic.toLowerCase();
+      if ((c.topicTags || []).some((t) => String(t).toLowerCase() === tl)) { score += 22; reasons.push(`命中真实主题「${topic}」`); dimHits.push("topic"); }
+      else if (cText.includes(tl)) { score += 10; reasons.push(`正文含主题「${topic}」`); dimHits.push("topic"); }
+    }
+    if (detail) {
+      const tokens = tokenize(detail);
+      let kw = 0; const kwEx = [];
+      tokens.forEach((tk) => { if (cText.includes(tk)) { kw++; if (kwEx.length < 4) kwEx.push(tk); } });
+      if (kw && dims.has("keyword")) { score += Math.min(30, kw * 6); reasons.push(`关键词命中 ${kw} 处（${kwEx.join("、")}）`); dimHits.push("keyword"); }
+      if (dims.has("topic")) {
+        const tOverlap = (c.topicTags || []).filter((t) => tokens.includes(String(t).toLowerCase()) || tokens.some((tk) => String(t).toLowerCase().includes(tk)));
+        if (tOverlap.length) { score += 10 * tOverlap.length; reasons.push(`主题契合 ${tOverlap.join("、")}`); dimHits.push("topic"); }
+      }
+      if (dims.has("emotion") && tokens.some((tk) => c.emotion.toLowerCase().includes(tk))) { score += 8; reasons.push(`情绪契合「${c.emotion}」`); dimHits.push("emotion"); }
+      if (dims.has("type") && tokens.some((tk) => c.contentType.toLowerCase().includes(tk))) { score += 8; reasons.push(`形式契合「${c.contentType}」`); dimHits.push("type"); }
+      if (dims.has("platform") && tokens.some((tk) => c.platform.toLowerCase().includes(tk))) { score += 6; reasons.push(`平台契合「${c.platform}」`); dimHits.push("platform"); }
+    }
+    if (dims.has("perf")) {
+      const vr = rate(c);
+      if (vr >= 70) { score += 20; reasons.push(`爆款内容（爆款率 ${vr}%）`); }
+      else if (vr >= 50) { score += 12; reasons.push(`高表现（爆款率 ${vr}%）`); }
+      else if (vr >= 30) { score += 6; }
+      dimHits.push("perf");
+    }
+    return { score: Math.round(Math.min(100, score)), reasons, dimHits: [...new Set(dimHits)] };
+  }
+  function postSummary(c, reasons) {
+    const vr = rate(c);
+    const eng = (c.engagementRate || 0).toFixed(2);
+    const topics = (c.topicTags || []).join("、") || "未标注";
+    const hit = c.isTop ? "属于爆款(Top10%)内容" : `爆款率 ${vr}%`;
+    const tail = (reasons && reasons.length)
+      ? `结合你的目的，它在「${reasons.slice(0, 2).join("、")}」等维度上高度契合，可作为同类内容的参考范本。`
+      : "在当前筛选下表现居前，适合作为参考样本。";
+    return `该帖由 <b>${esc(c.account)}</b> 在 <b>${esc(c.platform)}</b> 发布，形式为${esc(c.contentType)}、情绪${esc(c.emotion)}、主题${esc(topics)}，发布于 ${esc(c.publishDate)}；${hit}，互动率 ${eng}%，曝光 ${fmt(c.exposure)}。${tail}`;
+  }
+  function matchCardHTML(c, score, reasons, dimHits) {
+    const img = (c.image && c.image !== "None" && c.image !== "nan") ? `<img class="match-img" src="${esc(c.image)}" alt="" onerror="this.style.display='none'">` : "";
+    const link = (c.post_link && c.post_link !== "None") ? `<a class="match-link" href="${esc(c.post_link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">查看原帖 ↗</a>` : "";
+    return `<div class="match-card" data-id="${c.id}">
+      <div class="match-card-top"><span class="badge-top">匹配 ${score}</span><span class="match-acc">${esc(c.account)} · ${esc(c.platform)} · ${esc(c.contentType)} · ${esc(c.emotion)}</span></div>
+      <div class="match-origin">
+        <div class="match-tag">原贴</div>
+        ${img}
+        <div class="match-text-full">${esc(dispText(c))}</div>
+        <div class="match-meta">${esc(c.publishDate)} · 曝光 ${fmt(c.exposure)} · 赞 ${fmt(c.likes)} · 转发 ${fmt(c.shares)} · 收藏 ${fmt(c.collections)} ${link}</div>
+      </div>
+      <div class="match-desc">
+        <div class="match-tag alt">整体说明</div>
+        <div class="match-why">${postSummary(c, reasons)}</div>
+        <div class="match-reason"><span>推荐理由：</span>${esc(reasons.join("；"))}</div>
+      </div>
+    </div>`;
   }
   function bindFind() {
-    $$("[data-goal]").forEach((b) => b.addEventListener("click", () => { $("#goal-free").value = b.dataset.goal; runFind(b.dataset.goal); }));
-    const fb = $("#find-btn"); if (fb) fb.addEventListener("click", () => {
-      const v = ($("#goal-free").value || "").trim();
-      const preset = GOAL_PRESETS.find((g) => g.id === v) || GOAL_PRESETS.find((g) => v.indexOf(g.name) >= 0) || null;
-      runFind(preset ? preset.id : null, v);
-    });
+    const fstate = { goalId: null, topic: null, dims: new Set(["type", "topic", "emotion", "platform", "keyword", "perf"]) };
+    $$("#find-presets .ec-chip").forEach((b) => b.addEventListener("click", () => {
+      $$("#find-presets .ec-chip").forEach((x) => x.classList.remove("on"));
+      $$("#find-topics .ec-chip").forEach((x) => x.classList.remove("on"));
+      b.classList.add("on"); fstate.goalId = b.dataset.goal; fstate.topic = null;
+      runFind(fstate);
+    }));
+    $$("#find-topics .ec-chip").forEach((b) => b.addEventListener("click", () => {
+      $$("#find-topics .ec-chip").forEach((x) => x.classList.remove("on"));
+      $$("#find-presets .ec-chip").forEach((x) => x.classList.remove("on"));
+      b.classList.add("on"); fstate.topic = b.dataset.topic; fstate.goalId = null;
+      runFind(fstate);
+    }));
+    $$("#find-dims .dim-toggle").forEach((el) => el.addEventListener("change", () => {
+      const k = el.dataset.dim; const on = el.querySelector("input").checked;
+      if (on) fstate.dims.add(k); else fstate.dims.delete(k);
+      el.classList.toggle("on", on);
+    }));
+    const fb = $("#find-btn"); if (fb) fb.addEventListener("click", () => runFind(fstate));
   }
-  function runFind(presetId, freeText) {
+  function runFind(fstate) {
     const data = getFiltered();
-    const g = GOAL_PRESETS.find((x) => x.id === presetId) || null;
-    const label = g ? g.name : (freeText || "自定义目的");
-    const scored = data.map((c) => {
-      const r = g ? goalScore(c, g) : { score: Math.round(Math.min(100, c.engagementRate * 6 + (state.maxExposure ? (c.exposure / state.maxExposure) * 30 : 0))), reasons: ["综合互动与曝光表现"] };
-      return { c, ...r };
-    }).sort((a, b) => b.score - a.score).slice(0, 8);
+    const g = fstate.goalId ? GOAL_PRESETS.find((x) => x.id === fstate.goalId) : null;
+    const detail = (($("#goal-detail") ? $("#goal-detail").value : "") || "").trim();
+    const scored = [];
+    for (const c of data) {
+      const r = matchScoreMulti(c, { g, topic: fstate.topic, detail, dims: fstate.dims });
+      if (r.score > 0) scored.push({ c, ...r });
+    }
+    scored.sort((a, b) => b.score - a.score);
+    const top = scored.slice(0, 8);
     const box = $("#find-result");
-    if (!scored.length) { box.innerHTML = emptyState(); return; }
-    box.innerHTML = `<div class="find-intro">为「<b>${esc(label)}</b>」推荐 ${scored.length} 条最匹配的历史内容（按目的匹配度排序）：</div>
-      <div class="match-grid">${scored.map(({ c, score, reasons }) => `<div class="match-card" data-id="${c.id}">
-        <div class="match-card-top"><span class="badge-top">匹配 ${score}</span></div>
-        <div class="match-text">${esc(dispText(c))}</div>
-        <div class="match-meta">${esc(c.account)} · ${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div>
-        <div class="match-reason"><span>为何推荐：</span>${esc(reasons.join("；"))}</div>
-        <div class="match-mini-metrics"><span>爆款率 <b>${rate(c)}</b></span><span>曝光 <b>${fmt(c.exposure)}</b></span><span>互动 <b>${fmt(c.engagement)}</b></span></div>
-      </div>`).join("")}</div>`;
+    if (!box) return;
+    if (!top.length) { box.innerHTML = emptyState("没有匹配的内容，试试放宽维度或调整目的"); return; }
+    const label = g ? g.name : (fstate.topic ? `主题「${fstate.topic}」` : (detail ? "自定义目的" : "全部内容（按表现排序）"));
+    box.innerHTML = `<div class="find-intro">为「<b>${esc(label)}</b>」按多维度匹配出 <b>${top.length}</b> 条最相关历史内容（综合匹配分越高越契合）：</div>
+      <div class="match-grid">${top.map(({ c, score, reasons, dimHits }) => matchCardHTML(c, score, reasons, dimHits)).join("")}</div>`;
     $$(".match-card", box).forEach((el) => el.addEventListener("click", () => openDrawer(el.dataset.id)));
   }
 
@@ -2058,6 +2143,102 @@ ${sim || "（无同主题关联帖）"}
     if (state.board === "myops") bindMyOps();
     // 了解用户：用户讨论与语言（富用户分析中枢）
     if (state.board === "uservoice") bindUserBoard();
+  }
+
+  /* ============ 每板块整体洞察 ============ */
+  function copyText(t) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(() => {}, () => fallbackCopy(t));
+      else fallbackCopy(t);
+    } catch (e) { fallbackCopy(t); }
+  }
+  function fallbackCopy(t) {
+    const ta = document.createElement("textarea"); ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  function filtersDesc() {
+    const f = state.filters; const parts = [];
+    if (f.search) parts.push(`搜索「${f.search}」`);
+    FACETS.forEach((fc) => { if (f[fc.key].size) parts.push(`${fc.label}:${[...f[fc.key]].join("/")}`); });
+    if (f.viralMin > 0) parts.push(`爆款率≥${f.viralMin}`);
+    if (f.dateFrom) parts.push(`起${f.dateFrom}`);
+    if (f.dateTo) parts.push(`止${f.dateTo}`);
+    if (f.topOnly) parts.push("只看爆款");
+    return parts.join("，") || "无";
+  }
+  function sectionItems(boardId) {
+    let items = getFiltered();
+    if (boardId === "competitor" && state.compSel.size) items = items.filter((c) => state.compSel.has(c.account));
+    if (boardId === "compare" && state.cmpSel.size) items = items.filter((c) => state.cmpSel.has(c.account));
+    return items;
+  }
+  function autoSummary(items) {
+    const n = items.length;
+    if (!n) return null;
+    const avg = Math.round(items.reduce((s, c) => s + rate(c), 0) / n);
+    const tops = items.filter((c) => c.isTop).length;
+    const grpAvg = (key, multi) => {
+      const m = new Map();
+      items.forEach((c) => {
+        const vals = multi ? (c[key] || []) : [c[key]];
+        vals.forEach((v) => { if (v) m.set(v, (m.get(v) || 0) + rate(c)); });
+      });
+      let best = null, bv = -1;
+      m.forEach((sum, k) => {
+        const cnt = items.filter((c) => { const vals = multi ? (c[key] || []) : [c[key]]; return vals.includes(k); }).length;
+        const a = sum / Math.max(1, cnt);
+        if (a > bv) { bv = a; best = k; }
+      });
+      return best ? { name: best, avg: Math.round(bv) } : null;
+    };
+    return { n, avg, tops, topType: grpAvg("contentType", false), topTopic: grpAvg("topicTags", true), topEmo: grpAvg("emotion", false), topAcc: grpAvg("account", false), best: items.slice().sort((a, b) => rate(b) - rate(a))[0] };
+  }
+  function aiCard(title, t, d) {
+    return `<div class="icard"><h4><span class="ic-dot"></span>${esc(title)}</h4><ul><li>${t ? `<b>${esc(t)}</b> — ` : ""}${esc(d || "")}</li></ul></div>`;
+  }
+  function renderSectionInsight(boardId) {
+    if (boardId === "myops" || boardId === "insights") return "";
+    const items = sectionItems(boardId);
+    const s = autoSummary(items);
+    const ins = state.insights;
+    let aiHTML = "";
+    if (ins) {
+      const want = ["library", "reference", "format", "topic", "platform"].includes(boardId)
+        ? { feat: true, dir: true, actions: true }
+        : (["competitor", "compare"].includes(boardId) ? { risks: true, insights: true, actions: true } : { insights: true });
+      const cards = [];
+      if (want.feat) (ins.hitFeatures || []).slice(0, 3).forEach((f) => cards.push(aiCard("爆款共性", f.title, f.detail)));
+      if (want.dir) (ins.directions || []).slice(0, 3).forEach((d) => cards.push(aiCard("选题方向", d.title, d.why)));
+      if (want.risks) (ins.risks || []).slice(0, 3).forEach((x) => cards.push(aiCard("风险提示", "", x)));
+      if (want.insights) (ins.insights || []).slice(0, 3).forEach((x) => cards.push(aiCard("关键洞察", "", x)));
+      if (want.actions) (ins.nextActions || []).slice(0, 3).forEach((x) => cards.push(aiCard("下一步", "", x)));
+      if (cards.length) aiHTML = `<div class="si-ai"><div class="si-ai-head">🤖 AI 洞察（定时管线生成${ins.generatedAt ? ` · ${esc(ins.generatedAt)}` : ""}）</div><div class="insight-grid">${cards.join("")}</div></div>`;
+    }
+    const autoHTML = s
+      ? `<div class="si-auto"><div class="si-auto-line">当前共 <b>${s.n}</b> 条内容（受全局筛选约束），平均爆款率 <b>${s.avg}%</b>，其中爆款 <b>${s.tops}</b> 条${s.topType ? `；最佳形式「<b>${esc(s.topType.name)}</b>」(均 ${s.topType.avg}%)` : ""}${s.topTopic ? `、最热主题「<b>${esc(s.topTopic.name)}</b>」` : ""}${s.topEmo ? `、主导情绪「<b>${esc(s.topEmo.name)}</b>」` : ""}${s.topAcc ? `；头部账号「<b>${esc(s.topAcc.name)}</b>」` : ""}。</div>${s.best ? `<div class="si-auto-line hi">爆款代表：<b>${esc(s.best.account)}</b> 的《${esc(dispText(s.best).slice(0, 46))}…》爆款率 <b>${rate(s.best)}%</b>。</div>` : ""}</div>`
+      : `<div class="si-auto"><div class="si-auto-line uv-muted">当前筛选下没有内容，无法生成整体洞察。</div></div>`;
+    return `<section class="section-insight">
+      <div class="si-head"><span class="si-title">📊 板块整体洞察</span><button class="si-btn" data-insight-copy="${boardId}">✨ 一键总结（复制上下文给 AI）</button></div>
+      ${autoHTML}
+      ${aiHTML}
+    </section>`;
+  }
+  function bindSectionInsight() {
+    $$("[data-insight-copy]").forEach((b) => b.addEventListener("click", () => {
+      const boardId = b.dataset.insightCopy;
+      const items = sectionItems(boardId);
+      const s = autoSummary(items);
+      const name = (BOARDS.find((x) => x.id === boardId) || {}).name || boardId;
+      const af = activeFilterCount() ? filtersDesc() : "无";
+      let ctx = `【板块：${name} · 整体洞察】\n当前内容：${s ? s.n : 0} 条，平均爆款率 ${s ? s.avg : 0}%，爆款 ${s ? s.tops : 0} 条\n全局筛选：${af}\n`;
+      const top5 = items.slice().sort((a, b) => rate(b) - rate(a)).slice(0, 5);
+      ctx += "Top 内容（前5）：\n" + top5.map((c, i) => `${i + 1}. ${c.account} · ${c.platform} · ${c.contentType} · ${c.emotion} · 爆款率${rate(c)}% · 曝光${fmt(c.exposure)}\n   ${dispText(c).slice(0, 80)}`).join("\n");
+      ctx += `\n请基于以上数据，给出该板块的「整体洞察」：趋势 / 机会 / 风险 / 下一步建议（分点、可落地）。`;
+      copyText(ctx);
+      toast("已复制上下文，去对话框粘贴给我即可");
+    }));
   }
 
   function bindUserBoard() {
