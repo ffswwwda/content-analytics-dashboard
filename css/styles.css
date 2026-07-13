@@ -842,9 +842,15 @@ body::after {
 .bud-cmp-sel { background: var(--glass-bg); color: var(--text); border: 1px solid var(--glass-border); border-radius: 8px; padding: 6px 10px; font-size: 12.5px; }
 .bud-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
 .bud-stat { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.06); }
-.bud-stat-label { font-size: 11.5px; color: var(--text-3); font-weight: 600; }
-.bud-stat-val { font-size: 24px; font-weight: 800; color: var(--text); font-family: var(--font-mono); margin: 4px 0 2px; }
+.bud-stat-label, .bud-stat-lab { font-size: 11.5px; color: var(--text-3); font-weight: 600; }
+.bud-stat-val, .bud-stat-num { font-size: 24px; font-weight: 800; color: var(--text); font-family: var(--font-mono); margin: 4px 0 2px; }
 .bud-stat-sub { font-size: 11px; color: var(--text-3); }
+
+/* 爆款内容深度分析 */
+.vd-grid { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 14px; }
+.vd-col { flex: 1; min-width: 280px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow-sm); }
+.vd-title { font-size: 13.5px; font-weight: 700; color: var(--accent-strong); margin-bottom: 10px; }
+.vd-bars { display: flex; flex-direction: column; gap: 6px; }
 .bud-two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
 @media (max-width: 860px) { .bud-two { grid-template-columns: 1fr; } }
 .bud-panel { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 15px 17px; box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.06); }
