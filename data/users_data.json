@@ -24770,5 +24770,1914 @@
    "date": "2026-06-26",
    "link": "https://x.com/i/status/2070531152318759088"
   }
- ]
+ ],
+ "dimBreakdown": {
+  "topicBreakdown": [
+   {
+    "key": "vibrators",
+    "name": "震动棒 Vibrators",
+    "count": 6084,
+    "sentiment": {
+     "neu": 38,
+     "pos": 5961,
+     "neg": 85
+    },
+    "brands": [
+     {
+      "b": "Lovense",
+      "n": 6025
+     },
+     {
+      "b": "LELO",
+      "n": 58
+     },
+     {
+      "b": "Tracy's Dog",
+      "n": 1
+     }
+    ],
+    "intents": [
+     {
+      "k": "praise",
+      "n": 4838
+     },
+     {
+      "k": "request",
+      "n": 844
+     },
+     {
+      "k": "question",
+      "n": 285
+     },
+     {
+      "k": "complaint",
+      "n": 85
+     },
+     {
+      "k": "banter",
+      "n": 16
+     }
+    ],
+    "samples": [
+     {
+      "text": "@lelo_official The design looks incredible. 💜",
+      "wc": 6,
+      "brand": "LELO",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "banter",
+      "link": "https://x.com/i/status/2068276586575491101"
+     },
+     {
+      "text": "@lelo_official Love this hehehe 🖤🖤",
+      "wc": 5,
+      "brand": "LELO",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/1979348298462040563"
+     },
+     {
+      "text": "@lelo_official LELO should make a move to become the “official sex toy” of the #WNBA. \n\nDo it publicly and the PR will go through the roof! \n\nEspecially if the league rebukes it !\nPeople will love it !",
+      "wc": 37,
+      "brand": "LELO",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/1958085600399003982"
+     },
+     {
+      "text": "@lelo_official nicee",
+      "wc": 3,
+      "brand": "LELO",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/1970482366222344661"
+     },
+     {
+      "text": "@lelo_official A DEBUT?? INA Thrust really walked in and said move over everybody 😤💜 We are NOT ready but we are READY ready 🔥💯",
+      "wc": 23,
+      "brand": "LELO",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "question",
+      "link": "https://x.com/i/status/2072641288717873558"
+     },
+     {
+      "text": "@lelo_official A rabbit toy's first thrusting era — the confetti is well earned 🎉💜",
+      "wc": 13,
+      "brand": "LELO",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2072474593093423418"
+     },
+     {
+      "text": "@lelo_official Love the cinematic aesthetic. 🔥",
+      "wc": 6,
+      "brand": "LELO",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/2071323317403881762"
+     },
+     {
+      "text": "@lelo_official Are you interested in testing an AI App that coulld control most of these toys?  It is Paid! drop us an email for more details: echomeai.io@gmail.com.",
+      "wc": 31,
+      "brand": "LELO",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "question",
+      "link": "https://x.com/i/status/2058902743427743964"
+     }
+    ]
+   },
+   {
+    "key": "sexdoll",
+    "name": "实体娃娃 Sex Doll",
+    "count": 1527,
+    "sentiment": {
+     "neu": 1025,
+     "pos": 482,
+     "neg": 20
+    },
+    "brands": [
+     {
+      "b": "Tantaly",
+      "n": 1487
+     },
+     {
+      "b": "RosemaryDoll",
+      "n": 26
+     },
+     {
+      "b": "RealDoll",
+      "n": 14
+     }
+    ],
+    "intents": [
+     {
+      "k": "praise",
+      "n": 430
+     },
+     {
+      "k": "banter",
+      "n": 427
+     },
+     {
+      "k": "other",
+      "n": 422
+     },
+     {
+      "k": "question",
+      "n": 132
+     },
+     {
+      "k": "request",
+      "n": 96
+     }
+    ],
+    "samples": [
+     {
+      "text": "@RealdollHQ @delilah_cass",
+      "wc": 3,
+      "brand": "RealDoll",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "banter",
+      "link": "https://x.com/i/status/1961125302517583936"
+     },
+     {
+      "text": "@RealdollHQ @timmoss77971 \n@RedRangerZero\n@StarkRaven0808\njust taggin some friends hehe",
+      "wc": 9,
+      "brand": "RealDoll",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "banter",
+      "link": "https://x.com/i/status/1959006181114224790"
+     },
+     {
+      "text": "@RealdollHQ will you guys be exhibiting at Exxxotica in NJ this weekend",
+      "wc": 12,
+      "brand": "RealDoll",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/1980641383670247459"
+     },
+     {
+      "text": "@RealdollHQ Ohhhhhh!!! ❤️❤️❤️🥰 I like!",
+      "wc": 4,
+      "brand": "RealDoll",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/1961095371016569246"
+     },
+     {
+      "text": "@RealdollHQ Seem PERFECT To Me! 🙃❤️",
+      "wc": 5,
+      "brand": "RealDoll",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/1961245595768623215"
+     },
+     {
+      "text": "@RealdollHQ Johnny though.   😬",
+      "wc": 3,
+      "brand": "RealDoll",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "banter",
+      "link": "https://x.com/i/status/2068043893560557699"
+     },
+     {
+      "text": "@RealdollHQ Yeah I'm definitely going to you when I get done with my robot.",
+      "wc": 14,
+      "brand": "RealDoll",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2070352813100794145"
+     },
+     {
+      "text": "@RealdollHQ Damm what a downgrade, you went from the most realistic sex robots to a bormal sex doll company damm im dissapointed",
+      "wc": 22,
+      "brand": "RealDoll",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2058933416448442511"
+     }
+    ]
+   },
+   {
+    "key": "Male Masturbators",
+    "name": "男用杯 Male Masturbators",
+    "count": 1267,
+    "sentiment": {
+     "pos": 412,
+     "neu": 829,
+     "neg": 26
+    },
+    "brands": [
+     {
+      "b": "Fleshlight",
+      "n": 1042
+     },
+     {
+      "b": "Kiiroo",
+      "n": 176
+     },
+     {
+      "b": "TENGA",
+      "n": 43
+     },
+     {
+      "b": "The Handy",
+      "n": 6
+     }
+    ],
+    "intents": [
+     {
+      "k": "other",
+      "n": 374
+     },
+     {
+      "k": "praise",
+      "n": 370
+     },
+     {
+      "k": "banter",
+      "n": 268
+     },
+     {
+      "k": "request",
+      "n": 124
+     },
+     {
+      "k": "question",
+      "n": 105
+     }
+    ],
+    "samples": [
+     {
+      "text": "@Fleshlight @Alexis_Texas 👙🔥❤️‍🔥😘🥵🌹",
+      "wc": 3,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/2065673113287675971"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas https://t.co/Oka1CpPERo",
+      "wc": 8,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2073987653234565348"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas 🤩😘",
+      "wc": 3,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "banter",
+      "link": "https://x.com/i/status/2067346447662534828"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas Need 😍🥵",
+      "wc": 4,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/2062105071584682301"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas Even at 41 she still got a fantastic 🍑👅😍🔥😈🍆💦 x",
+      "wc": 11,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/2070531152318759088"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas Sexy",
+      "wc": 4,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2066384918981009479"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas Eu quero",
+      "wc": 5,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2066749688280134108"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas 👑💖💖",
+      "wc": 3,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "banter",
+      "link": "https://x.com/i/status/2065963738059145400"
+     }
+    ]
+   },
+   {
+    "key": "sexmachine",
+    "name": "性爱机器 Sex Machine",
+    "count": 724,
+    "sentiment": {
+     "neu": 448,
+     "pos": 271,
+     "neg": 5
+    },
+    "brands": [
+     {
+      "b": "Hismith",
+      "n": 706
+     },
+     {
+      "b": "Motorbunny",
+      "n": 18
+     }
+    ],
+    "intents": [
+     {
+      "k": "request",
+      "n": 463
+     },
+     {
+      "k": "praise",
+      "n": 89
+     },
+     {
+      "k": "other",
+      "n": 88
+     },
+     {
+      "k": "banter",
+      "n": 48
+     },
+     {
+      "k": "question",
+      "n": 31
+     }
+    ],
+    "samples": [
+     {
+      "text": "@OfficialHismith Need this!",
+      "wc": 3,
+      "brand": "Hismith",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "request",
+      "link": "https://x.com/i/status/2010702540539605084"
+     },
+     {
+      "text": "@OfficialHismith This new one looks amazing compared to the first",
+      "wc": 10,
+      "brand": "Hismith",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/2021624672773931196"
+     },
+     {
+      "text": "@OfficialHismith Super chill clip",
+      "wc": 4,
+      "brand": "Hismith",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2008628076427555100"
+     },
+     {
+      "text": "@OfficialHismith I'm interested",
+      "wc": 3,
+      "brand": "Hismith",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/2008164357935706341"
+     },
+     {
+      "text": "@OfficialHismith But I need a link lol",
+      "wc": 7,
+      "brand": "Hismith",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "request",
+      "link": "https://x.com/i/status/2008188585078657218"
+     },
+     {
+      "text": "@OfficialHismith I'm interested😘",
+      "wc": 3,
+      "brand": "Hismith",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/2008703501292155363"
+     },
+     {
+      "text": "@OfficialHismith Das würde mir gefallen.",
+      "wc": 5,
+      "brand": "Hismith",
+      "form": "视频",
+      "lang": "de",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2008445147647013223"
+     },
+     {
+      "text": "@OfficialHismith Dm Me",
+      "wc": 3,
+      "brand": "Hismith",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "request",
+      "link": "https://x.com/i/status/2008455476774834284"
+     }
+    ]
+   },
+   {
+    "key": "Anal",
+    "name": "肛用 Anal",
+    "count": 15,
+    "sentiment": {
+     "pos": 14,
+     "neu": 1
+    },
+    "brands": [
+     {
+      "b": "Aneros",
+      "n": 13
+     },
+     {
+      "b": "Lovehoney",
+      "n": 2
+     }
+    ],
+    "intents": [
+     {
+      "k": "request",
+      "n": 8
+     },
+     {
+      "k": "praise",
+      "n": 6
+     },
+     {
+      "k": "question",
+      "n": 1
+     }
+    ],
+    "samples": [
+     {
+      "text": "@Aneros Interested  Dm check",
+      "wc": 4,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/2023690085259149508"
+     },
+     {
+      "text": "@Aneros I'm interested",
+      "wc": 3,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/2035073897964740976"
+     },
+     {
+      "text": "@Aneros I would love to",
+      "wc": 5,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/2022194161076814136"
+     },
+     {
+      "text": "@Aneros Looks awesome",
+      "wc": 3,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/2022194139044217003"
+     },
+     {
+      "text": "@Aneros I'm Interested",
+      "wc": 3,
+      "brand": "Aneros",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/1980436920883961954"
+     },
+     {
+      "text": "@Aneros Dm Me",
+      "wc": 3,
+      "brand": "Aneros",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "request",
+      "link": "https://x.com/i/status/1977251907728294348"
+     },
+     {
+      "text": "@Aneros @YouTube I’d like to experience it.",
+      "wc": 8,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/1965608132719378836"
+     },
+     {
+      "text": "@Aneros @YouTube Interested",
+      "wc": 3,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/1975758928924573978"
+     }
+    ]
+   }
+  ],
+  "intentBreakdown": [
+   {
+    "key": "praise",
+    "name": "赞美",
+    "count": 5733,
+    "sentiment": {
+     "pos": 5733
+    },
+    "brands": [
+     {
+      "b": "Lovense",
+      "n": 4824
+     },
+     {
+      "b": "Tantaly",
+      "n": 419
+     },
+     {
+      "b": "Fleshlight",
+      "n": 302
+     },
+     {
+      "b": "Hismith",
+      "n": 80
+     },
+     {
+      "b": "Kiiroo",
+      "n": 60
+     },
+     {
+      "b": "LELO",
+      "n": 14
+     },
+     {
+      "b": "Motorbunny",
+      "n": 9
+     },
+     {
+      "b": "RosemaryDoll",
+      "n": 8
+     }
+    ],
+    "topics": [
+     {
+      "t": "震动棒 Vibrators",
+      "n": 4838
+     },
+     {
+      "t": "实体娃娃 Sex Doll",
+      "n": 430
+     },
+     {
+      "t": "男用杯 Male Masturbators",
+      "n": 370
+     },
+     {
+      "t": "性爱机器 Sex Machine",
+      "n": 89
+     },
+     {
+      "t": "肛用 Anal",
+      "n": 6
+     }
+    ],
+    "samples": [
+     {
+      "text": "@Aneros I would love to",
+      "wc": 5,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/2022194161076814136"
+     },
+     {
+      "text": "@Aneros Looks awesome",
+      "wc": 3,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/2022194139044217003"
+     },
+     {
+      "text": "@Aneros @YouTube I’d like to experience it.",
+      "wc": 8,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/1965608132719378836"
+     },
+     {
+      "text": "@Aneros @YouTube I'm interest",
+      "wc": 4,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/1965431334115180623"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas 👙🔥❤️‍🔥😘🥵🌹",
+      "wc": 3,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/2065673113287675971"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas Even at 41 she still got a fantastic 🍑👅😍🔥😈🍆💦 x",
+      "wc": 11,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/2070531152318759088"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas 😍",
+      "wc": 3,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/2065669591494439142"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas Looking beautiful and gorgeous babe",
+      "wc": 8,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/2062207981463142849"
+     }
+    ]
+   },
+   {
+    "key": "request",
+    "name": "求购/合作",
+    "count": 1535,
+    "sentiment": {
+     "pos": 1081,
+     "neu": 454
+    },
+    "brands": [
+     {
+      "b": "Lovense",
+      "n": 839
+     },
+     {
+      "b": "Hismith",
+      "n": 461
+     },
+     {
+      "b": "Fleshlight",
+      "n": 105
+     },
+     {
+      "b": "Tantaly",
+      "n": 96
+     },
+     {
+      "b": "Kiiroo",
+      "n": 16
+     },
+     {
+      "b": "Aneros",
+      "n": 8
+     },
+     {
+      "b": "LELO",
+      "n": 4
+     },
+     {
+      "b": "TENGA",
+      "n": 3
+     }
+    ],
+    "topics": [
+     {
+      "t": "震动棒 Vibrators",
+      "n": 844
+     },
+     {
+      "t": "性爱机器 Sex Machine",
+      "n": 463
+     },
+     {
+      "t": "男用杯 Male Masturbators",
+      "n": 124
+     },
+     {
+      "t": "实体娃娃 Sex Doll",
+      "n": 96
+     },
+     {
+      "t": "肛用 Anal",
+      "n": 8
+     }
+    ],
+    "samples": [
+     {
+      "text": "@Aneros Interested  Dm check",
+      "wc": 4,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/2023690085259149508"
+     },
+     {
+      "text": "@Aneros I'm interested",
+      "wc": 3,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/2035073897964740976"
+     },
+     {
+      "text": "@Aneros I'm Interested",
+      "wc": 3,
+      "brand": "Aneros",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/1980436920883961954"
+     },
+     {
+      "text": "@Aneros Dm Me",
+      "wc": 3,
+      "brand": "Aneros",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "request",
+      "link": "https://x.com/i/status/1977251907728294348"
+     },
+     {
+      "text": "@Aneros @YouTube Interested",
+      "wc": 3,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/1975758928924573978"
+     },
+     {
+      "text": "@Aneros Interested Dm me",
+      "wc": 4,
+      "brand": "Aneros",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/2023690171229892756"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas Need 😍🥵",
+      "wc": 4,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/2062105071584682301"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas @Alexis_Texas  &amp; @H0llywoodCash 2nd round movie most wanted movie. Millions of fans waiting",
+      "wc": 18,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "request",
+      "link": "https://x.com/i/status/2065800857854317001"
+     }
+    ]
+   },
+   {
+    "key": "other",
+    "name": "其他",
+    "count": 900,
+    "sentiment": {
+     "neu": 900
+    },
+    "brands": [
+     {
+      "b": "Tantaly",
+      "n": 412
+     },
+     {
+      "b": "Fleshlight",
+      "n": 326
+     },
+     {
+      "b": "Hismith",
+      "n": 83
+     },
+     {
+      "b": "Kiiroo",
+      "n": 30
+     },
+     {
+      "b": "LELO",
+      "n": 16
+     },
+     {
+      "b": "TENGA",
+      "n": 16
+     },
+     {
+      "b": "Motorbunny",
+      "n": 5
+     },
+     {
+      "b": "RealDoll",
+      "n": 5
+     }
+    ],
+    "topics": [
+     {
+      "t": "实体娃娃 Sex Doll",
+      "n": 422
+     },
+     {
+      "t": "男用杯 Male Masturbators",
+      "n": 374
+     },
+     {
+      "t": "性爱机器 Sex Machine",
+      "n": 88
+     },
+     {
+      "t": "震动棒 Vibrators",
+      "n": 16
+     }
+    ],
+    "samples": [
+     {
+      "text": "@Fleshlight @Alexis_Texas https://t.co/Oka1CpPERo",
+      "wc": 8,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2073987653234565348"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas Sexy",
+      "wc": 4,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2066384918981009479"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas Eu quero",
+      "wc": 5,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2066749688280134108"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas when are you going to make @HaileyRoseFucks an fleshlight girl. it is long overdue",
+      "wc": 17,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2061885047615918276"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas Magnificent axx she calling me to fxxx it",
+      "wc": 11,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2070077550634696989"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas @H0llywoodCash  round2",
+      "wc": 6,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2065733903222997208"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas @Alexis_Texas  &amp; @H0llywoodCash 2nd round movie. Millions of fans waiting",
+      "wc": 15,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2065800709401120866"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas @Alexis_Texas  &amp; @H0llywoodCash 2nd round Mega movie this week please. Millions of fans waiting",
+      "wc": 19,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2065800984404824396"
+     }
+    ]
+   },
+   {
+    "key": "banter",
+    "name": "玩梗互动",
+    "count": 759,
+    "sentiment": {
+     "neu": 759
+    },
+    "brands": [
+     {
+      "b": "Tantaly",
+      "n": 421
+     },
+     {
+      "b": "Fleshlight",
+      "n": 201
+     },
+     {
+      "b": "Kiiroo",
+      "n": 56
+     },
+     {
+      "b": "Hismith",
+      "n": 47
+     },
+     {
+      "b": "LELO",
+      "n": 16
+     },
+     {
+      "b": "TENGA",
+      "n": 10
+     },
+     {
+      "b": "RealDoll",
+      "n": 4
+     },
+     {
+      "b": "RosemaryDoll",
+      "n": 2
+     }
+    ],
+    "topics": [
+     {
+      "t": "实体娃娃 Sex Doll",
+      "n": 427
+     },
+     {
+      "t": "男用杯 Male Masturbators",
+      "n": 268
+     },
+     {
+      "t": "性爱机器 Sex Machine",
+      "n": 48
+     },
+     {
+      "t": "震动棒 Vibrators",
+      "n": 16
+     }
+    ],
+    "samples": [
+     {
+      "text": "@Fleshlight @Alexis_Texas 🤩😘",
+      "wc": 3,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "banter",
+      "link": "https://x.com/i/status/2067346447662534828"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas 👑💖💖",
+      "wc": 3,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "banter",
+      "link": "https://x.com/i/status/2065963738059145400"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas 😌",
+      "wc": 3,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "banter",
+      "link": "https://x.com/i/status/2064458554984063401"
+     },
+     {
+      "text": "@Fleshlight @fansly Get featured  Fansly Insider Magazine - https://t.co/PRr11OnzMP",
+      "wc": 12,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "banter",
+      "link": "https://x.com/i/status/2059968185806303457"
+     },
+     {
+      "text": "@Fleshlight LEETSSSSS GOOOOOOOOOOOOOO!",
+      "wc": 3,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "banter",
+      "link": "https://x.com/i/status/2046994406750777809"
+     },
+     {
+      "text": "@Fleshlight ITS PIKACHU!",
+      "wc": 3,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "banter",
+      "link": "https://x.com/i/status/2046985238971138159"
+     },
+     {
+      "text": "@Fleshlight why bother if it is not @HaileyRoseFucks",
+      "wc": 8,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "banter",
+      "link": "https://x.com/i/status/2046948659548299549"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas 🤩😘",
+      "wc": 3,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "banter",
+      "link": "https://x.com/i/status/2067346575500714211"
+     }
+    ]
+   },
+   {
+    "key": "question",
+    "name": "提问",
+    "count": 554,
+    "sentiment": {
+     "pos": 326,
+     "neu": 228
+    },
+    "brands": [
+     {
+      "b": "Lovense",
+      "n": 277
+     },
+     {
+      "b": "Tantaly",
+      "n": 120
+     },
+     {
+      "b": "Fleshlight",
+      "n": 88
+     },
+     {
+      "b": "Hismith",
+      "n": 30
+     },
+     {
+      "b": "RosemaryDoll",
+      "n": 11
+     },
+     {
+      "b": "Kiiroo",
+      "n": 10
+     },
+     {
+      "b": "LELO",
+      "n": 8
+     },
+     {
+      "b": "TENGA",
+      "n": 5
+     }
+    ],
+    "topics": [
+     {
+      "t": "震动棒 Vibrators",
+      "n": 285
+     },
+     {
+      "t": "实体娃娃 Sex Doll",
+      "n": 132
+     },
+     {
+      "t": "男用杯 Male Masturbators",
+      "n": 105
+     },
+     {
+      "t": "性爱机器 Sex Machine",
+      "n": 31
+     },
+     {
+      "t": "肛用 Anal",
+      "n": 1
+     }
+    ],
+    "samples": [
+     {
+      "text": "@Aneros I have an offer for you that you might like for publicity and promotion do you mind following me so I can send you a message?",
+      "wc": 27,
+      "brand": "Aneros",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "question",
+      "link": "https://x.com/i/status/2008751775256334429"
+     },
+     {
+      "text": "@Fleshlight Waaaaait I sold a few but I would love to be exclusive to this! how??",
+      "wc": 16,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "question",
+      "link": "https://x.com/i/status/2053660006969475396"
+     },
+     {
+      "text": "@Fleshlight @KumBomb is this your time?",
+      "wc": 6,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "question",
+      "link": "https://x.com/i/status/2053581462574621033"
+     },
+     {
+      "text": "@Fleshlight where's my @AnissaKate fleshlight?",
+      "wc": 5,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "question",
+      "link": "https://x.com/i/status/2047024454551667036"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas @Fleshlight  I’m sorry to bother you here, but I really need assistance with my registration. Could you please check our private messages when you have a moment? I would be very grateful for your help. Thank you.",
+      "wc": 41,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "question",
+      "link": "https://x.com/i/status/2055549509254463513"
+     },
+     {
+      "text": "@Fleshlight You're birthday is May the 14th, right?",
+      "wc": 8,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "question",
+      "link": "https://x.com/i/status/2054865842689482900"
+     },
+     {
+      "text": "@Fleshlight @AngelYoungsxxx @itsRickysRoom Why do you no longer puke in dicks?",
+      "wc": 11,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "question",
+      "link": "https://x.com/i/status/2053515222694973805"
+     },
+     {
+      "text": "@Fleshlight @BonnieBlue_xoxo Why did the timer on the site show that the show was scheduled for today at 3PM CST? #IWASTHEREWAITING  🤷‍♂️",
+      "wc": 22,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "question",
+      "link": "https://x.com/i/status/2057200341545017498"
+     }
+    ]
+   },
+   {
+    "key": "complaint",
+    "name": "吐槽",
+    "count": 136,
+    "sentiment": {
+     "neg": 136
+    },
+    "brands": [
+     {
+      "b": "Lovense",
+      "n": 85
+     },
+     {
+      "b": "Fleshlight",
+      "n": 20
+     },
+     {
+      "b": "Tantaly",
+      "n": 19
+     },
+     {
+      "b": "Hismith",
+      "n": 5
+     },
+     {
+      "b": "Kiiroo",
+      "n": 4
+     },
+     {
+      "b": "TENGA",
+      "n": 2
+     },
+     {
+      "b": "RealDoll",
+      "n": 1
+     }
+    ],
+    "topics": [
+     {
+      "t": "震动棒 Vibrators",
+      "n": 85
+     },
+     {
+      "t": "男用杯 Male Masturbators",
+      "n": 26
+     },
+     {
+      "t": "实体娃娃 Sex Doll",
+      "n": 20
+     },
+     {
+      "t": "性爱机器 Sex Machine",
+      "n": 5
+     }
+    ],
+    "samples": [
+     {
+      "text": "@Fleshlight @Alexis_Texas She been bad since forever",
+      "wc": 8,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neg",
+      "intent": "complaint",
+      "link": "https://x.com/i/status/2065661422231498755"
+     },
+     {
+      "text": "@Fleshlight So where's the rest of the models and the pictures? This roll out has been pretty disappointing because of how unprepared you all were after all the hype.",
+      "wc": 29,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neg",
+      "intent": "complaint",
+      "link": "https://x.com/i/status/2053930259641257992"
+     },
+     {
+      "text": "@Fleshlight @EMMAHIXOFFICIAL @EMMAHIX0FFIClAL I hate she went the plastic surgery route she was so perfect petite",
+      "wc": 17,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neg",
+      "intent": "complaint",
+      "link": "https://x.com/i/status/2018815506170683726"
+     },
+     {
+      "text": "@Fleshlight @KSLibraryGirl I want Kendra so badly",
+      "wc": 7,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neg",
+      "intent": "complaint",
+      "link": "https://x.com/i/status/2008992827888525321"
+     },
+     {
+      "text": "@Fleshlight omggg whos dat baddie &gt;///&lt; https://t.co/tFDfJO6ZlV",
+      "wc": 12,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neg",
+      "intent": "complaint",
+      "link": "https://x.com/i/status/2052797600420835624"
+     },
+     {
+      "text": "@Fleshlight I don't recall FL ever hyping something up this much... I really hope whatever this is knocks it outta the park! 👀",
+      "wc": 22,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neg",
+      "intent": "complaint",
+      "link": "https://x.com/i/status/2052196350561865974"
+     },
+     {
+      "text": "@Fleshlight @theemmamag Guess I’ll finally be getting Regal and whatever else is being offered!",
+      "wc": 15,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neg",
+      "intent": "complaint",
+      "link": "https://x.com/i/status/2047849461318038003"
+     },
+     {
+      "text": "@Fleshlight @autumnxfallsx Autumn Falls broke up with Markus Dupree. Autumn Falls lives in New York, and her ex-fiancé Markus Dupree lives in Russia. @autumnxfallsx had slept with Jojo and Raphael. They both lives in New York",
+      "wc": 37,
+      "brand": "Fleshlight",
+      "form": "引用转发",
+      "lang": "en",
+      "sent": "neg",
+      "intent": "complaint",
+      "link": "https://x.com/i/status/1944032617210282071"
+     }
+    ]
+   }
+  ],
+  "sentimentBreakdown": [
+   {
+    "key": "pos",
+    "name": "正面",
+    "count": 7140,
+    "intents": [
+     {
+      "k": "praise",
+      "n": 5733
+     },
+     {
+      "k": "request",
+      "n": 1081
+     },
+     {
+      "k": "question",
+      "n": 326
+     }
+    ],
+    "brands": [
+     {
+      "b": "Lovense",
+      "n": 5940
+     },
+     {
+      "b": "Tantaly",
+      "n": 466
+     },
+     {
+      "b": "Fleshlight",
+      "n": 331
+     },
+     {
+      "b": "Hismith",
+      "n": 262
+     },
+     {
+      "b": "Kiiroo",
+      "n": 70
+     },
+     {
+      "b": "LELO",
+      "n": 20
+     },
+     {
+      "b": "Aneros",
+      "n": 12
+     },
+     {
+      "b": "RosemaryDoll",
+      "n": 12
+     }
+    ],
+    "style": {
+     "emoji": 2174,
+     "slang": 421,
+     "caps": 269
+    },
+    "samples": [
+     {
+      "text": "@Aneros Interested  Dm check",
+      "wc": 4,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/2023690085259149508"
+     },
+     {
+      "text": "@Aneros I'm interested",
+      "wc": 3,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/2035073897964740976"
+     },
+     {
+      "text": "@Aneros I would love to",
+      "wc": 5,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/2022194161076814136"
+     },
+     {
+      "text": "@Aneros Looks awesome",
+      "wc": 3,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/2022194139044217003"
+     },
+     {
+      "text": "@Aneros I'm Interested",
+      "wc": 3,
+      "brand": "Aneros",
+      "form": "视频",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/1980436920883961954"
+     },
+     {
+      "text": "@Aneros @YouTube I’d like to experience it.",
+      "wc": 8,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/1965608132719378836"
+     },
+     {
+      "text": "@Aneros @YouTube Interested",
+      "wc": 3,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "request",
+      "link": "https://x.com/i/status/1975758928924573978"
+     },
+     {
+      "text": "@Aneros @YouTube I'm interest",
+      "wc": 4,
+      "brand": "Aneros",
+      "form": "图片",
+      "lang": "en",
+      "sent": "pos",
+      "intent": "praise",
+      "link": "https://x.com/i/status/1965431334115180623"
+     }
+    ]
+   },
+   {
+    "key": "neu",
+    "name": "中性",
+    "count": 2341,
+    "intents": [
+     {
+      "k": "other",
+      "n": 900
+     },
+     {
+      "k": "banter",
+      "n": 759
+     },
+     {
+      "k": "request",
+      "n": 454
+     },
+     {
+      "k": "question",
+      "n": 228
+     }
+    ],
+    "brands": [
+     {
+      "b": "Tantaly",
+      "n": 1002
+     },
+     {
+      "b": "Fleshlight",
+      "n": 691
+     },
+     {
+      "b": "Hismith",
+      "n": 439
+     },
+     {
+      "b": "Kiiroo",
+      "n": 102
+     },
+     {
+      "b": "LELO",
+      "n": 38
+     },
+     {
+      "b": "TENGA",
+      "n": 31
+     },
+     {
+      "b": "RosemaryDoll",
+      "n": 14
+     },
+     {
+      "b": "Motorbunny",
+      "n": 9
+     }
+    ],
+    "style": {
+     "emoji": 578,
+     "slang": 87,
+     "caps": 182
+    },
+    "samples": [
+     {
+      "text": "@Aneros Dm Me",
+      "wc": 3,
+      "brand": "Aneros",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "request",
+      "link": "https://x.com/i/status/1977251907728294348"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas https://t.co/Oka1CpPERo",
+      "wc": 8,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2073987653234565348"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas 🤩😘",
+      "wc": 3,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "banter",
+      "link": "https://x.com/i/status/2067346447662534828"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas Sexy",
+      "wc": 4,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2066384918981009479"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas Eu quero",
+      "wc": 5,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2066749688280134108"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas 👑💖💖",
+      "wc": 3,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "banter",
+      "link": "https://x.com/i/status/2065963738059145400"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas when are you going to make @HaileyRoseFucks an fleshlight girl. it is long overdue",
+      "wc": 17,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2061885047615918276"
+     },
+     {
+      "text": "@Fleshlight @Alexis_Texas Magnificent axx she calling me to fxxx it",
+      "wc": 11,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neu",
+      "intent": "other",
+      "link": "https://x.com/i/status/2070077550634696989"
+     }
+    ]
+   },
+   {
+    "key": "neg",
+    "name": "负面",
+    "count": 136,
+    "intents": [
+     {
+      "k": "complaint",
+      "n": 136
+     }
+    ],
+    "brands": [
+     {
+      "b": "Lovense",
+      "n": 85
+     },
+     {
+      "b": "Fleshlight",
+      "n": 20
+     },
+     {
+      "b": "Tantaly",
+      "n": 19
+     },
+     {
+      "b": "Hismith",
+      "n": 5
+     },
+     {
+      "b": "Kiiroo",
+      "n": 4
+     },
+     {
+      "b": "TENGA",
+      "n": 2
+     },
+     {
+      "b": "RealDoll",
+      "n": 1
+     }
+    ],
+    "style": {
+     "emoji": 39,
+     "slang": 20,
+     "caps": 9
+    },
+    "samples": [
+     {
+      "text": "@Fleshlight @Alexis_Texas She been bad since forever",
+      "wc": 8,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neg",
+      "intent": "complaint",
+      "link": "https://x.com/i/status/2065661422231498755"
+     },
+     {
+      "text": "@Fleshlight So where's the rest of the models and the pictures? This roll out has been pretty disappointing because of how unprepared you all were after all the hype.",
+      "wc": 29,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neg",
+      "intent": "complaint",
+      "link": "https://x.com/i/status/2053930259641257992"
+     },
+     {
+      "text": "@Fleshlight @EMMAHIXOFFICIAL @EMMAHIX0FFIClAL I hate she went the plastic surgery route she was so perfect petite",
+      "wc": 17,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neg",
+      "intent": "complaint",
+      "link": "https://x.com/i/status/2018815506170683726"
+     },
+     {
+      "text": "@Fleshlight @KSLibraryGirl I want Kendra so badly",
+      "wc": 7,
+      "brand": "Fleshlight",
+      "form": "视频",
+      "lang": "en",
+      "sent": "neg",
+      "intent": "complaint",
+      "link": "https://x.com/i/status/2008992827888525321"
+     },
+     {
+      "text": "@Fleshlight omggg whos dat baddie &gt;///&lt; https://t.co/tFDfJO6ZlV",
+      "wc": 12,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neg",
+      "intent": "complaint",
+      "link": "https://x.com/i/status/2052797600420835624"
+     },
+     {
+      "text": "@Fleshlight I don't recall FL ever hyping something up this much... I really hope whatever this is knocks it outta the park! 👀",
+      "wc": 22,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neg",
+      "intent": "complaint",
+      "link": "https://x.com/i/status/2052196350561865974"
+     },
+     {
+      "text": "@Fleshlight @theemmamag Guess I’ll finally be getting Regal and whatever else is being offered!",
+      "wc": 15,
+      "brand": "Fleshlight",
+      "form": "图片",
+      "lang": "en",
+      "sent": "neg",
+      "intent": "complaint",
+      "link": "https://x.com/i/status/2047849461318038003"
+     },
+     {
+      "text": "@Fleshlight @autumnxfallsx Autumn Falls broke up with Markus Dupree. Autumn Falls lives in New York, and her ex-fiancé Markus Dupree lives in Russia. @autumnxfallsx had slept with Jojo and Raphael. They both lives in New York",
+      "wc": 37,
+      "brand": "Fleshlight",
+      "form": "引用转发",
+      "lang": "en",
+      "sent": "neg",
+      "intent": "complaint",
+      "link": "https://x.com/i/status/1944032617210282071"
+     }
+    ]
+   }
+  ]
+ }
 }
