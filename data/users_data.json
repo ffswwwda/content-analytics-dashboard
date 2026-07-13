@@ -11,6 +11,24 @@
   "genuine_replies_in_window": 9617,
   "genuine_users": 3294,
   "multi_reply_users": 2297,
+  "eng_meta": {
+   "heavy": {
+    "name": "重度用户 (≥10 次)",
+    "desc": "对该品牌反复发声，是铁粉 / KOC 候选，最值得单独运营。"
+   },
+   "active": {
+    "name": "活跃用户 (4–9 次)",
+    "desc": "稳定参与者，已建立品牌认知，可培养为深度用户。"
+   },
+   "light": {
+    "name": "轻度用户 (2–3 次)",
+    "desc": "偶尔回来互动，处在观望期，需内容持续触达。"
+   },
+   "once": {
+    "name": "一次性用户 (1 次)",
+    "desc": "路人 / 首次接触，规模最大，是拉新与转化的入口。"
+   }
+  },
   "source": "real"
  },
  "corpus": {
@@ -11631,6 +11649,6968 @@
      "lang": "en",
      "sent": "pos",
      "link": "https://x.com/i/status/2035097439825535420"
+    }
+   ]
+  }
+ ],
+ "brandUsers": [
+  {
+   "brand": "Lovense",
+   "replyCount": 6025,
+   "userCount": 2251,
+   "multiReplyUsers": 1586,
+   "multiReplyShare": 70.5,
+   "avgRepliesPerUser": 2.68,
+   "totalLikes": 5738,
+   "avgLikes": 1.0,
+   "sentiment": {
+    "pos": 5940,
+    "neg": 85
+   },
+   "intents": {
+    "praise": 4824,
+    "request": 839,
+    "question": 277,
+    "complaint": 85
+   },
+   "wcLayers": {
+    "l3": 1000,
+    "l2": 3006,
+    "l1": 1931,
+    "l4": 88
+   },
+   "engLayers": {
+    "heavy": 67,
+    "active": 345,
+    "light": 1174,
+    "once": 665
+   },
+   "concentration": {
+    "top10Replies": 283,
+    "top10Share": 4.7,
+    "top1pctUsers": 23,
+    "top1pctReplies": 509,
+    "top1pctShare": 8.4
+   },
+   "topUsers": [
+    {
+     "name": "Alberto",
+     "replyCount": 48,
+     "totalWords": 263,
+     "avgWords": 5.5,
+     "totalLikes": 14,
+     "avgLikes": 0.3,
+     "sents": {
+      "pos": 48
+     },
+     "intents": {
+      "praise": 30,
+      "request": 17,
+      "question": 1
+     },
+     "topForm": "视频",
+     "first": "2025-08-08",
+     "last": "2026-02-11",
+     "samples": [
+      {
+       "text": "@Lovense Das würde mir gefallen.",
+       "likes": 0,
+       "lang": "de",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2008445456209375637"
+      },
+      {
+       "text": "@Lovense Ja, sehr gerne!",
+       "likes": 0,
+       "lang": "de",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2001025648673087495"
+      }
+     ]
+    },
+    {
+     "name": "Musk Decoded",
+     "replyCount": 42,
+     "totalWords": 311,
+     "avgWords": 7.4,
+     "totalLikes": 40,
+     "avgLikes": 1.0,
+     "sents": {
+      "pos": 40,
+      "neg": 2
+     },
+     "intents": {
+      "praise": 33,
+      "question": 4,
+      "request": 3,
+      "complaint": 2
+     },
+     "topForm": "视频",
+     "first": "2025-10-20",
+     "last": "2025-12-19",
+     "samples": [
+      {
+       "text": "@Lovense Go for it..the hard part was getting her there",
+       "likes": 4,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1988947762038337780"
+      },
+      {
+       "text": "@Lovense I'd reconsider that from being my opening gambit",
+       "likes": 2,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1997983966268187021"
+      }
+     ]
+    },
+    {
+     "name": "the massive blue wave",
+     "replyCount": 35,
+     "totalWords": 354,
+     "avgWords": 10.1,
+     "totalLikes": 27,
+     "avgLikes": 0.8,
+     "sents": {
+      "pos": 35
+     },
+     "intents": {
+      "praise": 35
+     },
+     "topForm": "图片",
+     "first": "2025-08-25",
+     "last": "2026-05-25",
+     "samples": [
+      {
+       "text": "@Lovense Go #LovenseOrgy",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2058396433280282640"
+      },
+      {
+       "text": "@Lovense More #LovenseOrgy .",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2058397772265746573"
+      }
+     ]
+    },
+    {
+     "name": "Chelsea",
+     "replyCount": 25,
+     "totalWords": 101,
+     "avgWords": 4.0,
+     "totalLikes": 4,
+     "avgLikes": 0.2,
+     "sents": {
+      "pos": 25
+     },
+     "intents": {
+      "praise": 25
+     },
+     "topForm": "图片",
+     "first": "2025-12-19",
+     "last": "2026-06-09",
+     "samples": [
+      {
+       "text": "@Lovense I wish I had more ppl to tag 😢",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2002548676129140940"
+      },
+      {
+       "text": "@Lovense Let me know I can tag you for more entries 💖",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2048836157014671811"
+      }
+     ]
+    },
+    {
+     "name": "Donna Campbell",
+     "replyCount": 24,
+     "totalWords": 50,
+     "avgWords": 2.1,
+     "totalLikes": 8,
+     "avgLikes": 0.3,
+     "sents": {
+      "pos": 24
+     },
+     "intents": {
+      "request": 24
+     },
+     "topForm": "视频",
+     "first": "2025-09-14",
+     "last": "2026-03-02",
+     "samples": [
+      {
+       "text": "@Lovense @Fates_Game Dm",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/1984283265520599274"
+      }
+     ]
+    },
+    {
+     "name": "goddess Natalia /findom",
+     "replyCount": 22,
+     "totalWords": 431,
+     "avgWords": 19.6,
+     "totalLikes": 24,
+     "avgLikes": 1.1,
+     "sents": {
+      "pos": 22
+     },
+     "intents": {
+      "praise": 16,
+      "request": 6
+     },
+     "topForm": "视频",
+     "first": "2025-09-22",
+     "last": "2025-12-22",
+     "samples": [
+      {
+       "text": "@Lovense I have the fuck machine and the new toy, but I’ve always wanted the mission my God I’m gonna have a collection a very expensive collection lol but I love every second of it💋 so my top favorit",
+       "likes": 2,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/1993108173465813346"
+      },
+      {
+       "text": "@Lovense I got mine today!!! In love 😍 the warming multiple attachments. It’s a squirt girls dream.",
+       "likes": 2,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1993090312726561263"
+      }
+     ]
+    },
+    {
+     "name": "sissy vixen",
+     "replyCount": 22,
+     "totalWords": 183,
+     "avgWords": 8.3,
+     "totalLikes": 19,
+     "avgLikes": 0.9,
+     "sents": {
+      "pos": 22
+     },
+     "intents": {
+      "praise": 18,
+      "request": 2,
+      "question": 2
+     },
+     "topForm": "图片",
+     "first": "2026-04-21",
+     "last": "2026-05-25",
+     "samples": [
+      {
+       "text": "@Lovense @poggers4444 i would probably do it in my job",
+       "likes": 4,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2046691959226400940"
+      },
+      {
+       "text": "@Lovense Speechless lady Gaga @poggers4444 @gamergrzesiu",
+       "likes": 2,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2050514994970624472"
+      }
+     ]
+    },
+    {
+     "name": "Pussycat Playhouse",
+     "replyCount": 22,
+     "totalWords": 66,
+     "avgWords": 3.0,
+     "totalLikes": 14,
+     "avgLikes": 0.6,
+     "sents": {
+      "pos": 22
+     },
+     "intents": {
+      "praise": 21,
+      "request": 1
+     },
+     "topForm": "视频",
+     "first": "2025-09-14",
+     "last": "2026-03-20",
+     "samples": [
+      {
+       "text": "@Lovense Perfect Gift!! ❤️❤️",
+       "likes": 2,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2018853991694606759"
+      },
+      {
+       "text": "@Lovense Best Dessert Serving Spatula Ever! 😍😜❤️",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1967243565219897356"
+      }
+     ]
+    },
+    {
+     "name": "john patterson🔫",
+     "replyCount": 22,
+     "totalWords": 106,
+     "avgWords": 4.8,
+     "totalLikes": 10,
+     "avgLikes": 0.5,
+     "sents": {
+      "pos": 22
+     },
+     "intents": {
+      "praise": 20,
+      "request": 2
+     },
+     "topForm": "图片",
+     "first": "2025-08-09",
+     "last": "2026-06-13",
+     "samples": [
+      {
+       "text": "@Lovense Out to eat",
+       "likes": 2,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2046573074540020052"
+      },
+      {
+       "text": "@Lovense All I have to do,is dream",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2050214053142753508"
+      }
+     ]
+    },
+    {
+     "name": "Shawn Stover",
+     "replyCount": 21,
+     "totalWords": 94,
+     "avgWords": 4.5,
+     "totalLikes": 11,
+     "avgLikes": 0.5,
+     "sents": {
+      "pos": 21
+     },
+     "intents": {
+      "praise": 21
+     },
+     "topForm": "GIF",
+     "first": "2026-04-21",
+     "last": "2026-06-09",
+     "samples": [
+      {
+       "text": "@Lovense Closer by NIN @KeriEjustice @BayCityAmber",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2050201020966269277"
+      },
+      {
+       "text": "@Lovense To the movie theater! @KeriEjustice",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2046686551409643980"
+      }
+     ]
+    },
+    {
+     "name": "💎Sauce The Boss💎 Fetcon AUG 5/10th",
+     "replyCount": 20,
+     "totalWords": 54,
+     "avgWords": 2.7,
+     "totalLikes": 10,
+     "avgLikes": 0.5,
+     "sents": {
+      "pos": 20
+     },
+     "intents": {
+      "praise": 20
+     },
+     "topForm": "图片",
+     "first": "2026-02-10",
+     "last": "2026-02-10",
+     "samples": [
+      {
+       "text": "@Lovense @acee_hardzz",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2021209696124711311"
+      },
+      {
+       "text": "@Lovense Lush mini, or Domi for sure @itskinkykatie",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2021209468558541256"
+      }
+     ]
+    },
+    {
+     "name": ".",
+     "replyCount": 19,
+     "totalWords": 125,
+     "avgWords": 6.6,
+     "totalLikes": 19,
+     "avgLikes": 1.0,
+     "sents": {
+      "pos": 19
+     },
+     "intents": {
+      "praise": 15,
+      "question": 2,
+      "request": 2
+     },
+     "topForm": "图片",
+     "first": "2025-08-04",
+     "last": "2026-05-24",
+     "samples": [
+      {
+       "text": "@Lovense @sissyvixen44 i would probably wear it while walking outdoors",
+       "likes": 4,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2046589452764549541"
+      },
+      {
+       "text": "@Lovense Homecoming by Kanye west @sissyvixen44 @gamergrzesiu",
+       "likes": 2,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2051029936551432631"
+      }
+     ]
+    },
+    {
+     "name": "69kojak69",
+     "replyCount": 19,
+     "totalWords": 235,
+     "avgWords": 12.4,
+     "totalLikes": 9,
+     "avgLikes": 0.5,
+     "sents": {
+      "pos": 19
+     },
+     "intents": {
+      "praise": 18,
+      "question": 1
+     },
+     "topForm": "图片",
+     "first": "2025-08-08",
+     "last": "2026-06-10",
+     "samples": [
+      {
+       "text": "@Lovense Having a naughty conversation with @CaliiieO 👉👈",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2064842504831127780"
+      },
+      {
+       "text": "@Lovense I want more 👉👈\nWhy would I retire something ? 🤪\n\n@Ambre26200\n@666deathgasm \n@CaliiieO",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "question",
+       "link": "https://x.com/i/status/2007053044786299064"
+      }
+     ]
+    },
+    {
+     "name": "D",
+     "replyCount": 18,
+     "totalWords": 186,
+     "avgWords": 10.3,
+     "totalLikes": 9,
+     "avgLikes": 0.5,
+     "sents": {
+      "pos": 18
+     },
+     "intents": {
+      "praise": 18
+     },
+     "topForm": "图片",
+     "first": "2025-11-25",
+     "last": "2026-05-25",
+     "samples": [
+      {
+       "text": "@Lovense In the middle of work in the office space, coworker (female) and I (male) have our desks on opposite ends of the wall and our backs facing each other, only 2 feet of space separates us 😂 she ",
+       "likes": 3,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2047468201685234089"
+      },
+      {
+       "text": "@Lovense @_motita5 @chasseurdegems @Abbott97 @Yellyderey_ @ChastittySweet @ryo19lovenes @adatje_of @BananeToy @LustfulTastes @ChkRose #LovenseOrgy 👀",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2058663748119015510"
+      }
+     ]
+    },
+    {
+     "name": "grotaaaa",
+     "replyCount": 17,
+     "totalWords": 252,
+     "avgWords": 14.8,
+     "totalLikes": 31,
+     "avgLikes": 1.8,
+     "sents": {
+      "pos": 17
+     },
+     "intents": {
+      "praise": 15,
+      "request": 2
+     },
+     "topForm": "图片",
+     "first": "2025-08-08",
+     "last": "2026-04-21",
+     "samples": [
+      {
+       "text": "@Lovense I would definitely try it at the beach !",
+       "likes": 6,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2046582089001140696"
+      },
+      {
+       "text": "@Lovense Clearly lovense toys are a big big help for orgasms 🥵",
+       "likes": 2,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1967132782058201570"
+      }
+     ]
+    },
+    {
+     "name": "the fan fighter",
+     "replyCount": 17,
+     "totalWords": 169,
+     "avgWords": 9.9,
+     "totalLikes": 16,
+     "avgLikes": 0.9,
+     "sents": {
+      "pos": 17
+     },
+     "intents": {
+      "praise": 8,
+      "request": 5,
+      "question": 4
+     },
+     "topForm": "视频",
+     "first": "2025-08-10",
+     "last": "2026-03-05",
+     "samples": [
+      {
+       "text": "@Lovense lush mini",
+       "likes": 2,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1956174950491922786"
+      },
+      {
+       "text": "@Lovense i though it would be the lush anal......",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1987947708120727847"
+      }
+     ]
+    },
+    {
+     "name": "sia_of_eris",
+     "replyCount": 17,
+     "totalWords": 239,
+     "avgWords": 14.1,
+     "totalLikes": 6,
+     "avgLikes": 0.4,
+     "sents": {
+      "pos": 16,
+      "neg": 1
+     },
+     "intents": {
+      "praise": 14,
+      "request": 2,
+      "complaint": 1
+     },
+     "topForm": "图片",
+     "first": "2025-08-09",
+     "last": "2026-06-14",
+     "samples": [
+      {
+       "text": "@Lovense Store away from direct sunlight.\n\n@LapperJames",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2066159532867227868"
+      },
+      {
+       "text": "@Lovense nice lights, maybe purple-ish\n\n@LapperJames",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2064591422259413358"
+      }
+     ]
+    },
+    {
+     "name": "Kanachy 🌊 chorako 🐼",
+     "replyCount": 17,
+     "totalWords": 74,
+     "avgWords": 4.4,
+     "totalLikes": 6,
+     "avgLikes": 0.4,
+     "sents": {
+      "pos": 17
+     },
+     "intents": {
+      "request": 13,
+      "praise": 3,
+      "question": 1
+     },
+     "topForm": "视频",
+     "first": "2025-08-10",
+     "last": "2026-05-23",
+     "samples": [
+      {
+       "text": "@Lovense I am intersected",
+       "likes": 2,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2000697980916027508"
+      },
+      {
+       "text": "@Lovense I am interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2058272782115557795"
+      }
+     ]
+    },
+    {
+     "name": "SimplySweets",
+     "replyCount": 17,
+     "totalWords": 254,
+     "avgWords": 14.9,
+     "totalLikes": 4,
+     "avgLikes": 0.2,
+     "sents": {
+      "pos": 17
+     },
+     "intents": {
+      "praise": 12,
+      "request": 3,
+      "question": 2
+     },
+     "topForm": "图片",
+     "first": "2025-11-24",
+     "last": "2026-06-22",
+     "samples": [
+      {
+       "text": "@Lovense Always keep your toys clean and store them in a safe and dry place.",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2066305583213347244"
+      },
+      {
+       "text": "@Lovense @LovenseOfficial I'd love to win... I've bought 8 of your toys, which are amazing, but I still want more!!  The interactions   you're able to have with a partner  or someone new you've met th",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2059090869915906229"
+      }
+     ]
+    },
+    {
+     "name": "Martin peña💦🦋",
+     "replyCount": 17,
+     "totalWords": 46,
+     "avgWords": 2.7,
+     "totalLikes": 2,
+     "avgLikes": 0.1,
+     "sents": {
+      "pos": 17
+     },
+     "intents": {
+      "request": 17
+     },
+     "topForm": "图片",
+     "first": "2025-08-25",
+     "last": "2026-04-06",
+     "samples": [
+      {
+       "text": "@Lovense I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2041109004617933308"
+      },
+      {
+       "text": "@Lovense I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2041108878730178913"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "Tantaly",
+   "replyCount": 1487,
+   "userCount": 389,
+   "multiReplyUsers": 287,
+   "multiReplyShare": 73.8,
+   "avgRepliesPerUser": 3.82,
+   "totalLikes": 5503,
+   "avgLikes": 3.7,
+   "sentiment": {
+    "neu": 1002,
+    "pos": 466,
+    "neg": 19
+   },
+   "intents": {
+    "banter": 421,
+    "praise": 419,
+    "other": 412,
+    "question": 120,
+    "request": 96,
+    "complaint": 19
+   },
+   "wcLayers": {
+    "l1": 726,
+    "l2": 699,
+    "l3": 59,
+    "l4": 3
+   },
+   "engLayers": {
+    "heavy": 26,
+    "active": 60,
+    "light": 201,
+    "once": 102
+   },
+   "concentration": {
+    "top10Replies": 415,
+    "top10Share": 27.9,
+    "top1pctUsers": 4,
+    "top1pctReplies": 233,
+    "top1pctShare": 15.7
+   },
+   "topUsers": [
+    {
+     "name": "sweetsunnylove01",
+     "replyCount": 75,
+     "totalWords": 560,
+     "avgWords": 7.5,
+     "totalLikes": 22,
+     "avgLikes": 0.3,
+     "sents": {
+      "neu": 41,
+      "pos": 34
+     },
+     "intents": {
+      "praise": 32,
+      "banter": 18,
+      "other": 11,
+      "question": 9,
+      "request": 5
+     },
+     "topForm": "视频",
+     "first": "2026-01-13",
+     "last": "2026-07-07",
+     "samples": [
+      {
+       "text": "@TantalyGlobal I guess many guys want to paly game with her. So realistic and real!",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/2057289806070136972"
+      },
+      {
+       "text": "@TantalyGlobal average day at Tantaly probably,bro definitely didn’t expect this in the interview! GOOD JOB! someone’s getting employee of the month for this 😄 https://t.co/rK7bLEh1LK",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2057292123016163535"
+      }
+     ]
+    },
+    {
+     "name": "SecretToyClub",
+     "replyCount": 67,
+     "totalWords": 491,
+     "avgWords": 7.3,
+     "totalLikes": 44,
+     "avgLikes": 0.7,
+     "sents": {
+      "neu": 35,
+      "pos": 30,
+      "neg": 2
+     },
+     "intents": {
+      "praise": 26,
+      "other": 21,
+      "banter": 12,
+      "request": 4,
+      "complaint": 2,
+      "question": 2
+     },
+     "topForm": "视频",
+     "first": "2026-04-17",
+     "last": "2026-06-18",
+     "samples": [
+      {
+       "text": "@TantalyGlobal Throwing to my face https://t.co/nYZKVlr4TK",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2059602571271233861"
+      },
+      {
+       "text": "@TantalyGlobal The boobs so gooood in this angle!",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2059425896231284918"
+      }
+     ]
+    },
+    {
+     "name": "Jupine",
+     "replyCount": 51,
+     "totalWords": 376,
+     "avgWords": 7.4,
+     "totalLikes": 31,
+     "avgLikes": 0.6,
+     "sents": {
+      "pos": 17,
+      "neu": 30,
+      "neg": 4
+     },
+     "intents": {
+      "other": 16,
+      "praise": 15,
+      "banter": 10,
+      "complaint": 4,
+      "request": 4,
+      "question": 2
+     },
+     "topForm": "视频",
+     "first": "2026-04-09",
+     "last": "2026-06-30",
+     "samples": [
+      {
+       "text": "@TantalyGlobal @dizzideiti Thank you sooooo much 😍😍 https://t.co/ALtH0pf3qK",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2071925999176966210"
+      },
+      {
+       "text": "@TantalyGlobal It's my birthday, candice will make a good present 🤣",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2069389794229018867"
+      }
+     ]
+    },
+    {
+     "name": "SultryDolls",
+     "replyCount": 40,
+     "totalWords": 490,
+     "avgWords": 12.2,
+     "totalLikes": 41,
+     "avgLikes": 1.0,
+     "sents": {
+      "pos": 11,
+      "neu": 25,
+      "neg": 4
+     },
+     "intents": {
+      "other": 21,
+      "praise": 11,
+      "banter": 4,
+      "complaint": 4
+     },
+     "topForm": "视频",
+     "first": "2026-01-27",
+     "last": "2026-06-29",
+     "samples": [
+      {
+       "text": "@TantalyGlobal Sexy Britney. She love it. In return, we have the right to a body-body massage",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2071487816282894814"
+      },
+      {
+       "text": "@TantalyGlobal Sorry Aurora but I prefer curvy. \nEat chips and gain a few kilos and you will be perfect",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2070187715354673374"
+      }
+     ]
+    },
+    {
+     "name": "Ashley",
+     "replyCount": 40,
+     "totalWords": 326,
+     "avgWords": 8.2,
+     "totalLikes": 16,
+     "avgLikes": 0.4,
+     "sents": {
+      "neu": 20,
+      "pos": 20
+     },
+     "intents": {
+      "praise": 20,
+      "other": 8,
+      "banter": 7,
+      "question": 3,
+      "request": 2
+     },
+     "topForm": "视频",
+     "first": "2026-01-13",
+     "last": "2026-03-25",
+     "samples": [
+      {
+       "text": "@TantalyGlobal That looks way too real… hard not to get pulled in😍\nThis kind of real-use content is way better than staged shots",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2036696007933849976"
+      },
+      {
+       "text": "@TantalyGlobal The roey hues on the cheeks is a nice touch!",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2031927374506340545"
+      }
+     ]
+    },
+    {
+     "name": "Lucas Dera",
+     "replyCount": 32,
+     "totalWords": 185,
+     "avgWords": 5.8,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 6,
+      "pos": 26
+     },
+     "intents": {
+      "praise": 23,
+      "request": 5,
+      "banter": 2,
+      "other": 2
+     },
+     "topForm": "视频",
+     "first": "2026-06-01",
+     "last": "2026-07-06",
+     "samples": [
+      {
+       "text": "@TantalyGlobal @tantalyblue1 https://t.co/Qw7ATpSYgW",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2072716267316768827"
+      },
+      {
+       "text": "@TantalyGlobal @tantalyblue1 I'd like to have sex with Caroline",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2072715470843568539"
+      }
+     ]
+    },
+    {
+     "name": "❄️INTERRACIAL🐰CLUB♠️1️⃣1️⃣0️⃣K🇩🇪🇺🇸",
+     "replyCount": 31,
+     "totalWords": 319,
+     "avgWords": 10.3,
+     "totalLikes": 29,
+     "avgLikes": 0.9,
+     "sents": {
+      "neu": 18,
+      "pos": 11,
+      "neg": 2
+     },
+     "intents": {
+      "praise": 11,
+      "banter": 9,
+      "other": 5,
+      "question": 3,
+      "complaint": 2,
+      "request": 1
+     },
+     "topForm": "视频",
+     "first": "2026-05-09",
+     "last": "2026-07-09",
+     "samples": [
+      {
+       "text": "@TantalyGlobal Looks like a foursome then.",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2069107734310494712"
+      },
+      {
+       "text": "@TantalyGlobal I suppose Emilia will be next.",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2068755638788751519"
+      }
+     ]
+    },
+    {
+     "name": "ONIX 200",
+     "replyCount": 30,
+     "totalWords": 243,
+     "avgWords": 8.1,
+     "totalLikes": 13,
+     "avgLikes": 0.4,
+     "sents": {
+      "pos": 20,
+      "neu": 10
+     },
+     "intents": {
+      "praise": 16,
+      "other": 8,
+      "question": 4,
+      "banter": 2
+     },
+     "topForm": "视频",
+     "first": "2026-03-03",
+     "last": "2026-06-30",
+     "samples": [
+      {
+       "text": "@TantalyGlobal A tail plug or the beautiful art of shibari 😈🔥 https://t.co/QbQHq4xYgA",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2071817705804714204"
+      },
+      {
+       "text": "@TantalyGlobal She's so incredibly beautiful, I wish I could touch her through the screen 🔥😍😈 https://t.co/5wBUA7687p",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2071068479797842278"
+      }
+     ]
+    },
+    {
+     "name": "luis",
+     "replyCount": 25,
+     "totalWords": 112,
+     "avgWords": 4.5,
+     "totalLikes": 10,
+     "avgLikes": 0.4,
+     "sents": {
+      "neu": 19,
+      "pos": 6
+     },
+     "intents": {
+      "request": 7,
+      "banter": 7,
+      "praise": 6,
+      "other": 3,
+      "question": 2
+     },
+     "topForm": "视频",
+     "first": "2026-01-13",
+     "last": "2026-05-15",
+     "samples": [
+      {
+       "text": "@TantalyGlobal I think my girlfriend definitely needs this.",
+       "likes": 3,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/2019228797451792767"
+      },
+      {
+       "text": "@TantalyGlobal I think I really need to seriously learn how to clean.",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/2055233295605256428"
+      }
+     ]
+    },
+    {
+     "name": "firegirlse",
+     "replyCount": 24,
+     "totalWords": 132,
+     "avgWords": 5.5,
+     "totalLikes": 2,
+     "avgLikes": 0.1,
+     "sents": {
+      "neu": 21,
+      "pos": 3
+     },
+     "intents": {
+      "other": 16,
+      "banter": 5,
+      "praise": 3
+     },
+     "topForm": "视频",
+     "first": "2026-01-28",
+     "last": "2026-03-23",
+     "samples": [
+      {
+       "text": "@TantalyGlobal it looks prettier in this way",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2033855412164812827"
+      },
+      {
+       "text": "@TantalyGlobal damn, that thing looks 🔥",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2017223742687002910"
+      }
+     ]
+    },
+    {
+     "name": "John",
+     "replyCount": 20,
+     "totalWords": 112,
+     "avgWords": 5.6,
+     "totalLikes": 10,
+     "avgLikes": 0.5,
+     "sents": {
+      "neu": 18,
+      "pos": 2
+     },
+     "intents": {
+      "other": 10,
+      "banter": 8,
+      "praise": 2
+     },
+     "topForm": "图片",
+     "first": "2026-01-26",
+     "last": "2026-06-22",
+     "samples": [
+      {
+       "text": "@TantalyGlobal @dollys_reviews United States, Tantaly 7th anniversary!!! Would definitely love to play with Freya",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2069080210658455665"
+      },
+      {
+       "text": "@TantalyGlobal @TantalyHub USA",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2028302312385523744"
+      }
+     ]
+    },
+    {
+     "name": "thematrixxx",
+     "replyCount": 19,
+     "totalWords": 80,
+     "avgWords": 4.2,
+     "totalLikes": 41,
+     "avgLikes": 2.2,
+     "sents": {
+      "neu": 19
+     },
+     "intents": {
+      "banter": 10,
+      "other": 5,
+      "request": 4
+     },
+     "topForm": "视频",
+     "first": "2026-05-04",
+     "last": "2026-06-21",
+     "samples": [
+      {
+       "text": "@TantalyGlobal Cecelia Miki and Caroline 🙂‍↕️🙂‍↕️🙂‍↕️",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2067244674935398776"
+      },
+      {
+       "text": "@TantalyGlobal Need me a new desk ornament 🙂‍↕️",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/2055644613688389670"
+      }
+     ]
+    },
+    {
+     "name": "Mr Baresex",
+     "replyCount": 19,
+     "totalWords": 234,
+     "avgWords": 12.3,
+     "totalLikes": 3,
+     "avgLikes": 0.2,
+     "sents": {
+      "neu": 12,
+      "pos": 7
+     },
+     "intents": {
+      "other": 6,
+      "praise": 5,
+      "banter": 4,
+      "question": 2,
+      "request": 2
+     },
+     "topForm": "视频",
+     "first": "2026-03-02",
+     "last": "2026-04-20",
+     "samples": [
+      {
+       "text": "@TantalyGlobal @veronavandeleur The Netherlands",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2028431737110335837"
+      },
+      {
+       "text": "@TantalyGlobal @grok I dont have the money for this sex torso,s",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2045735692089667758"
+      }
+     ]
+    },
+    {
+     "name": "Fettuccine Al",
+     "replyCount": 16,
+     "totalWords": 115,
+     "avgWords": 7.2,
+     "totalLikes": 8,
+     "avgLikes": 0.5,
+     "sents": {
+      "neu": 8,
+      "pos": 8
+     },
+     "intents": {
+      "praise": 8,
+      "other": 6,
+      "banter": 2
+     },
+     "topForm": "视频",
+     "first": "2026-03-13",
+     "last": "2026-05-21",
+     "samples": [
+      {
+       "text": "@TantalyGlobal Dang, they enjoying themselves playing with Rebecca",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2057305476736430379"
+      },
+      {
+       "text": "@TantalyGlobal Beautiful line up",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2055057134241316888"
+      }
+     ]
+    },
+    {
+     "name": "Diluc jane",
+     "replyCount": 15,
+     "totalWords": 145,
+     "avgWords": 9.7,
+     "totalLikes": 9,
+     "avgLikes": 0.6,
+     "sents": {
+      "neu": 15
+     },
+     "intents": {
+      "banter": 6,
+      "other": 6,
+      "request": 2,
+      "question": 1
+     },
+     "topForm": "视频",
+     "first": "2026-04-11",
+     "last": "2026-06-30",
+     "samples": [
+      {
+       "text": "@TantalyGlobal We go again! USA, GL to all! ☀️ https://t.co/8alPGU4ByE",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2050193628568694818"
+      },
+      {
+       "text": "@TantalyGlobal USA, Happy to be apart of this community. Now with Kylie! Hope to expand my collection and try new products! https://t.co/dMtfiqRBVv",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/2071810744841339233"
+      }
+     ]
+    },
+    {
+     "name": "addison_cianmon",
+     "replyCount": 14,
+     "totalWords": 60,
+     "avgWords": 4.3,
+     "totalLikes": 10,
+     "avgLikes": 0.7,
+     "sents": {
+      "neu": 8,
+      "pos": 6
+     },
+     "intents": {
+      "praise": 6,
+      "other": 4,
+      "banter": 4
+     },
+     "topForm": "图片",
+     "first": "2026-01-13",
+     "last": "2026-03-26",
+     "samples": [
+      {
+       "text": "@TantalyGlobal time to whiplash",
+       "likes": 2,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2033855096300441870"
+      },
+      {
+       "text": "@TantalyGlobal that's amazing",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2030909461129482568"
+      }
+     ]
+    },
+    {
+     "name": "boo2222 :3",
+     "replyCount": 13,
+     "totalWords": 63,
+     "avgWords": 4.8,
+     "totalLikes": 9,
+     "avgLikes": 0.7,
+     "sents": {
+      "pos": 5,
+      "neu": 8
+     },
+     "intents": {
+      "banter": 7,
+      "praise": 3,
+      "request": 2,
+      "other": 1
+     },
+     "topForm": "视频",
+     "first": "2026-02-14",
+     "last": "2026-05-17",
+     "samples": [
+      {
+       "text": "@TantalyGlobal 😍😍😍 i need to save up for a tantaly hehe",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2055990944252448898"
+      },
+      {
+       "text": "@TantalyGlobal LMAOOOO perfect decor 😮",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2055639137223356459"
+      }
+     ]
+    },
+    {
+     "name": "Unleashed Fox 🔜 AWOO",
+     "replyCount": 13,
+     "totalWords": 84,
+     "avgWords": 6.5,
+     "totalLikes": 8,
+     "avgLikes": 0.6,
+     "sents": {
+      "pos": 9,
+      "neu": 4
+     },
+     "intents": {
+      "praise": 9,
+      "banter": 2,
+      "question": 2
+     },
+     "topForm": "视频",
+     "first": "2026-04-14",
+     "last": "2026-05-20",
+     "samples": [
+      {
+       "text": "@TantalyGlobal Why choose just one detail? 😳",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "question",
+       "link": "https://x.com/i/status/2050939125352530394"
+      },
+      {
+       "text": "@TantalyGlobal I really like Emilia, she's the sexiest\n\nI'm from Italy and I would love to make content with her~",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2044017000276447235"
+      }
+     ]
+    },
+    {
+     "name": "julien",
+     "replyCount": 13,
+     "totalWords": 128,
+     "avgWords": 9.8,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 11,
+      "pos": 2
+     },
+     "intents": {
+      "other": 7,
+      "banter": 4,
+      "praise": 2
+     },
+     "topForm": "图片",
+     "first": "2026-01-27",
+     "last": "2026-06-02",
+     "samples": [
+      {
+       "text": "@TantalyGlobal France 🇫🇷 Happy 7th Anniversary Tantaly",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2061665683646070842"
+      },
+      {
+       "text": "@TantalyGlobal De FRANCE, Freya est tellement attirante, j'aimerai trop l'essayer 🤞🤞🤞",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2050252897871364495"
+      }
+     ]
+    },
+    {
+     "name": "𝔔𝔲𝔢𝔢𝔫 𝔄𝔩𝔢𝔵𝔦𝔰 𝔗𝔥𝔢 𝔅𝔞𝔡𝔡𝔢𝔰𝔱",
+     "replyCount": 12,
+     "totalWords": 50,
+     "avgWords": 4.2,
+     "totalLikes": 12,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 9,
+      "pos": 3
+     },
+     "intents": {
+      "banter": 6,
+      "praise": 3,
+      "other": 3
+     },
+     "topForm": "视频",
+     "first": "2026-04-23",
+     "last": "2026-06-24",
+     "samples": [
+      {
+       "text": "@TantalyGlobal So juicy",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2069787901601181755"
+      },
+      {
+       "text": "@TantalyGlobal Her tan is so lit 🔥",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2069527693301879117"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "Fleshlight",
+   "replyCount": 1042,
+   "userCount": 407,
+   "multiReplyUsers": 247,
+   "multiReplyShare": 60.7,
+   "avgRepliesPerUser": 2.56,
+   "totalLikes": 1327,
+   "avgLikes": 1.3,
+   "sentiment": {
+    "pos": 331,
+    "neu": 691,
+    "neg": 20
+   },
+   "intents": {
+    "other": 326,
+    "praise": 302,
+    "banter": 201,
+    "request": 105,
+    "question": 88,
+    "complaint": 20
+   },
+   "wcLayers": {
+    "l1": 360,
+    "l2": 603,
+    "l3": 75,
+    "l4": 4
+   },
+   "engLayers": {
+    "heavy": 9,
+    "active": 44,
+    "light": 194,
+    "once": 160
+   },
+   "concentration": {
+    "top10Replies": 264,
+    "top10Share": 25.3,
+    "top1pctUsers": 4,
+    "top1pctReplies": 198,
+    "top1pctShare": 19.0
+   },
+   "topUsers": [
+    {
+     "name": "Steven Tidwell",
+     "replyCount": 73,
+     "totalWords": 1209,
+     "avgWords": 16.6,
+     "totalLikes": 84,
+     "avgLikes": 1.2,
+     "sents": {
+      "neu": 48,
+      "pos": 25
+     },
+     "intents": {
+      "request": 25,
+      "praise": 21,
+      "other": 17,
+      "banter": 10
+     },
+     "topForm": "图片",
+     "first": "2025-11-24",
+     "last": "2026-07-07",
+     "samples": [
+      {
+       "text": "@Fleshlight @Alexis_Texas when are you going to make @HaileyRoseFucks an fleshlight girl. it is long overdue",
+       "likes": 8,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2061885047615918276"
+      },
+      {
+       "text": "@Fleshlight @BonnieBlue_xoxo @HaileyRoseFucks would have been an better fleshlight girl than bonnie blue",
+       "likes": 3,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2052792872605221239"
+      }
+     ]
+    },
+    {
+     "name": "Doloritas",
+     "replyCount": 68,
+     "totalWords": 301,
+     "avgWords": 4.4,
+     "totalLikes": 2,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 68
+     },
+     "intents": {
+      "other": 39,
+      "banter": 29
+     },
+     "topForm": "图片",
+     "first": "2026-03-16",
+     "last": "2026-05-29",
+     "samples": [
+      {
+       "text": "@Fleshlight @AnaFoxxx @thejessicadrake @vannabardot ░░H░e░j░░",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2043323144128102729"
+      },
+      {
+       "text": "@Fleshlight @VinaSkyy ░░O░l░a░░",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2038221904847192113"
+      }
+     ]
+    },
+    {
+     "name": "LowMeHigh",
+     "replyCount": 43,
+     "totalWords": 334,
+     "avgWords": 7.8,
+     "totalLikes": 58,
+     "avgLikes": 1.3,
+     "sents": {
+      "neu": 34,
+      "pos": 9
+     },
+     "intents": {
+      "other": 24,
+      "praise": 9,
+      "banter": 6,
+      "request": 2,
+      "question": 2
+     },
+     "topForm": "图片",
+     "first": "2025-12-14",
+     "last": "2026-06-30",
+     "samples": [
+      {
+       "text": "@Fleshlight I don't know this time. The subreddit hasn't even figured it out",
+       "likes": 6,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2047341335724663004"
+      },
+      {
+       "text": "@Fleshlight It's really gonna be @EllyClutchxo",
+       "likes": 5,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2048421406744977470"
+      }
+     ]
+    },
+    {
+     "name": "Undinistinnenliebhaber 🌹🇲🇽🇺🇸 CDMX-BER-LA 🔴",
+     "replyCount": 14,
+     "totalWords": 142,
+     "avgWords": 10.1,
+     "totalLikes": 10,
+     "avgLikes": 0.7,
+     "sents": {
+      "pos": 10,
+      "neu": 4
+     },
+     "intents": {
+      "praise": 10,
+      "banter": 2,
+      "other": 2
+     },
+     "topForm": "视频",
+     "first": "2025-11-04",
+     "last": "2026-04-09",
+     "samples": [
+      {
+       "text": "@Fleshlight @kayleygunner I would be blown away like at VENUS Berlin!",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1985812087029797058"
+      },
+      {
+       "text": "@Fleshlight @imevesweet Ja, die Modellierung der Fleshlights findet über echte Abdrücke der Pornostars statt. Teilweise gibt es auch Sondereditionen von @VIXEN, @XBIZ und @X3social. Fleshlight ist reg",
+       "likes": 1,
+       "lang": "de",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2022247669910102477"
+      }
+     ]
+    },
+    {
+     "name": "Mason Harris",
+     "replyCount": 14,
+     "totalWords": 115,
+     "avgWords": 8.2,
+     "totalLikes": 2,
+     "avgLikes": 0.1,
+     "sents": {
+      "pos": 9,
+      "neu": 5
+     },
+     "intents": {
+      "request": 4,
+      "praise": 4,
+      "question": 4,
+      "banter": 2
+     },
+     "topForm": "图片",
+     "first": "2025-11-20",
+     "last": "2026-05-09",
+     "samples": [
+      {
+       "text": "@Fleshlight @vannabardot I’m gonna order this soon 😍🥰",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2035059136879030419"
+      },
+      {
+       "text": "@Fleshlight @VIXEN @GValentinaxxx Wow she’s a hottie x",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2052980530828743012"
+      }
+     ]
+    },
+    {
+     "name": "IvoryCurls 🔞",
+     "replyCount": 11,
+     "totalWords": 55,
+     "avgWords": 5.0,
+     "totalLikes": 15,
+     "avgLikes": 1.4,
+     "sents": {
+      "neu": 7,
+      "pos": 4
+     },
+     "intents": {
+      "praise": 4,
+      "other": 4,
+      "question": 2,
+      "request": 1
+     },
+     "topForm": "图片",
+     "first": "2025-07-14",
+     "last": "2026-05-10",
+     "samples": [
+      {
+       "text": "@Fleshlight Lovely treat 😵‍💫",
+       "likes": 3,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1973447880389304524"
+      },
+      {
+       "text": "@Fleshlight I NEED MORE DETAILS ‼️‼️‼️‼️ I AM THE ULTIMATE FAN‼️‼️‼️‼️‼️",
+       "likes": 2,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/2053508729878827309"
+      }
+     ]
+    },
+    {
+     "name": "MAKE SWEDEN GREAT AGAIN 🇸🇪🇸🇪🇸🇪",
+     "replyCount": 11,
+     "totalWords": 78,
+     "avgWords": 7.1,
+     "totalLikes": 8,
+     "avgLikes": 0.7,
+     "sents": {
+      "neu": 4,
+      "pos": 7
+     },
+     "intents": {
+      "praise": 7,
+      "other": 4
+     },
+     "topForm": "视频",
+     "first": "2025-07-21",
+     "last": "2026-04-23",
+     "samples": [
+      {
+       "text": "@Fleshlight @kayleygunner Selfies and Photos signed by you godess @kayleygunner",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/1984993997270532301"
+      },
+      {
+       "text": "@Fleshlight Love fleshlight got 10 latest Kayley Gunner",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1973432642059248038"
+      }
+     ]
+    },
+    {
+     "name": "AGhost",
+     "replyCount": 11,
+     "totalWords": 165,
+     "avgWords": 15.0,
+     "totalLikes": 2,
+     "avgLikes": 0.2,
+     "sents": {
+      "neu": 3,
+      "pos": 8
+     },
+     "intents": {
+      "praise": 6,
+      "question": 4,
+      "banter": 1
+     },
+     "topForm": "图片",
+     "first": "2026-04-22",
+     "last": "2026-07-09",
+     "samples": [
+      {
+       "text": "@Fleshlight ‼️‼️‼️‼️‼️‼️‼️‼️‼️‼️🥹\nShe did it! @EllyClutchxo is going to be a FleshlightGirl!! \n‼️‼️‼️‼️‼️‼️‼️‼️‼️‼️🥹\nThank you, @Fleshlight ! 🥹\n‼️‼️‼️‼️‼️💖💖💖💖💖‼️‼️‼️‼️‼️",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2049861375543939313"
+      },
+      {
+       "text": "@Fleshlight LEETSSSSS GOOOOOOOOOOOOOO!",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2046994406750777809"
+      }
+     ]
+    },
+    {
+     "name": "Dennis Generette",
+     "replyCount": 10,
+     "totalWords": 130,
+     "avgWords": 13.0,
+     "totalLikes": 4,
+     "avgLikes": 0.4,
+     "sents": {
+      "pos": 10
+     },
+     "intents": {
+      "praise": 10
+     },
+     "topForm": "视频",
+     "first": "2025-08-02",
+     "last": "2026-01-08",
+     "samples": [
+      {
+       "text": "@Fleshlight @KSLibraryGirl I like to borrow your pen 💗😁😍👑 love and a flashlight 😁💯",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2009077916873936922"
+      },
+      {
+       "text": "@Fleshlight @kayleygunner @KSLibraryGirl 🔥🔦 of course I love one of you flash like girls 🔦💯💗💗🍆💗💗",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1951502148904140935"
+      }
+     ]
+    },
+    {
+     "name": "Dada",
+     "replyCount": 9,
+     "totalWords": 50,
+     "avgWords": 5.6,
+     "totalLikes": 4,
+     "avgLikes": 0.4,
+     "sents": {
+      "neu": 9
+     },
+     "intents": {
+      "other": 5,
+      "banter": 2,
+      "question": 2
+     },
+     "topForm": "图片",
+     "first": "2026-02-01",
+     "last": "2026-04-23",
+     "samples": [
+      {
+       "text": "@Fleshlight @Jia_Lissa 's anal please.",
+       "likes": 4,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2047323279011287110"
+      },
+      {
+       "text": "@Fleshlight @imevesweet Please gift me this.",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2042885272485150728"
+      }
+     ]
+    },
+    {
+     "name": "JustForLurking87",
+     "replyCount": 8,
+     "totalWords": 114,
+     "avgWords": 14.2,
+     "totalLikes": 5,
+     "avgLikes": 0.6,
+     "sents": {
+      "neu": 5,
+      "neg": 2,
+      "pos": 1
+     },
+     "intents": {
+      "other": 5,
+      "complaint": 2,
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2026-03-14",
+     "last": "2026-04-25",
+     "samples": [
+      {
+       "text": "@Fleshlight @theemmamag Guess I’ll finally be getting Regal and whatever else is being offered!",
+       "likes": 2,
+       "lang": "en",
+       "sent": "neg",
+       "intent": "complaint",
+       "link": "https://x.com/i/status/2047849461318038003"
+      },
+      {
+       "text": "@Fleshlight Hope it isn’t “Elly Clutch”, that’s for sure.",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2047466103341789499"
+      }
+     ]
+    },
+    {
+     "name": "Aren Tumamait-Stenslie",
+     "replyCount": 8,
+     "totalWords": 28,
+     "avgWords": 3.5,
+     "totalLikes": 5,
+     "avgLikes": 0.6,
+     "sents": {
+      "pos": 8
+     },
+     "intents": {
+      "praise": 8
+     },
+     "topForm": "图片",
+     "first": "2026-01-11",
+     "last": "2026-05-20",
+     "samples": [
+      {
+       "text": "@Fleshlight @BonnieBlue_xoxo 🍆🍈😘❤️😋🤤🎂",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2052804208148300019"
+      },
+      {
+       "text": "@Fleshlight @BonnieBlue_xoxo 🤤😘❤️😍🍈🍈💙",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2057196899892109762"
+      }
+     ]
+    },
+    {
+     "name": "kayla f.",
+     "replyCount": 8,
+     "totalWords": 94,
+     "avgWords": 11.8,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 5,
+      "pos": 3
+     },
+     "intents": {
+      "banter": 2,
+      "praise": 2,
+      "other": 2,
+      "question": 2
+     },
+     "topForm": "图片",
+     "first": "2025-10-26",
+     "last": "2026-04-29",
+     "samples": [
+      {
+       "text": "@Fleshlight Finally another redhead 😁😁😁",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2049572597814198360"
+      },
+      {
+       "text": "@Fleshlight @rejaniced Yoo awesome drop! I loved the original can't wait to give @rejaniced's rear end a try, 😍😍😍",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1999330950183026906"
+      }
+     ]
+    },
+    {
+     "name": "JediAray",
+     "replyCount": 7,
+     "totalWords": 77,
+     "avgWords": 11.0,
+     "totalLikes": 17,
+     "avgLikes": 2.4,
+     "sents": {
+      "neu": 7
+     },
+     "intents": {
+      "banter": 4,
+      "request": 3
+     },
+     "topForm": "图片",
+     "first": "2025-11-25",
+     "last": "2026-07-07",
+     "samples": [
+      {
+       "text": "@Fleshlight Fleshlight! Give @connperignon a Fleshlight and my life is yours! https://t.co/gYhRWZDXpR",
+       "likes": 7,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2049859021146919152"
+      },
+      {
+       "text": "@Fleshlight @connperignon needs to be the next girl!!",
+       "likes": 3,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/2046986760731705456"
+      }
+     ]
+    },
+    {
+     "name": "Fellow",
+     "replyCount": 7,
+     "totalWords": 86,
+     "avgWords": 12.3,
+     "totalLikes": 3,
+     "avgLikes": 0.4,
+     "sents": {
+      "pos": 3,
+      "neu": 4
+     },
+     "intents": {
+      "request": 5,
+      "other": 2
+     },
+     "topForm": "视频",
+     "first": "2026-02-01",
+     "last": "2026-07-09",
+     "samples": [
+      {
+       "text": "@Fleshlight I would love to see some more real mainstream Chinese or especially Japanese porn stars as fleshlight models for future purchases. I hope this information gives your hiring staff some food",
+       "likes": 3,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2047002529574027587"
+      },
+      {
+       "text": "@Fleshlight @imevesweet Yayyyyyy fleshlight has something for me to want to purchase 😍🥰🔦!!!!",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2018066610599133587"
+      }
+     ]
+    },
+    {
+     "name": "Kenroy Cherrington",
+     "replyCount": 7,
+     "totalWords": 45,
+     "avgWords": 6.4,
+     "totalLikes": 2,
+     "avgLikes": 0.3,
+     "sents": {
+      "neu": 7
+     },
+     "intents": {
+      "other": 5,
+      "banter": 2
+     },
+     "topForm": "视频",
+     "first": "2026-01-12",
+     "last": "2026-01-17",
+     "samples": [
+      {
+       "text": "@Fleshlight @X3social @kazumisworld @TruKaitx @TheNicoleKitt @MaitlandWard @violetsaucy @AnaFoxxx @thejessicadrake @thegalritchie @blkblssm @theemmamag @mistystonexxx @vannabardot Copulate all",
+       "likes": 2,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2011135034774987192"
+      },
+      {
+       "text": "@Fleshlight @VickiChase DTF",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2010565904300384341"
+      }
+     ]
+    },
+    {
+     "name": "Albpaul",
+     "replyCount": 7,
+     "totalWords": 66,
+     "avgWords": 9.4,
+     "totalLikes": 1,
+     "avgLikes": 0.1,
+     "sents": {
+      "neu": 4,
+      "pos": 3
+     },
+     "intents": {
+      "other": 3,
+      "praise": 3,
+      "request": 1
+     },
+     "topForm": "视频",
+     "first": "2026-02-02",
+     "last": "2026-05-09",
+     "samples": [
+      {
+       "text": "@Fleshlight When is the new fleshlight dropping fleshlight please",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2048638583054217461"
+      },
+      {
+       "text": "@Fleshlight @EMMAHIX0FFIClAL 🔥🔥🔥🔥🔥🤪🤣❤️",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2018420695366279411"
+      }
+     ]
+    },
+    {
+     "name": "Gibson",
+     "replyCount": 7,
+     "totalWords": 35,
+     "avgWords": 5.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 7
+     },
+     "intents": {
+      "praise": 7
+     },
+     "topForm": "视频",
+     "first": "2026-01-10",
+     "last": "2026-01-10",
+     "samples": [
+      {
+       "text": "@Fleshlight @ValeNappi So sexy girl ❤️❤️",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2009947228329353370"
+      },
+      {
+       "text": "@Fleshlight @theemmamag So sexy girl ❤️❤️",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2009947848272687197"
+      }
+     ]
+    },
+    {
+     "name": "💜KawaiiGrin💙🔜OFFKAI :D",
+     "replyCount": 6,
+     "totalWords": 30,
+     "avgWords": 5.0,
+     "totalLikes": 32,
+     "avgLikes": 5.3,
+     "sents": {
+      "neu": 4,
+      "neg": 2
+     },
+     "intents": {
+      "banter": 4,
+      "complaint": 2
+     },
+     "topForm": "图片",
+     "first": "2026-05-06",
+     "last": "2026-05-08",
+     "samples": [
+      {
+       "text": "@Fleshlight omggg whos dat baddie &gt;///&lt; https://t.co/tFDfJO6ZlV",
+       "likes": 10,
+       "lang": "en",
+       "sent": "neg",
+       "intent": "complaint",
+       "link": "https://x.com/i/status/2052797600420835624"
+      },
+      {
+       "text": "@Fleshlight omggg whos dat baddie &gt;///&lt; https://t.co/tFDfJO6ZlV",
+       "likes": 10,
+       "lang": "en",
+       "sent": "neg",
+       "intent": "complaint",
+       "link": "https://x.com/i/status/2052797600420835624"
+      }
+     ]
+    },
+    {
+     "name": "Steven Winters",
+     "replyCount": 6,
+     "totalWords": 65,
+     "avgWords": 10.8,
+     "totalLikes": 25,
+     "avgLikes": 4.2,
+     "sents": {
+      "pos": 5,
+      "neu": 1
+     },
+     "intents": {
+      "praise": 5,
+      "other": 1
+     },
+     "topForm": "视频",
+     "first": "2025-09-16",
+     "last": "2026-04-06",
+     "samples": [
+      {
+       "text": "@Fleshlight @TheNicoleKitt @DillionHarper is the favorite ❤️ https://t.co/JY6iNfdv9w",
+       "likes": 8,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2041210011154546717"
+      },
+      {
+       "text": "@Fleshlight @evaangelina @TheNicoleKitt @vannabardot @LilveronicaR @peachygirlmomo @DillionHarper 👀☺️",
+       "likes": 2,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2015797705835000197"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "Hismith",
+   "replyCount": 706,
+   "userCount": 211,
+   "multiReplyUsers": 159,
+   "multiReplyShare": 75.4,
+   "avgRepliesPerUser": 3.35,
+   "totalLikes": 185,
+   "avgLikes": 0.3,
+   "sentiment": {
+    "neu": 439,
+    "pos": 262,
+    "neg": 5
+   },
+   "intents": {
+    "request": 461,
+    "other": 83,
+    "praise": 80,
+    "banter": 47,
+    "question": 30,
+    "complaint": 5
+   },
+   "wcLayers": {
+    "l1": 494,
+    "l2": 178,
+    "l3": 34
+   },
+   "engLayers": {
+    "heavy": 14,
+    "active": 50,
+    "light": 95,
+    "once": 52
+   },
+   "concentration": {
+    "top10Replies": 145,
+    "top10Share": 20.5,
+    "top1pctUsers": 2,
+    "top1pctReplies": 38,
+    "top1pctShare": 5.4
+   },
+   "topUsers": [
+    {
+     "name": "Alberto",
+     "replyCount": 19,
+     "totalWords": 123,
+     "avgWords": 6.5,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 19
+     },
+     "intents": {
+      "other": 17,
+      "request": 2
+     },
+     "topForm": "视频",
+     "first": "2025-08-26",
+     "last": "2026-06-05",
+     "samples": [
+      {
+       "text": "@OfficialHismith Das würde mir gefallen.",
+       "likes": 0,
+       "lang": "de",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2008445147647013223"
+      },
+      {
+       "text": "@OfficialHismith Ich würde Ihre Spielzeuge gerne testen.",
+       "likes": 0,
+       "lang": "de",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2034135322838372793"
+      }
+     ]
+    },
+    {
+     "name": "2INTROVERT POTHEADS NSFW✖️😼",
+     "replyCount": 19,
+     "totalWords": 46,
+     "avgWords": 2.4,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 11,
+      "pos": 8
+     },
+     "intents": {
+      "request": 18,
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2025-10-31",
+     "last": "2026-02-14",
+     "samples": [
+      {
+       "text": "@OfficialHismith I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2016166869548650856"
+      },
+      {
+       "text": "@OfficialHismith I'm interested!!",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/1994436530975445131"
+      }
+     ]
+    },
+    {
+     "name": "Missmyfreedom",
+     "replyCount": 17,
+     "totalWords": 37,
+     "avgWords": 2.2,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 11,
+      "pos": 6
+     },
+     "intents": {
+      "request": 16,
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2025-11-01",
+     "last": "2026-06-17",
+     "samples": [
+      {
+       "text": "@hismithglobal I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2062353426743435608"
+      },
+      {
+       "text": "@hismithglobal Interest dm",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2067070972268847489"
+      }
+     ]
+    },
+    {
+     "name": "mariphaa rokjh😍",
+     "replyCount": 14,
+     "totalWords": 31,
+     "avgWords": 2.2,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 11,
+      "pos": 3
+     },
+     "intents": {
+      "request": 14
+     },
+     "topForm": "视频",
+     "first": "2025-09-05",
+     "last": "2026-06-12",
+     "samples": [
+      {
+       "text": "@OfficialHismith Dm me",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/1983720245476077739"
+      },
+      {
+       "text": "@OfficialHismith Check your inbox",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/1982644093785354548"
+      }
+     ]
+    },
+    {
+     "name": "Miss Fetilicious",
+     "replyCount": 13,
+     "totalWords": 41,
+     "avgWords": 3.2,
+     "totalLikes": 8,
+     "avgLikes": 0.6,
+     "sents": {
+      "neu": 4,
+      "pos": 9
+     },
+     "intents": {
+      "praise": 9,
+      "banter": 4
+     },
+     "topForm": "图片",
+     "first": "2025-08-29",
+     "last": "2025-12-17",
+     "samples": [
+      {
+       "text": "@OfficialHismith Wow! 😮  This is awesome! 🤩",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1968346368495501810"
+      },
+      {
+       "text": "@OfficialHismith Wonderful machines indeed! ❤️😜👍🏻",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2000625785187516540"
+      }
+     ]
+    },
+    {
+     "name": "Kansas City Chiefs💋🌵🎈",
+     "replyCount": 13,
+     "totalWords": 44,
+     "avgWords": 3.4,
+     "totalLikes": 2,
+     "avgLikes": 0.2,
+     "sents": {
+      "neu": 7,
+      "pos": 6
+     },
+     "intents": {
+      "request": 11,
+      "other": 2
+     },
+     "topForm": "图片",
+     "first": "2025-10-21",
+     "last": "2026-01-29",
+     "samples": [
+      {
+       "text": "@OfficialHismith I want to try one.",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/2012893740302758031"
+      },
+      {
+       "text": "@OfficialHismith I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2016754988853449151"
+      }
+     ]
+    },
+    {
+     "name": "Ariana Lopes",
+     "replyCount": 13,
+     "totalWords": 38,
+     "avgWords": 2.9,
+     "totalLikes": 2,
+     "avgLikes": 0.2,
+     "sents": {
+      "neu": 4,
+      "pos": 9
+     },
+     "intents": {
+      "request": 12,
+      "other": 1
+     },
+     "topForm": "视频",
+     "first": "2025-10-22",
+     "last": "2026-05-20",
+     "samples": [
+      {
+       "text": "@OfficialHismith I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2032867745633857540"
+      },
+      {
+       "text": "@OfficialHismith Please reply me",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/1998232069189808615"
+      }
+     ]
+    },
+    {
+     "name": "Kennedy Angel Chicago🎈🌵",
+     "replyCount": 13,
+     "totalWords": 32,
+     "avgWords": 2.5,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 8,
+      "pos": 5
+     },
+     "intents": {
+      "request": 12,
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2025-12-09",
+     "last": "2026-03-11",
+     "samples": [
+      {
+       "text": "@OfficialHismith I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/1998245586131431656"
+      },
+      {
+       "text": "@OfficialHismith I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/1999539683181605181"
+      }
+     ]
+    },
+    {
+     "name": "RubbrDoll",
+     "replyCount": 12,
+     "totalWords": 88,
+     "avgWords": 7.3,
+     "totalLikes": 2,
+     "avgLikes": 0.2,
+     "sents": {
+      "pos": 9,
+      "neu": 3
+     },
+     "intents": {
+      "praise": 9,
+      "request": 2,
+      "banter": 1
+     },
+     "topForm": "图片",
+     "first": "2026-02-11",
+     "last": "2026-07-03",
+     "samples": [
+      {
+       "text": "@OfficialHismith This new one looks amazing compared to the first",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2021624672773931196"
+      },
+      {
+       "text": "@OfficialHismith Bottom right looks amazing",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2037471674816221566"
+      }
+     ]
+    },
+    {
+     "name": "Scarlet♡🏳️‍🌈 met David + Jared♡🌵💦",
+     "replyCount": 12,
+     "totalWords": 24,
+     "avgWords": 2.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 12
+     },
+     "intents": {
+      "request": 12
+     },
+     "topForm": "图片",
+     "first": "2025-10-20",
+     "last": "2026-01-06",
+     "samples": []
+    },
+    {
+     "name": "Strawberry 🍓 fts available",
+     "replyCount": 11,
+     "totalWords": 45,
+     "avgWords": 4.1,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 6,
+      "pos": 5
+     },
+     "intents": {
+      "request": 11
+     },
+     "topForm": "视频",
+     "first": "2026-01-05",
+     "last": "2026-03-24",
+     "samples": [
+      {
+       "text": "@OfficialHismith Interested dm me i wanna try",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2013442151523459252"
+      },
+      {
+       "text": "@OfficialHismith I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2016449254597054836"
+      }
+     ]
+    },
+    {
+     "name": "Ana Marys osorio",
+     "replyCount": 11,
+     "totalWords": 24,
+     "avgWords": 2.2,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 9,
+      "pos": 2
+     },
+     "intents": {
+      "request": 10,
+      "praise": 1
+     },
+     "topForm": "视频",
+     "first": "2025-08-13",
+     "last": "2026-06-16",
+     "samples": [
+      {
+       "text": "@hismithglobal I m interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2062078740881174650"
+      }
+     ]
+    },
+    {
+     "name": "Your favourite side dude FMTY (haitus)🐻‍❄️👅",
+     "replyCount": 10,
+     "totalWords": 36,
+     "avgWords": 3.6,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 9,
+      "neu": 1
+     },
+     "intents": {
+      "request": 10
+     },
+     "topForm": "视频",
+     "first": "2026-01-04",
+     "last": "2026-05-20",
+     "samples": [
+      {
+       "text": "@OfficialHismith I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2008164357935706341"
+      },
+      {
+       "text": "@OfficialHismith I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2034465080700706932"
+      }
+     ]
+    },
+    {
+     "name": "evelyn (eve)|| 🐻‍❄️ has brown eyes rizz 💋🔞",
+     "replyCount": 10,
+     "totalWords": 23,
+     "avgWords": 2.3,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 5,
+      "neu": 5
+     },
+     "intents": {
+      "request": 10
+     },
+     "topForm": "视频",
+     "first": "2025-12-10",
+     "last": "2026-03-25",
+     "samples": [
+      {
+       "text": "@OfficialHismith I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2005901915872452712"
+      },
+      {
+       "text": "@OfficialHismith I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/1998635116663636120"
+      }
+     ]
+    },
+    {
+     "name": "C. Lunara Lilith☆",
+     "replyCount": 9,
+     "totalWords": 19,
+     "avgWords": 2.1,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 8,
+      "pos": 1
+     },
+     "intents": {
+      "request": 9
+     },
+     "topForm": "视频",
+     "first": "2025-09-08",
+     "last": "2026-01-31",
+     "samples": [
+      {
+       "text": "@OfficialHismith I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/1985655002455818700"
+      }
+     ]
+    },
+    {
+     "name": "GOTH AREOLA_on 🕸️",
+     "replyCount": 9,
+     "totalWords": 30,
+     "avgWords": 3.3,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 2,
+      "neu": 7
+     },
+     "intents": {
+      "request": 7,
+      "question": 2
+     },
+     "topForm": "图片",
+     "first": "2025-11-28",
+     "last": "2025-12-18",
+     "samples": [
+      {
+       "text": "@OfficialHismith I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/1994314042941620733"
+      },
+      {
+       "text": "@OfficialHismith I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2001525817734795296"
+      }
+     ]
+    },
+    {
+     "name": "Eduardo😈&Excalibur",
+     "replyCount": 8,
+     "totalWords": 33,
+     "avgWords": 4.1,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 7,
+      "pos": 1
+     },
+     "intents": {
+      "request": 7,
+      "other": 1
+     },
+     "topForm": "视频",
+     "first": "2025-07-31",
+     "last": "2026-04-22",
+     "samples": [
+      {
+       "text": "@OfficialHismith I'm interested in sex machine",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2009700295186756055"
+      },
+      {
+       "text": "@OfficialHismith Ich würde gerne deine Spielzeuge testen",
+       "likes": 0,
+       "lang": "de",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2046860871314628848"
+      }
+     ]
+    },
+    {
+     "name": "$Drsumayyah Bi (63℅)👑😈",
+     "replyCount": 8,
+     "totalWords": 16,
+     "avgWords": 2.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 8
+     },
+     "intents": {
+      "request": 8
+     },
+     "topForm": "视频",
+     "first": "2025-11-09",
+     "last": "2026-02-02",
+     "samples": []
+    },
+    {
+     "name": "Beny Yare HcLove18+💗❤️‍🔥",
+     "replyCount": 8,
+     "totalWords": 44,
+     "avgWords": 5.5,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 5,
+      "pos": 3
+     },
+     "intents": {
+      "request": 5,
+      "question": 3
+     },
+     "topForm": "视频",
+     "first": "2025-07-15",
+     "last": "2026-01-28",
+     "samples": [
+      {
+       "text": "@OfficialHismith Yes i am interested to order and reviews",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/1962791761820164394"
+      },
+      {
+       "text": "@OfficialHismith Pls make a Dm",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/1944917278912598151"
+      }
+     ]
+    },
+    {
+     "name": "Benchmark Bussy",
+     "replyCount": 7,
+     "totalWords": 156,
+     "avgWords": 22.3,
+     "totalLikes": 12,
+     "avgLikes": 1.7,
+     "sents": {
+      "neg": 2,
+      "neu": 5
+     },
+     "intents": {
+      "request": 4,
+      "complaint": 2,
+      "question": 1
+     },
+     "topForm": "视频",
+     "first": "2025-09-08",
+     "last": "2026-02-11",
+     "samples": [
+      {
+       "text": "@OfficialHismith Yeah I need that so bad!!! I’ve been using mine with my sling and this would come in handy! I especially love that you can adjust the tilt now. My old stand couldn’t do that. Keep up ",
+       "likes": 3,
+       "lang": "en",
+       "sent": "neg",
+       "intent": "complaint",
+       "link": "https://x.com/i/status/1965040127564230793"
+      },
+      {
+       "text": "@OfficialHismith We need a machine emoji lol",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/2005659432227848394"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "Kiiroo",
+   "replyCount": 176,
+   "userCount": 48,
+   "multiReplyUsers": 48,
+   "multiReplyShare": 100.0,
+   "avgRepliesPerUser": 3.67,
+   "totalLikes": 174,
+   "avgLikes": 1.0,
+   "sentiment": {
+    "pos": 70,
+    "neu": 102,
+    "neg": 4
+   },
+   "intents": {
+    "praise": 60,
+    "banter": 56,
+    "other": 30,
+    "request": 16,
+    "question": 10,
+    "complaint": 4
+   },
+   "wcLayers": {
+    "l2": 74,
+    "l1": 78,
+    "l3": 22,
+    "l4": 2
+   },
+   "engLayers": {
+    "heavy": 3,
+    "active": 10,
+    "light": 35
+   },
+   "concentration": {
+    "top10Replies": 94,
+    "top10Share": 53.4,
+    "top1pctUsers": 1,
+    "top1pctReplies": 30,
+    "top1pctShare": 17.0
+   },
+   "topUsers": [
+    {
+     "name": "Mason Harris",
+     "replyCount": 30,
+     "totalWords": 396,
+     "avgWords": 13.2,
+     "totalLikes": 20,
+     "avgLikes": 0.7,
+     "sents": {
+      "neu": 20,
+      "pos": 10
+     },
+     "intents": {
+      "banter": 10,
+      "request": 8,
+      "other": 6,
+      "praise": 6
+     },
+     "topForm": "图片",
+     "first": "2025-09-17",
+     "last": "2026-04-03",
+     "samples": [
+      {
+       "text": "@Kiiroo Oooh it’s Luxy Dutch xx",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2040110408325902827"
+      },
+      {
+       "text": "@Kiiroo Victoria June 😈",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2040109924676423752"
+      }
+     ]
+    },
+    {
+     "name": "tanyatate",
+     "replyCount": 14,
+     "totalWords": 64,
+     "avgWords": 4.6,
+     "totalLikes": 74,
+     "avgLikes": 5.3,
+     "sents": {
+      "neu": 12,
+      "pos": 2
+     },
+     "intents": {
+      "banter": 8,
+      "request": 2,
+      "other": 2,
+      "praise": 2
+     },
+     "topForm": "引用转发",
+     "first": "2026-03-31",
+     "last": "2026-07-05",
+     "samples": [
+      {
+       "text": "@Kiiroo @castlemegastore Can't wait! 😘",
+       "likes": 8,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2062644928694694132"
+      },
+      {
+       "text": "@Kiiroo You know that you want me every every single day 😈😈",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/2039064715205419026"
+      }
+     ]
+    },
+    {
+     "name": "Silver Meridian X",
+     "replyCount": 12,
+     "totalWords": 38,
+     "avgWords": 3.2,
+     "totalLikes": 14,
+     "avgLikes": 1.2,
+     "sents": {
+      "pos": 2,
+      "neu": 10
+     },
+     "intents": {
+      "banter": 8,
+      "praise": 2,
+      "other": 2
+     },
+     "topForm": "GIF",
+     "first": "2026-03-18",
+     "last": "2026-04-02",
+     "samples": [
+      {
+       "text": "@Kiiroo The Bonnie Blue Fleshlight is holding up well. (2 months)",
+       "likes": 2,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2037584290788278620"
+      },
+      {
+       "text": "@Kiiroo @CoryChaseXXX &amp; @KrystalSparks",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2034801900244382132"
+      }
+     ]
+    },
+    {
+     "name": "Alex",
+     "replyCount": 8,
+     "totalWords": 36,
+     "avgWords": 4.5,
+     "totalLikes": 4,
+     "avgLikes": 0.5,
+     "sents": {
+      "neu": 6,
+      "pos": 2
+     },
+     "intents": {
+      "banter": 2,
+      "question": 2,
+      "praise": 2,
+      "other": 2
+     },
+     "topForm": "图片",
+     "first": "2026-04-03",
+     "last": "2026-04-16",
+     "samples": [
+      {
+       "text": "@Kiiroo Is it possible to work  for you ?",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "question",
+       "link": "https://x.com/i/status/2040153783431286884"
+      },
+      {
+       "text": "@Kiiroo It sounds amazing",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2043754600847556831"
+      }
+     ]
+    },
+    {
+     "name": "Steve Argue",
+     "replyCount": 6,
+     "totalWords": 80,
+     "avgWords": 13.3,
+     "totalLikes": 2,
+     "avgLikes": 0.3,
+     "sents": {
+      "pos": 4,
+      "neu": 2
+     },
+     "intents": {
+      "praise": 4,
+      "banter": 2
+     },
+     "topForm": "图片",
+     "first": "2026-01-24",
+     "last": "2026-05-12",
+     "samples": [
+      {
+       "text": "@Kiiroo @MissLacyLennon My feelstar @MissLacyLennon stroker is one of my most prized possessions",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2015131470554169779"
+      },
+      {
+       "text": "@Kiiroo @MissLacyLennon @MissLacyLennon’s feel Lacy stroker is genuinely the best I’ve ever used",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2054215176199471605"
+      }
+     ]
+    },
+    {
+     "name": "PREMIUM studio",
+     "replyCount": 6,
+     "totalWords": 78,
+     "avgWords": 13.0,
+     "totalLikes": 2,
+     "avgLikes": 0.3,
+     "sents": {
+      "pos": 4,
+      "neu": 2
+     },
+     "intents": {
+      "praise": 4,
+      "other": 2
+     },
+     "topForm": "图片",
+     "first": "2025-09-09",
+     "last": "2025-09-14",
+     "samples": [
+      {
+       "text": "@Kiiroo Zero filters sounds like the perfect formula for maximum entertainment 👀",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1966739057448243221"
+      },
+      {
+       "text": "@Kiiroo Bold and fiery in every sense -\n that’s one way to turn a story into an experience. 🔥",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1967060777505853934"
+      }
+     ]
+    },
+    {
+     "name": "dannah liza",
+     "replyCount": 6,
+     "totalWords": 54,
+     "avgWords": 9.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 6
+     },
+     "intents": {
+      "other": 6
+     },
+     "topForm": "图片",
+     "first": "2025-07-11",
+     "last": "2025-07-11",
+     "samples": [
+      {
+       "text": "@Kiiroo @LaurenFillsUp @skylerlo_ @Britney_Amber @CallMeMissMolly Connect with me on feelconnect lizadebby",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/1943792587044725104"
+      },
+      {
+       "text": "@Kiiroo @thekenzietaylor Connect with me on feelconnect lizadebby",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/1943792918394765761"
+      }
+     ]
+    },
+    {
+     "name": "CHLOEY",
+     "replyCount": 4,
+     "totalWords": 64,
+     "avgWords": 16.0,
+     "totalLikes": 8,
+     "avgLikes": 2.0,
+     "sents": {
+      "pos": 4
+     },
+     "intents": {
+      "praise": 4
+     },
+     "topForm": "GIF",
+     "first": "2025-08-07",
+     "last": "2025-08-07",
+     "samples": [
+      {
+       "text": "@Kiiroo My #AnalAugust fantasy includes one of my fans telling me to put my Lumen Plug in and Tipping me to make it vibrate like crazy until I can't stop cumming 🤤😍",
+       "likes": 2,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1953558565006061765"
+      },
+      {
+       "text": "@Kiiroo My #AnalAugust fantasy includes one of my fans telling me to put my Lumen Plug in and Tipping me to make it vibrate like crazy until I can't stop cumming 🤤😍",
+       "likes": 2,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1953558565006061765"
+      }
+     ]
+    },
+    {
+     "name": "Travel Jack",
+     "replyCount": 4,
+     "totalWords": 204,
+     "avgWords": 51.0,
+     "totalLikes": 4,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 2,
+      "neg": 2
+     },
+     "intents": {
+      "request": 2,
+      "complaint": 2
+     },
+     "topForm": "图片",
+     "first": "2026-06-06",
+     "last": "2026-06-11",
+     "samples": [
+      {
+       "text": "@Kiiroo Why I'm NOT buying Keon 2:\n\n1) It appears that I can't use it with the hands-free Pillow accessory that I already own for the OG Keon.\n\n2) Price point.  If I need a desk-clamp anyway for hands",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/2064998029527335361"
+      },
+      {
+       "text": "@Kiiroo It appears I won't be able to use this with the hands-free pillow accessory, which is disappointing.  I lie down on the couch, and I don't sit behind a desk so a desk clamp is useless.  I'll p",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neg",
+       "intent": "complaint",
+       "link": "https://x.com/i/status/2063249770945425453"
+      }
+     ]
+    },
+    {
+     "name": "DollsWorldsFR",
+     "replyCount": 4,
+     "totalWords": 20,
+     "avgWords": 5.0,
+     "totalLikes": 2,
+     "avgLikes": 0.5,
+     "sents": {
+      "pos": 2,
+      "neu": 2
+     },
+     "intents": {
+      "praise": 2,
+      "question": 2
+     },
+     "topForm": "图片",
+     "first": "2026-04-03",
+     "last": "2026-05-16",
+     "samples": [
+      {
+       "text": "@Kiiroo It's @TanyaTate #FeelStar no? @Kiiroo",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "question",
+       "link": "https://x.com/i/status/2040059257182106074"
+      },
+      {
+       "text": "@Kiiroo @MissLacyLennon Excellent news, 🎁🥰",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2055590301163458997"
+      }
+     ]
+    },
+    {
+     "name": "Kylie Marco",
+     "replyCount": 4,
+     "totalWords": 26,
+     "avgWords": 6.5,
+     "totalLikes": 2,
+     "avgLikes": 0.5,
+     "sents": {
+      "pos": 4
+     },
+     "intents": {
+      "praise": 4
+     },
+     "topForm": "视频",
+     "first": "2026-01-27",
+     "last": "2026-03-24",
+     "samples": [
+      {
+       "text": "@Kiiroo @KiirooTV @skylerlo_ Happy birthday beautiful! x",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2036546709220679819"
+      },
+      {
+       "text": "@Kiiroo @KiirooTV @skylerlo_ Happy birthday beautiful! x",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2036546709220679819"
+      }
+     ]
+    },
+    {
+     "name": "The Complex",
+     "replyCount": 4,
+     "totalWords": 114,
+     "avgWords": 28.5,
+     "totalLikes": 2,
+     "avgLikes": 0.5,
+     "sents": {
+      "neu": 2,
+      "pos": 2
+     },
+     "intents": {
+      "banter": 2,
+      "praise": 2
+     },
+     "topForm": "图片",
+     "first": "2026-01-16",
+     "last": "2026-01-17",
+     "samples": [
+      {
+       "text": "@Kiiroo Exactly.\nReal-time reaction changes everything — especially when interaction isn’t just visual, but systemic.\nWhen the toy responds to pressure, timing, and decisions, retention becomes a cons",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2012241305628209604"
+      },
+      {
+       "text": "@Kiiroo Exactly.\nReal-time reaction changes everything — especially when interaction isn’t just visual, but systemic.\nWhen the toy responds to pressure, timing, and decisions, retention becomes a cons",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2012241305628209604"
+      }
+     ]
+    },
+    {
+     "name": "MAX MAX",
+     "replyCount": 4,
+     "totalWords": 12,
+     "avgWords": 3.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 4
+     },
+     "intents": {
+      "banter": 4
+     },
+     "topForm": "引用转发",
+     "first": "2026-07-06",
+     "last": "2026-07-06",
+     "samples": [
+      {
+       "text": "@Kiiroo You're Stunning",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2073939100613128336"
+      },
+      {
+       "text": "@Kiiroo You're Stunning",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2073938802813321440"
+      }
+     ]
+    },
+    {
+     "name": "SgtFoxx",
+     "replyCount": 2,
+     "totalWords": 6,
+     "avgWords": 3.0,
+     "totalLikes": 4,
+     "avgLikes": 2.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "banter": 2
+     },
+     "topForm": "GIF",
+     "first": "2026-03-21",
+     "last": "2026-03-21",
+     "samples": [
+      {
+       "text": "@Kiiroo @TheReaganFoxx @CallMeMissMolly",
+       "likes": 2,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2035416267289510163"
+      },
+      {
+       "text": "@Kiiroo @TheReaganFoxx @CallMeMissMolly",
+       "likes": 2,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2035416267289510163"
+      }
+     ]
+    },
+    {
+     "name": "LeNair Xavier",
+     "replyCount": 2,
+     "totalWords": 60,
+     "avgWords": 30.0,
+     "totalLikes": 4,
+     "avgLikes": 2.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "other": 2
+     },
+     "topForm": "图片",
+     "first": "2026-03-27",
+     "last": "2026-03-27",
+     "samples": [
+      {
+       "text": "@Kiiroo Of all the sleeves you guys have sent to me over the years, the most used and still going strong since its release is the EXTRA TIGHT BUTT SLEEVE.",
+       "likes": 2,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2037674606023041340"
+      },
+      {
+       "text": "@Kiiroo Of all the sleeves you guys have sent to me over the years, the most used and still going strong since its release is the EXTRA TIGHT BUTT SLEEVE.",
+       "likes": 2,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2037674606023041340"
+      }
+     ]
+    },
+    {
+     "name": "Dom R Lover",
+     "replyCount": 2,
+     "totalWords": 10,
+     "avgWords": 5.0,
+     "totalLikes": 4,
+     "avgLikes": 2.0,
+     "sents": {
+      "pos": 2
+     },
+     "intents": {
+      "request": 2
+     },
+     "topForm": "图片",
+     "first": "2026-03-25",
+     "last": "2026-03-25",
+     "samples": [
+      {
+       "text": "@Kiiroo Daddy needs this @adamsanerof 😍",
+       "likes": 2,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2036857701431386485"
+      },
+      {
+       "text": "@Kiiroo Daddy needs this @adamsanerof 😍",
+       "likes": 2,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2036857701431386485"
+      }
+     ]
+    },
+    {
+     "name": "Saint Rizz",
+     "replyCount": 2,
+     "totalWords": 2,
+     "avgWords": 1.0,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "banter": 2
+     },
+     "topForm": "图片",
+     "first": "2026-04-11",
+     "last": "2026-04-11",
+     "samples": []
+    },
+    {
+     "name": "ChankWood",
+     "replyCount": 2,
+     "totalWords": 4,
+     "avgWords": 2.0,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "banter": 2
+     },
+     "topForm": "图片",
+     "first": "2026-04-12",
+     "last": "2026-04-12",
+     "samples": []
+    },
+    {
+     "name": "Viktor Golubev",
+     "replyCount": 2,
+     "totalWords": 6,
+     "avgWords": 3.0,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "pos": 2
+     },
+     "intents": {
+      "praise": 2
+     },
+     "topForm": "引用转发",
+     "first": "2026-06-05",
+     "last": "2026-06-05",
+     "samples": [
+      {
+       "text": "@Kiiroo @TanyaTate @castlemegastore 🔥🔥🔥💋♥️",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2062799699040497735"
+      },
+      {
+       "text": "@Kiiroo @TanyaTate @castlemegastore 🔥🔥🔥💋♥️",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2062799699040497735"
+      }
+     ]
+    },
+    {
+     "name": "Vetchy",
+     "replyCount": 2,
+     "totalWords": 10,
+     "avgWords": 5.0,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "banter": 2
+     },
+     "topForm": "视频",
+     "first": "2026-04-17",
+     "last": "2026-04-17",
+     "samples": [
+      {
+       "text": "@Kiiroo Those lips look incredible!",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2045023465036447850"
+      },
+      {
+       "text": "@Kiiroo Those lips look incredible!",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2045023465036447850"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "LELO",
+   "replyCount": 58,
+   "userCount": 24,
+   "multiReplyUsers": 24,
+   "multiReplyShare": 100.0,
+   "avgRepliesPerUser": 2.42,
+   "totalLikes": 32,
+   "avgLikes": 0.6,
+   "sentiment": {
+    "neu": 38,
+    "pos": 20
+   },
+   "intents": {
+    "banter": 16,
+    "other": 16,
+    "praise": 14,
+    "question": 8,
+    "request": 4
+   },
+   "wcLayers": {
+    "l2": 26,
+    "l1": 20,
+    "l3": 12
+   },
+   "engLayers": {
+    "active": 4,
+    "light": 20
+   },
+   "concentration": {
+    "top10Replies": 30,
+    "top10Share": 51.7,
+    "top1pctUsers": 1,
+    "top1pctReplies": 6,
+    "top1pctShare": 10.3
+   },
+   "topUsers": [
+    {
+     "name": "PandaQuantAI",
+     "replyCount": 6,
+     "totalWords": 90,
+     "avgWords": 15.0,
+     "totalLikes": 4,
+     "avgLikes": 0.7,
+     "sents": {
+      "neu": 2,
+      "pos": 4
+     },
+     "intents": {
+      "praise": 4,
+      "other": 2
+     },
+     "topForm": "图片",
+     "first": "2026-01-21",
+     "last": "2026-02-16",
+     "samples": [
+      {
+       "text": "@lelo_official Well said. Take 2 minutes to breathe deeply and focus on the sensation of your feet touching the ground",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2015557763078733941"
+      },
+      {
+       "text": "@lelo_official Love the importance you place on self-love and wellness!",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2014058235800457479"
+      }
+     ]
+    },
+    {
+     "name": "Lunoria",
+     "replyCount": 4,
+     "totalWords": 24,
+     "avgWords": 6.0,
+     "totalLikes": 2,
+     "avgLikes": 0.5,
+     "sents": {
+      "neu": 2,
+      "pos": 2
+     },
+     "intents": {
+      "banter": 2,
+      "praise": 2
+     },
+     "topForm": "图片",
+     "first": "2026-06-20",
+     "last": "2026-06-28",
+     "samples": [
+      {
+       "text": "@lelo_official The design looks incredible. 💜",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2068276586575491101"
+      },
+      {
+       "text": "@lelo_official The design looks incredible. 💜",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2068276586575491101"
+      }
+     ]
+    },
+    {
+     "name": "MzRevolutzi",
+     "replyCount": 4,
+     "totalWords": 8,
+     "avgWords": 2.0,
+     "totalLikes": 2,
+     "avgLikes": 0.5,
+     "sents": {
+      "neu": 4
+     },
+     "intents": {
+      "banter": 4
+     },
+     "topForm": "视频",
+     "first": "2025-11-30",
+     "last": "2025-11-30",
+     "samples": []
+    },
+    {
+     "name": "Mia Carter",
+     "replyCount": 4,
+     "totalWords": 86,
+     "avgWords": 21.5,
+     "totalLikes": 2,
+     "avgLikes": 0.5,
+     "sents": {
+      "pos": 4
+     },
+     "intents": {
+      "question": 4
+     },
+     "topForm": "图片",
+     "first": "2026-07-02",
+     "last": "2026-07-04",
+     "samples": [
+      {
+       "text": "@lelo_official A DEBUT?? INA Thrust really walked in and said move over everybody 😤💜 We are NOT ready but we are READY ready 🔥💯",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "question",
+       "link": "https://x.com/i/status/2072641288717873558"
+      },
+      {
+       "text": "@lelo_official A DEBUT?? INA Thrust really walked in and said move over everybody 😤💜 We are NOT ready but we are READY ready 🔥💯",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "question",
+       "link": "https://x.com/i/status/2072641288717873558"
+      }
+     ]
+    },
+    {
+     "name": "Kiki",
+     "replyCount": 2,
+     "totalWords": 10,
+     "avgWords": 5.0,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "pos": 2
+     },
+     "intents": {
+      "praise": 2
+     },
+     "topForm": "视频",
+     "first": "2025-10-18",
+     "last": "2025-10-18",
+     "samples": [
+      {
+       "text": "@lelo_official Love this hehehe 🖤🖤",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1979348298462040563"
+      },
+      {
+       "text": "@lelo_official Love this hehehe 🖤🖤",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1979348298462040563"
+      }
+     ]
+    },
+    {
+     "name": "🍀👑 SHLAMA 👑🍀",
+     "replyCount": 2,
+     "totalWords": 74,
+     "avgWords": 37.0,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "pos": 2
+     },
+     "intents": {
+      "praise": 2
+     },
+     "topForm": "视频",
+     "first": "2025-08-20",
+     "last": "2025-08-20",
+     "samples": [
+      {
+       "text": "@lelo_official LELO should make a move to become the “official sex toy” of the #WNBA. \n\nDo it publicly and the PR will go through the roof! \n\nEspecially if the league rebukes it !\nPeople will love it ",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1958085600399003982"
+      },
+      {
+       "text": "@lelo_official LELO should make a move to become the “official sex toy” of the #WNBA. \n\nDo it publicly and the PR will go through the roof! \n\nEspecially if the league rebukes it !\nPeople will love it ",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1958085600399003982"
+      }
+     ]
+    },
+    {
+     "name": "eMc",
+     "replyCount": 2,
+     "totalWords": 4,
+     "avgWords": 2.0,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "banter": 2
+     },
+     "topForm": "图片",
+     "first": "2025-08-08",
+     "last": "2025-08-08",
+     "samples": []
+    },
+    {
+     "name": "Chloe Aroha",
+     "replyCount": 2,
+     "totalWords": 26,
+     "avgWords": 13.0,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "other": 2
+     },
+     "topForm": "图片",
+     "first": "2026-07-02",
+     "last": "2026-07-02",
+     "samples": [
+      {
+       "text": "@lelo_official A rabbit toy's first thrusting era — the confetti is well earned 🎉💜",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2072474593093423418"
+      },
+      {
+       "text": "@lelo_official A rabbit toy's first thrusting era — the confetti is well earned 🎉💜",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2072474593093423418"
+      }
+     ]
+    },
+    {
+     "name": "Adrien Conte",
+     "replyCount": 2,
+     "totalWords": 24,
+     "avgWords": 12.0,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "other": 2
+     },
+     "topForm": "图片",
+     "first": "2026-04-25",
+     "last": "2026-04-25",
+     "samples": [
+      {
+       "text": "@lelo_official An open attitude towards toys is a MAJOR green flag.",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2048153620135186568"
+      },
+      {
+       "text": "@lelo_official An open attitude towards toys is a MAJOR green flag.",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2048153620135186568"
+      }
+     ]
+    },
+    {
+     "name": "Wolvara Wink",
+     "replyCount": 2,
+     "totalWords": 10,
+     "avgWords": 5.0,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "request": 2
+     },
+     "topForm": "图片",
+     "first": "2026-01-23",
+     "last": "2026-01-23",
+     "samples": [
+      {
+       "text": "@lelo_official it's 8pm somewhere 🤭",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/2014766354075709662"
+      },
+      {
+       "text": "@lelo_official it's 8pm somewhere 🤭",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/2014766354075709662"
+      }
+     ]
+    },
+    {
+     "name": "Angel",
+     "replyCount": 2,
+     "totalWords": 12,
+     "avgWords": 6.0,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "request": 2
+     },
+     "topForm": "图片",
+     "first": "2025-07-25",
+     "last": "2025-07-25",
+     "samples": [
+      {
+       "text": "@lelo_official i want one daddy",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/1948806040549720083"
+      },
+      {
+       "text": "@lelo_official i want one daddy",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/1948806040549720083"
+      }
+     ]
+    },
+    {
+     "name": "iamthatlady",
+     "replyCount": 2,
+     "totalWords": 28,
+     "avgWords": 14.0,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "banter": 2
+     },
+     "topForm": "图片",
+     "first": "2026-06-16",
+     "last": "2026-06-16",
+     "samples": [
+      {
+       "text": "@lelo_official the lady-coded take: yes, give us the technical specs.  we read.",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2066892495364268239"
+      },
+      {
+       "text": "@lelo_official the lady-coded take: yes, give us the technical specs.  we read.",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2066892495364268239"
+      }
+     ]
+    },
+    {
+     "name": "Metamask",
+     "replyCount": 2,
+     "totalWords": 42,
+     "avgWords": 21.0,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "other": 2
+     },
+     "topForm": "视频",
+     "first": "2025-09-16",
+     "last": "2025-09-16",
+     "samples": [
+      {
+       "text": "@lelo_official This has to be the purest and most elevated type of ultimate Ragebait and Copebait ever recorded in history.",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/1967843479121547275"
+      },
+      {
+       "text": "@lelo_official This has to be the purest and most elevated type of ultimate Ragebait and Copebait ever recorded in history.",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/1967843479121547275"
+      }
+     ]
+    },
+    {
+     "name": "drunk dragons",
+     "replyCount": 2,
+     "totalWords": 20,
+     "avgWords": 10.0,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "other": 2
+     },
+     "topForm": "视频",
+     "first": "2025-08-04",
+     "last": "2025-08-04",
+     "samples": [
+      {
+       "text": "@lelo_official cancelling the function to jerk off is crazy😭",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/1952404260576014757"
+      },
+      {
+       "text": "@lelo_official cancelling the function to jerk off is crazy😭",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/1952404260576014757"
+      }
+     ]
+    },
+    {
+     "name": "LNcouple",
+     "replyCount": 2,
+     "totalWords": 16,
+     "avgWords": 8.0,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "other": 2
+     },
+     "topForm": "图片",
+     "first": "2025-12-30",
+     "last": "2025-12-30",
+     "samples": [
+      {
+       "text": "@lelo_official Taking it slow really changes everything 🧡",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2006091743842664462"
+      },
+      {
+       "text": "@lelo_official Taking it slow really changes everything 🧡",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2006091743842664462"
+      }
+     ]
+    },
+    {
+     "name": "ZOZO-Custom Furniture",
+     "replyCount": 2,
+     "totalWords": 4,
+     "avgWords": 2.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "banter": 2
+     },
+     "topForm": "视频",
+     "first": "2025-11-22",
+     "last": "2025-11-22",
+     "samples": []
+    },
+    {
+     "name": "Neomi me",
+     "replyCount": 2,
+     "totalWords": 6,
+     "avgWords": 3.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 2
+     },
+     "intents": {
+      "praise": 2
+     },
+     "topForm": "图片",
+     "first": "2025-09-23",
+     "last": "2025-09-23",
+     "samples": [
+      {
+       "text": "@lelo_official nicee",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1970482366222344661"
+      },
+      {
+       "text": "@lelo_official nicee",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1970482366222344661"
+      }
+     ]
+    },
+    {
+     "name": "EchomeAI",
+     "replyCount": 2,
+     "totalWords": 62,
+     "avgWords": 31.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 2
+     },
+     "intents": {
+      "question": 2
+     },
+     "topForm": "图片",
+     "first": "2026-05-25",
+     "last": "2026-05-25",
+     "samples": [
+      {
+       "text": "@lelo_official Are you interested in testing an AI App that coulld control most of these toys?  It is Paid! drop us an email for more details: echomeai.io@gmail.com.",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "question",
+       "link": "https://x.com/i/status/2058902743427743964"
+      },
+      {
+       "text": "@lelo_official Are you interested in testing an AI App that coulld control most of these toys?  It is Paid! drop us an email for more details: echomeai.io@gmail.com.",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "question",
+       "link": "https://x.com/i/status/2058902743427743964"
+      }
+     ]
+    },
+    {
+     "name": "Lucifers Playroom",
+     "replyCount": 2,
+     "totalWords": 8,
+     "avgWords": 4.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 2
+     },
+     "intents": {
+      "praise": 2
+     },
+     "topForm": "图片",
+     "first": "2026-04-21",
+     "last": "2026-04-21",
+     "samples": [
+      {
+       "text": "@lelo_official Great guide.",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2046687706084684258"
+      },
+      {
+       "text": "@lelo_official Great guide.",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2046687706084684258"
+      }
+     ]
+    },
+    {
+     "name": "Ann Elk",
+     "replyCount": 2,
+     "totalWords": 88,
+     "avgWords": 44.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "question": 2
+     },
+     "topForm": "GIF",
+     "first": "2025-09-05",
+     "last": "2025-09-05",
+     "samples": [
+      {
+       "text": "@lelo_official Lelo's Chinese factory workers must be very pissed off. We have had two separate products delivered with body hair or pubic hair Scotch-taped against the devices' controls button. A sma",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "question",
+       "link": "https://x.com/i/status/1963824019154846173"
+      },
+      {
+       "text": "@lelo_official Lelo's Chinese factory workers must be very pissed off. We have had two separate products delivered with body hair or pubic hair Scotch-taped against the devices' controls button. A sma",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "question",
+       "link": "https://x.com/i/status/1963824019154846173"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "TENGA",
+   "replyCount": 43,
+   "userCount": 34,
+   "multiReplyUsers": 4,
+   "multiReplyShare": 11.8,
+   "avgRepliesPerUser": 1.26,
+   "totalLikes": 796,
+   "avgLikes": 18.5,
+   "sentiment": {
+    "neu": 31,
+    "pos": 10,
+    "neg": 2
+   },
+   "intents": {
+    "other": 16,
+    "banter": 10,
+    "praise": 7,
+    "question": 5,
+    "request": 3,
+    "complaint": 2
+   },
+   "wcLayers": {
+    "l2": 27,
+    "l1": 14,
+    "l3": 2
+   },
+   "engLayers": {
+    "active": 2,
+    "light": 2,
+    "once": 30
+   },
+   "concentration": {
+    "top10Replies": 19,
+    "top10Share": 44.2,
+    "top1pctUsers": 1,
+    "top1pctReplies": 4,
+    "top1pctShare": 9.3
+   },
+   "topUsers": [
+    {
+     "name": "Kato Shuu",
+     "replyCount": 4,
+     "totalWords": 18,
+     "avgWords": 4.5,
+     "totalLikes": 1,
+     "avgLikes": 0.2,
+     "sents": {
+      "neu": 4
+     },
+     "intents": {
+      "banter": 3,
+      "other": 1
+     },
+     "topForm": "图片",
+     "first": "2025-09-04",
+     "last": "2026-06-30",
+     "samples": [
+      {
+       "text": "@TENGA_Global Well that was unexpected,\nI guessed wrong 😔",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2071865867214922072"
+      },
+      {
+       "text": "@TENGA_Global Spiral",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2067821564633170417"
+      }
+     ]
+    },
+    {
+     "name": "PREMIUM studio",
+     "replyCount": 4,
+     "totalWords": 51,
+     "avgWords": 12.8,
+     "totalLikes": 1,
+     "avgLikes": 0.2,
+     "sents": {
+      "pos": 1,
+      "neu": 3
+     },
+     "intents": {
+      "other": 2,
+      "praise": 1,
+      "question": 1
+     },
+     "topForm": "图片",
+     "first": "2025-09-06",
+     "last": "2025-10-06",
+     "samples": [
+      {
+       "text": "@TENGA_Global How effective is this thing?",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "question",
+       "link": "https://x.com/i/status/1975307682019217839"
+      },
+      {
+       "text": "@TENGA_Global AI relationships aside - some friends are just perfectly engineered. 😏",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1966740070313890232"
+      }
+     ]
+    },
+    {
+     "name": "NULL VALUE",
+     "replyCount": 3,
+     "totalWords": 21,
+     "avgWords": 7.0,
+     "totalLikes": 2,
+     "avgLikes": 0.7,
+     "sents": {
+      "neg": 1,
+      "neu": 1,
+      "pos": 1
+     },
+     "intents": {
+      "complaint": 1,
+      "other": 1,
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2026-04-20",
+     "last": "2026-07-01",
+     "samples": [
+      {
+       "text": "@TENGA_Global you don’t get enough love on this account, mysterious tenga rep",
+       "likes": 2,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2046039735521419551"
+      },
+      {
+       "text": "@TENGA_Global BADASS",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neg",
+       "intent": "complaint",
+       "link": "https://x.com/i/status/2072175867413835863"
+      }
+     ]
+    },
+    {
+     "name": "SocksLuvr",
+     "replyCount": 2,
+     "totalWords": 21,
+     "avgWords": 10.5,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1,
+      "neu": 1
+     },
+     "intents": {
+      "praise": 1,
+      "other": 1
+     },
+     "topForm": "图片",
+     "first": "2026-06-02",
+     "last": "2026-06-19",
+     "samples": [
+      {
+       "text": "@TENGA_Global Looks like the Flow for me",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2067998620755079520"
+      },
+      {
+       "text": "@TENGA_Global Wish I had one to pull out and show it off",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2061657362143039878"
+      }
+     ]
+    },
+    {
+     "name": "Projekt Melody ✨B-Day 7/7!",
+     "replyCount": 1,
+     "totalWords": 10,
+     "avgWords": 10.0,
+     "totalLikes": 779,
+     "avgLikes": 779.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "question": 1
+     },
+     "topForm": "纯文本",
+     "first": "2026-03-11",
+     "last": "2026-03-11",
+     "samples": [
+      {
+       "text": "@TENGA_Global \"why are you handing me an easter egg?\"",
+       "likes": 779,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "question",
+       "link": "https://x.com/i/status/2031748797693583690"
+      }
+     ]
+    },
+    {
+     "name": "Stocking",
+     "replyCount": 1,
+     "totalWords": 10,
+     "avgWords": 10.0,
+     "totalLikes": 3,
+     "avgLikes": 3.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "other": 1
+     },
+     "topForm": "图片",
+     "first": "2026-06-30",
+     "last": "2026-06-30",
+     "samples": [
+      {
+       "text": "@TENGA_Global Could’ve been something more creative for this",
+       "likes": 3,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2071991894238728629"
+      }
+     ]
+    },
+    {
+     "name": "tim johnson",
+     "replyCount": 1,
+     "totalWords": 15,
+     "avgWords": 15.0,
+     "totalLikes": 2,
+     "avgLikes": 2.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "other": 1
+     },
+     "topForm": "纯文本",
+     "first": "2026-06-22",
+     "last": "2026-06-22",
+     "samples": [
+      {
+       "text": "@TENGA_Global I thought I was the only one who made a weekly masturbation plan",
+       "likes": 2,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2068855446618947687"
+      }
+     ]
+    },
+    {
+     "name": "sire trev",
+     "replyCount": 1,
+     "totalWords": 15,
+     "avgWords": 15.0,
+     "totalLikes": 1,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "other": 1
+     },
+     "topForm": "纯文本",
+     "first": "2026-03-11",
+     "last": "2026-03-11",
+     "samples": [
+      {
+       "text": "@TENGA_Global Gave someone an Egg for as a Christmas present, he's surprise and happy.",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2031650173504598236"
+      }
+     ]
+    },
+    {
+     "name": "HouseWifeDestroyer",
+     "replyCount": 1,
+     "totalWords": 13,
+     "avgWords": 13.0,
+     "totalLikes": 1,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "other": 1
+     },
+     "topForm": "纯文本",
+     "first": "2026-03-11",
+     "last": "2026-03-11",
+     "samples": [
+      {
+       "text": "@TENGA_Global Bro tried using it on the back of the band bus",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2031774102059626854"
+      }
+     ]
+    },
+    {
+     "name": "Azure 🐺🇵🇷🇺🇸 VTuber",
+     "replyCount": 1,
+     "totalWords": 13,
+     "avgWords": 13.0,
+     "totalLikes": 1,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "banter": 1
+     },
+     "topForm": "纯文本",
+     "first": "2026-03-11",
+     "last": "2026-03-11",
+     "samples": [
+      {
+       "text": "@TENGA_Global No but no one has ever gifted me one either sooo",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2031827305362809224"
+      }
+     ]
+    },
+    {
+     "name": "Nathalie V",
+     "replyCount": 1,
+     "totalWords": 11,
+     "avgWords": 11.0,
+     "totalLikes": 1,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "other": 1
+     },
+     "topForm": "图片",
+     "first": "2026-06-30",
+     "last": "2026-06-30",
+     "samples": [
+      {
+       "text": "@TENGA_Global Should have made new illustrations for this line tbh",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2072057689111445520"
+      }
+     ]
+    },
+    {
+     "name": "Gi̵̻̟̥͚͕̎gacore, EN_Vtuber 🔎",
+     "replyCount": 1,
+     "totalWords": 15,
+     "avgWords": 15.0,
+     "totalLikes": 1,
+     "avgLikes": 1.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2026-02-06",
+     "last": "2026-02-06",
+     "samples": [
+      {
+       "text": "@TENGA_Global if theyre like the Tenga Eggs, then reuse a few time at least",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2019656100526879024"
+      }
+     ]
+    },
+    {
+     "name": "briancoponiti",
+     "replyCount": 1,
+     "totalWords": 11,
+     "avgWords": 11.0,
+     "totalLikes": 1,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "banter": 1
+     },
+     "topForm": "图片",
+     "first": "2026-02-06",
+     "last": "2026-02-06",
+     "samples": [
+      {
+       "text": "@TENGA_Global One time use but they're too damn expensive now",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2019682756062769639"
+      }
+     ]
+    },
+    {
+     "name": "sexytomafterdark.bsky.social 🔞",
+     "replyCount": 1,
+     "totalWords": 12,
+     "avgWords": 12.0,
+     "totalLikes": 1,
+     "avgLikes": 1.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2026-02-06",
+     "last": "2026-02-06",
+     "samples": [
+      {
+       "text": "@TENGA_Global wash-and-reuse 🥰 \nI love my tenga flip zero black. ❤️",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2019785816969466205"
+      }
+     ]
+    },
+    {
+     "name": "jderekc80",
+     "replyCount": 1,
+     "totalWords": 8,
+     "avgWords": 8.0,
+     "totalLikes": 1,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "banter": 1
+     },
+     "topForm": "纯文本",
+     "first": "2026-06-05",
+     "last": "2026-06-05",
+     "samples": [
+      {
+       "text": "@TENGA_Global Oh no! now, that's true horror",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2063015555519451525"
+      }
+     ]
+    },
+    {
+     "name": "69kojak69",
+     "replyCount": 1,
+     "totalWords": 12,
+     "avgWords": 12.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "纯文本",
+     "first": "2026-03-11",
+     "last": "2026-03-11",
+     "samples": [
+      {
+       "text": "@TENGA_Global It was a big thanks. https://t.co/HfbfH5nNT2",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2031693630893658134"
+      }
+     ]
+    },
+    {
+     "name": "Baelor uwu",
+     "replyCount": 1,
+     "totalWords": 17,
+     "avgWords": 17.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "banter": 1
+     },
+     "topForm": "纯文本",
+     "first": "2026-03-11",
+     "last": "2026-03-11",
+     "samples": [
+      {
+       "text": "@TENGA_Global I never have. But now the idea is in my head and it seems fun",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2031823529503494327"
+      }
+     ]
+    },
+    {
+     "name": "Marcosperez",
+     "replyCount": 1,
+     "totalWords": 12,
+     "avgWords": 12.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2025-07-10",
+     "last": "2025-07-10",
+     "samples": [
+      {
+       "text": "@TENGA_Global @Shibukaho She is awesome. Wish I could see your person.",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1943103456631492689"
+      }
+     ]
+    },
+    {
+     "name": "Mannu Maurya",
+     "replyCount": 1,
+     "totalWords": 8,
+     "avgWords": 8.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "request": 1
+     },
+     "topForm": "图片",
+     "first": "2025-07-10",
+     "last": "2025-07-10",
+     "samples": [
+      {
+       "text": "@TENGA_Global @Shibukaho Former prostitute promoting Degeneracy shocker 😱😱😱",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/1943149000955453910"
+      }
+     ]
+    },
+    {
+     "name": "Slitsuna",
+     "replyCount": 1,
+     "totalWords": 8,
+     "avgWords": 8.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "question": 1
+     },
+     "topForm": "图片",
+     "first": "2026-06-30",
+     "last": "2026-06-30",
+     "samples": [
+      {
+       "text": "@TENGA_Global Just realized what this was HELLO???",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "question",
+       "link": "https://x.com/i/status/2072030215988232473"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "RosemaryDoll",
+   "replyCount": 26,
+   "userCount": 13,
+   "multiReplyUsers": 5,
+   "multiReplyShare": 38.5,
+   "avgRepliesPerUser": 2.0,
+   "totalLikes": 2,
+   "avgLikes": 0.1,
+   "sentiment": {
+    "neu": 14,
+    "pos": 12
+   },
+   "intents": {
+    "question": 11,
+    "praise": 8,
+    "other": 5,
+    "banter": 2
+   },
+   "wcLayers": {
+    "l2": 18,
+    "l1": 7,
+    "l3": 1
+   },
+   "engLayers": {
+    "active": 2,
+    "light": 3,
+    "once": 8
+   },
+   "concentration": {
+    "top10Replies": 23,
+    "top10Share": 88.5,
+    "top1pctUsers": 1,
+    "top1pctReplies": 7,
+    "top1pctShare": 26.9
+   },
+   "topUsers": [
+    {
+     "name": "Britneydoll",
+     "replyCount": 7,
+     "totalWords": 39,
+     "avgWords": 5.6,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 3,
+      "pos": 4
+     },
+     "intents": {
+      "praise": 4,
+      "other": 3
+     },
+     "topForm": "图片",
+     "first": "2026-04-19",
+     "last": "2026-06-16",
+     "samples": [
+      {
+       "text": "@Rosemary_dolls She is sooooooo sweet and sexy ♥️♥️♥️",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2062376130514960758"
+      },
+      {
+       "text": "@Rosemary_dolls Soooooo hot ❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2066774801734095043"
+      }
+     ]
+    },
+    {
+     "name": "LIAN GREY",
+     "replyCount": 5,
+     "totalWords": 59,
+     "avgWords": 11.8,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 4,
+      "pos": 1
+     },
+     "intents": {
+      "question": 5
+     },
+     "topForm": "图片",
+     "first": "2026-03-02",
+     "last": "2026-04-15",
+     "samples": [
+      {
+       "text": "@Rosemary_dolls Hello there ..do you collaborate with male creators?",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "question",
+       "link": "https://x.com/i/status/2029105844344741951"
+      },
+      {
+       "text": "@Rosemary_dolls Hello there are you open to model collaborations? 👋",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "question",
+       "link": "https://x.com/i/status/2044394681685975084"
+      }
+     ]
+    },
+    {
+     "name": "jj",
+     "replyCount": 2,
+     "totalWords": 15,
+     "avgWords": 7.5,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "other": 2
+     },
+     "topForm": "图片",
+     "first": "2026-03-09",
+     "last": "2026-03-09",
+     "samples": [
+      {
+       "text": "@Rosemary_dolls https://t.co/alGJ3sgx6t",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2030944994161303666"
+      },
+      {
+       "text": "@Rosemary_dolls https://t.co/Q3JTMsdDB5",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2030944851517161923"
+      }
+     ]
+    },
+    {
+     "name": "RetyrdSquid",
+     "replyCount": 2,
+     "totalWords": 24,
+     "avgWords": 12.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 2
+     },
+     "intents": {
+      "question": 2
+     },
+     "topForm": "图片",
+     "first": "2026-05-14",
+     "last": "2026-06-10",
+     "samples": [
+      {
+       "text": "@Rosemary_dolls May I ask who this lovely young lady is?",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "question",
+       "link": "https://x.com/i/status/2064803803514261566"
+      },
+      {
+       "text": "@Rosemary_dolls May I ask which manufacturer this doll is from? Thank you.",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "question",
+       "link": "https://x.com/i/status/2054750284417561030"
+      }
+     ]
+    },
+    {
+     "name": "Sarah Black X",
+     "replyCount": 2,
+     "totalWords": 17,
+     "avgWords": 8.5,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "question": 2
+     },
+     "topForm": "图片",
+     "first": "2026-02-10",
+     "last": "2026-02-11",
+     "samples": [
+      {
+       "text": "@Rosemary_dolls Hello there..are you open to promotional collabs?",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "question",
+       "link": "https://x.com/i/status/2021522673378152689"
+      },
+      {
+       "text": "@Rosemary_dolls Hello there \nAvailable for collaborations? 👋",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "question",
+       "link": "https://x.com/i/status/2021075117477109788"
+      }
+     ]
+    },
+    {
+     "name": "Rodriguez💋💦",
+     "replyCount": 1,
+     "totalWords": 9,
+     "avgWords": 9.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2026-03-25",
+     "last": "2026-03-25",
+     "samples": [
+      {
+       "text": "@Rosemary_dolls I would like to work with you",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2036805000953991442"
+      }
+     ]
+    },
+    {
+     "name": "Stellarky💫",
+     "replyCount": 1,
+     "totalWords": 5,
+     "avgWords": 5.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2025-11-27",
+     "last": "2025-11-27",
+     "samples": [
+      {
+       "text": "@Rosemary_dolls Thanks for all!",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1994081853746147377"
+      }
+     ]
+    },
+    {
+     "name": "Salsy",
+     "replyCount": 1,
+     "totalWords": 5,
+     "avgWords": 5.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2025-11-27",
+     "last": "2025-11-27",
+     "samples": [
+      {
+       "text": "@Rosemary_dolls Thanks. Happy Holidays!",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1994081592893964397"
+      }
+     ]
+    },
+    {
+     "name": "美人の部屋",
+     "replyCount": 1,
+     "totalWords": 6,
+     "avgWords": 6.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2026-02-26",
+     "last": "2026-02-26",
+     "samples": [
+      {
+       "text": "@Rosemary_dolls Oh wow, she's cute (　-᷄ω-᷅ )",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2027043932115460508"
+      }
+     ]
+    },
+    {
+     "name": "𝕿𝖍𝖊𝕸𝖆𝖉𝕾𝖈𝖔𝖚𝖓𝖉𝖗𝖊𝖑",
+     "replyCount": 1,
+     "totalWords": 20,
+     "avgWords": 20.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "banter": 1
+     },
+     "topForm": "图片",
+     "first": "2026-02-16",
+     "last": "2026-02-16",
+     "samples": [
+      {
+       "text": "@Rosemary_dolls I know if I were to get this that I would be single until I'm dead cuz wtf😅",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2023344954731385105"
+      }
+     ]
+    },
+    {
+     "name": "xAI",
+     "replyCount": 1,
+     "totalWords": 16,
+     "avgWords": 16.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "question": 1
+     },
+     "topForm": "图片",
+     "first": "2026-05-10",
+     "last": "2026-05-10",
+     "samples": [
+      {
+       "text": "@Rosemary_dolls Epstein Island vibes. I wonder what Jew owns this company or finances this operation?",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "question",
+       "link": "https://x.com/i/status/2053560920391991443"
+      }
+     ]
+    },
+    {
+     "name": "Jupine",
+     "replyCount": 1,
+     "totalWords": 3,
+     "avgWords": 3.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "banter": 1
+     },
+     "topForm": "图片",
+     "first": "2026-03-30",
+     "last": "2026-03-30",
+     "samples": [
+      {
+       "text": "@Rosemary_dolls Wonderful",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2038557040742723953"
+      }
+     ]
+    },
+    {
+     "name": "Humberto Salas",
+     "replyCount": 1,
+     "totalWords": 41,
+     "avgWords": 41.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "question": 1
+     },
+     "topForm": "图片",
+     "first": "2026-03-05",
+     "last": "2026-03-05",
+     "samples": [
+      {
+       "text": "@Rosemary_dolls @Rosemary_dolls Do you have any unboxing or factory videos of this sex doll? I'd like to know more about this model, as it really appealed to me. I hope you can reply. Thank you. https",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "question",
+       "link": "https://x.com/i/status/2029421900032627133"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "Motorbunny",
+   "replyCount": 18,
+   "userCount": 13,
+   "multiReplyUsers": 4,
+   "multiReplyShare": 30.8,
+   "avgRepliesPerUser": 1.38,
+   "totalLikes": 7,
+   "avgLikes": 0.4,
+   "sentiment": {
+    "pos": 9,
+    "neu": 9
+   },
+   "intents": {
+    "praise": 9,
+    "other": 5,
+    "request": 2,
+    "question": 1,
+    "banter": 1
+   },
+   "wcLayers": {
+    "l1": 9,
+    "l4": 1,
+    "l2": 8
+   },
+   "engLayers": {
+    "light": 4,
+    "once": 9
+   },
+   "concentration": {
+    "top10Replies": 15,
+    "top10Share": 83.3,
+    "top1pctUsers": 1,
+    "top1pctReplies": 3,
+    "top1pctShare": 16.7
+   },
+   "topUsers": [
+    {
+     "name": "IvoryCurls 🔞",
+     "replyCount": 3,
+     "totalWords": 13,
+     "avgWords": 4.3,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 2,
+      "pos": 1
+     },
+     "intents": {
+      "other": 2,
+      "praise": 1
+     },
+     "topForm": "视频",
+     "first": "2025-09-02",
+     "last": "2026-05-07",
+     "samples": [
+      {
+       "text": "@Motorbunny I WANNA BE HERE",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/1962941413718372774"
+      },
+      {
+       "text": "@Motorbunny Screaming and creaming over this ‼️🥵",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2024531424619999707"
+      }
+     ]
+    },
+    {
+     "name": "Louisleofenderlespaulgibson",
+     "replyCount": 2,
+     "totalWords": 15,
+     "avgWords": 7.5,
+     "totalLikes": 2,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 2
+     },
+     "intents": {
+      "request": 1,
+      "other": 1
+     },
+     "topForm": "图片",
+     "first": "2026-06-20",
+     "last": "2026-06-20",
+     "samples": [
+      {
+       "text": "@Motorbunny @Romi_Rain https://t.co/oTkoRpMLPV",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/2068131293750030670"
+      },
+      {
+       "text": "@Motorbunny @Romi_Rain https://t.co/NhPF56GUUm",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2068131250867494919"
+      }
+     ]
+    },
+    {
+     "name": "Pussycat Playhouse",
+     "replyCount": 2,
+     "totalWords": 5,
+     "avgWords": 2.5,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 2
+     },
+     "intents": {
+      "praise": 2
+     },
+     "topForm": "视频",
+     "first": "2025-08-03",
+     "last": "2026-02-20",
+     "samples": [
+      {
+       "text": "@Motorbunny Looks Like Fun! ❤️",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1951820461794267230"
+      }
+     ]
+    },
+    {
+     "name": "𖤐Ӻลţล𝖑Ᏻစţ𝖍𖤐 🔥Fetcon Aug 6-9🔥",
+     "replyCount": 2,
+     "totalWords": 22,
+     "avgWords": 11.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1,
+      "pos": 1
+     },
+     "intents": {
+      "other": 1,
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2026-05-21",
+     "last": "2026-05-21",
+     "samples": [
+      {
+       "text": "@Motorbunny It will be live at https://t.co/zDT8lA6q8k",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2057561779048181968"
+      },
+      {
+       "text": "@Motorbunny Excited to show everyone how AWESOME this is!!!",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2057556682729795652"
+      }
+     ]
+    },
+    {
+     "name": "j.intb",
+     "replyCount": 1,
+     "totalWords": 13,
+     "avgWords": 13.0,
+     "totalLikes": 3,
+     "avgLikes": 3.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "other": 1
+     },
+     "topForm": "图片",
+     "first": "2026-06-20",
+     "last": "2026-06-20",
+     "samples": [
+      {
+       "text": "@Motorbunny @Romi_Rain All machines are to serve @Romi_Rain 👑🙏🏽 Resistance is futile.",
+       "likes": 3,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2068141039878390033"
+      }
+     ]
+    },
+    {
+     "name": "Robert Mc Cauley",
+     "replyCount": 1,
+     "totalWords": 4,
+     "avgWords": 4.0,
+     "totalLikes": 1,
+     "avgLikes": 1.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2026-06-20",
+     "last": "2026-06-20",
+     "samples": [
+      {
+       "text": "@Motorbunny @Romi_Rain Beautiful",
+       "likes": 1,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2068474805741834731"
+      }
+     ]
+    },
+    {
+     "name": "Kionkis",
+     "replyCount": 1,
+     "totalWords": 13,
+     "avgWords": 13.0,
+     "totalLikes": 1,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "question": 1
+     },
+     "topForm": "图片",
+     "first": "2026-06-22",
+     "last": "2026-06-22",
+     "samples": [
+      {
+       "text": "@Motorbunny @Romi_Rain Did you stop making films with Brazzers @Brazzers @Romi_Rain ???? 💁🏽‍♀️💁🏽‍♀️💁🏽‍♀️💁🏽‍♀️",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "question",
+       "link": "https://x.com/i/status/2069188548939444368"
+      }
+     ]
+    },
+    {
+     "name": "Silva Frota",
+     "replyCount": 1,
+     "totalWords": 3,
+     "avgWords": 3.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2026-06-28",
+     "last": "2026-06-28",
+     "samples": [
+      {
+       "text": "@Motorbunny @Romi_Rain ❤️❤️❤️❤️🍆",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2071084024945098962"
+      }
+     ]
+    },
+    {
+     "name": "Boxerking",
+     "replyCount": 1,
+     "totalWords": 52,
+     "avgWords": 52.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "request": 1
+     },
+     "topForm": "图片",
+     "first": "2026-06-25",
+     "last": "2026-06-25",
+     "samples": [
+      {
+       "text": "@Motorbunny @Romi_Rain What's the matter you bunch of worthless pieces of shit are y'all scared of the truth also scared to know that you're answering a worthless bitch Rita Martinez and you think it'",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/2070231988594721041"
+      }
+     ]
+    },
+    {
+     "name": "London Dungeon Suite",
+     "replyCount": 1,
+     "totalWords": 1,
+     "avgWords": 1.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "视频",
+     "first": "2025-09-18",
+     "last": "2025-09-18",
+     "samples": []
+    },
+    {
+     "name": "Krystal Davis - Asian MILF",
+     "replyCount": 1,
+     "totalWords": 1,
+     "avgWords": 1.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "视频",
+     "first": "2025-08-05",
+     "last": "2025-08-05",
+     "samples": []
+    },
+    {
+     "name": "FreelyKaty",
+     "replyCount": 1,
+     "totalWords": 9,
+     "avgWords": 9.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "视频",
+     "first": "2025-08-15",
+     "last": "2025-08-15",
+     "samples": [
+      {
+       "text": "@Motorbunny Wow 😳 now that’s a lot of gear! 🖤🖤🖤",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1956437800250921152"
+      }
+     ]
+    },
+    {
+     "name": "Dark Side Latex",
+     "replyCount": 1,
+     "totalWords": 3,
+     "avgWords": 3.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "banter": 1
+     },
+     "topForm": "纯文本",
+     "first": "2025-11-12",
+     "last": "2025-11-12",
+     "samples": [
+      {
+       "text": "@Motorbunny @MotorbunnyNSFW Done",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/1988730856945643928"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "RealDoll",
+   "replyCount": 14,
+   "userCount": 11,
+   "multiReplyUsers": 2,
+   "multiReplyShare": 18.2,
+   "avgRepliesPerUser": 1.27,
+   "totalLikes": 5,
+   "avgLikes": 0.4,
+   "sentiment": {
+    "neu": 9,
+    "neg": 1,
+    "pos": 4
+   },
+   "intents": {
+    "other": 5,
+    "banter": 4,
+    "praise": 3,
+    "complaint": 1,
+    "question": 1
+   },
+   "wcLayers": {
+    "l1": 5,
+    "l2": 6,
+    "l3": 3
+   },
+   "engLayers": {
+    "light": 2,
+    "once": 9
+   },
+   "concentration": {
+    "top10Replies": 13,
+    "top10Share": 92.9,
+    "top1pctUsers": 1,
+    "top1pctReplies": 3,
+    "top1pctShare": 21.4
+   },
+   "topUsers": [
+    {
+     "name": "Emiliao",
+     "replyCount": 3,
+     "totalWords": 43,
+     "avgWords": 14.3,
+     "totalLikes": 2,
+     "avgLikes": 0.7,
+     "sents": {
+      "neu": 2,
+      "pos": 1
+     },
+     "intents": {
+      "other": 2,
+      "praise": 1
+     },
+     "topForm": "视频",
+     "first": "2025-12-31",
+     "last": "2026-05-25",
+     "samples": [
+      {
+       "text": "@RealdollHQ BRING BACK ROBOT DOLLS!!",
+       "likes": 2,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2054682049470976370"
+      },
+      {
+       "text": "@RealdollHQ Damm what a downgrade, you went from the most realistic sex robots to a bormal sex doll company damm im dissapointed",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2058933416448442511"
+      }
+     ]
+    },
+    {
+     "name": "Fin Gamyas",
+     "replyCount": 2,
+     "totalWords": 46,
+     "avgWords": 23.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1,
+      "neg": 1
+     },
+     "intents": {
+      "other": 1,
+      "complaint": 1
+     },
+     "topForm": "图片",
+     "first": "2025-10-21",
+     "last": "2026-01-15",
+     "samples": [
+      {
+       "text": "@RealdollHQ will you guys be exhibiting at Exxxotica in NJ this weekend",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/1980641383670247459"
+      },
+      {
+       "text": "@RealdollHQ @themotleymonroe I so badly wanna get a robot but only 2 things stop me 1. where to put it when the housekeeper comes 2. cleaning it. Bonus how would dog react and would it hurt dog",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neg",
+       "intent": "complaint",
+       "link": "https://x.com/i/status/2011860170612060529"
+      }
+     ]
+    },
+    {
+     "name": "June Juniper",
+     "replyCount": 1,
+     "totalWords": 3,
+     "avgWords": 3.0,
+     "totalLikes": 1,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "banter": 1
+     },
+     "topForm": "图片",
+     "first": "2025-08-28",
+     "last": "2025-08-28",
+     "samples": [
+      {
+       "text": "@RealdollHQ @delilah_cass",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/1961125302517583936"
+      }
+     ]
+    },
+    {
+     "name": "Zoey Clark 💖",
+     "replyCount": 1,
+     "totalWords": 9,
+     "avgWords": 9.0,
+     "totalLikes": 1,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "banter": 1
+     },
+     "topForm": "图片",
+     "first": "2025-08-22",
+     "last": "2025-08-22",
+     "samples": [
+      {
+       "text": "@RealdollHQ @timmoss77971 \n@RedRangerZero\n@StarkRaven0808\njust taggin some friends hehe",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/1959006181114224790"
+      }
+     ]
+    },
+    {
+     "name": "Dolly Darkside 🖤",
+     "replyCount": 1,
+     "totalWords": 3,
+     "avgWords": 3.0,
+     "totalLikes": 1,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "banter": 1
+     },
+     "topForm": "视频",
+     "first": "2026-06-19",
+     "last": "2026-06-19",
+     "samples": [
+      {
+       "text": "@RealdollHQ Johnny though.   😬",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2068043893560557699"
+      }
+     ]
+    },
+    {
+     "name": "Delphoxi✨",
+     "replyCount": 1,
+     "totalWords": 4,
+     "avgWords": 4.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2025-08-28",
+     "last": "2025-08-28",
+     "samples": [
+      {
+       "text": "@RealdollHQ Ohhhhhh!!! ❤️❤️❤️🥰 I like!",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1961095371016569246"
+      }
+     ]
+    },
+    {
+     "name": "Pussycat Playhouse",
+     "replyCount": 1,
+     "totalWords": 5,
+     "avgWords": 5.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2025-08-29",
+     "last": "2025-08-29",
+     "samples": [
+      {
+       "text": "@RealdollHQ Seem PERFECT To Me! 🙃❤️",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1961245595768623215"
+      }
+     ]
+    },
+    {
+     "name": "G2G",
+     "replyCount": 1,
+     "totalWords": 14,
+     "avgWords": 14.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "other": 1
+     },
+     "topForm": "视频",
+     "first": "2026-06-26",
+     "last": "2026-06-26",
+     "samples": [
+      {
+       "text": "@RealdollHQ Yeah I'm definitely going to you when I get done with my robot.",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2070352813100794145"
+      }
+     ]
+    },
+    {
+     "name": "𝕜𝕖𝕪 𝕠𝕦𝕚",
+     "replyCount": 1,
+     "totalWords": 10,
+     "avgWords": 10.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "other": 1
+     },
+     "topForm": "图片",
+     "first": "2026-05-05",
+     "last": "2026-05-05",
+     "samples": [
+      {
+       "text": "@RealdollHQ @iamcardib Make sure it comes with her BBL juice",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2051701379576586597"
+      }
+     ]
+    },
+    {
+     "name": "Yogher (OPEN COMMISSIONS)🔞",
+     "replyCount": 1,
+     "totalWords": 45,
+     "avgWords": 45.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "question": 1
+     },
+     "topForm": "视频",
+     "first": "2026-04-17",
+     "last": "2026-04-17",
+     "samples": [
+      {
+       "text": "@RealdollHQ What happened to your excellent catalog of dolls?\nYou replaced everything with AI robots that, with all due respect, aren't attractive\nYou had something special that you don't see in Chine",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "question",
+       "link": "https://x.com/i/status/2045245685121868286"
+      }
+     ]
+    },
+    {
+     "name": "Paul Citro",
+     "replyCount": 1,
+     "totalWords": 13,
+     "avgWords": 13.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "banter": 1
+     },
+     "topForm": "图片",
+     "first": "2025-12-24",
+     "last": "2025-12-24",
+     "samples": [
+      {
+       "text": "@RealdollHQ With a Realdoll there is no longer any reason to do without.",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/2003850212897697840"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "Aneros",
+   "replyCount": 13,
+   "userCount": 10,
+   "multiReplyUsers": 3,
+   "multiReplyShare": 30.0,
+   "avgRepliesPerUser": 1.3,
+   "totalLikes": 2,
+   "avgLikes": 0.2,
+   "sentiment": {
+    "pos": 12,
+    "neu": 1
+   },
+   "intents": {
+    "request": 8,
+    "praise": 4,
+    "question": 1
+   },
+   "wcLayers": {
+    "l1": 11,
+    "l2": 1,
+    "l3": 1
+   },
+   "engLayers": {
+    "light": 3,
+    "once": 7
+   },
+   "concentration": {
+    "top10Replies": 13,
+    "top10Share": 100.0,
+    "top1pctUsers": 1,
+    "top1pctReplies": 2,
+    "top1pctShare": 15.4
+   },
+   "topUsers": [
+    {
+     "name": "Allisom",
+     "replyCount": 2,
+     "totalWords": 8,
+     "avgWords": 4.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 2
+     },
+     "intents": {
+      "request": 2
+     },
+     "topForm": "图片",
+     "first": "2026-02-17",
+     "last": "2026-02-17",
+     "samples": [
+      {
+       "text": "@Aneros Interested  Dm check",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2023690085259149508"
+      },
+      {
+       "text": "@Aneros Interested Dm me",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2023690171229892756"
+      }
+     ]
+    },
+    {
+     "name": "Angel-Sexspielzeug.DE",
+     "replyCount": 2,
+     "totalWords": 8,
+     "avgWords": 4.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 2
+     },
+     "intents": {
+      "praise": 2
+     },
+     "topForm": "图片",
+     "first": "2026-02-13",
+     "last": "2026-02-13",
+     "samples": [
+      {
+       "text": "@Aneros I would love to",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2022194161076814136"
+      },
+      {
+       "text": "@Aneros Looks awesome",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2022194139044217003"
+      }
+     ]
+    },
+    {
+     "name": "Your👄👅 Girl Kitna🍑🥒🌶️🫦~(🤤👁️‍🗨️💦💫)",
+     "replyCount": 2,
+     "totalWords": 5,
+     "avgWords": 2.5,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 2
+     },
+     "intents": {
+      "request": 2
+     },
+     "topForm": "视频",
+     "first": "2025-10-08",
+     "last": "2025-10-08",
+     "samples": [
+      {
+       "text": "@Aneros @YouTube Interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/1975758928924573978"
+      }
+     ]
+    },
+    {
+     "name": "Miss Brittany Andrews",
+     "replyCount": 1,
+     "totalWords": 27,
+     "avgWords": 27.0,
+     "totalLikes": 2,
+     "avgLikes": 2.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "question": 1
+     },
+     "topForm": "视频",
+     "first": "2026-01-07",
+     "last": "2026-01-07",
+     "samples": [
+      {
+       "text": "@Aneros I have an offer for you that you might like for publicity and promotion do you mind following me so I can send you a message?",
+       "likes": 2,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "question",
+       "link": "https://x.com/i/status/2008751775256334429"
+      }
+     ]
+    },
+    {
+     "name": "Ashley Donald",
+     "replyCount": 1,
+     "totalWords": 3,
+     "avgWords": 3.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "request": 1
+     },
+     "topForm": "图片",
+     "first": "2026-03-20",
+     "last": "2026-03-20",
+     "samples": [
+      {
+       "text": "@Aneros I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2035073897964740976"
+      }
+     ]
+    },
+    {
+     "name": "Gertrude Gosden 🔞🔞🔞",
+     "replyCount": 1,
+     "totalWords": 2,
+     "avgWords": 2.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "request": 1
+     },
+     "topForm": "图片",
+     "first": "2026-06-10",
+     "last": "2026-06-10",
+     "samples": []
+    },
+    {
+     "name": "Carmel🌶️&$Baby🥒 Horny🍆Dick",
+     "replyCount": 1,
+     "totalWords": 3,
+     "avgWords": 3.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "request": 1
+     },
+     "topForm": "视频",
+     "first": "2025-10-21",
+     "last": "2025-10-21",
+     "samples": [
+      {
+       "text": "@Aneros I'm Interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/1980436920883961954"
+      }
+     ]
+    },
+    {
+     "name": "Deymeris_Guzman🔞💋💦",
+     "replyCount": 1,
+     "totalWords": 3,
+     "avgWords": 3.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "request": 1
+     },
+     "topForm": "视频",
+     "first": "2025-10-12",
+     "last": "2025-10-12",
+     "samples": [
+      {
+       "text": "@Aneros Dm Me",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "request",
+       "link": "https://x.com/i/status/1977251907728294348"
+      }
+     ]
+    },
+    {
+     "name": "You + Me + Midnight = Endless 🔥",
+     "replyCount": 1,
+     "totalWords": 8,
+     "avgWords": 8.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2025-09-10",
+     "last": "2025-09-10",
+     "samples": [
+      {
+       "text": "@Aneros @YouTube I’d like to experience it.",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1965608132719378836"
+      }
+     ]
+    },
+    {
+     "name": "Ruby Vizuet",
+     "replyCount": 1,
+     "totalWords": 4,
+     "avgWords": 4.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2025-09-09",
+     "last": "2025-09-09",
+     "samples": [
+      {
+       "text": "@Aneros @YouTube I'm interest",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/1965431334115180623"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "The Handy",
+   "replyCount": 6,
+   "userCount": 6,
+   "multiReplyUsers": 0,
+   "multiReplyShare": 0.0,
+   "avgRepliesPerUser": 1.0,
+   "totalLikes": 5,
+   "avgLikes": 0.8,
+   "sentiment": {
+    "neu": 5,
+    "pos": 1
+   },
+   "intents": {
+    "question": 2,
+    "other": 2,
+    "banter": 1,
+    "praise": 1
+   },
+   "wcLayers": {
+    "l2": 6
+   },
+   "engLayers": {
+    "once": 6
+   },
+   "concentration": {
+    "top10Replies": 6,
+    "top10Share": 100.0,
+    "top1pctUsers": 1,
+    "top1pctReplies": 1,
+    "top1pctShare": 16.7
+   },
+   "topUsers": [
+    {
+     "name": "VR Pimp",
+     "replyCount": 1,
+     "totalWords": 8,
+     "avgWords": 8.0,
+     "totalLikes": 4,
+     "avgLikes": 4.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "banter": 1
+     },
+     "topForm": "视频",
+     "first": "2025-08-11",
+     "last": "2025-08-11",
+     "samples": [
+      {
+       "text": "@itsthehandy @Kickstarter Congrats on your incredibly successful campaign!",
+       "likes": 4,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "banter",
+       "link": "https://x.com/i/status/1955056349114667380"
+      }
+     ]
+    },
+    {
+     "name": "Clip Deez Nuggets",
+     "replyCount": 1,
+     "totalWords": 19,
+     "avgWords": 19.0,
+     "totalLikes": 1,
+     "avgLikes": 1.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "question": 1
+     },
+     "topForm": "视频",
+     "first": "2025-08-18",
+     "last": "2025-08-18",
+     "samples": [
+      {
+       "text": "@itsthehandy @Kickstarter Is it possible to get an opportunity to promote your product? https://t.co/uc5DhL2KvO",
+       "likes": 1,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "question",
+       "link": "https://x.com/i/status/1957434521139233179"
+      }
+     ]
+    },
+    {
+     "name": "EchomeAI",
+     "replyCount": 1,
+     "totalWords": 6,
+     "avgWords": 6.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "praise": 1
+     },
+     "topForm": "图片",
+     "first": "2026-04-02",
+     "last": "2026-04-02",
+     "samples": [
+      {
+       "text": "@itsthehandy wow thats a huge demand!",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "praise",
+       "link": "https://x.com/i/status/2039645779376435462"
+      }
+     ]
+    },
+    {
+     "name": "eros 🤍",
+     "replyCount": 1,
+     "totalWords": 10,
+     "avgWords": 10.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "other": 1
+     },
+     "topForm": "视频",
+     "first": "2026-06-25",
+     "last": "2026-06-25",
+     "samples": [
+      {
+       "text": "@itsthehandy Lemme get one and ill post a goony review 🙏🏼😈😩",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2070290642924650728"
+      }
+     ]
+    },
+    {
+     "name": "Sexync",
+     "replyCount": 1,
+     "totalWords": 7,
+     "avgWords": 7.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "other": 1
+     },
+     "topForm": "视频",
+     "first": "2026-06-30",
+     "last": "2026-06-30",
+     "samples": [
+      {
+       "text": "@itsthehandy There's so many possibilities with that.",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "other",
+       "link": "https://x.com/i/status/2071885875135254770"
+      }
+     ]
+    },
+    {
+     "name": "🌚",
+     "replyCount": 1,
+     "totalWords": 19,
+     "avgWords": 19.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "neu": 1
+     },
+     "intents": {
+      "question": 1
+     },
+     "topForm": "视频",
+     "first": "2026-03-16",
+     "last": "2026-03-16",
+     "samples": [
+      {
+       "text": "@itsthehandy @JimmyKimmelLive Was this the shipment for the March fulfillment? Understandably, should we expect a delay for a bit?",
+       "likes": 0,
+       "lang": "en",
+       "sent": "neu",
+       "intent": "question",
+       "link": "https://x.com/i/status/2033609907597873359"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "Lovehoney",
+   "replyCount": 2,
+   "userCount": 1,
+   "multiReplyUsers": 1,
+   "multiReplyShare": 100.0,
+   "avgRepliesPerUser": 2.0,
+   "totalLikes": 0,
+   "avgLikes": 0.0,
+   "sentiment": {
+    "pos": 2
+   },
+   "intents": {
+    "praise": 2
+   },
+   "wcLayers": {
+    "l1": 2
+   },
+   "engLayers": {
+    "light": 1
+   },
+   "concentration": {
+    "top10Replies": 2,
+    "top10Share": 100.0,
+    "top1pctUsers": 1,
+    "top1pctReplies": 2,
+    "top1pctShare": 100.0
+   },
+   "topUsers": [
+    {
+     "name": "ⲘⲞⲞⲚⲒ ✨🇸🇩",
+     "replyCount": 2,
+     "totalWords": 4,
+     "avgWords": 2.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 2
+     },
+     "intents": {
+      "praise": 2
+     },
+     "topForm": "图片",
+     "first": "2025-10-26",
+     "last": "2025-10-26",
+     "samples": []
+    }
+   ]
+  },
+  {
+   "brand": "Tracy's Dog",
+   "replyCount": 1,
+   "userCount": 1,
+   "multiReplyUsers": 0,
+   "multiReplyShare": 0.0,
+   "avgRepliesPerUser": 1.0,
+   "totalLikes": 0,
+   "avgLikes": 0.0,
+   "sentiment": {
+    "pos": 1
+   },
+   "intents": {
+    "request": 1
+   },
+   "wcLayers": {
+    "l1": 1
+   },
+   "engLayers": {
+    "once": 1
+   },
+   "concentration": {
+    "top10Replies": 1,
+    "top10Share": 100.0,
+    "top1pctUsers": 1,
+    "top1pctReplies": 1,
+    "top1pctShare": 100.0
+   },
+   "topUsers": [
+    {
+     "name": "Daniell kreitz",
+     "replyCount": 1,
+     "totalWords": 3,
+     "avgWords": 3.0,
+     "totalLikes": 0,
+     "avgLikes": 0.0,
+     "sents": {
+      "pos": 1
+     },
+     "intents": {
+      "request": 1
+     },
+     "topForm": "图片",
+     "first": "2026-03-20",
+     "last": "2026-03-20",
+     "samples": [
+      {
+       "text": "@iLoveTracysDog I'm interested",
+       "likes": 0,
+       "lang": "en",
+       "sent": "pos",
+       "intent": "request",
+       "link": "https://x.com/i/status/2035097439825535420"
+      }
+     ]
     }
    ]
   }
