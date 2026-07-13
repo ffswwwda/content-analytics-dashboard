@@ -98,6 +98,7 @@
     dim: "brand", dimBrands: new Set(), topicWeights: { viral: 35, eng: 25, rec: 20, cov: 20 },
     blindbox: null, bxSeed: null, refMode: "eval", backtests: [], maxExposure: 1,
     users: null, uvTab: "language", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all", uvCorpusMarker: "all",
+    brandUserSel: null, brandUserCmp: "", brandUserRankAll: false,
     libMode: "sort", libQuick: "all",
     compSel: new Set(), cmpSel: new Set(),
     compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false },
@@ -1469,6 +1470,8 @@ ${topMatches || "（无强匹配）"}
     const U = state.users;
     const desc = boardDesc("branduser");
     if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
+    // 点进某品牌 → 品牌互动用户深度分析视图
+    if (state.brandUserSel) return renderBrandUserDeep(U, state.brandUserSel);
     const cards = U.brandEval.map((b) => {
       const sPairs = [["正面", b.sentiment.pos || 0, COL.pos], ["中性", b.sentiment.neu || 0, COL.neu], ["负面", b.sentiment.neg || 0, COL.neg]];
       const kw = (b.keywords || []).slice(0, 14).map((k) => `<span class="uv-tag">${esc(k.w)}<em>×${k.n}</em></span>`).join("");
@@ -1477,6 +1480,7 @@ ${topMatches || "（无强匹配）"}
       const intents = Object.entries(b.intents || {}).slice(0, 5).map(([k, v]) => `<span class="uv-chip uv-chip-intent">${INTENT_NAME[k] || k}<em>×${v}</em></span>`).join("");
       const tu = (b.topUsers || []).slice(0, 4).map((t) => `<span class="uv-chip">${esc(t.u)}<em>×${t.n}</em></span>`).join("");
       const q = (b.quotes || []).slice(0, 3).map((qq) => `<div class="uv-quote">${uvLangTag(qq.lang)} ${uvSentTag(qq.sent)} <span class="uv-q-text">${esc(dispVoice(qq))}</span> <a class="uv-link" href="${esc(qq.link || "#")}" target="_blank" rel="noreferrer">↗</a></div>`).join("");
+      const hasDeep = (U.brandUsers || []).some((x) => x.brand === b.brand);
       return `<div class="uv-brand-card">
         <div class="uv-brand-head"><span class="uv-brand-name">${esc(b.brand)}</span><span class="uv-brand-count">${fmt(b.replyCount)} 条用户声音</span></div>
         ${uvBars(sPairs)}
@@ -1486,12 +1490,184 @@ ${topMatches || "（无强匹配）"}
         <div class="uv-row"><b>用户倾向</b><div class="uv-tags">${intents || "—"}</div></div>
         <div class="uv-row"><b>高互动用户</b><div class="uv-tags">${tu}</div></div>
         <div class="uv-row"><b>代表语录</b><div class="uv-quotes">${q}</div></div>
+        ${hasDeep ? `<button class="btn-primary bud-enter" data-bud="${esc(b.brand)}">🎯 品牌互动用户深度分析 →</button>` : ""}
       </div>`;
     }).join("");
     return `<div class="board-head"><div class="board-desc">${desc}</div></div>
-      <div class="uv-block"><div class="uv-block-title">分品牌用户讨论（用户对各个品牌的整体声音：情感 / 内容形式 / 倾向 / 高频词 / 主题 / 代表语录）</div><div class="uv-brand-grid">${cards}</div></div>`;
+      <div class="uv-block"><div class="uv-block-title">分品牌用户讨论（点「品牌互动用户深度分析」可下钻看该品牌用户的分层 / 参与度 / 互动率 / 高互动用户分布，并跨品牌对比）</div><div class="uv-brand-grid">${cards}</div></div>`;
   }
-  function bindBrandUser() { /* 品牌卡片为静态渲染，链接与标签订阅由 bindBoard 统一处理 */ }
+
+  /* ---------- 品牌互动用户深度分析（品牌卡片点进来） ---------- */
+  function budFind(U, brand) { return (U.brandUsers || []).find((x) => x.brand === brand) || null; }
+
+  function budStatCard(label, val, sub, hot) {
+    return `<div class="bud-stat"><div class="bud-stat-label">${esc(label)}</div><div class="bud-stat-val"${hot ? ' style="color:var(--hot)"' : ""}>${val}</div>${sub ? `<div class="bud-stat-sub">${esc(sub)}</div>` : ""}</div>`;
+  }
+  function budLayerRows(entries) {
+    const total = entries.reduce((s, e) => s + e.n, 0) || 1;
+    return entries.map((e) => {
+      const pct = Math.round((e.n / total) * 100);
+      return `<div class="bud-lrow">
+        <span class="bud-lname">${esc(e.name)}</span>
+        <span class="bud-ltrack"><i style="width:${pct}%;background:${e.color}"></i></span>
+        <span class="bud-lval">${fmt(e.n)} · ${pct}%</span>
+      </div>${e.sub ? `<div class="bud-lsub">${esc(e.sub)}</div>` : ""}`;
+    }).join("");
+  }
+
+  function renderBrandUserDeep(U, brand) {
+    const d = budFind(U, brand);
+    if (!d) { state.brandUserSel = null; return renderBrandUser(); }
+    const st = d.sentiment || {}; const sTot = (st.pos || 0) + (st.neu || 0) + (st.neg || 0) || 1;
+    const posRate = Math.round((st.pos || 0) / sTot * 100);
+    const others = (U.brandUsers || []).filter((x) => x.brand !== brand);
+    const cmpOptions = others.map((x) => `<option value="${esc(x.brand)}" ${state.brandUserCmp === x.brand ? "selected" : ""}>${esc(x.brand)}（${fmt(x.userCount)} 用户）</option>`).join("");
+
+    // 概览指标
+    const stats = `<div class="bud-stats">
+      ${budStatCard("独立用户数", fmt(d.userCount), "发声的真实用户")}
+      ${budStatCard("用户声音数", fmt(d.replyCount), "窗口内回复总量")}
+      ${budStatCard("多次互动用户", fmt(d.multiReplyUsers), d.multiReplyShare + "% 会回来", true)}
+      ${budStatCard("人均回复", d.avgRepliesPerUser, "参与度")}
+      ${budStatCard("平均点赞/条", d.avgLikes, "互动率信号")}
+      ${budStatCard("正面情感率", posRate + "%", "口碑倾向", true)}
+    </div>`;
+
+    // 情感 + 意图倾向
+    const sPairs = [["正面", st.pos || 0, COL.pos], ["中性", st.neu || 0, COL.neu], ["负面", st.neg || 0, COL.neg]];
+    const iPairs = Object.entries(d.intents || {}).map(([k, v]) => [INTENT_NAME[k] || k, v, INTENT_COL[k] || COL.slate]);
+    const tendency = `<div class="bud-two">
+      <div class="bud-panel"><div class="bud-panel-t">情感倾向</div>${uvBars(sPairs)}</div>
+      <div class="bud-panel"><div class="bud-panel-t">用户倾向（意图）</div>${uvBars(iPairs)}</div>
+    </div>`;
+
+    // 用户分层（双维度）：字数分层 + 参与度分层
+    const wc = d.wcLayers || {};
+    const WC_NAME = { l1: "极短 (≤5词)", l2: "短 (6–20词)", l3: "中 (21–50词)", l4: "长 (>50词)" };
+    const WC_COL = { l1: "#6b7a99", l2: "#00f0ff", l3: "#a06bff", l4: "#ffd166" };
+    const wcRows = budLayerRows(["l1", "l2", "l3", "l4"].map((k) => ({ name: WC_NAME[k], n: wc[k] || 0, color: WC_COL[k] })));
+    const eng = d.engLayers || {}; const EM = (U.meta && U.meta.eng_meta) || {};
+    const ENG_COL = { once: "#6b7a99", light: "#00f0ff", active: "#a06bff", heavy: "#ffd166" };
+    const engRows = budLayerRows(["heavy", "active", "light", "once"].map((k) => ({
+      name: (EM[k] && EM[k].name) || k, n: eng[k] || 0, color: ENG_COL[k], sub: (EM[k] && EM[k].desc) || "",
+    })));
+    const layersHTML = `<div class="bud-two">
+      <div class="bud-panel"><div class="bud-panel-t">字数分层 · 投入度（按回复长度）</div>${wcRows}</div>
+      <div class="bud-panel"><div class="bud-panel-t">参与度分层 · 忠诚度（按回复次数）</div>${engRows}</div>
+    </div>`;
+
+    // 高互动用户分布（集中度）
+    const c = d.concentration || {};
+    const concHTML = `<div class="bud-conc">
+      <div class="bud-conc-t">高互动用户分布（声量集中度）</div>
+      <div class="bud-conc-grid">
+        <div class="bud-conc-cell"><div class="bud-conc-num">${c.top10Share || 0}%</div><div class="bud-conc-lab">Top 10 用户贡献了 ${c.top10Share || 0}% 的声量（${fmt(c.top10Replies || 0)} 条）</div></div>
+        <div class="bud-conc-cell"><div class="bud-conc-num">${c.top1pctShare || 0}%</div><div class="bud-conc-lab">头部 1%（${fmt(c.top1pctUsers || 0)} 人）贡献 ${c.top1pctShare || 0}% 声量（${fmt(c.top1pctReplies || 0)} 条）</div></div>
+        <div class="bud-conc-cell"><div class="bud-conc-num">${d.multiReplyShare || 0}%</div><div class="bud-conc-lab">${d.multiReplyShare || 0}% 用户会二次发声（${fmt(d.multiReplyUsers || 0)} 人）</div></div>
+        <div class="bud-conc-cell"><div class="bud-conc-num">${(eng.heavy || 0) + (eng.active || 0)}</div><div class="bud-conc-lab">重度+活跃用户 ${(eng.heavy || 0) + (eng.active || 0)} 人（KOC 培养池）</div></div>
+      </div>
+      <div class="bud-conc-note">${c.top1pctShare >= 20 ? "声量高度集中在少数铁粉，适合深耕头部 KOC；但需警惕「虚假繁荣」——大盘活跃度依赖少数人。" : "声量分布较分散，说明品牌讨论是「群众基础」型，拉新与广触达比死磕头部更划算。"}</div>
+    </div>`;
+
+    // Top 高互动用户明细
+    const shown = state.brandUserRankAll ? d.topUsers.length : Math.min(8, d.topUsers.length);
+    const userRows = d.topUsers.slice(0, shown).map((u, i) => {
+      const us = u.sents || {};
+      const usPairs = [["正面", us.pos || 0, COL.pos], ["中性", us.neu || 0, COL.neu], ["负面", us.neg || 0, COL.neg]];
+      const uiChips = Object.entries(u.intents || {}).slice(0, 4).map(([k, v]) => `<span class="uv-chip uv-chip-intent">${INTENT_NAME[k] || k}<em>×${v}</em></span>`).join("");
+      const quotes = (u.samples || []).slice(0, 2).map((q) => `<div class="uv-quote">${uvLangTag(q.lang)} ${uvSentTag(q.sent)} <span class="uv-q-text">${esc(dispVoice(q))}</span> ${q.link ? `<a class="uv-link" href="${esc(q.link)}" target="_blank" rel="noreferrer">↗</a>` : ""}</div>`).join("");
+      return `<details class="uv-user-card">
+        <summary class="uv-user-summary">
+          <span class="uv-rank">#${i + 1}</span>
+          <span class="uv-uname">@${esc(u.name)}</span>
+          <span class="uv-ucount">${u.replyCount} 次回复</span>
+          <span class="uv-uavg">${u.avgWords} 词/条 · ♥${fmt(u.totalLikes)}</span>
+          <span class="uv-uchev">▾</span>
+        </summary>
+        <div class="uv-user-body">
+          <div class="uv-deep-grid">
+            <div class="uv-deep-cell"><b>活跃周期</b>${esc(u.first)} → ${esc(u.last)}</div>
+            <div class="uv-deep-cell"><b>总字数/平均</b>${fmt(u.totalWords)} / ${u.avgWords}</div>
+            <div class="uv-deep-cell"><b>平均点赞</b>${u.avgLikes}</div>
+            <div class="uv-deep-cell"><b>常参与形式</b>${esc(u.topForm)}</div>
+          </div>
+          <div class="uv-user-line"><b>倾向</b><span class="uv-bars-inline">${uvBars(usPairs)}</span></div>
+          <div class="uv-user-line"><b>意图</b><span class="uv-chips">${uiChips || "—"}</span></div>
+          <div class="uv-user-quotes"><b>代表语录</b>${quotes || "—"}</div>
+        </div>
+      </details>`;
+    }).join("");
+    const rankToggle = d.topUsers.length > 8 ? `<button class="uv-rank-toggle" data-bud-rank-toggle>${state.brandUserRankAll ? "收起（仅看 Top 8）" : `展开全部 ${d.topUsers.length} 人 →`}</button>` : "";
+    const usersHTML = `<div class="bud-panel"><div class="bud-panel-t">高互动用户明细（Top ${shown} / 共 ${d.topUsers.length} 位深度用户） ${rankToggle}</div><div class="uv-user-grid">${userRows}</div></div>`;
+
+    // 跨品牌对比
+    let cmpHTML = "";
+    if (state.brandUserCmp && state.brandUserCmp !== brand) {
+      const e = budFind(U, state.brandUserCmp);
+      if (e) cmpHTML = budCompare(d, e);
+    }
+
+    return `<div class="board-head"><div class="board-desc">${boardDesc("branduser")}</div></div>
+      <div class="bud-top">
+        <button class="btn-ghost bud-back" data-bud-back>← 返回品牌列表</button>
+        <div class="bud-title">🎯 ${esc(brand)} · 品牌互动用户深度分析</div>
+        <div class="bud-cmp-pick"><span>对比品牌：</span><select class="bud-cmp-sel" data-bud-cmp><option value="">— 选择另一品牌 —</option>${cmpOptions}</select></div>
+      </div>
+      ${stats}
+      ${tendency}
+      <div class="bud-sec-t">用户分层 · 双维度</div>
+      ${layersHTML}
+      ${concHTML}
+      ${usersHTML}
+      ${cmpHTML}`;
+  }
+
+  function budCompare(a, b) {
+    const posR = (x) => { const s = x.sentiment || {}; const t = (s.pos || 0) + (s.neu || 0) + (s.neg || 0) || 1; return Math.round((s.pos || 0) / t * 100); };
+    const l4R = (x) => { const w = x.wcLayers || {}; const t = (w.l1 || 0) + (w.l2 || 0) + (w.l3 || 0) + (w.l4 || 0) || 1; return Math.round((w.l4 || 0) / t * 100); };
+    const rows = [
+      ["独立用户数", fmt(a.userCount), fmt(b.userCount), a.userCount >= b.userCount ? "a" : "b"],
+      ["用户声音数", fmt(a.replyCount), fmt(b.replyCount), a.replyCount >= b.replyCount ? "a" : "b"],
+      ["多次互动用户占比", a.multiReplyShare + "%", b.multiReplyShare + "%", a.multiReplyShare >= b.multiReplyShare ? "a" : "b"],
+      ["人均回复（参与度）", a.avgRepliesPerUser, b.avgRepliesPerUser, a.avgRepliesPerUser >= b.avgRepliesPerUser ? "a" : "b"],
+      ["平均点赞/条（互动率）", a.avgLikes, b.avgLikes, a.avgLikes >= b.avgLikes ? "a" : "b"],
+      ["正面情感率", posR(a) + "%", posR(b) + "%", posR(a) >= posR(b) ? "a" : "b"],
+      ["重度用户数（铁粉）", fmt((a.engLayers || {}).heavy || 0), fmt((b.engLayers || {}).heavy || 0), ((a.engLayers || {}).heavy || 0) >= ((b.engLayers || {}).heavy || 0) ? "a" : "b"],
+      ["活跃用户数", fmt((a.engLayers || {}).active || 0), fmt((b.engLayers || {}).active || 0), ((a.engLayers || {}).active || 0) >= ((b.engLayers || {}).active || 0) ? "a" : "b"],
+      ["Top10 声量集中度", (a.concentration || {}).top10Share + "%", (b.concentration || {}).top10Share + "%", ((a.concentration || {}).top10Share || 0) >= ((b.concentration || {}).top10Share || 0) ? "a" : "b"],
+      ["长回复占比（深度表达）", l4R(a) + "%", l4R(b) + "%", l4R(a) >= l4R(b) ? "a" : "b"],
+    ];
+    const body = rows.map((r) => `<tr>
+      <td class="bud-cmp-metric">${esc(r[0])}</td>
+      <td class="bud-cmp-v ${r[3] === "a" ? "win" : ""}">${r[1]}</td>
+      <td class="bud-cmp-v ${r[3] === "b" ? "win" : ""}">${r[2]}</td>
+    </tr>`).join("");
+    return `<div class="bud-cmp-block">
+      <div class="bud-sec-t">跨品牌用户对比：${esc(a.brand)} vs ${esc(b.brand)}</div>
+      <table class="bud-cmp-table">
+        <thead><tr><th>指标</th><th>${esc(a.brand)}</th><th>${esc(b.brand)}</th></tr></thead>
+        <tbody>${body}</tbody>
+      </table>
+      <div class="bud-conc-note">高亮值为两品牌中更高的一方。对比要点：看谁的「多次互动用户占比 / 重度用户数」更高（黏性更强、更值得深耕头部），以及谁的「Top10 集中度」更低（群众基础更广、更适合放量拉新）。</div>
+    </div>`;
+  }
+
+  function bindBrandUser() {
+    const board = $("#board");
+    // 进入某品牌深度分析
+    $$(".bud-enter", board).forEach((b) => b.addEventListener("click", () => {
+      state.brandUserSel = b.dataset.bud; state.brandUserCmp = ""; state.brandUserRankAll = false; renderBoard();
+    }));
+    // 返回列表
+    const back = $("[data-bud-back]", board);
+    if (back) back.addEventListener("click", () => { state.brandUserSel = null; state.brandUserCmp = ""; renderBoard(); });
+    // 选择对比品牌
+    const cmp = $("[data-bud-cmp]", board);
+    if (cmp) cmp.addEventListener("change", (e) => { state.brandUserCmp = e.target.value; renderBoard(); });
+    // Top 用户展开
+    const rt = $("[data-bud-rank-toggle]", board);
+    if (rt) rt.addEventListener("click", () => { state.brandUserRankAll = !state.brandUserRankAll; renderBoard(); });
+  }
 
   /* ---------- 高互动用户（独立板块）：用户分层 + 高互动用户排行 ---------- */
   function renderUserSeg() {
