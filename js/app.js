@@ -959,7 +959,7 @@ ${topMatches || "（无强匹配）"}
     if (score < 1) {
       const vr = rate(c);
       score = Math.max(1, Math.round(vr / 5));
-      if (isFallback) reasons.length = 0;
+      if (reasons.length && reasons[0] === "无严格匹配 · 按整体爆款率排序") reasons.length = 0;
     }
     return { score: Math.round(Math.min(100, score)), reasons, dimHits: [...new Set(dimHits)] };
   }
