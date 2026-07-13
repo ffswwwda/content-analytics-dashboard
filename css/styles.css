@@ -596,17 +596,23 @@ body::after {
 .bx-actions { margin-top: auto; display: flex; gap: 8px; padding-top: 12px; }
 .bx-actions .mini-btn { flex: 1; }
 
-/* —— 每日盲盒浮窗（可拖动 + 分享生图）—— */
-.bx-float { position: fixed; right: 24px; bottom: 24px; width: 340px; max-height: 82vh; z-index: 80; display: none; flex-direction: column; background: var(--glass-bg-light); border: 1px solid var(--glass-line-strong); border-radius: var(--radius); box-shadow: 0 24px 60px rgba(0,0,0,.5), var(--glow); backdrop-filter: blur(18px); overflow: hidden; }
-.bx-float.show { display: flex; }
-.bx-float-head { display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; cursor: move; background: linear-gradient(135deg, rgba(0,240,255,.16), rgba(168,85,247,.16)); border-bottom: 1px solid var(--glass-line); user-select: none; }
-.bx-float-title { font-size: 14px; font-weight: 700; color: var(--accent-strong); }
-.bx-float-tools { display: flex; gap: 6px; }
-.bx-float-tools .mini-btn { padding: 4px 10px; font-size: 11.5px; }
-.bx-float-body { padding: 14px; overflow-y: auto; }
-.bx-float-grid { display: flex; flex-direction: column; gap: 14px; }
-.bx-float .bx-card { min-height: 420px; }
-.bx-reopen { position: fixed; right: 24px; bottom: 24px; z-index: 80; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border: none; border-radius: 24px; padding: 12px 20px; font-size: 13.5px; font-weight: 700; cursor: pointer; box-shadow: var(--glow); }
+/* —— 每日灵感盲盒全屏居中弹层 —— */
+.bx-overlay { position: fixed; inset: 0; background: rgba(7, 11, 22, 0.86); backdrop-filter: blur(8px); z-index: 85; opacity: 0; pointer-events: none; transition: opacity .25s var(--ease); }
+.bx-overlay.show { opacity: 1; pointer-events: auto; }
+.bx-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.96); width: min(1200px, 94vw); max-height: 92vh; z-index: 86; display: none; flex-direction: column; background: var(--glass-bg-strong); border: 1px solid var(--glass-line-strong); border-radius: var(--radius); box-shadow: 0 32px 90px rgba(0,0,0,.6), var(--glow); backdrop-filter: blur(24px) saturate(180%); overflow: hidden; transition: transform .25s var(--ease), opacity .25s var(--ease); opacity: 0; }
+.bx-modal.show { display: flex; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.bx-modal-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: linear-gradient(135deg, rgba(0,240,255,.16), rgba(168,85,247,.16)); border-bottom: 1px solid var(--glass-line); user-select: none; }
+.bx-modal-title { font-size: 15px; font-weight: 750; color: var(--accent-strong); }
+.bx-modal-tools { display: flex; gap: 8px; }
+.bx-modal-tools .mini-btn { padding: 5px 12px; font-size: 12px; }
+.bx-modal-body { padding: 22px 24px; overflow-y: auto; }
+.bx-modal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.bx-modal .bx-card { min-height: 520px; }
+.bx-reopen { position: fixed; left: 24px; bottom: 24px; z-index: 80; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border: none; border-radius: 24px; padding: 12px 20px; font-size: 13.5px; font-weight: 700; cursor: pointer; box-shadow: var(--glow); transition: transform .16s var(--ease), box-shadow .16s var(--ease); }
+.bx-reopen:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,240,255,.45), var(--glow); }
+.bx-launch { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border: none; border-radius: 24px; padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: var(--glow); transition: transform .16s var(--ease), box-shadow .16s var(--ease); }
+.bx-launch:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,240,255,.45), var(--glow); }
+.bx-launch .ic { width: 18px; height: 18px; }
 
 /* —— 正文语言切换（导航中文不动，仅切内容/回复正文）—— */
 .btn-lang { display: inline-flex; align-items: center; gap: 3px; background: var(--glass-bg-strong); border: 1px solid var(--glass-line-strong); border-radius: 20px; padding: 3px 10px; font-size: 12.5px; font-family: var(--font-mono); cursor: pointer; }
