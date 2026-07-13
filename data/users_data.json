@@ -9475,6 +9475,38 @@
      "n": 181
     }
    ],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 3509
+    },
+    {
+     "f": "视频",
+     "n": 1187
+    },
+    {
+     "f": "GIF",
+     "n": 835
+    },
+    {
+     "f": "纯文本",
+     "n": 319
+    },
+    {
+     "f": "引用转发",
+     "n": 107
+    },
+    {
+     "f": "投票",
+     "n": 68
+    }
+   ],
+   "intents": {
+    "praise": 4824,
+    "request": 839,
+    "question": 277,
+    "complaint": 85
+   },
    "topUsers": [
     {
      "u": "Alberto",
@@ -9634,6 +9666,36 @@
      "n": 29
     }
    ],
+   "forms": [
+    {
+     "f": "视频",
+     "n": 807
+    },
+    {
+     "f": "图片",
+     "n": 666
+    },
+    {
+     "f": "引用转发",
+     "n": 11
+    },
+    {
+     "f": "投票",
+     "n": 2
+    },
+    {
+     "f": "纯文本",
+     "n": 1
+    }
+   ],
+   "intents": {
+    "banter": 421,
+    "praise": 419,
+    "other": 412,
+    "question": 120,
+    "request": 96,
+    "complaint": 19
+   },
    "topUsers": [
     {
      "u": "sweetsunnylove01",
@@ -9795,6 +9857,28 @@
      "n": 38
     }
    ],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 596
+    },
+    {
+     "f": "视频",
+     "n": 424
+    },
+    {
+     "f": "引用转发",
+     "n": 22
+    }
+   ],
+   "intents": {
+    "other": 326,
+    "praise": 302,
+    "banter": 201,
+    "request": 105,
+    "question": 88,
+    "complaint": 20
+   },
    "topUsers": [
     {
      "u": "Steven Tidwell",
@@ -9956,6 +10040,28 @@
      "n": 12
     }
    ],
+   "forms": [
+    {
+     "f": "视频",
+     "n": 366
+    },
+    {
+     "f": "图片",
+     "n": 337
+    },
+    {
+     "f": "GIF",
+     "n": 3
+    }
+   ],
+   "intents": {
+    "request": 461,
+    "other": 83,
+    "praise": 80,
+    "banter": 47,
+    "question": 30,
+    "complaint": 5
+   },
    "topUsers": [
     {
      "u": "Alberto",
@@ -10115,6 +10221,32 @@
      "n": 6
     }
    ],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 100
+    },
+    {
+     "f": "视频",
+     "n": 42
+    },
+    {
+     "f": "引用转发",
+     "n": 18
+    },
+    {
+     "f": "GIF",
+     "n": 16
+    }
+   ],
+   "intents": {
+    "praise": 60,
+    "banter": 56,
+    "other": 30,
+    "request": 16,
+    "question": 10,
+    "complaint": 4
+   },
    "topUsers": [
     {
      "u": "Mason Harris",
@@ -10273,6 +10405,31 @@
      "n": 2
     }
    ],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 30
+    },
+    {
+     "f": "视频",
+     "n": 24
+    },
+    {
+     "f": "GIF",
+     "n": 2
+    },
+    {
+     "f": "纯文本",
+     "n": 2
+    }
+   ],
+   "intents": {
+    "banter": 16,
+    "other": 16,
+    "praise": 14,
+    "question": 8,
+    "request": 4
+   },
    "topUsers": [
     {
      "u": "PandaQuantAI",
@@ -10432,6 +10589,32 @@
      "n": 1
     }
    ],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 20
+    },
+    {
+     "f": "纯文本",
+     "n": 17
+    },
+    {
+     "f": "视频",
+     "n": 4
+    },
+    {
+     "f": "GIF",
+     "n": 2
+    }
+   ],
+   "intents": {
+    "other": 16,
+    "banter": 10,
+    "praise": 7,
+    "question": 5,
+    "request": 3,
+    "complaint": 2
+   },
    "topUsers": [
     {
      "u": "Kato Shuu",
@@ -10590,6 +10773,18 @@
      "n": 1
     }
    ],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 26
+    }
+   ],
+   "intents": {
+    "question": 11,
+    "praise": 8,
+    "other": 5,
+    "banter": 2
+   },
    "topUsers": [
     {
      "u": "Britneydoll",
@@ -10748,6 +10943,27 @@
      "n": 1
     }
    ],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 11
+    },
+    {
+     "f": "视频",
+     "n": 6
+    },
+    {
+     "f": "纯文本",
+     "n": 1
+    }
+   ],
+   "intents": {
+    "praise": 9,
+    "other": 5,
+    "request": 2,
+    "question": 1,
+    "banter": 1
+   },
    "topUsers": [
     {
      "u": "IvoryCurls 🔞",
@@ -10907,6 +11123,23 @@
      "n": 1
     }
    ],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 9
+    },
+    {
+     "f": "视频",
+     "n": 5
+    }
+   ],
+   "intents": {
+    "other": 5,
+    "banter": 4,
+    "praise": 3,
+    "question": 1,
+    "complaint": 1
+   },
    "topUsers": [
     {
      "u": "Emiliao",
@@ -11049,6 +11282,21 @@
      "n": 1
     }
    ],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 8
+    },
+    {
+     "f": "视频",
+     "n": 5
+    }
+   ],
+   "intents": {
+    "request": 8,
+    "praise": 4,
+    "question": 1
+   },
    "topUsers": [
     {
      "u": "Allisom",
@@ -11207,6 +11455,22 @@
      "n": 1
     }
    ],
+   "forms": [
+    {
+     "f": "视频",
+     "n": 5
+    },
+    {
+     "f": "图片",
+     "n": 1
+    }
+   ],
+   "intents": {
+    "question": 2,
+    "other": 2,
+    "banter": 1,
+    "praise": 1
+   },
    "topUsers": [
     {
      "u": "VR Pimp",
@@ -11288,6 +11552,15 @@
      "n": 2
     }
    ],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 2
+    }
+   ],
+   "intents": {
+    "praise": 2
+   },
    "topUsers": [
     {
      "u": "ⲘⲞⲞⲚⲒ ✨🇸🇩",
@@ -11336,6 +11609,15 @@
      "n": 1
     }
    ],
+   "forms": [
+    {
+     "f": "图片",
+     "n": 1
+    }
+   ],
+   "intents": {
+    "request": 1
+   },
    "topUsers": [
     {
      "u": "Daniell kreitz",
