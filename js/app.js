@@ -99,7 +99,7 @@
     detailId: null, predictor: null,
     dim: "brand", dimBrands: new Set(), topicWeights: { viral: 35, eng: 25, rec: 20, cov: 20 },
     blindbox: null, bxSeed: null, refMode: "eval", backtests: [], maxExposure: 1,
-    users: null, uvTab: "language", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all",
+    users: null, uvTab: "language", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all", uvCorpusMarker: "all",
     libMode: "sort", libQuick: "all",
     compSel: new Set(), cmpSel: new Set(),
     compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false },
@@ -1034,7 +1034,7 @@ ${topMatches || "（无强匹配）"}
   function renderMyOps() {
     const brands = aggregateByField(getFiltered(), "account");
     const brandChips = brands.map((b) => `<span class="chip ops-brand${state.opsBrands.includes(b.name) ? " on" : ""}" data-brand="${esc(b.name)}">${esc(b.name)} (${b.count})</span>`).join("");
-    const refs = [["rhythm", "运营节奏"], ["topic", "选题/内容"], ["format", "内容形式"], ["style", "风格调性"], ["metric", "指标阈值"]];
+    const refs = [["rhythm", "运营节奏"], ["topic", "选题/内容"], ["format", "内容形式"], ["style", "风格调性"], ["metric", "指标阈值"], ["copy", "文案参考·本土化"]];
     const refChecks = refs.map(([k, label]) => `<label class="ops-ref"><input type="checkbox" data-ref="${k}" ${state.opsRefs.has(k) ? "checked" : ""}> ${label}</label>`).join("");
     return `<div class="board-head"><div class="board-desc">${boardDesc("myops")}</div></div>
       <div class="dim-note">选一个或多个竞品对标，勾选要参考的维度，生成可执行的运营方案。${state.opsBrands.length ? '<button class="mini-btn" id="ops-clear">清空</button>' : ""}</div>
@@ -1052,8 +1052,9 @@ ${topMatches || "（无强匹配）"}
     }));
     const cl = $("#ops-clear"); if (cl) cl.addEventListener("click", () => { state.opsBrands = []; renderBoard(); });
     $$(".ops-ref").forEach((el) => el.addEventListener("change", () => {
-      const k = el.dataset.ref;
-      if (el.querySelector("input").checked) state.opsRefs.add(k); else state.opsRefs.delete(k);
+      const input = el.querySelector("input");
+      const k = input.dataset.ref;
+      if (input.checked) state.opsRefs.add(k); else state.opsRefs.delete(k);
     }));
     const g = $("#ops-gen"); if (!g) return;
     g.addEventListener("click", () => {
@@ -1079,6 +1080,19 @@ ${topMatches || "（无强匹配）"}
         if (refs.has("format")) { sec += opsSec("③ 内容形式建议", `<li>主力形式：<b>${esc(topType[0])}</b>（占 ${topType[1]}/${items.length}）</li>`); mdSec += `### ③ 内容形式\n- 主力 ${topType[0]}\n`; }
         if (refs.has("style")) { sec += opsSec("④ 风格调性", `<li>推荐情绪调性：<b>${esc(topEmo[0])}</b></li>`); mdSec += `### ④ 风格调性\n- ${topEmo[0]}\n`; }
         if (refs.has("metric")) { sec += opsSec("⑤ 要观测的指标 + 阈值", `<li>爆款率：周均值 ≥ ${avgRate}</li><li>互动率：≥ ${avgEng}%</li><li>发布频率：稳定 ≥ ${freq} 条/周</li><li>异常预警：单条爆款率连续 2 周低于基准即复盘</li>`); mdSec += `### ⑤ 指标阈值\n- 爆款率≥${avgRate}\n- 互动率≥${avgEng}%\n- 频率≥${freq}条/周\n`; }
+        if (refs.has("copy")) {
+          const ca = (state.users && state.users.corpusAnalysis) || {};
+          const libAll = ca.localized || [];
+          const brandLib = libAll.filter((x) => x.brand === name);
+          const pool = brandLib.length ? brandLib : libAll;
+          const topCopy = pool.slice().sort((a, b) => (b.likes || 0) - (a.likes || 0)).slice(0, 5);
+          if (topCopy.length) {
+            const mkHTML = (x) => (x.markers || []).map((m) => `<span class="uv-loc-mk ${esc(m)}">${esc(LOC_MARKER_NAME[m] || m)}</span>`).join("");
+            const items2 = topCopy.map((x) => `<li class="ops-copy-row"><span class="ops-copy-mks">${mkHTML(x)}</span><span class="ops-copy-text">“${esc(x.text)}”</span><span class="uv-corp-like">♥ ${fmt(x.likes)}</span></li>`).join("");
+            sec += opsSec("⑥ 美式本土化文案参考（来自真实用户语料库）", `<div class="ops-copy-hint">以下地道美式表达摘自对标品牌「${esc(name)}」${brandLib.length ? "相关" : "整体"}的高赞用户回帖，可作为我方文案的语气 / 用词参考：</div><ul class="ops-copy-list">${items2}</ul>`);
+            mdSec += `### ⑥ 美式本土化文案参考\n` + topCopy.map((x) => `- [${(x.markers || []).join("/")}] "${x.text}" (♥${x.likes})`).join("\n") + `\n`;
+          }
+        }
         const topContent = items.slice().sort((a, b) => b.viralScore - a.viralScore).slice(0, 3);
         const tcHTML = topContent.map((c) => `<div class="list-row" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(dispText(c))}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)}</div></div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款率</small></div></div>`).join("");
         sec += opsSec("该竞品优质内容（可借鉴）", tcHTML);
@@ -1201,9 +1215,12 @@ ${topMatches || "（无强匹配）"}
         <div class="uv-loc-text">${esc(x.text)}</div>
         <div class="uv-loc-meta">${esc(x.brand || "")}${x.form ? " · " + esc(x.form) : ""} · ${uvIntentTag(x.intent)} ${uvSentTag(x.sent)} <a class="uv-link" href="${esc(x.link || "#")}" target="_blank" rel="noreferrer">原帖↗</a></div>
       </div>`).join("");
-    // ⑦ 真实语料库（可搜索）
+    // ⑦ 真实语料库（可搜索 + 按标记筛选）
+    const corpusMarkerChips = [["all", "全部"], ...Object.keys(LOC_MARKER_NAME).map((m) => [m, LOC_MARKER_NAME[m]])]
+      .map(([m, name]) => `<span class="chip uv-corp-mk-chip${state.uvCorpusMarker === m ? " on" : ""}" data-cm="${esc(m)}">${esc(name)}</span>`).join("");
     const browser = `<div class="uv-corp">
-      <div class="uv-corp-head"><input id="uv-corpus-search" class="uv-search" placeholder="搜索语料：关键词 / 品牌 / 标记…" /><span class="uv-corp-count-wrap">命中 <b id="uv-corp-count">${U.corpusSamples.length}</b> / ${U.corpusSamples.length}</span></div>
+      <div class="fp-chips uv-corp-mk-row"><span class="uv-corp-mk-label">按标记筛选：</span>${corpusMarkerChips}</div>
+      <div class="uv-corp-head"><input id="uv-corpus-search" class="uv-search" placeholder="搜索语料：关键词 / 品牌…" /><span class="uv-corp-count-wrap">命中 <b id="uv-corp-count">${U.corpusSamples.length}</b> / ${U.corpusSamples.length}</span></div>
       <div class="uv-corp-list">${U.corpusSamples.map(uvCorpItem).join("")}</div></div>`;
     // 导出工具栏
     const exportBar = `<div class="uv-export">
@@ -1235,7 +1252,7 @@ ${topMatches || "（无强匹配）"}
   }
   function uvCorpItem(s) {
     const mks = (s.markers || []).map((m) => `<span class="uv-loc-mk ${esc(m)}">${esc(LOC_MARKER_NAME[m] || m)}</span>`).join("");
-    return `<div class="uv-corp-item" data-text="${esc(s.text)}" data-brand="${esc(s.brand)}">
+    return `<div class="uv-corp-item" data-text="${esc(s.text)}" data-brand="${esc(s.brand)}" data-markers="${(s.markers || []).join(" ")}">
       <div class="uv-corp-top">${uvLangTag(s.lang)} ${uvSentTag(s.sent)} ${uvIntentTag(s.intent)} ${mks}<span class="uv-corp-brand">${esc(s.brand)}</span> <span class="uv-corp-form">${esc(s.form)}</span> <span class="uv-corp-like">♥ ${fmt(s.likes)}</span></div>
       <div class="uv-corp-text">${esc(s.text)}</div>
       <a class="uv-link" href="${esc(s.link || "#")}" target="_blank" rel="noreferrer">查看原帖 ↗</a>
@@ -2056,15 +2073,30 @@ ${sim || "（无同主题关联帖）"}
     // 导出按钮
     $$("[data-uvx]", $("#board")).forEach((el) => el.addEventListener("click", () => { uvExportCorpus(el.dataset.uvx); }));
     const cs = $("#uv-corpus-search");
-    if (cs) cs.addEventListener("input", (e) => {
-      const q = e.target.value.trim().toLowerCase();
-      $$(".uv-corp-item", $("#board")).forEach((el) => {
-        const hit = !q || (el.dataset.text || "").toLowerCase().includes(q) || (el.dataset.brand || "").toLowerCase().includes(q);
-        el.style.display = hit ? "" : "none";
-      });
-      const shown = $$(".uv-corp-item", $("#board")).filter((el) => el.style.display !== "none").length;
-      const cnt = $("#uv-corp-count"); if (cnt) cnt.textContent = shown;
-    });
+    if (cs) {
+      const applyCorpusFilter = () => {
+        const q = cs.value.trim().toLowerCase();
+        let shown = 0;
+        $$(".uv-corp-item", $("#board")).forEach((el) => {
+          const text = (el.dataset.text || "").toLowerCase();
+          const brand = (el.dataset.brand || "").toLowerCase();
+          const mks = (el.dataset.markers || "").split(/\s+/).filter(Boolean);
+          const hitQ = !q || text.includes(q) || brand.includes(q);
+          const hitM = state.uvCorpusMarker === "all" || mks.includes(state.uvCorpusMarker);
+          const ok = hitQ && hitM;
+          el.style.display = ok ? "" : "none";
+          if (ok) shown++;
+        });
+        const cnt = $("#uv-corp-count"); if (cnt) cnt.textContent = shown;
+      };
+      cs.addEventListener("input", applyCorpusFilter);
+      // 语料按标记筛选（不整页重渲染，保留搜索关键词）
+      $$(".uv-corp-mk-chip", $("#board")).forEach((el) => el.addEventListener("click", () => {
+        state.uvCorpusMarker = el.dataset.cm;
+        $$(".uv-corp-mk-chip", $("#board")).forEach((c) => c.classList.toggle("on", c.dataset.cm === state.uvCorpusMarker));
+        applyCorpusFilter();
+      }));
+    }
   }
 
   function bindGlobal() {
