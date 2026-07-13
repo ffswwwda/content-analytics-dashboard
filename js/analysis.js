@@ -476,6 +476,26 @@ const Analysis = (function () {
       suggestions.push("匹配内容中爆款比例偏低，建议添加更明确的价值主张或标题钩子再试。");
     }
 
+    // 用户指标与风评：基于匹配到的历史内容提炼用户侧表现
+    const umAvgEng = matched.length ? avg(matched, "engagement") : 0;
+    const umAvgComments = matched.length ? avg(matched, "comments") : 0;
+    const umAvgLikes = matched.length ? avg(matched, "likes") : 0;
+    const kwCount = {};
+    matched.forEach((it) => (it.topicTags || []).forEach((t) => { kwCount[t] = (kwCount[t] || 0) + 1; }));
+    const cq = {};
+    matched.forEach((it) => Object.entries(it.commentQuality || {}).forEach(([k, v]) => { cq[k] = (cq[k] || 0) + v; }));
+    const topKeywords = Object.entries(kwCount).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k]) => k);
+    const topSentiment = Object.entries(cq).sort((a, b) => b[1] - a[1])[0];
+    const reviewDist = Object.entries(cq).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, count]) => ({ name, count }));
+    const userMetrics = {
+      avgEngagement: Math.round(umAvgEng),
+      avgComments: Math.round(umAvgComments),
+      avgLikes: Math.round(umAvgLikes),
+      topKeywords,
+      reviewTone: topSentiment ? topSentiment[0] : "—",
+      reviewDist,
+    };
+
     return {
       score,
       topicViralRate: Math.round(topicViralRate * 100),
@@ -494,6 +514,7 @@ const Analysis = (function () {
       matchedStats,
       keyTakeaways,
       suggestions,
+      userMetrics,
     };
   }
 
