@@ -3,6 +3,12 @@
   "use strict";
   const A = window.Analysis;
 
+  const BX_COVERS = [
+    "assets/7660891523756442137.jpeg",
+    "assets/7660891533562937881.jpeg",
+    "assets/7660891536582918681.jpeg",
+  ];
+
   /* ---------- 板块定义 ---------- */
   const ICON = {
     library: '<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" fill="currentColor"/>',
@@ -641,14 +647,17 @@ ${topMatches || "（无强匹配）"}
     return state.blindbox.map((p, i) => {
       const c = p.c;
       const v = topVoiceFor(c);
-      const cover = c.image
-        ? `<img class="bx-cover-img" src="${esc(c.image)}" alt="">`
-        : `<div class="bx-cover-grad"><div class="bx-cover-brand">${esc(c.account)}</div><div class="bx-cover-type">${esc(c.contentType)}</div></div>`;
+      const coverImg = BX_COVERS[i % BX_COVERS.length];
+      const cover = `<div class="bx-cover-wrap">
+        <img class="bx-cover-img" src="${esc(coverImg)}" alt="盲盒卡片" crossorigin="anonymous">
+        <div class="bx-cover-mask"></div>
+        <div class="bx-front-foot"><div class="bx-q">?</div><div class="bx-hint">点击翻牌</div></div>
+      </div>`;
       const voiceHTML = v
         ? `<div class="bx-voice"><div class="bx-voice-head">最高赞用户评价 · <span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span> <span class="uv-likes">♥ ${fmt(v.likes)}</span></div><div class="bx-voice-text">${esc(dispVoice(v))}</div><a class="uv-link" href="${esc(v.originalLink || "#")}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div>`
         : `<div class="bx-voice bx-muted">暂无该内容的用户评价数据</div>`;
       return `<div class="bx-card face-down" data-bx="${i}">
-        <div class="bx-face bx-front">${cover}<div class="bx-front-foot"><div class="bx-q">?</div><div class="bx-hint">点击翻牌</div></div></div>
+        <div class="bx-face bx-front">${cover}</div>
         <div class="bx-face bx-back">
           <div class="bx-rarity ${p.rarity.cls}">${p.rarity.label}</div>
           <div class="bx-reveal">
@@ -659,7 +668,7 @@ ${topMatches || "（无强匹配）"}
             <div class="bx-row bx-row-text"><span class="bx-k">可借鉴</span><span class="bx-v">${esc(borrowTip(c))}</span></div>
             ${voiceHTML}
           </div>
-          <div class="bx-actions"><button class="mini-btn" data-use="${c.id}">点开详情</button><button class="mini-btn ghost" data-share="${i}">分享生图</button></div>
+          <div class="bx-actions"><button class="mini-btn" data-use="${c.id}">点开详情</button><button class="mini-btn ghost" data-share="${i}">下载图片</button><button class="mini-btn ghost" data-copy="${i}">复制图片</button></div>
         </div></div>`;
     }).join("");
   }
@@ -713,17 +722,19 @@ ${topMatches || "（无强匹配）"}
     $$("[data-use]", box).forEach((b) => b.onclick = (e) => { e.stopPropagation(); openDrawer(b.dataset.use); });
     // 分享生图
     $$("[data-share]", box).forEach((b) => b.onclick = (e) => { e.stopPropagation(); blindboxShareImage(state.blindbox[+b.dataset.share]); });
+    // 复制图片
+    $$("[data-copy]", box).forEach((b) => b.onclick = (e) => { e.stopPropagation(); blindboxCopyImage(state.blindbox[+b.dataset.copy]); });
   }
 
-  // 把一张盲盒卡牌绘制成霓虹 PNG 并下载
-  function blindboxShareImage(p) {
-    if (!p) return;
+  // 把一张盲盒卡牌内容绘制成霓虹 PNG canvas
+  function blindboxCardCanvas(p) {
+    if (!p) return null;
     const c = p.c, r = p.rarity;
     const W = 480, H = 640;
     const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
     let x = null;
     try { x = cv.getContext("2d"); } catch (e) { x = null; }
-    if (!x) { toast("当前环境不支持生成图片"); return; }
+    if (!x) return null;
     const g = x.createLinearGradient(0, 0, W, H);
     g.addColorStop(0, "#0a0e1a"); g.addColorStop(1, "#16203a");
     x.fillStyle = g; x.fillRect(0, 0, W, H);
@@ -759,12 +770,31 @@ ${topMatches || "（无强匹配）"}
     // 页脚
     x.fillStyle = "#5f7099"; x.font = "12px system-ui,sans-serif"; x.textAlign = "center";
     x.fillText("内容监测分析 · 每日盲盒", W / 2, H - 22);
-    // 下载
+    return cv;
+  }
+
+  function blindboxShareImage(p) {
+    const cv = blindboxCardCanvas(p);
+    if (!cv) { toast("当前环境不支持生成图片"); return; }
     try {
       const url = cv.toDataURL("image/png");
-      const a = document.createElement("a"); a.href = url; a.download = `盲盒_${c.account}_${c.id}.png`; a.click();
-      toast("已生成分享图，开始下载");
-    } catch (e) { toast("生图失败：" + e.message); }
+      const a = document.createElement("a"); a.href = url; a.download = `盲盒_${p.c.account}_${p.c.id}.png`; a.click();
+      toast("已生成图片，开始下载");
+    } catch (e) { toast("下载失败：" + e.message); }
+  }
+
+  async function blindboxCopyImage(p) {
+    const cv = blindboxCardCanvas(p);
+    if (!cv) { toast("当前环境不支持生成图片"); return; }
+    try {
+      cv.toBlob(async (blob) => {
+        if (!blob) { toast("复制失败：无法生成图片"); return; }
+        if (navigator.clipboard && navigator.clipboard.write) {
+          await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+          toast("图片已复制到剪贴板");
+        } else { toast("当前浏览器不支持复制图片"); }
+      }, "image/png");
+    } catch (e) { toast("复制失败：" + e.message); }
   }
 
   /* ============ 参考建议中枢（评估想法 / 找参考 / 回测）============ */
