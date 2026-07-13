@@ -99,7 +99,7 @@
     detailId: null, predictor: null,
     dim: "brand", dimBrands: new Set(), topicWeights: { viral: 35, eng: 25, rec: 20, cov: 20 },
     blindbox: null, bxSeed: null, refMode: "eval", backtests: [], maxExposure: 1,
-    users: null, uvTab: "framework", uvCorpusQ: "", uvRankAll: false,
+    users: null, uvTab: "language", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all",
     libMode: "sort", libQuick: "all",
     compSel: new Set(), cmpSel: new Set(),
     compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false },
@@ -1021,6 +1021,16 @@ ${topMatches || "（无强匹配）"}
       setTimeout(() => { try { document.body.removeChild(a); URL.revokeObjectURL(url); } catch (e) {} }, 100);
     } catch (e) { toast("导出失败：" + e.message); }
   }
+  function downloadFile(filename, content, mime) {
+    try {
+      const blob = new Blob([content], { type: (mime || "text/plain") + ";charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+      setTimeout(() => { try { document.body.removeChild(a); URL.revokeObjectURL(url); } catch (e) {} }, 100);
+    } catch (e) { toast("导出失败：" + e.message); }
+  }
+  function csvCell(s) { s = String(s == null ? "" : s); if (/[",\n]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"'; return s; }
   function renderMyOps() {
     const brands = aggregateByField(getFiltered(), "account");
     const brandChips = brands.map((b) => `<span class="chip ops-brand${state.opsBrands.includes(b.name) ? " on" : ""}" data-brand="${esc(b.name)}">${esc(b.name)} (${b.count})</span>`).join("");
@@ -1089,6 +1099,8 @@ ${topMatches || "（无强匹配）"}
   const LANG_NAME = { en: "英语 EN", de: "德语 DE", zh: "中文 ZH", ru: "俄语 RU", ja: "日语 JA", other: "其他" };
   const INTENT_COL = { praise: "#00f0ff", request: "#a06bff", question: "#ffd166", banter: "#ff7eb6", complaint: "#ff5d73", other: "#6b7a99" };
   const INTENT_NAME = { praise: "赞美", request: "求购/合作", question: "提问", banter: "玩梗互动", complaint: "吐槽", other: "其他" };
+  const LOC_MARKER_NAME = { slang: "俚语/口语", emoji: "Emoji 表达", contraction: "缩写词", emphasis: "强调语气", filler: "填充词", casual: "随性口吻" };
+  const STYLE_NAME = { emojiRate: "Emoji 使用率", capsRate: "全大写率", exclaimRate: "感叹号率", questionRate: "提问率", firstPersonRate: "第一人称率", contractionRate: "缩写词率", emphasisRate: "强调语气率", slangRate: "口语/俚语率", avgWords: "平均句长" };
 
   function uvPct(n, total) { return total ? Math.round((n / total) * 100) : 0; }
   function uvBars(pairs) {
@@ -1117,32 +1129,18 @@ ${topMatches || "（无强匹配）"}
     const U = state.users;
     const desc = BOARDS.find((b) => b.id === "uservoice").desc;
     if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
-    const tabs = [["framework", "分析框架"], ["say", "用户在说什么"], ["language", "用户如何说"], ["layers", "用户分层"], ["rank", "高互动用户"], ["brand", "分品牌评价"], ["form", "分内容形式"]];
+    const tabs = [["say", "用户在说什么"], ["language", "用户语料库分析"], ["layers", "用户分层"], ["rank", "高互动用户"], ["brand", "分品牌评价"], ["form", "分内容形式"]];
     const tabBar = `<div class="uv-tabs">${tabs.map(([id, name]) => `<button class="uv-tab${state.uvTab === id ? " on" : ""}" data-uv="${id}">${name}</button>`).join("")}</div>`;
     const m = U.meta;
     const meta = `<div class="uv-meta">真实用户回帖 <b>${fmt(m.genuine_replies_in_window)}</b> · 独立用户 <b>${fmt(m.genuine_users)}</b> · 多帖用户 <b>${fmt(m.multi_reply_users)}</b> · 窗口 ${m.window[0]} ~ ${m.window[1]}<span class="uv-meta-sub">（已过滤品牌官方回复 ${fmt(m.brand_reply_filtered)} 条）</span></div>`;
     let body = "";
-    if (state.uvTab === "framework") body = uvFramework(U);
-    else if (state.uvTab === "say") body = uvSay(U);
+    if (state.uvTab === "say") body = uvSay(U);
     else if (state.uvTab === "language") body = uvLanguage(U);
     else if (state.uvTab === "layers") body = uvLayers(U);
     else if (state.uvTab === "rank") body = uvRank(U);
     else if (state.uvTab === "brand") body = uvBrand(U);
     else body = uvForm(U);
     return `<div class="board-head"><div class="board-desc">${desc}</div></div>${meta}${tabBar}${body}`;
-  }
-
-  function uvFramework(U) {
-    const F = U.framework;
-    const dims = F.dims.map((d) => `<div class="uv-dim"><div class="uv-dim-name">${d.name}</div><div class="uv-dim-logic">${d.logic}</div></div>`).join("");
-    const demo = F.demo.map((s) => `<tr><td class="uv-d-text">${esc(s.text)}</td><td>${uvLangTag(s.lang)}</td><td>${uvIntentTag(s.intent)}</td><td>${uvSentTag(s.sent)}</td><td class="uv-d-num">${s.tokens}</td><td class="uv-d-num">♥${fmt(s.likes)}</td></tr>`).join("");
-    return `<div class="uv-block">
-      <div class="uv-fw-title">${F.title}</div>
-      <div class="uv-fw-desc">${F.desc}</div>
-      <div class="uv-dim-grid">${dims}</div>
-      <div class="uv-block-title" style="margin-top:18px">真实语料 · 逻辑演示（每一步打标结果都可见）</div>
-      <table class="uv-demo"><thead><tr><th>原始回帖</th><th>语言</th><th>意图</th><th>情绪</th><th>词数</th><th>赞</th></tr></thead><tbody>${demo}</tbody></table>
-    </div>`;
   }
 
   function uvSay(U) {
@@ -1169,28 +1167,110 @@ ${topMatches || "（无强匹配）"}
 
   function uvLanguage(U) {
     const c = U.corpus;
+    const ca = U.corpusAnalysis || { style: {}, bigrams: [], trigrams: [], phrasesByIntent: {}, emotionQuotes: {}, localized: [], localizedByMarker: {} };
+    const st = ca.style || {};
+    const enN = c.lang.en || 0, tot = Object.values(c.lang).reduce((s, v) => s + v, 0) || 1;
     const lPairs = Object.entries(c.lang).map(([k, v]) => [LANG_NAME[k] || k, v, LANG_COL[k] || COL.slate]);
-    const deN = c.lang.de || 0, zhN = c.lang.zh || 0;
-    const locNote = `<div class="uv-note">⚠️ 本土化机会：除英语外，检测到 <b>${deN}</b> 条德语、<b>${zhN}</b> 条中文等母语表达——存在稳定的非英语母语用户群，可用对应语言做定向互动 / 客服。</div>`;
+    const enPct = Math.round((enN / tot) * 100);
+    const locNote = `<div class="uv-note">🇺🇸 美式英语主导：占 <b>${enPct}%</b>（${fmt(enN)} 条），是绝对主体的本土语境。下面的分析全部基于真实英文回帖，重点呈现「地道美式表达」而非翻译。</div>`;
+    // ② 语言风格指标
+    const styleCards = [["avgWords", st.avgWords, "词"], ["firstPersonRate", st.firstPersonRate, "%"], ["contractionRate", st.contractionRate, "%"], ["emphasisRate", st.emphasisRate, "%"], ["slangRate", st.slangRate, "%"], ["emojiRate", st.emojiRate, "%"], ["exclaimRate", st.exclaimRate, "%"], ["capsRate", st.capsRate, "%"], ["questionRate", st.questionRate, "%"]]
+      .filter(([k]) => st[k] != null).map(([k, v, unit]) => `<div class="uv-style-card"><div class="uv-style-val">${v}<span class="uv-style-unit">${unit}</span></div><div class="uv-style-label">${STYLE_NAME[k] || k}</div></div>`).join("");
+    // ③ 高频短语
+    const maxN = (ca.bigrams[0] || { n: 1 }).n || 1;
+    const phraseCards = ca.bigrams.slice(0, 18).map((p) => { const fs2 = Math.round(12 + 16 * (p.n / maxN)); return `<span class="uv-phrase" style="font-size:${fs2}px">${esc(p.w)} <i>${fmt(p.n)}</i></span>`; }).join("");
+    const triCards = ca.trigrams.slice(0, 10).map((p) => `<span class="uv-phrase uv-phrase-sm">${esc(p.w)} <i>${fmt(p.n)}</i></span>`).join("");
+    // ④ 分意图口吻语录
+    const intentSec = Object.entries(ca.phrasesByIntent || {}).map(([k, arr]) => {
+      if (!arr || !arr.length) return "";
+      const quotes = arr.slice(0, 2).map((q) => `<div class="uv-quote">“${esc(q.text)}”<span class="uv-quote-meta">♥ ${fmt(q.likes)}${q.brand ? " · " + esc(q.brand) : ""}</span></div>`).join("");
+      return `<div class="uv-intent-col"><div class="uv-intent-head">${uvIntentTag(k)}</div>${quotes}</div>`;
+    }).join("");
+    // ⑤ 分情绪样例
+    const emoSec = Object.entries(ca.emotionQuotes || {}).map(([k, arr]) => {
+      if (!arr || !arr.length) return "";
+      const quotes = arr.slice(0, 2).map((q) => `<div class="uv-quote">“${esc(q.text)}”<span class="uv-quote-meta">♥ ${fmt(q.likes)}</span></div>`).join("");
+      return `<div class="uv-intent-col"><div class="uv-intent-head">${uvSentTag(k)}</div>${quotes}</div>`;
+    }).join("");
+    // ⑥ 美式本土化表达库
+    const markers = [["all", "全部"], ...Object.keys(ca.localizedByMarker || {}).map((m) => [m, LOC_MARKER_NAME[m] || m])];
+    const markerChips = markers.map(([m, name]) => `<span class="chip uv-loc-chip${state.uvLocMarker === m ? " on" : ""}" data-loc="${esc(m)}">${esc(name)}</span>`).join("");
+    const locSrc = state.uvLocMarker === "all" ? (ca.localized || []) : (ca.localizedByMarker[state.uvLocMarker] || []);
+    const locCards = locSrc.slice(0, 30).map((x) => `<div class="uv-loc-card">
+        <div class="uv-loc-top">${(x.markers || []).map((m) => `<span class="uv-loc-mk ${esc(m)}">${esc(LOC_MARKER_NAME[m] || m)}</span>`).join("")}<span class="uv-corp-like">♥ ${fmt(x.likes)}</span></div>
+        <div class="uv-loc-text">${esc(x.text)}</div>
+        <div class="uv-loc-meta">${esc(x.brand || "")}${x.form ? " · " + esc(x.form) : ""} · ${uvIntentTag(x.intent)} ${uvSentTag(x.sent)} <a class="uv-link" href="${esc(x.link || "#")}" target="_blank" rel="noreferrer">原帖↗</a></div>
+      </div>`).join("");
+    // ⑦ 真实语料库（可搜索）
     const browser = `<div class="uv-corp">
-      <div class="uv-corp-head"><input id="uv-corpus-search" class="uv-search" placeholder="搜索语料：关键词 / 品牌…" /><span class="uv-corp-count-wrap">命中 <b id="uv-corp-count">${U.corpusSamples.length}</b> / ${U.corpusSamples.length}</span></div>
+      <div class="uv-corp-head"><input id="uv-corpus-search" class="uv-search" placeholder="搜索语料：关键词 / 品牌 / 标记…" /><span class="uv-corp-count-wrap">命中 <b id="uv-corp-count">${U.corpusSamples.length}</b> / ${U.corpusSamples.length}</span></div>
       <div class="uv-corp-list">${U.corpusSamples.map(uvCorpItem).join("")}</div></div>`;
+    // 导出工具栏
+    const exportBar = `<div class="uv-export">
+      <span class="uv-export-label">导出：</span>
+      <button class="mini-btn" data-uvx="json">全量 JSON</button>
+      <button class="mini-btn" data-uvx="csv">本土化语料 CSV</button>
+      <button class="mini-btn" data-uvx="md">本土化学习 + skill 训练 (.md)</button>
+    </div>`;
     return `<div class="uv-block">
+      ${exportBar}
       <div class="uv-block-title">① 用户使用什么语言？</div>
       ${uvBars(lPairs)}
       ${locNote}
-      <div class="uv-block-title" style="margin-top:18px">② 用户词云（高频表达 · 越大越常出现）</div>
-      ${uvCloud(c.wordFreq)}
-      <div class="uv-block-title" style="margin-top:18px">③ 真实语料库（按点赞排序，可搜索英文原文）</div>
+      <div class="uv-block-title" style="margin-top:18px">② 语言风格指标（美式真实回帖的语言习惯）</div>
+      <div class="uv-style-grid">${styleCards}</div>
+      <div class="uv-block-title" style="margin-top:18px">③ 高频短语 / 词频（越大越常出现）</div>
+      <div class="uv-phrase-cloud">${phraseCards}</div>
+      ${triCards ? `<div class="uv-sub-note">三字短语：${triCards}</div>` : ""}
+      <div class="uv-block-title" style="margin-top:18px">④ 分意图口吻语录（不同意图下的真实表达）</div>
+      <div class="uv-intent-grid">${intentSec || "<div class='uv-note'>暂无数据</div>"}</div>
+      <div class="uv-block-title" style="margin-top:18px">⑤ 分情绪样例（情绪如何被说出来）</div>
+      <div class="uv-intent-grid">${emoSec || "<div class='uv-note'>暂无数据</div>"}</div>
+      <div class="uv-block-title" style="margin-top:18px">⑥ 美式本土化表达库（按语言风格标记 · 可筛选）</div>
+      <div class="fp-chips" style="margin-bottom:10px">${markerChips}</div>
+      <div class="uv-loc-grid">${locCards || "<div class='uv-note'>该标记下暂无样本</div>"}</div>
+      <div class="uv-block-title" style="margin-top:18px">⑦ 真实语料库（可搜索英文原文 · 带语言风格标记）</div>
       ${browser}
     </div>`;
   }
   function uvCorpItem(s) {
+    const mks = (s.markers || []).map((m) => `<span class="uv-loc-mk ${esc(m)}">${esc(LOC_MARKER_NAME[m] || m)}</span>`).join("");
     return `<div class="uv-corp-item" data-text="${esc(s.text)}" data-brand="${esc(s.brand)}">
-      <div class="uv-corp-top">${uvLangTag(s.lang)} ${uvSentTag(s.sent)} ${uvIntentTag(s.intent)} <span class="uv-corp-brand">${esc(s.brand)}</span> <span class="uv-corp-form">${esc(s.form)}</span> <span class="uv-corp-like">♥ ${fmt(s.likes)}</span></div>
+      <div class="uv-corp-top">${uvLangTag(s.lang)} ${uvSentTag(s.sent)} ${uvIntentTag(s.intent)} ${mks}<span class="uv-corp-brand">${esc(s.brand)}</span> <span class="uv-corp-form">${esc(s.form)}</span> <span class="uv-corp-like">♥ ${fmt(s.likes)}</span></div>
       <div class="uv-corp-text">${esc(s.text)}</div>
       <a class="uv-link" href="${esc(s.link || "#")}" target="_blank" rel="noreferrer">查看原帖 ↗</a>
     </div>`;
+  }
+  function uvExportCorpus(kind) {
+    const U = state.users; if (!U) return;
+    const ca = U.corpusAnalysis || {};
+    if (kind === "json") {
+      downloadFile("user_corpus_analysis.json", JSON.stringify(U, null, 2), "application/json");
+      toast("已导出全量语料分析 JSON");
+    } else if (kind === "csv") {
+      const rows = [["text", "likes", "brand", "form", "intent", "sentiment", "markers", "link"]];
+      (ca.localized || []).forEach((x) => rows.push([x.text, x.likes, x.brand || "", x.form || "", x.intent || "", x.sent || "", (x.markers || []).join("|"), x.link || ""]));
+      const csv = rows.map((r) => r.map(csvCell).join(",")).join("\n");
+      downloadFile("us_localized_expressions.csv", "﻿" + csv, "text/csv");
+      toast("已导出本土化语料 CSV（" + (ca.localized || []).length + " 条）");
+    } else if (kind === "md") {
+      let md = "# 美式用户语料 · 本土化表达学习库\n\n";
+      md += "> 本库抽取自真实用户英文回帖，按语言风格标记（slang / emoji / contraction / emphasis / filler / casual）。\n> 用途：① 人类学习地道美式社媒表达；② 作为 AI 训练语料，辅助生成「本土化表达」skill。\n\n";
+      md += "## 一、语言风格指标（整体）\n\n" + Object.entries(ca.style || {}).filter(([k]) => k !== "total").map(([k, v]) => "- **" + (STYLE_NAME[k] || k) + "**：" + v + (k === "avgWords" ? " 词" : "%")).join("\n") + "\n\n";
+      md += "## 二、高频短语（按出现次数）\n\n";
+      (ca.bigrams || []).forEach((p) => { md += "- " + p.w + "（" + p.n + "）\n"; });
+      md += "\n## 三、美式本土化表达库（按标记分组）\n\n";
+      for (const [mk, arr] of Object.entries(ca.localizedByMarker || {})) {
+        md += "### " + (LOC_MARKER_NAME[mk] || mk) + "\n\n";
+        (arr || []).forEach((x) => { md += "- \"" + x.text.replace(/"/g, "'") + "\" — ♥" + x.likes + (x.brand ? " · " + x.brand : "") + (x.link ? " · " + x.link : "") + "\n"; });
+        md += "\n";
+      }
+      md += "## 四、给 AI 的 skill 训练语料（system 提示）\n\n```\n你是一个熟悉美式英语社媒本土表达的助手。以下是从真实用户回帖中提取的地道美式表达示例（含俚语、缩写、emoji、强调语气、填充词），请在生成英文内容时优先采用这类自然口语风格，而非翻译腔：\n";
+      (ca.localized || []).slice(0, 50).forEach((x) => { md += x.text + "\n"; });
+      md += "```\n";
+      downloadText("us_localization_guide.md", md);
+      toast("已导出本土化学习 + skill 训练文档");
+    }
   }
 
   function uvLayers(U) {
@@ -1969,6 +2049,12 @@ ${sim || "（无同主题关联帖）"}
     }));
     const rt = $("[data-uv-rank-toggle]", $("#board"));
     if (rt) rt.addEventListener("click", () => { state.uvRankAll = !state.uvRankAll; renderBoard(); });
+    // 美式本土化表达库：按标记筛选
+    $$(".uv-loc-chip", $("#board")).forEach((el) => el.addEventListener("click", () => {
+      state.uvLocMarker = el.dataset.loc; renderBoard();
+    }));
+    // 导出按钮
+    $$("[data-uvx]", $("#board")).forEach((el) => el.addEventListener("click", () => { uvExportCorpus(el.dataset.uvx); }));
     const cs = $("#uv-corpus-search");
     if (cs) cs.addEventListener("input", (e) => {
       const q = e.target.value.trim().toLowerCase();
