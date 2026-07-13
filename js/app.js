@@ -53,6 +53,7 @@
     detailId: null, predictor: null,
     dim: "brand", dimBrands: new Set(), topicWeights: { viral: 35, eng: 25, rec: 20, cov: 20 },
     blindbox: null, refMode: "eval", backtests: [], maxExposure: 1,
+    users: null, uvTab: "framework", uvCorpusQ: "",
     libMode: "sort", libQuick: "all",
     compSel: new Set(), cmpSel: new Set(),
     opsBrands: [], opsRefs: new Set(["rhythm", "topic", "format", "style", "metric"]),
@@ -209,7 +210,7 @@
       case "insights": html = renderInsights(); break;
       case "competitor": html = renderCompetitorLib(); break;
       case "compare": html = renderCompareBoard(); break;
-      case "uservoice": html = renderUserLang(); break;
+      case "uservoice": html = renderUserBoard(); break;
       case "format": html = renderDimFormat(); break;
       case "topic": html = renderDimTopic(); break;
       case "platform": html = renderDimPlatform(); break;
@@ -866,20 +867,186 @@ ${topMatches || "（无强匹配）"}
     });
   }
 
-  /* ============ 了解用户：用户讨论与语言 ============ */
-  function renderUserLang() {
-    const voices = (state.raw && state.raw.userVoices) || [];
-    if (!voices.length) return `<div class="board-head"><div class="board-desc">${BOARDS.find((b) => b.id === "uservoice").desc}</div></div>` + emptyState("用户语料待接入");
-    const sorted = [...voices].sort((a, b) => b.likes - a.likes);
-    const cards = sorted.map((v) => `<div class="uv-card">
-      <div class="uv-top"><span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span><span class="uv-likes">♥ ${fmt(v.likes)}</span></div>
-      <div class="uv-text">${esc(v.text)}</div>
-      <div class="uv-meta">${esc(v.account)} · ${esc(v.platform)}</div>
-      <a class="uv-link" href="${esc(v.originalLink)}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div>`).join("");
-    return `<div class="board-head"><div class="board-desc">${BOARDS.find((b) => b.id === "uservoice").desc}</div></div>
-      <div class="dim-note">学习美国用户的语言与话题讨论方式。下方「用户语料 skill」为规划中的独立交付（需 GPT 语料分析）。</div>
-      <div class="dim-grid uv-grid">${cards}</div>
-      <div class="panel" style="margin-top:16px"><div class="panel-title">用户语料 skill（规划中）</div><div class="panel-sub">提炼本土化表达模板、话题讨论方式——后续以独立 skill 交付。</div></div>`;
+  /* ============ 了解用户：用户讨论与语言（富用户分析中枢）============ */
+  const COL = { pos: "#2ee6a6", neu: "#6b7a99", neg: "#ff5d73", slate: "#6b7a99" };
+  const HUES = ["#00f0ff", "#a06bff", "#ff7eb6", "#ffd166", "#2ee6a6", "#5b8cff", "#ff9d5c", "#8ad"];
+  const LANG_COL = { en: "#00f0ff", de: "#a06bff", zh: "#ffd166", ru: "#ff7eb6", ja: "#2ee6a6", other: "#6b7a99" };
+  const LANG_NAME = { en: "英语 EN", de: "德语 DE", zh: "中文 ZH", ru: "俄语 RU", ja: "日语 JA", other: "其他" };
+  const INTENT_COL = { praise: "#00f0ff", request: "#a06bff", question: "#ffd166", banter: "#ff7eb6", complaint: "#ff5d73", other: "#6b7a99" };
+  const INTENT_NAME = { praise: "赞美", request: "求购/合作", question: "提问", banter: "玩梗互动", complaint: "吐槽", other: "其他" };
+
+  function uvPct(n, total) { return total ? Math.round((n / total) * 100) : 0; }
+  function uvBars(pairs) {
+    const total = pairs.reduce((s, p) => s + p[1], 0) || 1;
+    return `<div class="uv-bars">` + pairs.filter((p) => p[1] > 0).map(([label, n, color]) => {
+      const w = (n / total) * 100;
+      return `<div class="uv-bar"><span class="uv-bar-label">${esc(label)}</span><span class="uv-bar-track"><i style="width:${w.toFixed(1)}%;background:${color}"></i></span><span class="uv-bar-val">${fmt(n)}<em>${w.toFixed(0)}%</em></span></div>`;
+    }).join("") + `</div>`;
+  }
+  function uvCloud(arr) {
+    if (!arr || !arr.length) return `<div class="uv-muted">暂无词频</div>`;
+    const max = arr[0].n, min = arr[arr.length - 1].n;
+    return `<div class="uv-cloud">` + arr.map((o, i) => {
+      const t = (o.n - min) / ((max - min) || 1);
+      const sz = 12 + 24 * Math.sqrt(t);
+      const c = `hsl(${HUES[i % HUES.length].replace("#", "")} 90% ${(58 + t * 12).toFixed(0)}%)`;
+      return `<span class="uv-word" style="font-size:${sz.toFixed(1)}px;color:${c}" title="${esc(o.w)} · ${o.n}">${esc(o.w)}</span>`;
+    }).join("") + `</div>`;
+  }
+  function uvTag(text, cls) { return `<span class="uv-tag ${cls || ""}">${esc(text)}</span>`; }
+  function uvSentTag(s) { const m = { pos: "uv-s-pos", neu: "uv-s-neu", neg: "uv-s-neg" }; return uvTag(s, m[s] || ""); }
+  function uvIntentTag(i) { const m = { praise: "uv-i-praise", request: "uv-i-request", question: "uv-i-question", banter: "uv-i-banter", complaint: "uv-i-complaint", other: "uv-i-other" }; return uvTag(i, m[i] || ""); }
+  function uvLangTag(l) { const m = { en: "uv-l-en", de: "uv-l-de", zh: "uv-l-zh", ru: "uv-l-ru", ja: "uv-l-ja", other: "uv-l-other" }; return uvTag(l, m[l] || ""); }
+
+  function renderUserBoard() {
+    const U = state.users;
+    const desc = BOARDS.find((b) => b.id === "uservoice").desc;
+    if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
+    const tabs = [["framework", "分析框架"], ["say", "用户在说什么"], ["language", "用户如何说"], ["layers", "用户分层"], ["rank", "高互动用户"], ["brand", "分品牌评价"], ["form", "分内容形式"]];
+    const tabBar = `<div class="uv-tabs">${tabs.map(([id, name]) => `<button class="uv-tab${state.uvTab === id ? " on" : ""}" data-uv="${id}">${name}</button>`).join("")}</div>`;
+    const m = U.meta;
+    const meta = `<div class="uv-meta">真实用户回帖 <b>${fmt(m.genuine_replies_in_window)}</b> · 独立用户 <b>${fmt(m.genuine_users)}</b> · 多帖用户 <b>${fmt(m.multi_reply_users)}</b> · 窗口 ${m.window[0]} ~ ${m.window[1]}<span class="uv-meta-sub">（已过滤品牌官方回复 ${fmt(m.brand_reply_filtered)} 条）</span></div>`;
+    let body = "";
+    if (state.uvTab === "framework") body = uvFramework(U);
+    else if (state.uvTab === "say") body = uvSay(U);
+    else if (state.uvTab === "language") body = uvLanguage(U);
+    else if (state.uvTab === "layers") body = uvLayers(U);
+    else if (state.uvTab === "rank") body = uvRank(U);
+    else if (state.uvTab === "brand") body = uvBrand(U);
+    else body = uvForm(U);
+    return `<div class="board-head"><div class="board-desc">${desc}</div></div>${meta}${tabBar}${body}`;
+  }
+
+  function uvFramework(U) {
+    const F = U.framework;
+    const dims = F.dims.map((d) => `<div class="uv-dim"><div class="uv-dim-name">${d.name}</div><div class="uv-dim-logic">${d.logic}</div></div>`).join("");
+    const demo = F.demo.map((s) => `<tr><td class="uv-d-text">${esc(s.text)}</td><td>${uvLangTag(s.lang)}</td><td>${uvIntentTag(s.intent)}</td><td>${uvSentTag(s.sent)}</td><td class="uv-d-num">${s.tokens}</td><td class="uv-d-num">♥${fmt(s.likes)}</td></tr>`).join("");
+    return `<div class="uv-block">
+      <div class="uv-fw-title">${F.title}</div>
+      <div class="uv-fw-desc">${F.desc}</div>
+      <div class="uv-dim-grid">${dims}</div>
+      <div class="uv-block-title" style="margin-top:18px">真实语料 · 逻辑演示（每一步打标结果都可见）</div>
+      <table class="uv-demo"><thead><tr><th>原始回帖</th><th>语言</th><th>意图</th><th>情绪</th><th>词数</th><th>赞</th></tr></thead><tbody>${demo}</tbody></table>
+    </div>`;
+  }
+
+  function uvSay(U) {
+    const c = U.corpus;
+    const s = c.sentiment, it = c.intent, tp = c.topic, tot = c.total || 1;
+    const sPairs = [["正面", s.pos || 0, COL.pos], ["中性", s.neu || 0, COL.neu], ["负面", s.neg || 0, COL.neg]];
+    const iPairs = Object.entries(it).map(([k, v]) => [INTENT_NAME[k] || k, v, INTENT_COL[k] || COL.slate]);
+    const tPairs = Object.entries(tp).slice(0, 8).map(([k, v], i) => [k, v, HUES[i % HUES.length]]);
+    const praiseP = uvPct(it.praise || 0, tot), reqP = uvPct(it.request || 0, tot), negP = uvPct(s.neg || 0, tot);
+    const concl = `<div class="uv-concl">结论：用户声音以 <b>赞美 ${praiseP}%</b> 与 <b>求购/合作意向 ${reqP}%</b> 为主，负面仅 <b>${negP}%</b>——社群处于「高好感 + 强转化意向」状态，适合做口碑放大与承接转化。</div>`;
+    const topBrands = U.brandEval.slice(0, 6).map((b) => `<button class="uv-tab uv-jump" data-uv="brand">${esc(b.brand)} · ${fmt(b.replyCount)}</button>`).join("");
+    return `<div class="uv-block">
+      <div class="uv-block-title">① 用户情绪倾向（正面 / 中性 / 负面）</div>
+      ${uvBars(sPairs)}
+      <div class="uv-block-title" style="margin-top:18px">② 用户意图分布（他们来这里想做什么）</div>
+      ${uvBars(iPairs)}
+      <div class="uv-block-title" style="margin-top:18px">③ 讨论主题（按原帖类目）</div>
+      ${uvBars(tPairs)}
+      ${concl}
+      <div class="uv-block-title" style="margin-top:18px">④ 品牌声音预览（点击跳到分品牌评价）</div>
+      <div class="uv-jump-row">${topBrands}</div>
+    </div>`;
+  }
+
+  function uvLanguage(U) {
+    const c = U.corpus;
+    const lPairs = Object.entries(c.lang).map(([k, v]) => [LANG_NAME[k] || k, v, LANG_COL[k] || COL.slate]);
+    const deN = c.lang.de || 0, zhN = c.lang.zh || 0;
+    const locNote = `<div class="uv-note">⚠️ 本土化机会：除英语外，检测到 <b>${deN}</b> 条德语、<b>${zhN}</b> 条中文等母语表达——存在稳定的非英语母语用户群，可用对应语言做定向互动 / 客服。</div>`;
+    const browser = `<div class="uv-corp">
+      <div class="uv-corp-head"><input id="uv-corpus-search" class="uv-search" placeholder="搜索语料：关键词 / 品牌…" /><span class="uv-corp-count-wrap">命中 <b id="uv-corp-count">${U.corpusSamples.length}</b> / ${U.corpusSamples.length}</span></div>
+      <div class="uv-corp-list">${U.corpusSamples.map(uvCorpItem).join("")}</div></div>`;
+    return `<div class="uv-block">
+      <div class="uv-block-title">① 用户使用什么语言？</div>
+      ${uvBars(lPairs)}
+      ${locNote}
+      <div class="uv-block-title" style="margin-top:18px">② 用户词云（高频表达 · 越大越常出现）</div>
+      ${uvCloud(c.wordFreq)}
+      <div class="uv-block-title" style="margin-top:18px">③ 真实语料库（按点赞排序，可搜索英文原文）</div>
+      ${browser}
+    </div>`;
+  }
+  function uvCorpItem(s) {
+    return `<div class="uv-corp-item" data-text="${esc(s.text)}" data-brand="${esc(s.brand)}">
+      <div class="uv-corp-top">${uvLangTag(s.lang)} ${uvSentTag(s.sent)} ${uvIntentTag(s.intent)} <span class="uv-corp-brand">${esc(s.brand)}</span> <span class="uv-corp-form">${esc(s.form)}</span> <span class="uv-corp-like">♥ ${fmt(s.likes)}</span></div>
+      <div class="uv-corp-text">${esc(s.text)}</div>
+      <a class="uv-link" href="${esc(s.link || "#")}" target="_blank" rel="noreferrer">查看原帖 ↗</a>
+    </div>`;
+  }
+
+  function uvLayers(U) {
+    const order = ["l1", "l2", "l3", "l4"];
+    const cards = order.map((k) => {
+      const L = U.layers[k]; const tot = L.count || 1;
+      const sPairs = [["正面", L.sentiment.pos || 0, COL.pos], ["中性", L.sentiment.neu || 0, COL.neu], ["负面", L.sentiment.neg || 0, COL.neg]];
+      const samples = L.samples.map((s) => `<div class="uv-layer-sample">${uvLangTag(s.lang)} ${uvSentTag(s.sent)} <span class="uv-sample-text">${esc(s.text)}</span> <a class="uv-link" href="${esc(s.link || "#")}" target="_blank" rel="noreferrer">↗</a></div>`).join("");
+      return `<div class="uv-layer-card">
+        <div class="uv-layer-head"><span class="uv-layer-name">${L.meta.name}</span><span class="uv-layer-count">${fmt(L.count)} 条 · ${uvPct(L.count, U.meta.genuine_replies_in_window)}%</span></div>
+        <div class="uv-layer-desc">${L.meta.desc}</div>
+        <div class="uv-layer-bars">${uvBars(sPairs)}</div>
+        <details class="uv-layer-det"><summary>看 ${L.samples.length} 条样例</summary>${samples}</details>
+      </div>`;
+    }).join("");
+    return `<div class="uv-block"><div class="uv-block-title">按回复字数分层用户（不同「投入度」对应不同运营动作）</div><div class="uv-layer-grid">${cards}</div></div>`;
+  }
+
+  function uvRank(U) {
+    const users = U.topUsers.slice(0, 50);
+    const rows = users.map((u, i) => {
+      const brandChips = u.brands.slice(0, 5).map((b) => `<span class="uv-chip">${esc(b.b)}<em>×${b.n}</em></span>`).join("");
+      const langChips = Object.entries(u.langs).map(([k, v]) => `<span class="uv-chip">${LANG_NAME[k] || k}<em>×${v}</em></span>`).join("");
+      const formChips = u.forms.slice(0, 4).map((f) => `<span class="uv-chip">${esc(f.f)}<em>×${f.n}</em></span>`).join("");
+      const s = u.sents || {};
+      const sPairs = [["正面", s.pos || 0, COL.pos], ["中性", s.neu || 0, COL.neu], ["负面", s.neg || 0, COL.neg]];
+      const quotes = u.samples.slice(0, 2).map((q) => `<div class="uv-quote">${uvLangTag(q.lang)} ${uvSentTag(q.sent)} ${uvIntentTag(q.intent)} <span class="uv-q-text">${esc(q.text)}</span></div>`).join("");
+      return `<div class="uv-user-card">
+        <div class="uv-user-head"><span class="uv-rank">#${i + 1}</span><span class="uv-uname">@${esc(u.name)}</span><span class="uv-ucount">${u.replyCount} 次回复</span><span class="uv-uavg">${u.avgWords} 词/条</span></div>
+        <div class="uv-user-line"><b>品牌归属</b><span class="uv-chips">${brandChips || "—"}</span></div>
+        <div class="uv-user-line"><b>语言模式</b><span class="uv-chips">${langChips || "—"}</span></div>
+        <div class="uv-user-line"><b>参与形式</b><span class="uv-chips">${formChips || "—"}</span></div>
+        <div class="uv-user-line"><b>倾向</b><span class="uv-bars-inline">${uvBars(sPairs)}</span></div>
+        <div class="uv-user-quotes"><b>代表语录</b>${quotes}</div>
+      </div>`;
+    }).join("");
+    return `<div class="uv-block"><div class="uv-block-title">高互动用户排行（窗口内回复数 Top 50 / 共分析 ${U.topUsers.length} 人）</div><div class="uv-user-grid">${rows}</div></div>`;
+  }
+
+  function uvBrand(U) {
+    const cards = U.brandEval.map((b) => {
+      const sPairs = [["正面", b.sentiment.pos || 0, COL.pos], ["中性", b.sentiment.neu || 0, COL.neu], ["负面", b.sentiment.neg || 0, COL.neg]];
+      const kw = b.keywords.slice(0, 14).map((k) => `<span class="uv-tag">${esc(k.w)}<em>×${k.n}</em></span>`).join("");
+      const tp = b.topics.slice(0, 5).map((t) => `<span class="uv-chip">${esc(t.t)}<em>×${t.n}</em></span>`).join("");
+      const tu = b.topUsers.slice(0, 4).map((t) => `<span class="uv-chip">${esc(t.u)}<em>×${t.n}</em></span>`).join("");
+      const q = b.quotes.slice(0, 3).map((qq) => `<div class="uv-quote">${uvLangTag(qq.lang)} ${uvSentTag(qq.sent)} <span class="uv-q-text">${esc(qq.text)}</span> <a class="uv-link" href="${esc(qq.link || "#")}" target="_blank" rel="noreferrer">↗</a></div>`).join("");
+      return `<div class="uv-brand-card">
+        <div class="uv-brand-head"><span class="uv-brand-name">${esc(b.brand)}</span><span class="uv-brand-count">${fmt(b.replyCount)} 条用户声音</span></div>
+        ${uvBars(sPairs)}
+        <div class="uv-row"><b>高频词</b><div class="uv-tags">${kw}</div></div>
+        <div class="uv-row"><b>主题</b><div class="uv-tags">${tp}</div></div>
+        <div class="uv-row"><b>高互动用户</b><div class="uv-tags">${tu}</div></div>
+        <div class="uv-row"><b>代表语录</b><div class="uv-quotes">${q}</div></div>
+      </div>`;
+    }).join("");
+    return `<div class="uv-block"><div class="uv-block-title">分品牌评价（用户对各个品牌的整体声音）</div><div class="uv-brand-grid">${cards}</div></div>`;
+  }
+
+  function uvForm(U) {
+    const cards = U.formEval.map((f) => {
+      const sPairs = [["正面", f.sentiment.pos || 0, COL.pos], ["中性", f.sentiment.neu || 0, COL.neu], ["负面", f.sentiment.neg || 0, COL.neg]];
+      const kw = f.keywords.slice(0, 12).map((k) => `<span class="uv-tag">${esc(k.w)}<em>×${k.n}</em></span>`).join("");
+      const q = f.quotes.slice(0, 3).map((qq) => `<div class="uv-quote">${uvLangTag(qq.lang)} ${uvSentTag(qq.sent)} <span class="uv-q-text">${esc(qq.text)}</span> <a class="uv-link" href="${esc(qq.link || "#")}" target="_blank" rel="noreferrer">↗</a></div>`).join("");
+      return `<div class="uv-form-card">
+        <div class="uv-form-head"><span class="uv-form-name">${esc(f.form)}</span><span class="uv-form-count">${fmt(f.replyCount)} 条参与</span></div>
+        ${uvBars(sPairs)}
+        <div class="uv-row"><b>用户提及词</b><div class="uv-tags">${kw}</div></div>
+        <div class="uv-row"><b>代表语录</b><div class="uv-quotes">${q}</div></div>
+      </div>`;
+    }).join("");
+    return `<div class="uv-block"><div class="uv-block-title">分内容形式（用户参与了什么形式、怎么聊它）</div><div class="uv-form-grid">${cards}</div></div>`;
   }
 
   /* ---------- 空态 ---------- */
@@ -958,6 +1125,10 @@ ${topMatches || "（无强匹配）"}
     rows.sort((a, b) => b.lift - a.lift);
     return rows;
   }
+  function accountMeta(name) {
+    const accs = (state.raw && state.raw.accounts) || [];
+    return accs.filter((a) => a.account === name);
+  }
   function competitorSection(data, name) {
     const items = data.filter((c) => c.account === name);
     if (!items.length) return "";
@@ -965,17 +1136,22 @@ ${topMatches || "（无强匹配）"}
     const topCount = items.filter((c) => c.isTop).length;
     const totalExp = items.reduce((s, c) => s + c.exposure, 0);
     const avgEng = (items.reduce((s, c) => s + c.engagementRate, 0) / items.length).toFixed(2);
+    const metas = accountMeta(name);
+    const followers = metas.reduce((s, a) => s + (a.followers || 0), 0);
+    const m0 = metas[0] || {};
+    const handles = metas.map((a) => `<a class="comp-handle" href="${esc(a.account_link || "#")}" target="_blank" rel="noreferrer">${esc(a.handle || a.account)} ↗</a>`).join(" · ");
     const voices = ((state.raw && state.raw.userVoices) || []).filter((v) => v.account === name).sort((a, b) => b.likes - a.likes);
     const voiceHTML = voices.length
       ? `<div class="uv-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:8px">${voices.slice(0, 4).map((v) => `<div class="uv-card"><div class="uv-top"><span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span><span class="uv-likes">♥ ${fmt(v.likes)}</span></div><div class="uv-text">${esc(v.text)}</div><a class="uv-link" href="${esc(v.originalLink || "#")}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div>`).join("")}</div>`
       : `<div style="color:var(--text-3);font-size:12.5px;margin-top:6px">暂无该竞品的用户评价数据</div>`;
-    const contentHTML = `<div class="list-rows">${items.slice().sort((a, b) => b.viralScore - a.viralScore).slice(0, 8).map((c) => `<div class="list-row" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(c.text)}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div></div><div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div><div class="lr-num">${fmt(c.engagement)}<small>互动</small></div><div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款率</small></div></div></div>`).join("")}</div>`;
+    const contentHTML = `<div class="list-rows">${items.slice().sort((a, b) => b.viralScore - a.viralScore).slice(0, 8).map((c) => `<div class="list-row" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(c.text)}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div></div><div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div><div class="lr-num">${fmt(c.engagement)}<small>互动</small></div><div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款率</small></div></div>${c.post_link ? `<a class="lr-link" href="${esc(c.post_link)}" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">原帖↗</a>` : ""}`).join("")}</div>`;
     const weeks = aggregateWeeks(items);
     const rhythmHTML = weeks.length ? `<div class="panel" style="margin-top:12px"><div class="panel-title">运营节奏 · 频率 × 表现</div><div class="panel-sub">柱=当周发布数 · 线=当周平均爆款率</div>${comboSVG(weeks)}</div>` : "";
     const bursts = burstsFor(items);
     const burstHTML = bursts.length ? `<div class="panel" style="margin-top:12px"><div class="panel-title">Campaign 爆发监测</div>${bursts.map((r) => `<div class="qc-bar"><span class="qc-name">${esc(r.name)}</span><span class="qc-track"><i style="width:${Math.min(100, r.lift * 20)}%"></i></span><span class="qc-val">${r.lift.toFixed(1)}× · ${r.count}条</span></div>`).join("")}</div>` : "";
     return `<div class="comp-section">
       <div class="comp-sec-head"><span class="comp-sec-name">${esc(name)}</span><span class="comp-sec-badge">内容 ${items.length} · 平均爆款率 ${avgRate} · 爆款 ${topCount}</span></div>
+      <div class="comp-meta">${m0.category ? `<span class="tag">${esc(m0.category)}</span>` : ""}${followers ? `<span class="comp-followers">👥 ${fmt(followers)} 粉丝</span>` : ""}${handles ? `<span class="comp-handles">${handles}</span>` : ""}</div>
       <div class="stat-row" style="margin:10px 0">
         <div class="stat"><div class="stat-label">内容量</div><div class="stat-val">${items.length}</div></div>
         <div class="stat"><div class="stat-label">平均爆款率</div><div class="stat-val" style="color:var(--hot)">${avgRate}</div></div>
@@ -983,7 +1159,7 @@ ${topMatches || "（无强匹配）"}
         <div class="stat"><div class="stat-label">总曝光</div><div class="stat-val">${fmt(totalExp)}</div></div>
         <div class="stat"><div class="stat-label">平均互动率</div><div class="stat-val">${avgEng}%</div></div>
       </div>
-      <div class="comp-sub">竞品的内容（按爆款率）</div>${contentHTML}
+      <div class="comp-sub">竞品的内容（按爆款率 · 点开看原帖）</div>${contentHTML}
       <div class="comp-sub">用户对竞品的评价（最高赞）</div>${voiceHTML}
       ${rhythmHTML}${burstHTML}
     </div>`;
@@ -1176,7 +1352,7 @@ ${topMatches || "（无强匹配）"}
         <div class="dr-section-title">评论质量分布</div>
         ${Object.entries(qc).map(([k, v]) => `<div class="qc-bar"><span class="qc-name">${esc(k)}</span><span class="qc-track"><i style="width:${(v / maxQ) * 100}%"></i></span><span class="qc-val">${v}</span></div>`).join("") || '<div style="color:var(--text-3);font-size:12.5px">无数据</div>'}
         <div class="dr-section-title">品牌互动</div>
-        <div style="font-size:13px;color:var(--text-2);line-height:1.7">品牌回复 ${c.brandReplies} 条 · 平均回复时长 ${c.avgReplyTimeMinutes ? c.avgReplyTimeMinutes + " 分钟" : "—"}</div>
+        <div style="font-size:13px;color:var(--text-2);line-height:1.7">品牌回复 ${c.brandReplies} 条 · 平均回复时长 ${c.avgReplyTimeMinutes ? c.avgReplyTimeMinutes + " 分钟" : "—"}${c.post_link ? ` · <a class="dr-link" href="${esc(c.post_link)}" target="_blank" rel="noreferrer">查看原帖 ↗</a>` : ""}</div>
         <div class="handoff" style="margin-top:18px">
           <div class="handoff-text"><b>以此内容为灵感？</b><br>复制给 AI，让我结合爆款特征帮你延展选题或分析可复用要素。</div>
           <button class="btn-primary" id="copy-detail">复制给 AI</button>
@@ -1233,6 +1409,24 @@ ${topMatches || "（无强匹配）"}
     if (state.board === "blindbox") bindBlindbox();
     // 我方运营
     if (state.board === "myops") bindMyOps();
+    // 了解用户：用户讨论与语言（富用户分析中枢）
+    if (state.board === "uservoice") bindUserBoard();
+  }
+
+  function bindUserBoard() {
+    $$(".uv-tab", $("#board")).forEach((b) => b.addEventListener("click", () => {
+      state.uvTab = b.dataset.uv; renderBoard();
+    }));
+    const cs = $("#uv-corpus-search");
+    if (cs) cs.addEventListener("input", (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      $$(".uv-corp-item", $("#board")).forEach((el) => {
+        const hit = !q || (el.dataset.text || "").toLowerCase().includes(q) || (el.dataset.brand || "").toLowerCase().includes(q);
+        el.style.display = hit ? "" : "none";
+      });
+      const shown = $$(".uv-corp-item", $("#board")).filter((el) => el.style.display !== "none").length;
+      const cnt = $("#uv-corp-count"); if (cnt) cnt.textContent = shown;
+    });
   }
 
   function bindGlobal() {
@@ -1259,11 +1453,13 @@ ${topMatches || "（无强匹配）"}
     state.analysis = A.analyze(data.contents);
     state.maxViral = Math.max(...state.analysis.contents.map((c) => c.viralScore), 0.0001);
     state.maxExposure = Math.max(...state.analysis.contents.map((c) => c.exposure), 1);
+    state.users = await DataLoader.loadUsers();
     state.backtests = loadBacktests();
     state.insights = await DataLoader.loadInsights();
     // 数据源标记
     const pill = $("#src-pill");
     if (data.meta && data.meta.source === "feishu") { pill.textContent = "飞书实时"; pill.classList.add("live"); }
+    else if (data.meta && data.meta.source === "real") { pill.textContent = "真实数据"; pill.classList.add("live"); }
     else { pill.textContent = "演示数据"; pill.classList.remove("live"); }
     $("#last-updated") && ($("#last-updated").textContent = "");
     // 时间范围默认值
