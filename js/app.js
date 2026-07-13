@@ -78,7 +78,7 @@
     // —— 了解用户 ——
     { id: "uservoice", name: "用户讨论与语言", group: "了解用户", desc: "基于用户语料的深度分析：情绪倾向、语言风格、词频、美式本土化表达、分内容形式——学习美国用户的表达与话题讨论方式。" },
     { id: "branduser", name: "品牌-用户讨论", group: "了解用户", desc: "分品牌查看用户对该品牌的讨论：情感极性、内容形式、用户倾向、高频词与主题、代表语录——全面看每个品牌的用户声音。" },
-    { id: "userseg", name: "用户分层", group: "了解用户", desc: "按回复字数（投入度）将用户分层，不同层级对应不同运营动作：浏览型→引导、参与型→互动、深度型→培养为KOC。" },
+    { id: "userseg", name: "高互动用户", group: "了解用户", desc: "高互动用户：①用户分层——按回复字数（投入度）将用户分层，不同层级对应不同运营动作（浏览型→引导、参与型→互动、深度型→培养为KOC）；②高互动用户排行——窗口内回复数最高的活跃用户及其深度画像。" },
     // —— 我方运营 ——
     { id: "myops", name: "我方运营", group: "我方运营", desc: "选一个或多个竞品 → 勾选要参考的维度（节奏 / 选题 / 形式 / 风格 / 指标）→ 生成可执行的运营方案，支持导出。" },
   ];
@@ -1226,14 +1226,13 @@ ${topMatches || "（无强匹配）"}
     const U = state.users;
     const desc = BOARDS.find((b) => b.id === "uservoice").desc;
     if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
-    const tabs = [["say", "用户在说什么"], ["language", "用户语料库分析"], ["rank", "高互动用户"], ["form", "分内容形式"]];
+    const tabs = [["say", "用户在说什么"], ["language", "用户语料库分析"], ["form", "分内容形式"]];
     const tabBar = `<div class="uv-tabs">${tabs.map(([id, name]) => `<button class="uv-tab${state.uvTab === id ? " on" : ""}" data-uv="${id}">${name}</button>`).join("")}</div>`;
     const m = U.meta;
     const meta = `<div class="uv-meta">真实用户回帖 <b>${fmt(m.genuine_replies_in_window)}</b> · 独立用户 <b>${fmt(m.genuine_users)}</b> · 多帖用户 <b>${fmt(m.multi_reply_users)}</b> · 窗口 ${m.window[0]} ~ ${m.window[1]}<span class="uv-meta-sub">（已过滤品牌官方回复 ${fmt(m.brand_reply_filtered)} 条）</span></div>`;
     let body = "";
     if (state.uvTab === "say") body = uvSay(U);
     else if (state.uvTab === "language") body = uvLanguage(U);
-    else if (state.uvTab === "rank") body = uvRank(U);
     else body = uvForm(U);
     return `<div class="board-head"><div class="board-desc">${desc}</div></div>${meta}${tabBar}${body}`;
   }
@@ -1509,14 +1508,17 @@ ${topMatches || "（无强匹配）"}
   }
   function bindBrandUser() { /* 品牌卡片为静态渲染，链接与标签订阅由 bindBoard 统一处理 */ }
 
-  /* ---------- 用户分层（独立板块） ---------- */
+  /* ---------- 高互动用户（独立板块）：用户分层 + 高互动用户排行 ---------- */
   function renderUserSeg() {
     const U = state.users;
     const desc = boardDesc("userseg");
     if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
-    return `<div class="board-head"><div class="board-desc">${desc}</div></div>${uvLayers(U)}`;
+    return `<div class="board-head"><div class="board-desc">${desc}</div></div>${uvLayers(U)}${uvRank(U)}`;
   }
-  function bindUserSeg() { /* 分层卡片为静态渲染，样例展开由 <details> 原生处理 */ }
+  function bindUserSeg() {
+    const rt = $("[data-uv-rank-toggle]", $("#board"));
+    if (rt) rt.addEventListener("click", () => { state.uvRankAll = !state.uvRankAll; renderBoard(); });
+  }
 
   /* ---------- 空态 ---------- */
   function emptyState(msg = "没有符合当前筛选的内容") {
@@ -2041,7 +2043,7 @@ ${sim || "（无同主题关联帖）"}
     if (["competitor", "compare"].includes(state.board)) bindCompetitor();
     // 我方运营
     if (state.board === "myops") bindMyOps();
-    // 了解用户：用户讨论与语言 / 品牌-用户讨论 / 用户分层
+    // 了解用户：用户讨论与语言 / 品牌-用户讨论 / 高互动用户
     if (state.board === "uservoice") bindUserBoard();
     if (state.board === "branduser") bindBrandUser();
     if (state.board === "userseg") bindUserSeg();
@@ -2147,8 +2149,6 @@ ${sim || "（无同主题关联帖）"}
     $$(".uv-tab", $("#board")).forEach((b) => b.addEventListener("click", () => {
       state.uvTab = b.dataset.uv; renderBoard();
     }));
-    const rt = $("[data-uv-rank-toggle]", $("#board"));
-    if (rt) rt.addEventListener("click", () => { state.uvRankAll = !state.uvRankAll; renderBoard(); });
     // 美式本土化表达库：按标记筛选
     $$(".uv-loc-chip", $("#board")).forEach((el) => el.addEventListener("click", () => {
       state.uvLocMarker = el.dataset.loc; renderBoard();
