@@ -785,8 +785,8 @@ ${topMatches || "（无强匹配）"}
     const cl = $("#bx-close", box); if (cl) cl.onclick = (e) => { e.stopPropagation(); box.classList.remove("show"); let ro = $("#bx-reopen"); if (!ro) { ro = document.createElement("button"); ro.id = "bx-reopen"; ro.className = "bx-reopen"; ro.textContent = "🎁 盲盒"; ro.onclick = () => initBlindboxFloat(true); document.body.appendChild(ro); } ro.style.display = ""; };
     // 翻牌
     $$(".bx-card.face-down", box).forEach((el) => el.onclick = () => { el.classList.remove("face-down"); el.classList.add("flipped"); });
-    // 点开详情
-    $$("[data-use]", box).forEach((b) => b.onclick = (e) => { e.stopPropagation(); openDrawer(b.dataset.use); });
+    // 点开详情 → 直接打开单帖深度分析
+    $$("[data-use]", box).forEach((b) => b.onclick = (e) => { e.stopPropagation(); openDeepAnalysis(b.dataset.use); });
     // 分享生图
     $$("[data-share]", box).forEach((b) => b.onclick = (e) => { e.stopPropagation(); blindboxShareImage(state.blindbox[+b.dataset.share]); });
     // 复制图片
@@ -1829,6 +1829,31 @@ ${topMatches || "（无强匹配）"}
     const sameAcct = all.filter((v) => v.account === c.account);
     return { items: sameAcct, mode: sameAcct.length ? "account" : "none" };
   }
+  // 从回复文本中提取高频词（用于单帖深度分析词云）
+  function voiceWordCloud(voices, n = 18) {
+    if (!voices || !voices.length) return [];
+    const stop = new Set(["the","a","an","and","or","but","in","on","at","to","for","of","with","by","is","are","was","were","be","been","being","have","has","had","do","does","did","will","would","could","should","may","might","can","shall","this","that","these","those","i","you","he","she","it","we","they","me","him","her","us","them","my","your","his","its","our","their","mine","yours","hers","ours","theirs","am","so","if","no","not","yes","oh","yeah","like","just","get","got","go","going","come","came","want","needs","need","know","see","look","make","made","take","took","say","said","think","way","time","good","really","one","two","also","now","only","even","well","back","there","here","when","where","how","what","who","why","which","then","than","too","very","more","most","some","any","all","each","every","other","another","such","own","same","few","much","many","little","less","least","last","first","next","right","still","new","old","long","great","under","over","again","further","once","im","dont","cant","isnt","arent","wasnt","werent","hasnt","havent","hadnt","wouldnt","couldnt","shouldnt","wont","ill","youre","its","thats","theres","heres","theyre","hes","shes","weve","youve","ive","theyve","weve","isn","aren","wasn","weren","haven","hasn","hadn","wouldn","couldn","shouldn","don","doesn","didn","won","would","could","should"]);
+    const freq = {};
+    voices.forEach((v) => {
+      const text = (v.text || "").toLowerCase().replace(/https?:\/\/\S+/g, "").replace(/[@#]\w+/g, "").replace(/[^\w\s]/g, " ");
+      text.split(/\s+/).forEach((w) => {
+        if (w.length < 3 || stop.has(w) || /^\d+$/.test(w) || w.includes("@")) return;
+        freq[w] = (freq[w] || 0) + 1;
+      });
+    });
+    return Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, n);
+  }
+  function voiceSentimentDist(voices) {
+    if (!voices || !voices.length) return [];
+    const dist = {};
+    voices.forEach((v) => { const s = v.sentiment || "未知"; dist[s] = (dist[s] || 0) + 1; });
+    const total = voices.length;
+    return Object.entries(dist).map(([k, v]) => ({ name: k, count: v, pct: Math.round((v / total) * 100) })).sort((a, b) => b.count - a.count);
+  }
+  function voiceQuestions(voices) {
+    if (!voices || !voices.length) return [];
+    return voices.filter((v) => (v.sentiment === "提问") || /[?？]/.test(v.text || "")).sort((a, b) => (b.likes || 0) - (a.likes || 0));
+  }
   function similarContents(c) {
     const tt = c.topicTags || [];
     const base = state.analysis.contents.filter((x) => x.id !== c.id);
@@ -1893,28 +1918,67 @@ ${sim || "（无同主题关联帖）"}
     const sc = styleCompareFor(c);
     const voices = userVoicesForContent(c);
     const sim = similarContents(c);
-    // 风格 / 形式
-    const styleCards = `
-      <div class="dp-style-grid">
-        <div class="dp-style-card"><div class="ds-k">内容形式</div><div class="ds-v">${esc(c.contentType)}</div><div class="ds-sub">该账号占比 ${sc.typeShare}% · ${sc.typeCount}/${sc.acctCount} 条</div></div>
-        <div class="dp-style-card"><div class="ds-k">风格 / 情绪调性</div><div class="ds-v">${esc(c.emotion)}</div></div>
-        <div class="dp-style-card"><div class="ds-k">平台</div><div class="ds-v">${esc(c.platform)}</div></div>
-        <div class="dp-style-card"><div class="ds-k">发布时间</div><div class="ds-v">${c.publishDate}</div><div class="ds-sub">${c.publishHour}:00 时段</div></div>
+    const voiceItems = voices.items || [];
+    // 内容画像（品牌 / 形式 / 风格 / 平台 / 时间 / 主题）
+    const profileCards = `
+      <div class="dp-profile-grid">
+        <div class="dp-profile-card"><div class="dp-pk">品牌 / 账号</div><div class="dp-pv">${esc(c.account)}</div></div>
+        <div class="dp-profile-card"><div class="dp-pk">内容形式</div><div class="dp-pv">${esc(c.contentType)}</div><div class="dp-sub">该账号占比 ${sc.typeShare}% · ${sc.typeCount}/${sc.acctCount} 条</div></div>
+        <div class="dp-profile-card"><div class="dp-pk">风格 / 情绪调性</div><div class="dp-pv">${esc(c.emotion)}</div></div>
+        <div class="dp-profile-card"><div class="dp-pk">平台</div><div class="dp-pv">${esc(c.platform)}</div></div>
+        <div class="dp-profile-card"><div class="dp-pk">发布时间</div><div class="dp-pv">${c.publishDate}</div><div class="dp-sub">${c.publishHour}:00 时段</div></div>
+        <div class="dp-profile-card"><div class="dp-pk">主题标签</div><div class="dp-pv">${c.topicTags.length ? c.topicTags.map((t) => `<span class="tag topic">${esc(t)}</span>`).join(" ") : "—"}</div></div>
       </div>
       <div class="dp-cmp-note">该形式在 <b>${esc(c.account)}</b> 账号内的平均爆款率 <b style="color:var(--hot)">${sc.typeRate}</b>，对比账号整体平均 <b>${sc.acctRate}</b> —— ${sc.typeRate >= sc.acctRate ? "这种形式在该账号表现优于平均，值得借鉴" : "这种形式在该账号表现低于平均，可优化或换形式"}。</div>`;
+    // 帖子数据
+    const metricCards = `
+      <div class="dp-metric-grid">
+        <div class="dp-metric-card"><div class="dp-mk">曝光</div><div class="dp-mv">${fmt(c.exposure)}</div></div>
+        <div class="dp-metric-card"><div class="dp-mk">互动</div><div class="dp-mv">${fmt(c.engagement)}</div></div>
+        <div class="dp-metric-card"><div class="dp-mk">互动率</div><div class="dp-mv">${c.engagementRate.toFixed(2)}%</div></div>
+        <div class="dp-metric-card"><div class="dp-mk">爆款率</div><div class="dp-mv" style="color:var(--hot)">${rate(c)}</div></div>
+        <div class="dp-metric-card"><div class="dp-mk">点赞</div><div class="dp-mv">${fmt(c.likes || 0)}</div></div>
+        <div class="dp-metric-card"><div class="dp-mk">评论</div><div class="dp-mv">${fmt(c.comments || 0)}</div></div>
+        <div class="dp-metric-card"><div class="dp-mk">分享</div><div class="dp-mv">${fmt(c.shares || 0)}</div></div>
+        <div class="dp-metric-card"><div class="dp-mk">收藏</div><div class="dp-mv">${fmt(c.collections || 0)}</div></div>
+      </div>`;
     // 该账号形式分布（小条形）
     const typeBreakRows = sc.typeBreak.slice(0, 6).map((t) => {
       const r = t.avgRate;
       return `<div class="qc-bar"><span class="qc-name" style="width:70px">${esc(t.name)}</span><span class="qc-track"><i style="width:${r}%"></i></span><span class="qc-val">${r}</span></div>`;
     }).join("");
     const typeBreakHTML = typeBreakRows ? `<div class="dp-cmp-note" style="margin-top:14px"><b>${esc(c.account)}</b> 的形式爆款率分布：</div>${typeBreakRows}` : "";
-    // 用户讨论
+    // 回复词云
+    const cloud = voiceWordCloud(voiceItems);
+    const cloudHTML = cloud.length
+      ? `<div class="dp-cloud">${cloud.map(([w, n]) => {
+          const max = cloud[0][1] || 1;
+          const s = 0.75 + (n / max) * 0.9;
+          const alpha = 0.55 + (n / max) * 0.85;
+          return `<span class="dp-cloud-word" style="font-size:${s.toFixed(2)}em;opacity:${alpha.toFixed(2)}">${esc(w)}<em>${n}</em></span>`;
+        }).join("")}</div>`
+      : `<div class="dp-novoice">暂无回复数据，无法生成词云。</div>`;
+    // 回复情绪分布
+    const sentDist = voiceSentimentDist(voiceItems);
+    const sentHTML = sentDist.length
+      ? `<div class="dp-sent-grid">${sentDist.map((s) => `<div class="dp-sent-row"><span class="uv-sent ${esc(s.name)}">${esc(s.name)}</span><span class="dp-sent-track"><i style="width:${s.pct}%"></i></span><span class="dp-sent-pct">${s.pct}% (${s.count})</span></div>`).join("")}</div>`
+      : `<div class="dp-novoice">暂无回复情绪数据。</div>`;
+    // 问题 / 用户诉求
+    const questions = voiceQuestions(voiceItems);
+    const questionHTML = questions.length
+      ? `<div class="dp-voice-grid">${questions.slice(0, 6).map((v) => `<div class="dp-voice">
+        <div class="dv-top"><span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span><span class="uv-likes">♥ ${fmt(v.likes || 0)}</span></div>
+        <div class="dv-text">${esc(dispVoice(v))}</div>
+        ${v.originalLink ? `<a class="dv-link" href="${esc(v.originalLink)}" target="_blank" rel="noreferrer">查看原帖 ↗</a>` : ""}
+      </div>`).join("")}</div>`
+      : `<div class="dp-novoice">暂未发现用户提问或诉求。</div>`;
+    // 用户讨论（最高赞）
     let voiceHTML;
     if (voices.mode === "none") {
       voiceHTML = `<div class="dp-novoice">暂无该内容的用户讨论数据（用户语料/评论抓取接入后自动出现）。</div>`;
     } else {
       const label = voices.mode === "exact" ? "该帖下的用户回复（按点赞）" : `该账号（${esc(c.account)}）下的用户讨论（按点赞，最高赞）`;
-      voiceHTML = `<div class="dp-sec-title" style="margin-top:4px">${label}</div><div class="dp-voice-grid">${voices.items.slice(0, 6).map((v) => `<div class="dp-voice">
+      voiceHTML = `<div class="dp-sec-title" style="margin-top:4px">${label}</div><div class="dp-voice-grid">${voiceItems.slice(0, 6).map((v) => `<div class="dp-voice">
         <div class="dv-top"><span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span><span class="uv-likes">♥ ${fmt(v.likes || 0)}</span></div>
         <div class="dv-text">${esc(dispVoice(v))}</div>
         ${v.originalLink ? `<a class="dv-link" href="${esc(v.originalLink)}" target="_blank" rel="noreferrer">查看原帖 ↗</a>` : ""}
@@ -1944,11 +2008,27 @@ ${sim || "（无同主题关联帖）"}
         </div>
       </div>
       <div class="dp-section">
-        <div class="dp-sec-title">风格 / 形式 <span class="dp-sec-note">这条内容「长什么样、用什么调性」</span></div>
-        ${styleCards}${typeBreakHTML}
+        <div class="dp-sec-title">内容画像 <span class="dp-sec-note">品牌 / 形式 / 风格 / 平台 / 时间 / 主题</span></div>
+        ${profileCards}${typeBreakHTML}
       </div>
       <div class="dp-section">
-        <div class="dp-sec-title">用户回复 / 讨论 <span class="dp-sec-note">用户怎么评价它（最高赞）</span></div>
+        <div class="dp-sec-title">帖子数据 <span class="dp-sec-note">这条内容的量化表现</span></div>
+        ${metricCards}
+      </div>
+      <div class="dp-section">
+        <div class="dp-sec-title">回复词云 <span class="dp-sec-note">用户讨论里出现的高频词</span></div>
+        ${cloudHTML}
+      </div>
+      <div class="dp-section">
+        <div class="dp-sec-title">回复情绪分布 <span class="dp-sec-note">用户怎么评价它</span></div>
+        ${sentHTML}
+      </div>
+      <div class="dp-section">
+        <div class="dp-sec-title">问题 / 用户诉求 <span class="dp-sec-note">提问、求购、求助类回复</span></div>
+        ${questionHTML}
+      </div>
+      <div class="dp-section">
+        <div class="dp-sec-title">用户讨论（最高赞） <span class="dp-sec-note">点击查看原帖</span></div>
         ${voiceHTML}
       </div>
       <div class="dp-section">
