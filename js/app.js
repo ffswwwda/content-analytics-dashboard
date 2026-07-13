@@ -99,7 +99,7 @@
     detailId: null, predictor: null,
     dim: "brand", dimBrands: new Set(), topicWeights: { viral: 35, eng: 25, rec: 20, cov: 20 },
     blindbox: null, bxSeed: null, refMode: "eval", backtests: [], maxExposure: 1,
-    users: null, uvTab: "language", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all", uvCorpusMarker: "all", uvLayerDrill: null, uvLayerCmp: false, uvDeep: false, uvSegDeep: false,
+    users: null, uvTab: "language", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all", uvCorpusMarker: "all", uvLayerDrill: null, uvLayerCmp: false, uvDeep: false, uvSegDeep: false, uvDrillMeta: null,
     brandUserSel: null, brandUserCmp: [], brandUserCompare: false, brandUserRankAll: false,
     libMode: "sort", libQuick: "all",
     compSel: new Set(), cmpSel: new Set(),
@@ -1363,14 +1363,26 @@ ${topMatches || "（无强匹配）"}
     const m = U.meta;
     const meta = `<div class="uv-meta">真实用户回帖 <b>${fmt(m.genuine_replies_in_window)}</b> · 独立用户 <b>${fmt(m.genuine_users)}</b> · 多帖用户 <b>${fmt(m.multi_reply_users)}</b> · 窗口 ${m.window[0]} ~ ${m.window[1]}<span class="uv-meta-sub">（已过滤品牌官方回复 ${fmt(m.brand_reply_filtered)} 条）</span></div>`;
     let body = "";
-    if (state.uvTab === "say") body = uvSay(U);
-    else if (state.uvTab === "topic") body = uvTopic(U);
-    else if (state.uvTab === "intent") body = uvIntent(U);
-    else if (state.uvTab === "emotion") body = uvEmotion(U);
-    else if (state.uvTab === "language") body = uvLanguage(U);
-    else body = uvForm(U);
-    if (state.uvDeep) body += `<div class="uv-deep-panel" id="uv-deep-panel">${renderTabDeep(U)}</div>`;
-    return `<div class="board-head"><div class="board-desc">${desc}</div></div>${meta}${tabBar}${deepBtn}${body}`;
+    if (state.uvDrillMeta) {
+      // 钻入式深度分析
+      const dm = state.uvDrillMeta;
+      const backBtn = `<div style="margin-bottom:12px"><button class="btn-ghost" data-uv-back-drill>← 返回 ${tabs.find(([id]) => id === dm.tab)?.[1] || "上级"}</button></div>`;
+      if (dm.tab === "say") body = backBtn + uvSayDeep(U);
+      else if (dm.tab === "topic") body = backBtn + uvTopicDeep(U, dm.key);
+      else if (dm.tab === "intent") body = backBtn + uvIntentDeep(U, dm.key);
+      else if (dm.tab === "emotion") body = backBtn + uvEmotionDeep(U, dm.key);
+      else if (dm.tab === "form") body = backBtn + uvFormDeep(U, dm.key);
+      else body = backBtn + `<div class="uv-muted">暂不支持该维度钻入</div>`;
+    } else {
+      if (state.uvTab === "say") body = uvSay(U);
+      else if (state.uvTab === "topic") body = uvTopic(U);
+      else if (state.uvTab === "intent") body = uvIntent(U);
+      else if (state.uvTab === "emotion") body = uvEmotion(U);
+      else if (state.uvTab === "language") body = uvLanguage(U);
+      else body = uvForm(U);
+      if (state.uvDeep) body += `<div class="uv-deep-panel" id="uv-deep-panel">${renderTabDeep(U)}</div>`;
+    }
+    return `<div class="board-head"><div class="board-desc">${desc}</div></div>${meta}${tabBar}${body}`;
   }
 
   function uvSay(U) {
@@ -1612,124 +1624,86 @@ ${topMatches || "（无强匹配）"}
         ${uvBars(sPairs)}
         <div class="uv-row"><b>用户提及词</b><div class="uv-tags">${kw}</div></div>
         <div class="uv-row"><b>代表语录</b><div class="uv-quotes">${q}</div></div>
+        <div class="uv-row"><button class="btn-ghost uv-drill-btn" data-uv-drill="form" data-uv-key="${esc(f.form)}">🎯 深度分析 →</button></div>
       </div>`;
     }).join("");
     return `<div class="uv-block"><div class="uv-block-title">分内容形式（用户参与了什么形式、怎么聊它）</div><div class="uv-form-grid">${cards}</div></div>`;
   }
 
-  /* ---------- 各 tab 深度分析：额外指标下钻 ---------- */
-  function renderTabDeep(U) {
-    const e = U.formEval || [];
-    const c = U.corpus || {};
-    const s = c.sentiment || {};
-    const sTot = (s.pos || 0) + (s.neu || 0) + (s.neu || 0) + (s.neg || 0) || 1;
-    const posP = uvPct(s.pos || 0, sTot), negP = uvPct(s.neg || 0, sTot);
-    const m = U.meta || {};
-    const genU = m.genuine_users || 0, multiU = m.multi_reply_users || 0;
-    const depthRate = uvPct(multiU, genU);
-    switch (state.uvTab) {
-      case "say": {
-        // 用户在说什么：情绪/意图/主题的交叉深度分析
-        const intentTop = Object.entries(c.intent || {}).sort((a, b) => b[1] - a[1]);
-        const topicTop = Object.entries(c.topic || {}).sort((a, b) => b[1] - a[1]);
-        const intentShare = intentTop.map(([k, v]) => `${INTENT_NAME[k] || k} ${uvPct(v, sTot)}%`).join(" · ");
-        const topicShare = topicTop.slice(0, 5).map(([k, v]) => `${k} ${uvPct(v, sTot)}%`).join(" · ");
-        return `<div class="uv-deep">
-          <div class="uv-deep-sec">📊 深度指标总览</div>
-          <div class="bud-stats" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
-            <div class="bud-stat"><div class="bud-stat-val">${fmt(sTot)}</div><div class="bud-stat-lab">回帖总数</div></div>
-            <div class="bud-stat"><div class="bud-stat-val" style="color:var(--hot)">${posP}%</div><div class="bud-stat-lab">正面率</div></div>
-            <div class="bud-stat"><div class="bud-stat-val" style="color:#ff5d8f">${negP}%</div><div class="bud-stat-lab">负面率</div></div>
-            <div class="bud-stat"><div class="bud-stat-val">${fmt(multiU)}</div><div class="bud-stat-lab">多帖用户</div></div>
-            <div class="bud-stat"><div class="bud-stat-val">${depthRate}%</div><div class="bud-stat-lab">深度参与率</div></div>
-          </div>
-          <div class="uv-deep-grid">
-            <div class="uv-deep-cell"><b>意图占比详情</b><br>${intentShare}</div>
-            <div class="uv-deep-cell"><b>高频主题详情</b><br>${topicShare}</div>
-            <div class="uv-deep-cell"><b>品牌数</b><br>${U.brandUsers ? U.brandUsers.length : "—"} 个</div>
-            <div class="uv-deep-cell"><b>内容形式覆盖</b><br>${e.length} 种</div>
-          </div>
-        </div>`;
-      }
-      case "topic": {
-        const dim = U.dimBreakdown && U.dimBreakdown.topicBreakdown;
-        if (!dim || !dim.length) return `<div class="uv-muted">暂无分主题深度数据</div>`;
-        const total = dim.reduce((s, t) => s + (t.count || 0), 0) || 1;
-        const avgSent = dim.map((t) => {
-          const st = t.sentiment || {}; const tt = (st.pos||0)+(st.neu||0)+(st.neg||0)||1;
-          return { name: t.name, posR: Math.round((st.pos||0)/tt*100), negR: Math.round((st.neg||0)/tt*100), share: uvPct(t.count||0, total) };
-        });
-        const rows = avgSent.map((x) => `<div class="qc-bar"><span class="qc-name" style="width:80px">${esc(x.name)}</span><span class="qc-track"><i style="width:${x.posR}%;background:${COL.pos}"></i></span><span class="qc-val">${x.posR}%正<small>${x.share}</small></span></div>`).join("");
-        return `<div class="uv-deep"><div class="uv-deep-sec">📊 分主题深度指标</div>
-          <div class="uv-deep-note">每个主题的正面率 + 占全体比例</div>
-          <div style="margin-top:6px">${rows}</div>
-        </div>`;
-      }
-      case "intent": {
-        const dim = U.dimBreakdown && U.dimBreakdown.intentBreakdown;
-        if (!dim || !dim.length) return `<div class="uv-muted">暂无分意图深度数据</div>`;
-        const total = dim.reduce((s, t) => s + (t.count||0), 0) || 1;
-        const rows = dim.map((t) => {
-          const st = t.sentiment||{}; const tt = (st.pos||0)+(st.neu||0)+(st.neg||0)||1;
-          const posR = Math.round((st.pos||0)/tt*100);
-          const brandN = (t.brands||[]).length;
-          const topicN = (t.topics||[]).length;
-          return `<div class="qc-bar"><span class="qc-name" style="width:80px">${esc(t.name)}</span><span class="qc-track"><i style="width:${posR}%;background:${COL.pos}"></i></span><span class="qc-val">${posR}%正<small>${brandN}品牌 ${topicN}主题</small></span></div>`;
-        }).join("");
-        return `<div class="uv-deep"><div class="uv-deep-sec">📊 分营销目的深度指标</div>
-          <div class="uv-deep-note">每种意图的正面率 + 关联品牌/主题数</div>
-          <div style="margin-top:6px">${rows}</div>
-        </div>`;
-      }
-      case "emotion": {
-        const dim = U.dimBreakdown && U.dimBreakdown.sentimentBreakdown;
-        if (!dim || !dim.length) return `<div class="uv-muted">暂无分情绪深度数据</div>`;
-        const cards = dim.map((s) => {
-          const emojiR = Math.round(((s.style||{}).emoji||0) / Math.max(s.count||1, 1) * 100);
-          const slangR = Math.round(((s.style||{}).slang||0) / Math.max(s.count||1, 1) * 100);
-          const intentN = Object.keys(s.intents||{}).length;
-          const brandN = Object.keys(s.brands||{}).length;
-          return `<div class="uv-deep-cell"><b>${esc(s.name)}</b><br>
-            <span>Emoji ${emojiR}% · 俚语 ${slangR}% · 关联 ${intentN} 意图 · ${brandN} 品牌</span></div>`;
-        }).join("");
-        return `<div class="uv-deep"><div class="uv-deep-sec">📊 分情绪风格深度指标</div>
-          <div class="uv-deep-grid">${cards}</div>
-        </div>`;
-      }
-      case "language": {
-        const ca = U.corpusAnalysis || {};
-        const markers = ca.markers || {};
-        const total = Object.values(markers).reduce((s, v) => s + v, 0) || 1;
-        const markerBars = Object.entries(LOC_MARKER_NAME||{}).map(([k, n]) => {
-          const v = markers[k]||0;
-          return `<div class="qc-bar"><span class="qc-name" style="width:100px">${n}</span><span class="qc-track"><i style="width:${uvPct(v, total)}"></i></span><span class="qc-val">${fmt(v)}<small>${uvPct(v, total)}%</small></span></div>`;
-        }).join("");
-        const phCnt = (ca.phrasesByIntent && Object.keys(ca.phrasesByIntent).length) || 0;
-        const emoQS = (ca.emotionQuotes && Object.keys(ca.emotionQuotes).length) || 0;
-        return `<div class="uv-deep"><div class="uv-deep-sec">📊 语料库深度指标</div>
-          <div class="bud-stats" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
-            <div class="bud-stat"><div class="bud-stat-val">${fmt(total)}</div><div class="bud-stat-lab">标记总数</div></div>
-            <div class="bud-stat"><div class="bud-stat-val">${phCnt}</div><div class="bud-stat-lab">意图短语簇</div></div>
-            <div class="bud-stat"><div class="bud-stat-val">${emoQS}</div><div class="bud-stat-lab">情绪语录簇</div></div>
-          </div>
-          <div class="uv-deep-sec" style="margin-top:14px;font-size:12px">风格标记分布</div>
-          ${markerBars}
-        </div>`;
-      }
-      case "form": {
-        const cards = e.map((f) => {
-          const st = f.sentiment||{}; const tt = (st.pos||0)+(st.neu||0)+(st.neg||0)||1;
-          const posR = Math.round((st.pos||0)/tt*100);
-          const kwN = (f.keywords||[]).length;
-          return `<div class="uv-deep-cell"><b>${esc(f.form)}</b><br>
-            <span>${fmt(f.replyCount)} 条 · 正面 ${posR}% · 涉及 ${fmt(kwN)} 个关键词</span></div>`;
-        }).join("");
-        return `<div class="uv-deep"><div class="uv-deep-sec">📊 分内容形式深度指标</div>
-          <div class="uv-deep-grid">${cards}</div>
-        </div>`;
-      }
-      default: return "";
-    }
+  /* ---------- 各 tab 钻入式深度分析 ---------- */
+  function uvTopicDeep(U, topic) {
+    const dim = U.dimBreakdown?.topicBreakdown?.find((t) => t.name === topic);
+    if (!dim) return `<div class="uv-muted">暂无「${esc(topic)}」深度数据</div>`;
+    const st = dim.sentiment||{}; const sTot = (st.pos||0)+(st.neu||0)+(st.neg||0)||1;
+    const posR = Math.round((st.pos||0)/sTot*100), negR = Math.round((st.neg||0)/sTot*100);
+    const brandsBars = uvBars(Object.entries(dim.brands||{}).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v],i) => [k, v, PAL[i%PAL.length]]));
+    const intentBars = uvBars(Object.entries(dim.intents||{}).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([k,v],i) => [INTENT_NAME[k]||k, v, INTENT_COL[k]||PAL[i%PAL.length]]));
+    const q = (dim.samples||[]).slice(0,6).map((s) => `<div class="uv-layer-sample">${uvLangTag(s.lang||"")} ${uvSentTag(s.sent||"")} ${esc(s.text||"")}</div>`).join("");
+    return `<div class="uv-drill"><div class="uv-drill-title">📊 「${esc(topic)}」主题深度分析</div>
+      <div class="uv-drill-count">${fmt(dim.count||0)} 条 · 正面 ${posR}% · 负面 ${negR}%</div>
+      <div class="bud-two" style="margin-top:12px"><div class="bud-panel"><div class="bud-panel-t">关联品牌</div>${brandsBars}</div>
+      <div class="bud-panel"><div class="bud-panel-t">用户意图</div>${intentBars}</div></div>
+      <div class="dp-section"><div class="dp-sec-title">代表语录</div><div class="uv-layer-samples">${q || "—"}</div></div>
+    </div>`;
+  }
+  function uvIntentDeep(U, intent) {
+    const dim = U.dimBreakdown?.intentBreakdown?.find((t) => t.name === intent);
+    if (!dim) return `<div class="uv-muted">暂无「${esc(intent)}」深度数据</div>`;
+    const st = dim.sentiment||{}; const sTot = (st.pos||0)+(st.neu||0)+(st.neg||0)||1;
+    const posR = Math.round((st.pos||0)/sTot*100);
+    const brandsBars = uvBars(Object.entries(dim.brands||{}).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v],i) => [k, v, PAL[i%PAL.length]]));
+    const topicBars = uvBars(Object.entries(dim.topics||{}).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v],i) => [k, v, PAL[(i+3)%PAL.length]]));
+    const q = (dim.samples||[]).slice(0,6).map((s) => `<div class="uv-layer-sample">${uvLangTag(s.lang||"")} ${uvSentTag(s.sent||"")} ${esc(s.text||"")}</div>`).join("");
+    const insight = `${INTENT_NAME[intent]||intent} · 正面率 ${posR}%。${posR>=60?"该目的下用户情绪积极，适合做口碑与推荐内容。":"该目的下用户偏负面/中性，需要针对性优化。"}`;
+    return `<div class="uv-drill"><div class="uv-drill-title">📊 「${INTENT_NAME[intent]||intent}」营销目的深度分析</div>
+      <div class="uv-drill-count">${fmt(dim.count||0)} 条 · 正面 ${posR}% · ${insight}</div>
+      <div class="bud-two" style="margin-top:12px"><div class="bud-panel"><div class="bud-panel-t">关联品牌</div>${brandsBars}</div>
+      <div class="bud-panel"><div class="bud-panel-t">关联主题</div>${topicBars}</div></div>
+      <div class="dp-section"><div class="dp-sec-title">代表语录</div><div class="uv-layer-samples">${q || "—"}</div></div>
+    </div>`;
+  }
+  function uvEmotionDeep(U, emotion) {
+    const dim = U.dimBreakdown?.sentimentBreakdown?.find((t) => t.name === emotion);
+    if (!dim) return `<div class="uv-muted">暂无「${esc(emotion)}」深度数据</div>`;
+    const st = dim.sentiment||{}; const sTot = (st.pos||0)+(st.neu||0)+(st.neg||0)||1;
+    const posR = Math.round((st.pos||0)/sTot*100);
+    const style = dim.style||{};
+    const emojiR = Math.round((style.emoji||0)/Math.max(dim.count||1,1)*100);
+    const slangR = Math.round((style.slang||0)/Math.max(dim.count||1,1)*100);
+    const intentBars = uvBars(Object.entries(dim.intents||{}).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([k,v],i) => [INTENT_NAME[k]||k, v, INTENT_COL[k]||PAL[i%PAL.length]]));
+    const brandsBars = uvBars(Object.entries(dim.brands||{}).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v],i) => [k, v, PAL[(i+3)%PAL.length]]));
+    const q = (dim.samples||[]).slice(0,6).map((s) => `<div class="uv-layer-sample">${uvLangTag(s.lang||"")} ${uvSentTag(s.sent||"")} ${esc(s.text||"")}</div>`).join("");
+    return `<div class="uv-drill"><div class="uv-drill-title">📊 「${esc(emotion)}」情绪风格深度分析</div>
+      <div class="uv-drill-count">${fmt(dim.count||0)} 条 · 正面率 ${posR}% · Emoji ${emojiR}% · 俚语 ${slangR}%</div>
+      <div class="bud-two" style="margin-top:12px"><div class="bud-panel"><div class="bud-panel-t">用户意图</div>${intentBars}</div>
+      <div class="bud-panel"><div class="bud-panel-t">关联品牌</div>${brandsBars}</div></div>
+      <div class="dp-section"><div class="dp-sec-title">代表语录</div><div class="uv-layer-samples">${q || "—"}</div></div>
+    </div>`;
+  }
+  function uvFormDeep(U, form) {
+    const f = (U.formEval||[]).find((x) => x.form === form);
+    if (!f) return `<div class="uv-muted">暂无「${esc(form)}」深度数据</div>`;
+    const st = f.sentiment||{}; const sTot = (st.pos||0)+(st.neu||0)+(st.neg||0)||1;
+    const posR = Math.round((st.pos||0)/sTot*100);
+    const kwChips = (f.keywords||[]).slice(0,18).map((k) => `<span class="uv-tag">${esc(k.w)}<em>×${k.n}</em></span>`).join("");
+    const q = (f.quotes||[]).slice(0,6).map((qq) => `<div class="uv-layer-sample">${uvLangTag(qq.lang||"")} ${uvSentTag(qq.sent||"")} ${esc(dispVoice(qq)||"")}</div>`).join("");
+    return `<div class="uv-drill"><div class="uv-drill-title">📊 「${esc(f.form)}」内容形式深度分析</div>
+      <div class="uv-drill-count">${fmt(f.replyCount)} 条 · 正面 ${posR}%</div>
+      <div class="dp-section" style="margin-top:12px"><div class="dp-sec-title">高频关键词</div><div class="uv-tags" style="margin-top:6px">${kwChips || "—"}</div></div>
+      <div class="dp-section"><div class="dp-sec-title">代表语录</div><div class="uv-layer-samples">${q || "—"}</div></div>
+    </div>`;
+  }
+  function uvSayDeep(U) {
+    const c = U.corpus || {}; const st = c.sentiment||{}; const sTot = (st.pos||0)+(st.neu||0)+(st.neg||0)||1;
+    const intentBars = uvBars(Object.entries(c.intent||{}).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([k,v],i) => [INTENT_NAME[k]||k, v, INTENT_COL[k]||PAL[i%PAL.length]]));
+    const topicBars = uvBars(Object.entries(c.topic||{}).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v],i) => [k, v, PAL[(i+3)%PAL.length]]));
+    const m = U.meta||{}; const multiU = m.multi_reply_users||0, genU = m.genuine_users||1;
+    const posR = Math.round((st.pos||0)/sTot*100), negR = Math.round((st.neg||0)/sTot*100);
+    return `<div class="uv-drill"><div class="uv-drill-title">📊 全部用户语料深度分析</div>
+      <div class="uv-drill-count">${fmt(sTot)} 条 · 正面 ${posR}% · 负面 ${negR}% · 多帖用户 ${fmt(multiU)}（${uvPct(multiU, genU)}%）</div>
+      <div class="bud-two" style="margin-top:12px"><div class="bud-panel"><div class="bud-panel-t">用户意图分布</div>${intentBars}</div>
+      <div class="bud-panel"><div class="bud-panel-t">用户讨论主题</div>${topicBars}</div></div>
+    </div>`;
   }
 
   // 维度下钻卡牌共用的「代表语录」渲染
@@ -1763,6 +1737,7 @@ ${topMatches || "（无强匹配）"}
         <div class="uv-row"><b>主要品牌</b><div class="uv-tags">${uvDimBrands(t.brands)}</div></div>
         <div class="uv-row"><b>用户意图</b><div class="uv-tags">${uvDimIntents(t.intents)}</div></div>
         <div class="uv-row"><b>代表语录</b><div class="uv-quotes">${quotes}</div></div>
+        <div class="uv-row"><button class="btn-ghost uv-drill-btn" data-uv-drill="topic" data-uv-key="${esc(t.name)}">🎯 深度分析 →</button></div>
       </div>`;
     }).join("");
     return `<div class="uv-block">
@@ -1786,6 +1761,7 @@ ${topMatches || "（无强匹配）"}
         <div class="uv-row"><b>主要品牌</b><div class="uv-tags">${uvDimBrands(it.brands)}</div></div>
         <div class="uv-row"><b>关联主题</b><div class="uv-tags">${uvDimTopics(it.topics)}</div></div>
         <div class="uv-row"><b>代表语录</b><div class="uv-quotes">${quotes}</div></div>
+        <div class="uv-row"><button class="btn-ghost uv-drill-btn" data-uv-drill="intent" data-uv-key="${esc(it.name)}">🎯 深度分析 →</button></div>
       </div>`;
     }).join("");
     return `<div class="uv-block">
@@ -1818,6 +1794,7 @@ ${topMatches || "（无强匹配）"}
           <span class="uv-chip">全大写 <em>${capsR}%</em></span>
         </div></div>
         <div class="uv-row"><b>代表语录</b><div class="uv-quotes">${quotes}</div></div>
+        <div class="uv-row"><button class="btn-ghost uv-drill-btn" data-uv-drill="emotion" data-uv-key="${esc(s.name)}">🎯 深度分析 →</button></div>
       </div>`;
     }).join("");
     return `<div class="uv-block">
@@ -3271,6 +3248,14 @@ ${sim || "（无同主题关联帖）"}
     }));
     // 导出按钮
     $$("[data-uvx]", $("#board")).forEach((el) => el.addEventListener("click", () => { uvExportCorpus(el.dataset.uvx); }));
+    // 钻入深度分析
+    $$("[data-uv-drill]", $("#board")).forEach((b) => b.addEventListener("click", () => {
+      state.uvDrillMeta = { tab: b.dataset.uvDrill, key: b.dataset.uvKey };
+      renderBoard();
+    }));
+    // 钻入返回
+    const backDrill = $("[data-uv-back-drill]", $("#board"));
+    if (backDrill) backDrill.addEventListener("click", () => { state.uvDrillMeta = null; renderBoard(); });
     const cs = $("#uv-corpus-search");
     if (cs) {
       const applyCorpusFilter = () => {
