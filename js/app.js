@@ -1629,9 +1629,9 @@ ${topMatches || "（无强匹配）"}
         <div class="stat"><div class="stat-label">总曝光</div><div class="stat-val">${fmt(totalExp)}</div></div>
         <div class="stat"><div class="stat-label">平均互动率</div><div class="stat-val">${avgEng}%</div></div>
       </div>
+      <div class="comp-dims">${dimCards}</div>
       <div class="comp-sub">内容排序列表${cf ? "（受形式 / 数据筛选约束）" : "（按爆款率 · 点开看原帖）"}</div>${contentHTML}
       <div class="comp-sub">用户对竞品的评价（最高赞）</div>${voiceHTML}
-      <div class="comp-dims">${dimCards}</div>
       ${rhythmHTML}${burstHTML}
     </div>`;
   }
