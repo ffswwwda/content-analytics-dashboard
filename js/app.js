@@ -309,7 +309,7 @@
         <button data-view="list" class="${state.view === "list" ? "on" : ""}">列表</button>
       </div>
       <button class="bx-launch" id="bx-launch" title="每日灵感盲盒">
-        <svg viewBox="0 0 24 24" class="ic" style="width:16px;height:16px"><path d="M20 12v8H4v-8M22 7H2v5h20zM12 2l2 5h-4l2-5zM12 22v-5" fill="none" stroke="#ff5d8f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg viewBox="0 0 24 24" class="ic" style="width:18px;height:18px"><rect x="3" y="8" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 8h20M12 8V3m0 0c-1.5 0-2.5 1-2.5 2.5S10.5 8 12 8s2.5-1 2.5-2.5S13.5 3 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
         每日灵感盲盒
       </button>
     </div>`;
@@ -1597,9 +1597,10 @@ ${topMatches || "（无强匹配）"}
       </details>`;
     }).join("");
     const toggleBtn = `<button class="uv-rank-toggle" data-uv-rank-toggle>${state.uvRankAll ? `收起（仅看 Top 50）` : `展开全部 ${all} 人 →`}</button>`;
+    const segDeepBtn = `<button class="uv-rank-toggle uv-seg-deep-btn" data-uv-seg-deep>📊 高互动用户综合深度分析 →</button>`;
     const hint = state.uvRankAll ? "" : `<div class="uv-muted uv-rank-hint">已显示窗口内回复数最高的 50 人；点击「展开全部」查看共 ${all} 位高互动用户。每个卡片可点开看完整深度画像。</div>`;
     return `<div class="uv-block">
-      <div class="uv-block-title">高互动用户排行（窗口内回复数 · 已显示 Top ${shown} / 共分析 ${all} 人） ${toggleBtn}</div>
+      <div class="uv-block-title uv-block-title-row">高互动用户排行（窗口内回复数 · 已显示 Top ${shown} / 共分析 ${all} 人）<span class="uv-title-actions">${toggleBtn}${segDeepBtn}</span></div>
       ${hint}
       <div class="uv-user-grid">${rows}</div>
     </div>`;
@@ -2235,7 +2236,6 @@ ${topMatches || "（无强匹配）"}
     if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
     if (state.uvSegDeep) return renderUserSegDeep(U);
     return `<div class="board-head"><div class="board-desc">${desc}</div></div>
-      <div style="margin-bottom:12px"><button class="btn-ghost uv-deep-btn" data-uv-seg-deep>📊 高互动用户综合深度分析 →</button></div>
       ${uvRank(U)}`;
   }
   function renderUserSegDeep(U) {
@@ -3350,7 +3350,7 @@ ${sim || "（无同主题关联帖）"}
     syncFilterUI();
     renderActiveFilters();
     renderBoard();
-    // 右下角盲盒入口（不自动打开弹层，等待用户点击）
+    // 右下角盲盒入口
     if (!$("#bx-reopen")) {
       const ro = document.createElement("button");
       ro.id = "bx-reopen";
@@ -3359,6 +3359,14 @@ ${sim || "（无同主题关联帖）"}
       ro.onclick = openBlindboxModal;
       document.body.appendChild(ro);
     }
+    // 首次访问自动弹出盲盒（仅一次）
+    try {
+      const seen = localStorage.getItem("ca_bx_first_seen");
+      if (!seen) {
+        localStorage.setItem("ca_bx_first_seen", "1");
+        openBlindboxModal();
+      }
+    } catch (e) {}
   }
   init();
 })();
