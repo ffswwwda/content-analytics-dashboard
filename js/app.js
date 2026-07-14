@@ -934,10 +934,10 @@ ${topMatches || "（无强匹配）"}
 
   /* ============ 参考建议中枢（评估想法 / 找参考 / 回测）============ */
   const GOAL_PRESETS = [
-    { id: "sell", name: "卖货转化", emotion: ["种草", "共鸣"], type: ["图文", "短视频"], activity: true, w: { engagement: 1.5, exposure: 1, activity: 1 } },
-    { id: "review", name: "获取测评用户", emotion: ["实用", "高级"], type: ["测评", "图文"], w: { engagement: 2, exposure: 0.6, activity: 0.5 } },
-    { id: "growth", name: "拉新涨粉", emotion: ["搞笑", "共鸣"], type: ["短视频", "直播"], w: { exposure: 2, shares: 1.2, engagement: 0.8 } },
-    { id: "brand", name: "品牌曝光", emotion: ["高级", "治愈"], type: ["图文", "短视频"], w: { exposure: 1.5, shares: 1.2, collections: 1 } },
+    { id: "sell", name: "卖货转化", emotion: ["促销推广", "种草内容"], type: ["图片", "视频"], goal: ["促进转化"], w: { engagement: 1.5, exposure: 1 } },
+    { id: "review", name: "获取测评/讨论", emotion: ["互动提问", "科技感"], type: ["视频", "图片"], goal: ["用户互动"], w: { engagement: 2, exposure: 0.6 } },
+    { id: "growth", name: "拉新涨粉", emotion: ["搞笑", "温暖"], type: ["视频", "图片"], goal: ["拉新获客"], w: { exposure: 2, shares: 1.2, engagement: 0.8 } },
+    { id: "brand", name: "品牌曝光", emotion: ["高级感", "艺术感", "科技感"], type: ["图片", "视频"], goal: ["品牌曝光"], w: { exposure: 1.5, shares: 1.2, collections: 1 } },
   ];
   function renderReference() {
     const tabs = `<div class="ref-tabs">
@@ -964,16 +964,16 @@ ${topMatches || "（无强匹配）"}
   function findPurposeChips() {
     const all = state.analysis.contents;
     const cnt = (g) => all.filter((c) => {
-      if (g.emotion && g.emotion.includes(c.emotion)) return true;
-      if (g.type && g.type.some((t) => t === c.contentType)) return true;
-      if (g.id === "review" && c.commentQuality && Object.keys(c.commentQuality).length) return true;
+      if (g.emotion && g.emotion.some((e) => contains(c.emotion, e))) return true;
+      if (g.type && g.type.some((t) => contains(c.contentType, t))) return true;
+      if (g.goal && g.goal.some((m) => contains(c.marketing_goal, m))) return true;
       return false;
     }).length;
     return GOAL_PRESETS.map((g) => `<button class="chip ec-chip find-preset" data-goal="${g.id}">${g.name}<span class="ec-cnt">${cnt(g)}</span></button>`).join("");
   }
   function renderFind() {
     const presets = findPurposeChips();
-    const dims = [["type", "形式"], ["topic", "主题"], ["emotion", "情绪"], ["platform", "平台"], ["keyword", "关键词"], ["perf", "表现"]];
+    const dims = [["type", "形式"], ["topic", "主题"], ["emotion", "情绪"], ["goal", "营销目的"], ["source", "来源"], ["platform", "平台"], ["keyword", "关键词"], ["perf", "表现"]];
     const dimHTML = dims.map(([k, l]) => `<label class="dim-toggle on" data-dim="${k}"><input type="checkbox" checked> ${l}</label>`).join("");
     return `<div class="predictor-wrap">
       <div class="board-desc" style="margin-bottom:10px"><b>② 找参考</b> · 没想法有目的找参考：输入你的目的，推荐匹配你目的的灵感内容。下方是常用目的模板，可点选一键载入到输入框。</div>
@@ -990,35 +990,62 @@ ${topMatches || "（无强匹配）"}
       <div class="predictor-input"><button class="btn-primary" id="find-btn">🔍 推荐参考内容</button></div>
       <div class="predict-result" id="find-result"></div></div>`;
   }
-  function tokenize(text) {
+  // 双向包含：a 含 b 或 b 含 a（应对「种草」⊂「种草内容」这类词表错位）
+  function contains(a, b) {
+    if (!a || !b) return false;
+    a = String(a).toLowerCase(); b = String(b).toLowerCase();
+    return a.includes(b) || b.includes(a);
+  }
+  // 中文感知的关键词提取：拉丁词（品牌/品类/英文术语）原样保留；
+  // 中文去停用词后生成 2/3 字滑动窗口（无分词器下的 CJK 模糊匹配），并保留去停用词整段供短语精确匹配。
+  const FIND_STOP = new Set("的 了 是 在 我 你 他 她 它 我们 你们 想 要 给 推 一款 一个 主打 希望 引发 讨论 测评 而不是 硬广 等 和 与 及 通过 利用 进行 以及 可以 能够 如何 怎么 什么 这个 那个 些 上 下 中 内 外 前 后 从 到 把 被 让 使 为 对 于 以 之 其 该 各 每 多 少 大 小 高 低 新 旧 用 做 出 来 去 有 没有 不 也 都 就 还 很 更 最 会 能 这类 这样 那样 一种 一种 他们 她们 它们".split(" "));
+  function extractKeywords(text) {
     const t = (text || "").toLowerCase();
-    const words = (t.match(/[a-z0-9]+/g) || []).filter((w) => w.length >= 2);
-    const out = new Set(words);
-    if (/[一-龥]/.test(t)) out.add(t.replace(/\s+/g, ""));
+    const out = new Set();
+    (t.match(/[a-z0-9]+/g) || []).forEach((w) => { if (w.length >= 2) out.add(w); });
+    const cn = t.replace(/[a-z0-9\s\p{P}]/gu, "");
+    const cleaned = cn.split("").filter((ch) => !FIND_STOP.has(ch)).join("");
+    for (let n = 2; n <= 3; n++) {
+      for (let i = 0; i + n <= cleaned.length; i++) out.add(cleaned.slice(i, i + n));
+    }
+    if (cleaned.length >= 2) out.add("PHRASE:" + cleaned);
     return [...out];
   }
   function matchScoreMulti(c, ctx) {
     const { g, detail, dims } = ctx;
     let score = 0; const reasons = []; const dimHits = [];
-    const cText = (c.text || "").toLowerCase();
+    // 合并可搜索文本：原文 + 中文译文 + 结构化字段，关键词维度在此检索
+    const kwField = `${c.text || ""} ${c.text_zh || ""} ${c.category || ""} ${c.content_topic || ""} ${(c.content_tags || []).join(" ")} ${c.marketing_goal || ""} ${c.content_source || ""} ${(c.topicTags || []).join(" ")}`.toLowerCase();
+    // 结构化意图（来自目的预设）：双向包含匹配真实取值
     if (g) {
-      if (g.emotion && g.emotion.includes(c.emotion)) { score += 18; reasons.push(`情绪「${c.emotion}」契合目的`); dimHits.push("emotion"); }
-      if (g.type && g.type.includes(c.contentType)) { score += 18; reasons.push(`形式「${c.contentType}」契合目的`); dimHits.push("type"); }
-      if (g.activity && c.isActivity) { score += 14; reasons.push("活动/促销型内容"); dimHits.push("type"); }
-      if (g.id === "review" && c.commentQuality && Object.keys(c.commentQuality).length) { score += 12; reasons.push("含用户提问/讨论（利于测评）"); dimHits.push("keyword"); }
+      if (g.emotion && dims.has("emotion") && g.emotion.some((e) => contains(c.emotion, e))) { score += 22; reasons.push(`情绪「${c.emotion}」契合目的`); dimHits.push("emotion"); }
+      if (g.type && dims.has("type") && g.type.some((t) => contains(c.contentType, t))) { score += 16; reasons.push(`形式「${c.contentType}」契合目的`); dimHits.push("type"); }
+      if (g.goal && dims.has("goal") && g.goal.some((m) => contains(c.marketing_goal, m))) { score += 20; reasons.push(`营销目的「${c.marketing_goal}」契合`); dimHits.push("goal"); }
+      if (g.source && dims.has("source") && g.source.some((s) => contains(c.content_source, s))) { score += 8; reasons.push(`内容来源「${c.content_source}」`); dimHits.push("source"); }
     }
     if (detail) {
-      const tokens = tokenize(detail);
-      let kw = 0; const kwEx = [];
-      tokens.forEach((tk) => { if (cText.includes(tk)) { kw++; if (kwEx.length < 4) kwEx.push(tk); } });
-      if (kw && dims.has("keyword")) { score += Math.min(30, kw * 6); reasons.push(`关键词命中 ${kw} 处（${kwEx.join("、")}）`); dimHits.push("keyword"); }
+      const kws = extractKeywords(detail);
+      const latinish = (k) => /^[a-z0-9]+$/.test(k);
+      let kwScore = 0; const kwEx = [];
+      kws.forEach((k) => {
+        if (k.startsWith("PHRASE:")) {
+          const ph = k.slice(7);
+          if (ph.length >= 2 && kwField.includes(ph)) { kwScore += 12; if (kwEx.length < 3) kwEx.push(ph); }
+        } else if (kwField.includes(k)) {
+          kwScore += latinish(k) ? (k.length >= 4 ? 6 : 3) : 3;
+          if (kwEx.length < 4) kwEx.push(k);
+        }
+      });
+      if (kwScore && dims.has("keyword")) { score += Math.min(30, kwScore); reasons.push(`关键词命中（${kwEx.join("、")}）`); dimHits.push("keyword"); }
       if (dims.has("topic")) {
-        const tOverlap = (c.topicTags || []).filter((t) => tokens.includes(String(t).toLowerCase()) || tokens.some((tk) => String(t).toLowerCase().includes(tk)));
-        if (tOverlap.length) { score += 10 * tOverlap.length; reasons.push(`主题契合 ${tOverlap.join("、")}`); dimHits.push("topic"); }
+        const topicTokens = (c.topicTags || []).concat(String(c.content_topic || "").split(/[、，,]/)).map((s) => String(s).trim()).filter(Boolean);
+        const goalKws = kws.filter((k) => !k.startsWith("PHRASE:"));
+        const tOverlap = topicTokens.filter((t) => goalKws.some((tk) => t.toLowerCase().includes(tk) || tk.includes(t.toLowerCase()) || tk === t.toLowerCase()));
+        if (tOverlap.length) { score += Math.min(16, 8 * tOverlap.length); reasons.push(`主题契合「${tOverlap.slice(0, 2).join("、")}」`); dimHits.push("topic"); }
       }
-      if (dims.has("emotion") && tokens.some((tk) => c.emotion.toLowerCase().includes(tk))) { score += 8; reasons.push(`情绪契合「${c.emotion}」`); dimHits.push("emotion"); }
-      if (dims.has("type") && tokens.some((tk) => c.contentType.toLowerCase().includes(tk))) { score += 8; reasons.push(`形式契合「${c.contentType}」`); dimHits.push("type"); }
-      if (dims.has("platform") && tokens.some((tk) => c.platform.toLowerCase().includes(tk))) { score += 6; reasons.push(`平台契合「${c.platform}」`); dimHits.push("platform"); }
+      if (dims.has("emotion") && kws.some((tk) => !tk.startsWith("PHRASE:") && c.emotion.toLowerCase().includes(tk))) { score += 8; reasons.push(`情绪契合「${c.emotion}」`); dimHits.push("emotion"); }
+      if (dims.has("type") && kws.some((tk) => !tk.startsWith("PHRASE:") && c.contentType.toLowerCase().includes(tk))) { score += 8; reasons.push(`形式契合「${c.contentType}」`); dimHits.push("type"); }
+      if (dims.has("platform") && kws.some((tk) => !tk.startsWith("PHRASE:") && c.platform.toLowerCase().includes(tk))) { score += 6; reasons.push(`平台契合「${c.platform}」`); dimHits.push("platform"); }
     }
     if (dims.has("perf")) {
       const vr = rate(c);
@@ -1027,11 +1054,10 @@ ${topMatches || "（无强匹配）"}
       else if (vr >= 30) { score += 6; }
       dimHits.push("perf");
     }
-    // 保底：任何内容都至少有"整体表现"分；避免输入目的无解时空白
+    // 保底：仅在完全无命中时按整体爆款率给分，避免看板空白
     if (score < 1) {
       const vr = rate(c);
       score = Math.max(1, Math.round(vr / 5));
-      if (reasons.length && reasons[0] === "无严格匹配 · 按整体爆款率排序") reasons.length = 0;
     }
     return { score: Math.round(Math.min(100, score)), reasons, dimHits: [...new Set(dimHits)] };
   }
@@ -1064,7 +1090,7 @@ ${topMatches || "（无强匹配）"}
     </div>`;
   }
   function bindFind() {
-    const fstate = { goalId: null, dims: new Set(["type", "topic", "emotion", "platform", "keyword", "perf"]) };
+    const fstate = { goalId: null, dims: new Set(["type", "topic", "emotion", "goal", "source", "platform", "keyword", "perf"]) };
     // 常用目的点击 → 填入输入框（不立即搜索）
     $$("#find-presets .ec-chip").forEach((b) => b.addEventListener("click", () => {
       const g = GOAL_PRESETS.find((x) => x.id === b.dataset.goal);
@@ -1117,7 +1143,7 @@ ${topMatches || "（无强匹配）"}
     const scoreBars = uvBars(scoreDist.filter((x) => x[1] > 0));
 
     // 匹配维度命中（type, topic, emotion, platform, keyword, perf）
-    const dimLabels = { type: "形式", topic: "主题", emotion: "情绪", platform: "平台", keyword: "关键词", perf: "表现" };
+    const dimLabels = { type: "形式", topic: "主题", emotion: "情绪", goal: "营销目的", source: "来源", platform: "平台", keyword: "关键词", perf: "表现", author: "发布者" };
     const dimCounts = {};
     top.forEach(({dimHits}) => { (dimHits || []).forEach((h) => { dimCounts[h] = (dimCounts[h] || 0) + 1; }); });
     const dimPairs = Object.entries(dimCounts).sort((a, b) => b[1] - a[1]).map(([k, v], i) => [dimLabels[k] || k, v, PAL[i % PAL.length]]);
