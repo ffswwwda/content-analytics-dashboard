@@ -1139,6 +1139,7 @@ ${topMatches || "（无强匹配）"}
     box.innerHTML = `${dashHTML}
       <div class="find-cards-title" style="margin-top:16px">匹配内容列表（点击卡片进入单帖深度分析）</div>
       <div class="match-grid">${top.slice(0, 10).map(({ c, score, reasons, dimHits }) => matchCardHTML(c, score, reasons, dimHits)).join("")}</div>`;
+    box.classList.add("show");
     $$(".match-card", box).forEach((el) => el.addEventListener("click", () => openDeepAnalysis(el.dataset.id)));
   }
 
