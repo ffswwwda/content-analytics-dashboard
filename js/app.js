@@ -68,14 +68,13 @@
     competitor: '<path d="M4 21V6l8-3 8 3v15M9 21v-6h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
   };
   const BOARDS = [
-    // —— 灵感工具 ——
-    { id: "library", name: "灵感库", group: "灵感工具", desc: "全部内容的灵感库。可随机浏览，也可按爆款率 / 曝光 / 互动 / 类型 ROI 多指标排序与筛选；一键只看爆款(Top10%)。点标签加筛选，点卡片看详情，再进单帖深度分析。" },
-    { id: "reference", name: "评估想法 / 找参考", group: "灵感工具", desc: "两个方向：①评估想法——输入你的内容想法，输出多维度评估结果；②找参考——没想法有目的时，输入你的目的，推荐匹配你目的的灵感内容。还有回测校准准确率。" },
+    // —— 灵感/分析 ——
+    { id: "library", name: "灵感库", group: "灵感/分析", desc: "全部内容的灵感库。可随机浏览，也可按爆款率 / 曝光 / 互动 / 类型 ROI / 时间趋势多指标排序与筛选；一键只看爆款(Top10%)。点标签加筛选，点卡片看详情，再进单帖深度分析。" },
+    { id: "viraldeep", name: "爆款内容深度分析", group: "灵感/分析", desc: "跨所有品牌的爆款内容共性研究：什么品牌/形式/情绪/主题/时段最容易出爆款？纯数据驱动，一键看清爆款配方。" },
+    { id: "reference", name: "评估想法 / 找参考", group: "灵感/分析", desc: "两个方向：①评估想法——输入你的内容想法，输出多维度评估结果；②找参考——没想法有目的时，输入你的目的，推荐匹配你目的的灵感内容。还有回测校准准确率。" },
     // —— 看竞品情况 ——
     { id: "competitor", name: "竞品内容监测", group: "看竞品情况", desc: "选择单竞品 → 深度查看（整体数据 + 内容排序列表 + 形式/数据筛选 + 用户评价 + 运营节奏×表现 + Campaign 爆发监测）；也可看全部竞品排名。" },
     { id: "compare", name: "多竞品横向对比", group: "看竞品情况", desc: "勾选多个品牌横向对比：数据表现 + Top3 内容 + 用户情况，全面看标杆与差距。" },
-    // —— 爆款深度分析 ——
-    { id: "viraldeep", name: "爆款内容深度分析", group: "爆款深度分析", desc: "跨所有品牌的爆款内容共性研究：什么品牌/形式/情绪/主题/时段最容易出爆款？纯数据驱动，一键看清爆款配方。" },
     // —— 了解用户 ——
     { id: "uservoice", name: "用户讨论与语言", group: "了解用户", desc: "基于用户语料的深度分析：情绪倾向、语言风格、词频、美式本土化表达、分内容形式——学习美国用户的表达与话题讨论方式。" },
     { id: "branduser", name: "品牌-用户讨论", group: "了解用户", desc: "分品牌查看用户对该品牌的讨论：情感极性、内容形式、用户倾向、高频词与主题、代表语录——全面看每个品牌的用户声音。可点进品牌看品牌互动用户深度分析（用户词云、主题排序、分层占比、跨品牌对比）。" },
@@ -126,6 +125,44 @@
   const dispVoice = (v) => (state.lang === "zh" && v && (v.text_zh || v.translation) ? (v.text_zh || v.translation) : (v ? v.text : ""));
   const fmt = (n) => (n >= 10000 ? (n / 10000).toFixed(1) + "万" : String(Math.round(n)));
   const rate = (c) => Math.max(0, Math.min(100, Math.round((c.viralScore / state.maxViral) * 100)));
+  function trendSpark(data, color, width = 120, height = 34) {
+    const max = Math.max(...data, 1);
+    const pts = data.map((v, i) => {
+      const x = data.length > 1 ? (i / (data.length - 1)) * width : width / 2;
+      const y = height - (v / max) * (height - 2) - 1;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(" ");
+    const area = data.map((v, i) => {
+      const x = data.length > 1 ? (i / (data.length - 1)) * width : width / 2;
+      const y = height - (v / max) * (height - 2) - 1;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(" ") + ` ${width},${height} 0,${height}`;
+    return `<svg width="${width}" height="${height}" class="trend-spark"><defs><linearGradient id="grad-${color.replace(/#/g, '')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.35"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><polygon points="${area}" fill="url(#grad-${color.replace(/#/g, '')})"/><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  }
+  function trendSectionHTML(c) {
+    const ts = c.timeseries;
+    if (!ts) return { html: "", has: false };
+    const days = ["D0", "D1", "D2", "D7"];
+    const metrics = [
+      { key: "view", label: "曝光", color: "#0ef" },
+      { key: "like", label: "点赞", color: "#ff5d8f" },
+      { key: "reply", label: "评论", color: "#a855f7" },
+      { key: "repost", label: "转发", color: "#22c55e" },
+      { key: "bookmark", label: "收藏", color: "#f59e0b" },
+    ];
+    const rows = metrics.map((m) => {
+      const values = days.map((d) => (ts[d] && ts[d][m.key]) ? ts[d][m.key] : 0);
+      const total = values.reduce((a, b) => a + b, 0);
+      if (total === 0) return "";
+      const spark = trendSpark(values, m.color);
+      const lastVal = values[values.length - 1];
+      const firstVal = values[0];
+      const growth = firstVal > 0 ? Math.round(((lastVal - firstVal) / firstVal) * 100) : (lastVal > 0 ? 100 : 0);
+      const growthStr = growth >= 0 ? `+${growth}%` : `${growth}%`;
+      return `<div class="trend-row"><div class="trend-meta"><span class="trend-dot" style="background:${m.color}"></span><span class="trend-label">${m.label}</span><span class="trend-val">${fmt(lastVal)}</span><span class="trend-growth ${growth >= 0 ? "up" : "down"}">${growthStr}</span></div>${spark}</div>`;
+    }).filter(Boolean).join("");
+    return { html: rows ? `<div class="dp-trend-grid">${rows}</div>` : "", has: !!rows };
+  }
   function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("show"), 1900); }
 
   /* ---------- 筛选 ---------- */
@@ -285,7 +322,7 @@
     } else {
       list = sortContents(list, state.sort);
     }
-    const tools = `<div class="board-tools">
+    const tools = `<div class="board-tools" style="flex-wrap:wrap">
       <div class="seg" id="lib-mode">
         <button data-mode="rand" class="${state.libMode === "rand" ? "on" : ""}">🎲 随机浏览</button>
         <button data-mode="sort" class="${state.libMode === "sort" ? "on" : ""}">📊 指标排序</button>
@@ -295,13 +332,13 @@
         <button data-eval="top" class="${state.libQuick === "top" ? "on" : ""}">只看爆款</button>
         <button data-eval="roi" class="${state.libQuick === "roi" ? "on" : ""}">类型ROI</button>
       </div>
-      <select class="sel" id="sort-sel">
-        <option value="viral"${state.sort === "viral" ? " selected" : ""}>按爆款率</option>
-        <option value="exposure"${state.sort === "exposure" ? " selected" : ""}>按曝光</option>
-        <option value="engagement"${state.sort === "engagement" ? " selected" : ""}>按互动</option>
-        <option value="date"${state.sort === "date" ? " selected" : ""}>按最新</option>
-        <option value="roi"${state.sort === "roi" ? " selected" : ""}>按类型ROI</option>
-      </select>
+      <div class="seg" id="sort-chips">
+        <button data-sort="viral" class="${state.sort === "viral" ? "on" : ""}">🔥 爆款率</button>
+        <button data-sort="exposure" class="${state.sort === "exposure" ? "on" : ""}">👁 曝光</button>
+        <button data-sort="engagement" class="${state.sort === "engagement" ? "on" : ""}">💬 互动</button>
+        <button data-sort="date" class="${state.sort === "date" ? "on" : ""}">🕐 最新发布</button>
+        <button data-sort="roi" class="${state.sort === "roi" ? "on" : ""}">💰 ROI</button>
+      </div>
       <div class="seg" id="view-seg">
         <button data-view="grid" class="${state.view === "grid" ? "on" : ""}">卡片</button>
         <button data-view="list" class="${state.view === "list" ? "on" : ""}">列表</button>
@@ -1022,16 +1059,52 @@ ${topMatches || "（无强匹配）"}
     if (!box) return;
     const label = g ? g.name : (detail ? "自定义目的" : "全部内容（按表现排序）");
 
-    // ===== 可视化看板 =====
-    const avgScore = Math.round(top.reduce((s, x) => s + x.score, 0) / top.length);
-    const formDist = {}; top.forEach(({c}) => { const f = c.contentType || "—"; formDist[f] = (formDist[f] || 0) + 1; });
-    const emoDist = {}; top.forEach(({c}) => { const e = c.emotion || "—"; emoDist[e] = (emoDist[e] || 0) + 1; });
-    const topAcc = {}; top.forEach(({c}) => { topAcc[c.account] = (topAcc[c.account] || 0) + 1; });
-    const topAvgRate = Math.round(top.reduce((s, {c}) => s + rate(c), 0) / top.length);
+    // ===== 可视化看板：匹配度 + 内容数据 + 用户情绪 =====
+    const avgScore = top.length ? Math.round(top.reduce((s, x) => s + x.score, 0) / top.length) : 0;
+    const topAvgRate = top.length ? Math.round(top.reduce((s, {c}) => s + rate(c), 0) / top.length) : 0;
     const topCount = top.filter(({c}) => c.isTop).length;
-    const topEngAvg = Math.round(top.reduce((s, {c}) => s + (c.engagement || 0), 0) / top.length);
-    const formBars = uvBars(Object.entries(formDist).sort((a,b)=>b[1]-a[1]).map(([k,v],i) => [k, v, PAL[i % PAL.length]]));
-    const emoBars = uvBars(Object.entries(emoDist).sort((a,b)=>b[1]-a[1]).map(([k,v],i) => [k, v, PAL[(i+2)%PAL.length]]));
+    const topEngAvg = top.length ? Math.round(top.reduce((s, {c}) => s + (c.engagement || 0), 0) / top.length) : 0;
+    const avgExp = top.length ? Math.round(top.reduce((s, {c}) => s + (c.exposure || 0), 0) / top.length) : 0;
+    const avgLikes = top.length ? Math.round(top.reduce((s, {c}) => s + (c.likes || 0), 0) / top.length) : 0;
+    const avgComments = top.length ? Math.round(top.reduce((s, {c}) => s + (c.comments || 0), 0) / top.length) : 0;
+    const avgShares = top.length ? Math.round(top.reduce((s, {c}) => s + (c.shares || 0), 0) / top.length) : 0;
+
+    // 匹配度分布
+    const scoreBuckets = [["90-100", 90, 100], ["80-89", 80, 89], ["70-79", 70, 79], ["60-69", 60, 69], ["<60", 0, 59]];
+    const scoreDist = scoreBuckets.map(([label, lo, hi]) => [label, top.filter((x) => x.score >= lo && x.score <= hi).length, PAL[scoreBuckets.indexOf([label, lo, hi]) % PAL.length]]);
+    const scoreBars = uvBars(scoreDist.filter((x) => x[1] > 0));
+
+    // 匹配维度命中（type, topic, emotion, platform, keyword, perf）
+    const dimLabels = { type: "形式", topic: "主题", emotion: "情绪", platform: "平台", keyword: "关键词", perf: "表现" };
+    const dimCounts = {};
+    top.forEach(({dimHits}) => { (dimHits || []).forEach((h) => { dimCounts[h] = (dimCounts[h] || 0) + 1; }); });
+    const dimPairs = Object.entries(dimCounts).sort((a, b) => b[1] - a[1]).map(([k, v], i) => [dimLabels[k] || k, v, PAL[i % PAL.length]]);
+    const dimBars = uvBars(dimPairs);
+
+    // 内容数据分布
+    const formDist = {};
+    const emoDist = {};
+    const accDist = {};
+    top.forEach(({c}) => {
+      formDist[c.contentType] = (formDist[c.contentType] || 0) + 1;
+      emoDist[c.emotion] = (emoDist[c.emotion] || 0) + 1;
+      accDist[c.account] = (accDist[c.account] || 0) + 1;
+    });
+    const formBars = uvBars(Object.entries(formDist).sort((a, b) => b[1] - a[1]).map(([k, v], i) => [k, v, PAL[i % PAL.length]]));
+    const emoBars = uvBars(Object.entries(emoDist).sort((a, b) => b[1] - a[1]).map(([k, v], i) => [k, v, PAL[(i + 2) % PAL.length]]));
+
+    // 用户情绪（从匹配账号的用户语料中聚合）
+    const matchedAccounts = new Set(top.map(({c}) => c.account));
+    const voices = ((state.raw && state.raw.userVoices) || []).filter((v) => matchedAccounts.has(v.account));
+    const sentMap = { "正面": "正面", "中性": "中性", "负面": "负面", "提问": "提问" };
+    const sentDist = {};
+    voices.forEach((v) => {
+      const key = sentMap[v.sentiment] || "其他";
+      sentDist[key] = (sentDist[key] || 0) + 1;
+    });
+    const sentColors = { "正面": "#22c55e", "中性": "#94a3b8", "负面": "#ff5d8f", "提问": "#0ef", "其他": "#a855f7" };
+    const sentBars = uvBars(Object.entries(sentDist).sort((a, b) => b[1] - a[1]).map(([k, v]) => [k, v, sentColors[k] || "#94a3b8"]));
+
     const dashHTML = `<div class="find-dash">
       <div class="find-dash-title">📊 匹配度可视化看板 · 「${esc(label)}」</div>
       ${isFallback ? `<div class="uv-insight" style="margin-bottom:10px;font-size:12.5px">⚠️ 当前目的下未找到严格匹配的内容。已自动回退为<b>整体爆款率排序</b>的 Top 内容。在输入框补充更多具体词（如品牌、形式、风格）可获得更精准匹配。</div>` : ""}
@@ -1043,8 +1116,23 @@ ${topMatches || "（无强匹配）"}
         <div class="bud-stat"><div class="bud-stat-val">${fmt(topEngAvg)}</div><div class="bud-stat-lab">平均互动</div></div>
       </div>
       <div class="find-dash-row">
+        <div class="vd-col"><div class="vd-title">匹配度分布</div>${scoreBars}</div>
+        <div class="vd-col"><div class="vd-title">匹配维度命中</div>${dimBars}</div>
+      </div>
+      <div class="find-dash-row">
         <div class="vd-col"><div class="vd-title">内容形式分布</div>${formBars}</div>
         <div class="vd-col"><div class="vd-title">情绪风格分布</div>${emoBars}</div>
+      </div>
+      <div class="find-dash-row">
+        <div class="vd-col"><div class="vd-title">用户情绪分布（匹配账号的用户语料）</div>${sentBars}</div>
+        <div class="vd-col"><div class="vd-title">内容数据均值</div>
+          <div class="data-mean-grid">
+            <div class="data-mean"><span>曝光</span><b>${fmt(avgExp)}</b></div>
+            <div class="data-mean"><span>点赞</span><b>${fmt(avgLikes)}</b></div>
+            <div class="data-mean"><span>评论</span><b>${fmt(avgComments)}</b></div>
+            <div class="data-mean"><span>转发</span><b>${fmt(avgShares)}</b></div>
+          </div>
+        </div>
       </div>
     </div>`;
 
@@ -2749,7 +2837,12 @@ ${topMatches || "（无强匹配）"}
       if (cf.types.size) items = items.filter((c) => cf.types.has(c.contentType));
       if (cf.topOnly) items = items.filter((c) => c.isTop);
       if (cf.viralMin > 0) items = items.filter((c) => rate(c) >= cf.viralMin);
-      items = [...items].sort((a, b) => cf.sort === "exposure" ? b.exposure - a.exposure : cf.sort === "engagement" ? b.engagement - a.engagement : b.viralScore - a.viralScore);
+      items = [...items].sort((a, b) => {
+        if (cf.sort === "exposure") return b.exposure - a.exposure;
+        if (cf.sort === "engagement") return b.engagement - a.engagement;
+        if (cf.sort === "date") return b.publish_time.localeCompare(a.publish_time);
+        return b.viralScore - a.viralScore;
+      });
     } else {
       items = [...itemsAll].sort((a, b) => b.viralScore - a.viralScore);
     }
@@ -2808,6 +2901,7 @@ ${topMatches || "（无强匹配）"}
         <option value="viral"${cf.sort === "viral" ? " selected" : ""}>爆款率</option>
         <option value="engagement"${cf.sort === "engagement" ? " selected" : ""}>互动</option>
         <option value="exposure"${cf.sort === "exposure" ? " selected" : ""}>浏览/曝光</option>
+        <option value="date"${cf.sort === "date" ? " selected" : ""}>最新发布</option>
       </select></div>
       <div class="ct-group ct-range"><span class="ct-label">爆款率≥</span><input type="range" id="comp-viral-min" min="0" max="100" value="${cf.viralMin}"><span class="ct-val" id="comp-viral-min-val">${cf.viralMin}</span></div>
       <div class="ct-group"><label class="chk"><input type="checkbox" id="comp-top-only"${cf.topOnly ? " checked" : ""}>只看爆款</label></div>
@@ -3104,6 +3198,9 @@ ${sim || "（无同主题关联帖）"}
         <div class="dp-metric-card"><div class="dp-mk">分享</div><div class="dp-mv">${fmt(c.shares || 0)}</div></div>
         <div class="dp-metric-card"><div class="dp-mk">收藏</div><div class="dp-mv">${fmt(c.collections || 0)}</div></div>
       </div>`;
+    // 时序增长趋势
+    const trend = trendSectionHTML(c);
+    const trendHTML = trend.has ? `<div class="dp-section"><div class="dp-sec-title">时序增长趋势 <span class="dp-sec-note">D0 → D1 → D2 → D7 数据变化</span></div>${trend.html}</div>` : "";
     // 该账号形式分布（小条形）
     const typeBreakRows = sc.typeBreak.slice(0, 6).map((t) => {
       const r = t.avgRate;
@@ -3177,6 +3274,7 @@ ${sim || "（无同主题关联帖）"}
         <div class="dp-sec-title">帖子数据 <span class="dp-sec-note">这条内容的量化表现</span></div>
         ${metricCards}
       </div>
+      ${trendHTML}
       <div class="dp-section">
         <div class="dp-sec-title">回复词云 <span class="dp-sec-note">用户讨论里出现的高频词</span></div>
         ${cloudHTML}
@@ -3258,9 +3356,6 @@ ${sim || "（无同主题关联帖）"}
 
   /* ============ 事件绑定 ============ */
   function bindBoard(data) {
-    // 大板块深度洞察按钮（紧靠大标题）
-    const ibtn = $("#board-insight-btn");
-    if (ibtn) ibtn.onclick = () => openBoardInsight(state.board);
     // 卡片 / 列表点击 → 抽屉
     $$("[data-id]", $("#board")).forEach((el) => el.addEventListener("click", (e) => {
       if (e.target.closest("[data-facet]")) return; // 标签点击走筛选
@@ -3277,7 +3372,7 @@ ${sim || "（无同主题关联帖）"}
     // 灵感库工具
     if (state.board === "library") {
       $$("#view-seg button").forEach((b) => b.addEventListener("click", () => { state.view = b.dataset.view; renderBoard(); }));
-      const ss = $("#sort-sel"); if (ss) ss.addEventListener("change", () => { state.sort = ss.value; renderBoard(); });
+      $$("#sort-chips button").forEach((b) => b.addEventListener("click", () => { state.sort = b.dataset.sort; renderBoard(); }));
       $$("#lib-mode button").forEach((b) => b.addEventListener("click", () => { state.libMode = b.dataset.mode; renderBoard(); }));
       $$("#lib-eval button").forEach((b) => b.addEventListener("click", () => { state.libQuick = b.dataset.eval; renderBoard(); }));
       const rs = $("#lib-reshuffle"); if (rs) rs.addEventListener("click", () => renderBoard());
@@ -3297,160 +3392,6 @@ ${sim || "（无同主题关联帖）"}
     if (state.board === "userseg") bindUserSeg();
   }
 
-  /* ============ 大板块深度洞察（聚合子版块洞察为一页） ============ */
-  function contentInsightHTML(items, name) {
-    const n = items.length;
-    if (!n) return `<div class="uv-muted">当前筛选下没有内容，无法生成洞察。</div>`;
-    const avg = Math.round(items.reduce((s, c) => s + rate(c), 0) / n);
-    const tops = items.filter((c) => c.isTop).length;
-    const byKey = (key, multi) => {
-      const m = new Map();
-      items.forEach((c) => {
-        const vals = multi ? (c[key] || []) : [c[key]];
-        vals.forEach((v) => { if (v) m.set(v, (m.get(v) || 0) + rate(c)); });
-      });
-      let best = null, bv = -1;
-      m.forEach((sum, k) => {
-        const cnt = items.filter((c) => { const vals = multi ? (c[key] || []) : [c[key]]; return vals.includes(k); }).length;
-        const a = sum / Math.max(1, cnt);
-        if (a > bv) { bv = a; best = k; }
-      });
-      return best ? { name: best, avg: Math.round(bv) } : null;
-    };
-    const topType = byKey("contentType", false), topTopic = byKey("topicTags", true), topEmo = byKey("emotion", false), topAcc = byKey("account", false);
-    let h = `<div class="uv-insight">当前共 <b>${n}</b> 条内容（受全局筛选约束），平均爆款率 <b>${avg}%</b>，其中爆款 <b>${tops}</b> 条；`;
-    if (topType) h += `最佳内容形式「<b>${esc(topType.name)}</b>」(均 ${topType.avg}%)；`;
-    if (topTopic) h += `最热主题「<b>${esc(topTopic.name)}</b>」；`;
-    if (topEmo) h += `主导情绪「<b>${esc(topEmo.name)}</b>」；`;
-    if (topAcc) h += `头部账号「<b>${esc(topAcc.name)}</b>」。`;
-    h += `</div>`;
-    h += `<div class="dp-section"><div class="dp-sec-title">🔥 Top 内容（前 5，按爆款率）</div>`;
-    h += items.slice().sort((a, b) => rate(b) - rate(a)).slice(0, 5).map((c) => `<div class="uv-post"><div class="uv-post-meta"><span class="uv-post-brand">${esc(c.account)}</span>${c.contentType ? `<span class="uv-chip-mini">${esc(c.contentType)}</span>` : ""}${c.emotion ? `<span class="uv-chip-mini">${esc(c.emotion)}</span>` : ""}<span class="uv-post-rate">爆款率 ${rate(c)}%</span></div><div class="uv-post-text">${esc(dispText(c).slice(0, 130))}</div></div>`).join("");
-    h += `</div>`;
-    return h;
-  }
-
-  function uservoiceInsight(U) {
-    const c = U.corpus; const st = c.sentiment; const sTot = (st.pos || 0) + (st.neu || 0) + (st.neg || 0) || 1;
-    const posR = Math.round((st.pos || 0) / sTot * 100);
-    const lead = `用户讨论与语言板块综合洞察：共 <b>${fmt(sTot)}</b> 条真实用户回帖，整体正面率 <b>${posR}%</b>。以下把「用户语料 / 分主题 / 分意图 / 分情绪 / 分形式」五个子版块的发现汇总为一页。`;
-    const intentTop = Object.entries(c.intent || {}).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => `${INTENT_NAME[k] || k}(${v})`).join("、");
-    const topicTop = Object.entries(c.topic || {}).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => `${k}(${v})`).join("、");
-    const tb = (U.dimBreakdown.topicBreakdown || []).slice().sort((a, b) => b.count - a.count).slice(0, 5)
-      .map((t) => { const s = (t.sentiment.pos || 0) + (t.sentiment.neu || 0) + (t.sentiment.neg || 0) || 1; return `<b>${esc(t.name)}</b> ${fmt(t.count)}条（正${Math.round((t.sentiment.pos || 0) / s * 100)}%）`; }).join("；");
-    const ib = (U.dimBreakdown.intentBreakdown || []).slice().sort((a, b) => b.count - a.count).slice(0, 5)
-      .map((t) => `<b>${INTENT_NAME[t.name] || t.name}</b> ${fmt(t.count)}条`).join("；");
-    const sb = (U.dimBreakdown.sentimentBreakdown || []).slice().sort((a, b) => b.count - a.count).slice(0, 4)
-      .map((t) => `<b>${esc(t.name)}</b> ${fmt(t.count)}条`).join("；");
-    const fe = (U.formEval || []).slice().sort((a, b) => b.replyCount - a.replyCount).slice(0, 5)
-      .map((t) => `<b>${esc(t.form)}</b> ${fmt(t.replyCount)}条`).join("；");
-    const secs = [
-      ["🗣️ 用户语料总览", `意图分布 Top：${intentTop}。<br>讨论主题 Top：${topicTop}。`],
-      ["📂 分内容主题（讨论最多的类目）", tb],
-      ["🎯 分营销目的（用户来这里的意图）", ib],
-      ["😊 分情绪风格", sb],
-      ["🎨 分内容形式（用户偏好的表达形态）", fe],
-    ];
-    const body = secs.map(([t, d]) => `<div class="dp-section"><div class="dp-sec-title">${t}</div><div class="uv-row-text">${d}</div></div>`).join("");
-    return { lead, body };
-  }
-
-  function usertierInsight(U) {
-    const lays = (U.layers && Object.keys(U.layers)) || [];
-    const layerSecs = lays.map((k) => {
-      const L = U.layers[k]; const s = (L.sentiment.pos || 0) + (L.sentiment.neu || 0) + (L.sentiment.neg || 0) || 1;
-      const posR = Math.round((L.sentiment.pos || 0) / s * 100);
-      const topBrand = Object.entries(L.brands || {}).sort((a, b) => b[1] - a[1])[0];
-      return `<b>${esc(L.meta.name)}</b>：${fmt(L.count)} 条（${uvPct(L.count, U.meta.genuine_replies_in_window)}%）· 正面 ${posR}%${topBrand ? ` · 主要品牌 ${esc(topBrand[0])}` : ""}`;
-    }).join("；<br>");
-    const topUsers = U.topUsers || [];
-    const eng = { heavy: 0, active: 0, light: 0, once: 0 };
-    topUsers.forEach((u) => { const c = u.replyCount || 0; if (c >= 10) eng.heavy++; else if (c >= 4) eng.active++; else if (c >= 2) eng.light++; else eng.once++; });
-    const engSec = Object.entries(eng).map(([k, v]) => `${k}: ${v} 人`).join(" · ");
-    const intentGroups = {};
-    topUsers.forEach((u) => { const its = (u.intents && typeof u.intents === "object") ? Object.entries(u.intents) : []; const top = its.sort((a, b) => b[1] - a[1])[0]; if (top) intentGroups[top[0]] = (intentGroups[top[0]] || 0) + 1; });
-    const intSec = Object.entries(intentGroups).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => `${INTENT_NAME[k] || k}: ${v}`).join(" · ");
-    const lead = `用户分层分析板块综合洞察：从「投入度 / 忠诚度 / 意图倾向」三个口径切分用户，以下汇总三层各自的发现。`;
-    const body = [
-      ["📏 投入度分层（按回复字数）", layerSecs],
-      [`🔁 忠诚度分层（按回复次数 · 全局 TOP${topUsers.length} 用户）`, engSec],
-      ["🎯 意图倾向分层（按主导意图）", intSec],
-    ].map(([t, d]) => `<div class="dp-section"><div class="dp-sec-title">${t}</div><div class="uv-row-text">${d}</div></div>`).join("");
-    return { lead, body };
-  }
-
-  function usersegInsight(U) {
-    const users = U.topUsers || [];
-    const tot = users.length;
-    const totalReplies = users.reduce((s, u) => s + (u.replyCount || 0), 0);
-    const brandAcc = {}; const intentAcc = {}; let sentPos = 0, sentNeu = 0, sentNeg = 0;
-    users.forEach((u) => {
-      if (u.topBrand) brandAcc[u.topBrand] = (brandAcc[u.topBrand] || 0) + 1;
-      const its = (u.intents && typeof u.intents === "object") ? Object.entries(u.intents) : [];
-      its.forEach(([k, v]) => { intentAcc[k] = (intentAcc[k] || 0) + v; });
-      const s = u.sents || {}; sentPos += s.pos || 0; sentNeu += s.neu || 0; sentNeg += s.neg || 0;
-    });
-    const sTot = sentPos + sentNeu + sentNeg || 1;
-    const posR = Math.round(sentPos / sTot * 100);
-    const topBrand = Object.entries(brandAcc).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => `${esc(k)}×${v}`).join("、");
-    const topIntent = Object.entries(intentAcc).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => `${INTENT_NAME[k] || k}×${v}`).join("、");
-    const lead = `高互动用户板块综合洞察：汇总 Top <b>${tot}</b> 位深度用户（共 ${fmt(totalReplies)} 条回复），其共性如下。`;
-    const body = [
-      ["🏆 品牌声量分布", `提及最多的品牌：${topBrand || "—"}`],
-      ["🎯 意图倾向", `主导意图：${topIntent || "—"}`],
-      ["😊 情绪构成", `整体正面率 <b>${posR}%</b>（正 ${sentPos} / 中 ${sentNeu} / 负 ${sentNeg}）`],
-    ].map(([t, d]) => `<div class="dp-section"><div class="dp-sec-title">${t}</div><div class="uv-row-text">${d}</div></div>`).join("");
-    return { lead, body };
-  }
-
-  function branduserInsight(U) {
-    const be = (U.brandEval || []).slice().sort((a, b) => b.replyCount - a.replyCount).slice(0, 6);
-    const lead = `品牌-用户讨论板块综合洞察：汇总各品牌被真实用户讨论的声量与情绪。`;
-    const secs = be.map((b) => {
-      const s = (b.sentiment.pos || 0) + (b.sentiment.neu || 0) + (b.sentiment.neg || 0) || 1;
-      const posR = Math.round((b.sentiment.pos || 0) / s * 100);
-      const topIntent = Object.entries(b.intents || {}).sort((a, b2) => b2[1] - a[1]).slice(0, 3).map(([k, v]) => `${INTENT_NAME[k] || k}×${v}`).join("、");
-      return `<b>${esc(b.brand)}</b>：${fmt(b.replyCount)} 条讨论 · 正面 ${posR}%${topIntent ? ` · 意图 ${topIntent}` : ""}`;
-    }).join("；<br>");
-    const body = `<div class="dp-section"><div class="dp-sec-title">🏷️ 各品牌用户讨论概览</div><div class="uv-row-text">${secs}</div></div>`;
-    return { lead, body };
-  }
-
-  function boardInsightHTML(boardId) {
-    const b = BOARDS.find((x) => x.id === boardId) || {};
-    const name = b.name || boardId;
-    const userBoards = ["uservoice", "usertier", "userseg", "branduser"];
-    let lead = "", body = "";
-    if (userBoards.includes(boardId)) {
-      const U = state.users;
-      if (!U) return `<div class="uv-drill"><div class="uv-muted">用户分析数据待生成（运行 scripts/build_users.py）。</div></div>`;
-      let r;
-      if (boardId === "uservoice") r = uservoiceInsight(U);
-      else if (boardId === "usertier") r = usertierInsight(U);
-      else if (boardId === "userseg") r = usersegInsight(U);
-      else r = branduserInsight(U);
-      lead = r.lead; body = r.body;
-    } else {
-      lead = `「${esc(name)}」板块深度洞察：聚合当前全局筛选下的内容数据，给出整体表现与 Top 内容。`;
-      body = contentInsightHTML(getFiltered(), name);
-    }
-    return `<div class="uv-drill"><div class="uv-drill-title">📊 ${esc(name)} · 板块深度洞察</div><div class="uv-drill-desc">${lead}</div>${body}</div>`;
-  }
-
-  function openBoardInsight(boardId) {
-    const bxM = $("#bx-modal"), bxO = $("#bx-overlay");
-    if (bxM && bxM.classList.contains("show")) { bxM.classList.remove("show"); bxO.classList.remove("show"); }
-    const b = BOARDS.find((x) => x.id === boardId) || {};
-    $("#insight-kicker").textContent = `📊 ${b.name || boardId} · 深度洞察`;
-    $("#insight-sub").textContent = "";
-    $("#insight-body").innerHTML = boardInsightHTML(boardId);
-    $("#insight-modal").classList.add("show");
-    $("#insight-overlay").classList.add("show");
-  }
-  function closeBoardInsight() {
-    $("#insight-modal").classList.remove("show");
-    $("#insight-overlay").classList.remove("show");
-  }
 
   function bindUserBoard() {
     $$(".uv-tab", $("#board")).forEach((b) => b.addEventListener("click", () => {
@@ -3514,10 +3455,7 @@ ${sim || "（无同主题关联帖）"}
     // 高互动用户综合深度分析弹层
     const segClose = $("#seg-close"); if (segClose) segClose.addEventListener("click", closeSegDeep);
     const segOverlay = $("#seg-overlay"); if (segOverlay) segOverlay.addEventListener("click", closeSegDeep);
-    // 大板块深度洞察弹层
-    const insClose = $("#insight-close"); if (insClose) insClose.addEventListener("click", closeBoardInsight);
-    const insOverlay = $("#insight-overlay"); if (insOverlay) insOverlay.addEventListener("click", closeBoardInsight);
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if ($("#bx-modal").classList.contains("show")) closeBlindboxModal(); else if ($("#insight-modal").classList.contains("show")) closeBoardInsight(); else if ($("#seg-modal").classList.contains("show")) closeSegDeep(); else if ($("#deep-modal").classList.contains("show")) closeDeep(); else closeDrawer(); } });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if ($("#bx-modal").classList.contains("show")) closeBlindboxModal(); else if ($("#seg-modal").classList.contains("show")) closeSegDeep(); else if ($("#deep-modal").classList.contains("show")) closeDeep(); else closeDrawer(); } });
     // 正文语言切换（导航中文不动，仅帖子/回复正文 EN↔中）
     const lt = $("#lang-toggle");
     const syncLang = () => { $$(".lang-opt", lt).forEach((o) => o.classList.toggle("on", o.dataset.lang === state.lang)); };
