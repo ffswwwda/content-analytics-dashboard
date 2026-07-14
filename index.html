@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=4" />
+  <link rel="stylesheet" href="css/styles.css?v=5" />
 </head>
 <body>
   <div class="app">
@@ -92,7 +92,11 @@
         <span class="deep-kicker">单帖深度分析</span>
         <span class="deep-sub" id="deep-sub"></span>
       </div>
-      <button class="deep-close" id="deep-close">×</button>
+      <div class="deep-actions">
+        <button class="deep-act" id="deep-export" title="导出为图片">⬇ 导出图片</button>
+        <button class="deep-act" id="deep-copyimg" title="复制图片到剪贴板">⧉ 复制图片</button>
+        <button class="deep-close" id="deep-close">×</button>
+      </div>
     </div>
     <div class="deep-body" id="deep-body"></div>
   </div>
@@ -129,6 +133,7 @@
 
   <script src="js/data.js?v=4"></script>
   <script src="js/analysis.js?v=4"></script>
-  <script src="js/app.js?v=5"></script>
+  <script src="js/lib/html2canvas.min.js?v=1"></script>
+  <script src="js/app.js?v=6"></script>
 </body>
 </html>
