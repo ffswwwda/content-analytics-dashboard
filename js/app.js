@@ -1528,6 +1528,7 @@ ${topMatches || "（无强匹配）"}
     }
   }
 
+  // 投入度分层卡片网格（仅卡片，外层区块标题由 renderUserTier 统一提供）
   function uvLayers(U) {
     const order = ["l1", "l2", "l3", "l4"];
     const cards = order.map((k) => {
@@ -1539,11 +1540,10 @@ ${topMatches || "（无强匹配）"}
         <div class="uv-layer-desc">${L.meta.desc}</div>
         <div class="uv-layer-bars">${uvBars(sPairs)}</div>
         <details class="uv-layer-det"><summary>看 ${L.samples.length} 条样例</summary>${samples}</details>
-        <div class="uv-layer-foot"><button class="btn-ghost uv-layer-enter" data-uv-layer="${k}">🎯 该分层用户深度分析 →</button></div>
+        <div class="uv-layer-foot"><button class="btn-ghost uv-layer-enter" data-uv-layer="${k}">🎯 深度分析 →</button></div>
       </div>`;
     }).join("");
-    const cmpBtn = `<div class="uv-layer-cmp-wrap"><button class="btn-primary uv-layer-cmp-btn" data-uv-layer-cmp>📊 四层用户全面对比 →</button><span class="uv-layer-cmp-hint">横向比较 l1~l4 用户：关注的主题、品牌分布、内容形式、情感、意图、数据反馈</span></div>`;
-    return `<div class="uv-block"><div class="uv-block-title">按回复字数分层用户（不同「投入度」对应不同运营动作）</div><div class="uv-layer-grid">${cards}</div>${cmpBtn}</div>`;
+    return `<div class="uv-layer-grid">${cards}</div>`;
   }
 
   function uvRank(U) {
@@ -2396,12 +2396,33 @@ ${topMatches || "（无强匹配）"}
     if (state.uvLayerCmp) return renderLayerCompare(U);
     if (state.uvLayerDrill && U.layers[state.uvLayerDrill]) return renderLayerDrill(state.uvLayerDrill);
     if (state.uvLayerDrill && state.uvLayerDrill.startsWith("intent_")) return renderIntentLayerDrill(state.uvLayerDrill);
-    // 参与度分层（按回复次数）+ 意图倾向分层
-    const engLayerCards = renderEngLayers(U);
-    const intentLayerCards = renderIntentLayers(U);
-    return `<div class="board-head"><div class="board-desc">${desc}</div></div>${uvLayers(U)}${engLayerCards}${intentLayerCards}`;
+    if (state.uvLayerDrill && state.uvLayerDrill.startsWith("eng_")) return renderEngLayerDrill(state.uvLayerDrill);
+    // 三层架构：投入度 / 忠诚度 / 意图倾向，统一区块标题 + 卡片网格
+    const legend = `<div class="uv-legend">
+      <span class="uv-legend-chip"><i style="background:var(--accent)"></i>投入度 · 按回复字数</span>
+      <span class="uv-legend-chip"><i style="background:#ffd166"></i>忠诚度 · 按回复次数</span>
+      <span class="uv-legend-chip"><i style="background:#a06bff"></i>意图倾向 · 按主导意图</span>
+    </div>`;
+    return `<div class="board-head"><div class="board-desc">${desc}</div></div>
+      ${legend}
+      <div class="uv-sec">
+        <div class="uv-sec-head">
+          <div class="uv-sec-title">① 投入度分层<span class="uv-sec-sub">按回复字数切分，不同投入度对应不同运营动作</span></div>
+          <button class="btn-primary uv-cmp-pill" data-uv-layer-cmp>📊 四层全面对比 →</button>
+        </div>
+        ${uvLayers(U)}
+      </div>
+      <div class="uv-sec">
+        <div class="uv-sec-head"><div class="uv-sec-title">② 忠诚度分层<span class="uv-sec-sub">按回复次数切分 · 全局 TOP100 用户</span></div></div>
+        ${renderEngLayers(U)}
+      </div>
+      <div class="uv-sec">
+        <div class="uv-sec-head"><div class="uv-sec-title">③ 意图倾向分层<span class="uv-sec-sub">按主导意图归类 · 全局 TOP100 用户</span></div></div>
+        ${renderIntentLayers(U)}
+      </div>`;
   }
 
+  // 忠诚度分层：按回复次数切分；卡片含占比条 + 下钻按钮
   function renderEngLayers(U) {
     const EM = (U.meta && U.meta.eng_meta) || {};
     const order = ["heavy", "active", "light", "once"];
@@ -2412,10 +2433,9 @@ ${topMatches || "（无强匹配）"}
       light: "偶尔回来互动，处在观望期，需内容持续触达。",
       once: "路人 / 首次接触，规模最大，是拉新与转化的入口。",
     };
-    // 从全部用户列表计算参与度分层（非品牌粒度，全局视角）
     const topUsers = U.topUsers || [];
     const engCounts = { heavy: 0, active: 0, light: 0, once: 0 };
-    const nUsers = topUsers.length;
+    const nUsers = topUsers.length || 1;
     topUsers.forEach((u) => {
       const c = u.replyCount || 0;
       if (c >= 10) engCounts.heavy++;
@@ -2423,16 +2443,20 @@ ${topMatches || "（无强匹配）"}
       else if (c >= 2) engCounts.light++;
       else engCounts.once++;
     });
+    const maxCount = Math.max(...order.map((k) => engCounts[k] || 0), 1);
     const cards = order.map((k) => {
       const name = (EM[k] && EM[k].name) || k;
       const count = engCounts[k] || 0;
       const share = uvPct(count, nUsers);
+      const w = Math.round((count / maxCount) * 100);
       return `<div class="uv-layer-card">
         <div class="uv-layer-head"><span class="uv-layer-name">${esc(name)}</span><span class="uv-layer-count">${fmt(count)} 人 · ${share}%</span></div>
         <div class="uv-layer-desc">${ENG_DESC[k] || ""}</div>
+        <div class="uv-mini-share"><i style="width:${w}%;background:${ENG_COL[k]}"></i></div>
+        <div class="uv-layer-foot"><button class="btn-ghost uv-layer-enter" data-uv-layer="eng_${k}">🎯 深度分析 →</button></div>
       </div>`;
     }).join("");
-    return `<div class="uv-block"><div class="uv-block-title">按参与度分层用户（按回复次数 · 全局 TOP100 用户）</div><div class="uv-layer-grid">${cards}</div></div>`;
+    return `<div class="uv-layer-grid">${cards}</div>`;
   }
 
   function renderIntentLayers(U) {
@@ -2474,10 +2498,10 @@ ${topMatches || "（无强匹配）"}
         <div class="uv-row"><b>主力品牌</b><div class="uv-tags">${brandChips || "—"}</div></div>
         <div class="uv-row"><b>代表语录</b><div class="uv-quotes">${q || "—"}</div></div>
         <div class="uv-insight" style="margin-top:8px">${insight}</div>
-        <div class="uv-layer-foot"><button class="btn-ghost uv-layer-enter" data-uv-layer="intent_${k}">🎯 该分层用户深度分析 →</button></div>
+        <div class="uv-layer-foot"><button class="btn-ghost uv-layer-enter" data-uv-layer="intent_${k}">🎯 深度分析 →</button></div>
       </div>`;
     }).join("");
-    return `<div class="uv-block"><div class="uv-block-title">按意图倾向分层用户（根据主导意图归类 · 全局 TOP100 用户）</div><div class="uv-layer-grid">${cards}</div></div>`;
+    return `<div class="uv-layer-grid">${cards}</div>`;
   }
 
   function renderIntentLayerDrill(key) {
@@ -2525,6 +2549,48 @@ ${topMatches || "（无强匹配）"}
         <div class="dp-sec-title">代表用户语录</div>
         <div class="uv-layer-samples">${samples}</div>
       </div>
+    </div>`;
+  }
+
+  // 忠诚度分层下钻：按回复次数阈值筛选该层用户，聚合品牌/形式/情感/意图
+  function renderEngLayerDrill(key) {
+    const U = state.users;
+    const k = key.replace("eng_", "");
+    const EM = (U.meta && U.meta.eng_meta) || {};
+    const name = (EM[k] && EM[k].name) || k;
+    const ENG_DESC = {
+      heavy: "对该品牌反复发声，是铁粉 / KOC 候选，最值得单独运营。",
+      active: "稳定参与者，已建立品牌认知，可培养为深度用户。",
+      light: "偶尔回来互动，处在观望期，需内容持续触达。",
+      once: "路人 / 首次接触，规模最大，是拉新与转化的入口。",
+    };
+    const TH = { heavy: [10, 1e9], active: [4, 9], light: [2, 3], once: [0, 1] };
+    const [lo, hi] = TH[k] || [0, 1e9];
+    const users = U.topUsers || [];
+    const grp = users.filter((u) => { const c = u.replyCount || 0; return c >= lo && c <= hi; });
+    if (!grp.length) return `<div class="uv-drill"><div class="uv-insight">该分层暂无可下钻的用户样本。</div></div>`;
+    const sTot = grp.reduce((s, u) => s + ((u.sents || {}).pos || 0) + ((u.sents || {}).neu || 0) + ((u.sents || {}).neg || 0), 0) || 1;
+    const posR = Math.round(grp.reduce((s, u) => s + ((u.sents || {}).pos || 0), 0) / sTot * 100);
+    const negR = Math.round(grp.reduce((s, u) => s + ((u.sents || {}).neg || 0), 0) / sTot * 100);
+    const brandMap = {}; grp.forEach((u) => { const b = u.topBrand || "—"; brandMap[b] = (brandMap[b] || 0) + 1; });
+    const brandBars = uvBars(Object.entries(brandMap).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([b, n], i) => [b, n, PAL[i % PAL.length]]));
+    const formMap = {}; grp.forEach((u) => { const f = u.topForm || "—"; formMap[f] = (formMap[f] || 0) + 1; });
+    const formBars = uvBars(Object.entries(formMap).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([f, n], i) => [f, n, PAL[(i + 3) % PAL.length]]));
+    const samples = grp.slice(0, 8).map((u) => {
+      const s = (u.samples || [])[0];
+      return s ? `<div class="uv-layer-sample">${uvLangTag(s.lang || "")} ${uvSentTag(s.sent || "")} ${uvIntentTag(s.intent || "")} <span class="uv-sample-text">${esc(s.text || "")}</span> <span class="uv-sample-form">@${esc(u.name)} · ${esc(u.topBrand || "—")}</span></div>` : "";
+    }).join("");
+    const insight = `${name} · ${fmt(grp.length)} 人 · 正面情感率 ${posR}% · 负面仅 ${negR}%。${ENG_DESC[k]}`;
+    return `<div class="uv-drill">
+      <div class="uv-drill-head">
+        <button class="btn-ghost" data-uv-layer-back>← 返回分层</button>
+        <div class="uv-drill-title">${name} · 深度分析</div>
+        <div class="uv-drill-count">${fmt(grp.length)} 人 · 全局 TOP100 占比 ${uvPct(grp.length, users.length)}%</div>
+      </div>
+      <div class="uv-insight">${insight}</div>
+      <div class="dp-section"><div class="dp-sec-title">主要品牌来源</div>${brandBars}</div>
+      <div class="dp-section"><div class="dp-sec-title">内容形式偏好</div>${formBars}</div>
+      <div class="dp-section"><div class="dp-sec-title">代表用户语录</div><div class="uv-layer-samples">${samples}</div></div>
     </div>`;
   }
 
