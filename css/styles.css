@@ -768,6 +768,18 @@ body::after {
 .uv-sample-form { display: inline-block; font-size: 10.5px; color: var(--accent-strong); background: rgba(0,240,255,.1); border: 1px solid rgba(0,240,255,.3); border-radius: 6px; padding: 0 6px; margin-left: 4px; }
 .uv-layer-samples { margin-top: 6px; max-height: 320px; overflow-y: auto; }
 
+/* —— 用户分层分析 · 三层架构 —— */
+.uv-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.uv-legend-chip { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-2); background: var(--glass-bg); border: 1px solid var(--glass-line); border-radius: 20px; padding: 5px 13px; }
+.uv-legend-chip i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.uv-sec { margin-bottom: 26px; }
+.uv-sec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 13px; padding-bottom: 9px; border-bottom: 1px solid var(--glass-line); }
+.uv-sec-title { font-size: 15.5px; font-weight: 720; color: var(--text); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.uv-sec-sub { font-size: 12px; font-weight: 400; color: var(--text-3); }
+.uv-cmp-pill { font-size: 12.5px; padding: 7px 15px; border-radius: 20px; white-space: nowrap; }
+.uv-mini-share { height: 6px; background: var(--glass-bg-strong); border-radius: 4px; overflow: hidden; margin: 4px 0 2px; }
+.uv-mini-share i { display: block; height: 100%; border-radius: 4px; }
+
 /* —— 单分层下钻 —— */
 .uv-drill { animation: uvIn .22s ease; }
 .uv-drill-head { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; flex-wrap: wrap; }
@@ -892,8 +904,6 @@ body::after {
 .bud-wc-word.xxl { font-size: 26px; font-weight: 800; color: var(--hot); opacity: 1; text-shadow: 0 0 12px var(--accent-glow); }
 
 /* 四层用户对比 */
-.uv-layer-cmp-wrap { display: flex; align-items: center; gap: 14px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--glass-line); }
-.uv-layer-cmp-hint { font-size: 12px; color: var(--text-3); }
 .uv-cmp-table-wrap { overflow-x: auto; margin-top: 14px; }
 .uv-cmp-table { width: 100%; border-collapse: collapse; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius); overflow: hidden; font-size: 12.5px; }
 .uv-cmp-table th, .uv-cmp-table td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--glass-line); }
