@@ -101,7 +101,7 @@
     users: null, uvTab: "corpus", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all", uvCorpusMarker: "all", uvLayerDrill: null, uvLayerCmp: false, uvDeep: false, uvSegDeep: false, uvDrillMeta: null,
     brandUserSel: null, brandUserCmp: [], brandUserCompare: false, brandUserRankAll: false,
     libMode: "sort", libQuick: "all",
-    page: 0, pageSize: 24, randList: null,
+    page: 0, pageSize: 100, randList: null, randVisible: 100, randLoading: false,
     compSel: new Set(), cmpSel: new Set(),
     compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false },
     deepId: null, deepCompare: [], deepView: "main",
@@ -316,10 +316,10 @@
     // 先按「只看爆款」过滤（两种模式都生效）
     let base = [...data];
     if (state.libQuick === "top") base = base.filter((c) => c.isTop);
-    // —— 随机模式：缓存抽样结果，跨页稳定（否则每次翻页都重新洗牌）——
+    // —— 随机模式：全量洗牌后滚动加载，不限制条数 ——
     let list;
     if (state.libMode === "rand") {
-      if (!state.randList) state.randList = sampleN(base, Math.min(Math.max(12, base.length), 200));
+      if (!state.randList) { state.randList = sampleN(base, base.length); state.randVisible = 100; }
       list = state.randList;
     } else {
       state.randList = null;
@@ -332,10 +332,17 @@
     }
     const PAGE = state.pageSize;
     const total = list.length;
-    const totalPages = Math.max(1, Math.ceil(total / PAGE));
-    const page = Math.min(Math.max(0, state.page), totalPages - 1);
-    state.page = page;
-    const pageItems = list.slice(page * PAGE, (page + 1) * PAGE); // 只渲染当前页，避免 8k+ DOM 节点
+    let pageItems, totalPages, page;
+    if (state.libMode === "rand") {
+      pageItems = list.slice(0, state.randVisible);
+      totalPages = 1;
+      page = 0;
+    } else {
+      totalPages = Math.max(1, Math.ceil(total / PAGE));
+      page = Math.min(Math.max(0, state.page), totalPages - 1);
+      state.page = page;
+      pageItems = list.slice(page * PAGE, (page + 1) * PAGE); // 只渲染当前页，避免 8k+ DOM 节点
+    }
     const tools = `<div class="board-tools" style="flex-wrap:wrap">
       <div class="seg" id="lib-mode">
         <button data-mode="rand" class="${state.libMode === "rand" ? "on" : ""}">🎲 随机浏览</button>
@@ -371,8 +378,12 @@
         ${state.analysis.contentTypeROI.map((t) => `<div class="qc-bar"><span class="qc-name" style="width:90px">${esc(t.type)}</span><span class="qc-track"><i style="width:${((t.avgViralScore / maxV) * 100).toFixed(0)}%"></i></span><span class="qc-val">${t.count}条 · 互动率${(t.avgEngagementRate * 100).toFixed(1)}%</span></div>`).join("")}</div>`;
     }
     const body = state.view === "grid" ? `<div class="grid">${pageItems.map(cardHTML).join("")}</div>` : pageItems.map(listHTML).join("");
-    const randBar = state.libMode === "rand" ? `<div class="blindbox-bar"><button class="btn-primary" id="lib-reshuffle">🎲 重新随机</button><span class="bx-tip">当前为随机抽样 ${total} 条，用于灵感发散（第 ${page + 1}/${totalPages} 页）</span></div>` : "";
-    const pager = total > PAGE ? paginationHTML(page, totalPages, total, PAGE) : "";
+    const randBar = state.libMode === "rand" ? `<div class="blindbox-bar"><button class="btn-primary" id="lib-reshuffle">🎲 重新随机</button><span class="bx-tip">随机浏览：已展示 ${pageItems.length}/${total} 条，向下滚动加载更多</span></div>` : "";
+    const pager = state.libMode === "rand"
+      ? (state.randVisible < total
+          ? `<div class="load-more-hint" style="text-align:center;padding:16px 0;color:var(--text-3);font-size:12px">向下滚动继续加载…</div>`
+          : `<div class="load-more-hint" style="text-align:center;padding:16px 0;color:var(--text-3);font-size:12px">已加载全部 ${total} 条</div>`)
+      : (total > PAGE ? paginationHTML(page, totalPages, total, PAGE) : "");
     return head + roiPanel + randBar + body + pager;
   }
   function paginationHTML(page, totalPages, total, PAGE) {
@@ -396,7 +407,7 @@
       <div class="pg-nums">${pageBtns}</div>
       <button class="pg-btn" data-pg="next" ${page >= totalPages - 1 ? "disabled" : ""}>下一页 ›</button>
       <span class="pg-info">${from}–${to} / 共 ${total} 条</span>
-      <span class="pg-jump">每页<select id="pg-size">${[12, 24, 48, 96].map((n) => `<option value="${n}"${n === PAGE ? " selected" : ""}>${n}</option>`).join("")}</select>条</span>
+      <span class="pg-jump">每页<select id="pg-size">${[100, 200, 500].map((n) => `<option value="${n}"${n === PAGE ? " selected" : ""}>${n}</option>`).join("")}</select>条</span>
     </div>`;
   }
   function sortContents(data, mode) {
@@ -587,10 +598,10 @@
 
   /* ---------- 选题预测 ---------- */
   const EXAMPLE_IDEAS = [
-    { label: "打折活动如何，5折", text: "打折活动如何，5折。" },
-    { label: "黄皮显白口红实测", text: "黄皮显白口红实测对比，看看到底是不是天花板。" },
-    { label: "新品首发开箱", text: "新品首发开箱 | 这次联名包装真的美到离谱。" },
-    { label: "学生党平价平替", text: "学生党必看！这些平价平替真的不输大牌。" },
+    { label: "Anal 玩具实测对比", text: "Anal toy 实测对比：哪款体验更上头？" },
+    { label: "Lovense 新品开箱", text: "Lovense 新品首发开箱，演示远程互动玩法" },
+    { label: "黑五促销转化", text: "黑五 5 折促销，推 Male Masturbators 转化" },
+    { label: "Prostate 选购科普", text: "男性健康科普：Prostate 按摩器怎么选？" },
   ];
 
   function renderPredictor() {
@@ -601,7 +612,7 @@
         ${EXAMPLE_IDEAS.map((e) => `<button class="chip ec-chip" data-example="${esc(e.text)}">${esc(e.label)}</button>`).join("")}
       </div>
       <div class="predictor-input">
-        <textarea id="idea-input" placeholder="描述你的内容想法，例如：黄皮显白口红实测对比，看看到底是不是天花板"></textarea>
+        <textarea id="idea-input" placeholder="描述你的内容想法，例如：Anal toy 实测对比，哪款体验更上头？"></textarea>
         <button class="btn-primary" id="predict-btn">评估爆款率</button>
       </div>
       <div class="predict-result" id="predict-result"></div>
@@ -3343,12 +3354,12 @@ ${sim || "（无同主题关联帖）"}
         </div>
       </div>
       <div class="dp-section">
-        <div class="dp-sec-title">内容画像 <span class="dp-sec-note">品牌 / 形式 / 风格 / 平台 / 时间 / 主题</span></div>
-        ${profileCards}${typeBreakHTML}
-      </div>
-      <div class="dp-section">
         <div class="dp-sec-title">帖子数据 <span class="dp-sec-note">这条内容的量化表现</span></div>
         ${metricCards}
+      </div>
+      <div class="dp-section">
+        <div class="dp-sec-title">内容画像 <span class="dp-sec-note">品牌 / 形式 / 风格 / 平台 / 时间 / 主题</span></div>
+        ${profileCards}${typeBreakHTML}
       </div>
       ${trendHTML}
       <div class="dp-section">
@@ -3553,6 +3564,21 @@ ${sim || "（无同主题关联帖）"}
       renderBoard();
       renderBlindboxFloat();
     }));
+    // 灵感库随机模式：向下滚动加载更多
+    const board = $("#board");
+    if (board) board.addEventListener("scroll", () => {
+      if (state.board !== "library" || state.libMode !== "rand" || state.randLoading) return;
+      if (board.scrollTop + board.clientHeight >= board.scrollHeight - 200) {
+        if (state.randVisible < (state.randList || []).length) {
+          state.randLoading = true;
+          const st = board.scrollTop;
+          state.randVisible += 100;
+          renderBoard();
+          board.scrollTop = st;
+          setTimeout(() => { state.randLoading = false; }, 200);
+        }
+      }
+    });
     // 单帖深度分析 → 导出/复制图片
     const dExp = $("#deep-export"); if (dExp) dExp.addEventListener("click", () => exportDeepImage("download"));
     const dCpy = $("#deep-copyimg"); if (dCpy) dCpy.addEventListener("click", () => exportDeepImage("copy"));

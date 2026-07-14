@@ -251,40 +251,30 @@ const Analysis = (function () {
 
     const lower = ideaText.toLowerCase();
 
-    // 关键词库：按维度分组，并配合同义词
-    const keywordBank = {
-      情绪: ["离谱", "震惊", "爆款", "绝了", "救命", "破防", "卷", "天花板", "平替", "对比", "挑战", "搞笑", "幽默", "夸张", "治愈", "温暖", "安心", "爽", "上头", "哇塞"],
-      形式: ["视频", "教程", "开箱", "实测", "试色", "清单", "直播", "图文", "对比", "合集", "测评", "测评", "vlog", "攻略", "干货"],
-      主题: ["联名", "限定", "节日", "618", "双11", "赠礼", "抽奖", "宠粉", "活动", "促销", "打折", "折扣", "5折", "半价", "新品", "首发", "限定", "礼盒", "限量"],
-      人群: ["黄皮", "通勤", "约会", "clean", "新手", "学生党", "敏感肌", "干皮", "油皮", "混油皮", "打工人", "早八", "熬夜"],
-      痛点: ["卡粉", "起皮", "斑驳", "显黑", "显黄", "拔干", "脱妆", "暗沉", "毛孔", "痘印", "泛红", "敏感", "闷痘", "搓泥", "油腻"],
-      效果: ["显白", "持妆", "遮瑕", "服帖", "滋润", "保湿", "哑光", "光泽", "提亮", "修饰", "自然", "通透", "干净", "高级", "精致"],
-    };
+    // 关键词库：基于真实数据集生成（主题/内容标签/情绪/形式/营销目的/活动标签/平台）
+    const allTopicTags = [...new Set(contents.flatMap((i) =>
+      (i.topicTags || []).concat(String(i.content_topic || "").split(/[,，、]/)).concat(i.content_tags || [])
+    ))].filter(Boolean);
+    const allEmotions = [...new Set(contents.map((i) => i.emotion).filter(Boolean))];
+    const allTypes = [...new Set(contents.map((i) => i.contentType).filter(Boolean))];
+    const allGoals = [...new Set(contents.map((i) => i.marketing_goal).filter(Boolean).flatMap((s) => String(s).split(/[,，、]/)))].filter(Boolean);
+    const allActivityTags = [...new Set(contents.map((i) => i.activityTag).filter(Boolean))];
+    const allPlatforms = [...new Set(contents.map((i) => i.platform).filter(Boolean))];
 
     // 同义词扩展：输入词 -> 相关词（用于更宽地匹配历史内容）
     const synonymMap = {
-      打折: ["促销", "折扣", "大促", "优惠", "宠粉", "半价", "活动"],
-      "5折": ["半价", "促销", "折扣", "打折"],
-      活动: ["大促", "节日", "618", "双11", "周年庆", "宠粉日", "新品首发", "赠礼", "抽奖", "促销"],
-      促销: ["打折", "折扣", "优惠", "大促", "活动"],
-      大促: ["618", "双11", "周年庆", "活动", "促销"],
-      新品: ["首发", "限定", "新品首发"],
-      实测: ["测评", "试色"],
-      教程: ["干货", "攻略"],
+      促销: ["打折", "折扣", "优惠", "大促", "黑五", "blackfriday", "sale"],
+      打折: ["促销", "折扣", "优惠", "半价"],
+      大促: ["618", "双11", "黑五", "促销", "打折"],
+      新品: ["首发", "限定", "新款"],
+      实测: ["测评", "试玩", "体验"],
       对比: ["横评", "测评"],
-      显白: ["提亮", "黄皮"],
-      学生党: ["平价", "平替"],
-      通勤: ["日常", "clean"],
-      约会: ["氛围感", "精致"],
-      熬夜: ["急救", "暗沉"],
-      烂脸: ["敏感", "泛红", "痘印"],
-      卡粉: ["起皮", "斑驳", "脱妆"],
-      持妆: ["服帖", "遮瑕", "自然"],
-      急救: ["熬夜", "暗沉", "急救面膜"],
-      联名: ["限定", "艺术家", "包装"],
-      抽奖: ["宠粉", "赠礼", "送正装", "礼盒"],
-      平替: ["平价", "学生党", "大牌同厂"],
-      成分: ["成分科普", "烟酰胺", "早C晚A"],
+      开箱: ["新品", "首发", "演示"],
+      互动: ["提问", "讨论", "评论"],
+      转化: ["卖货", "促销", "优惠"],
+      拉新: ["涨粉", "曝光", "分享"],
+      anal: ["anal", "anus", "butt"],
+      prostate: ["prostate", "aneros", "massager"],
     };
 
     function expandTerms(words) {
@@ -306,36 +296,47 @@ const Analysis = (function () {
     const rawWords = lower.split(/[^\u4e00-\u9fa5a-z0-9]+/i).filter((w) => w.length >= 2);
     const expanded = expandTerms(rawWords);
 
-    // 关键词命中（用扩展词集）
-    const allKeywords = Object.values(keywordBank).flat();
-    const hitKeywords = [...new Set(allKeywords.filter((kw) => expanded.some((e) => kw.toLowerCase().includes(e) || e.includes(kw.toLowerCase()))))];
+    // 关键词命中（用扩展词集在真实数据词表中匹配）
+    const allKeywords = [...new Set([...allTopicTags, ...allEmotions, ...allTypes, ...allGoals, ...allActivityTags, ...allPlatforms])];
+    const hitKeywords = [...new Set(allKeywords.filter((kw) => expanded.some((e) => {
+      const kl = kw.toLowerCase();
+      return kl.includes(e) || e.includes(kl);
+    })))];
     const keywordScore = Math.min(hitKeywords.length, 6);
 
     // 主题/活动标签/情绪/形式推断：用扩展词集匹配库中的枚举
-    const allTopicTags = [...new Set(contents.flatMap((i) => i.topicTags || []))].filter(Boolean);
-    const matchedTopics = allTopicTags.filter((t) => expanded.some((e) => t.toLowerCase().includes(e) || e.includes(t.toLowerCase())));
-    const allActivityTags = [...new Set(contents.map((i) => i.activityTag).filter(Boolean))];
-    const matchedActivityTags = allActivityTags.filter((t) => t !== "无" && expanded.some((e) => t.toLowerCase().includes(e) || e.includes(t.toLowerCase())));
-    const allEmotions = [...new Set(contents.map((i) => i.emotion).filter(Boolean))];
-    const matchedEmotions = allEmotions.filter((e) => expanded.some((t) => e.toLowerCase().includes(t) || t.includes(e.toLowerCase())));
-    const allTypes = [...new Set(contents.map((i) => i.contentType).filter(Boolean))];
-    const matchedTypes = allTypes.filter((t) => expanded.some((e) => t.toLowerCase().includes(e) || e.includes(t.toLowerCase())));
+    const matchedTopics = allTopicTags.filter((t) => expanded.some((e) => {
+      const tl = t.toLowerCase();
+      return tl.includes(e) || e.includes(tl);
+    }));
+    const matchedActivityTags = allActivityTags.filter((t) => t !== "无" && expanded.some((e) => {
+      const tl = t.toLowerCase();
+      return tl.includes(e) || e.includes(tl);
+    }));
+    const matchedEmotions = allEmotions.filter((e) => expanded.some((t) => {
+      const el = e.toLowerCase();
+      return el.includes(t) || t.includes(el);
+    }));
+    const matchedTypes = allTypes.filter((t) => expanded.some((e) => {
+      const tl = t.toLowerCase();
+      return tl.includes(e) || e.includes(tl);
+    }));
 
-    // 若输入里有"活动/促销/打折/大促/5折"等促销意图，即使没有直接命中 activityTag，也尝试命中活动型内容
-    const activityIntent = ["活动", "促销", "打折", "折扣", "大促", "5折", "半价", "优惠"].some((w) => lower.includes(w));
+    // 若输入里有促销/大促/黑五/折扣等促销意图，即使没有直接命中 activityTag，也尝试命中活动型内容
+    const activityIntent = ["活动", "促销", "打折", "折扣", "大促", "黑五", "半价", "优惠", "sale", "blackfriday"].some((w) => lower.includes(w));
 
     // 为每条内容计算相关度
     const scored = contents.map((item) => {
       let rel = 0;
       let reasons = [];
-      const itemText = (item.text || "").toLowerCase();
-      const itemTopics = (item.topicTags || []).map((t) => t.toLowerCase());
+      const itemMerged = `${item.text || ""} ${item.text_zh || ""} ${item.category || ""} ${item.content_topic || ""} ${(item.content_tags || []).join(" ")} ${item.marketing_goal || ""} ${item.content_source || ""} ${(item.topicTags || []).join(" ")} ${item.activityTag || ""} ${item.platform || ""}`.toLowerCase();
+      const itemTopics = (item.topicTags || []).concat(String(item.content_topic || "").split(/[,，、]/)).concat(item.content_tags || []).map((t) => String(t).trim()).filter(Boolean);
 
-      // 主题标签匹配
-      const topicOverlap = (item.topicTags || []).filter((t) => matchedTopics.includes(t));
+      // 主题/内容标签/内容主题匹配
+      const topicOverlap = itemTopics.filter((t) => matchedTopics.includes(t));
       if (topicOverlap.length) {
-        rel += topicOverlap.length * 25;
-        reasons.push(`主题：${topicOverlap.join("、")}`);
+        rel += Math.min(topicOverlap.length * 20, 50);
+        reasons.push(`主题：${topicOverlap.slice(0, 3).join("、")}`);
       }
 
       // 活动标签/活动意图匹配
@@ -347,15 +348,15 @@ const Analysis = (function () {
         reasons.push(`同类活动：${item.activityTag || "活动"}`);
       }
 
-      // 关键词命中（标题/文本）
-      const itemKwHits = hitKeywords.filter((kw) => itemText.includes(kw.toLowerCase()));
+      // 关键词命中（合并多字段文本）
+      const itemKwHits = hitKeywords.filter((kw) => itemMerged.includes(kw.toLowerCase()));
       if (itemKwHits.length) {
         rel += itemKwHits.length * 8;
         reasons.push(`关键词：${itemKwHits.slice(0, 3).join("、")}`);
       }
 
-      // 通过扩展词集在文本中找匹配
-      const expandedTextHits = expanded.filter((e) => e.length >= 2 && itemText.includes(e));
+      // 通过扩展词集在合并文本中找匹配
+      const expandedTextHits = expanded.filter((e) => e.length >= 2 && itemMerged.includes(e));
       if (expandedTextHits.length) {
         rel += Math.min(expandedTextHits.length * 5, 15);
         if (!reasons.length) reasons.push(`文本相关：${expandedTextHits.slice(0, 2).join("、")}`);
@@ -469,11 +470,11 @@ const Analysis = (function () {
       suggestions.push(`可搭配 ${matchedStats.dominantType ? matchedStats.dominantType.name : "视频"} 形式，并在 ${matchedStats.bestHour ? matchedStats.bestHour.name : "19"}:00 左右发布。`);
     }
 
-    if (!matchedTypes.length && !lower.includes("视频") && !lower.includes("gif")) {
-      suggestions.push("历史数据显示视频/GIF/对比类形式爆款率更高，建议优先考虑动态或结构化形式。");
+    if (!matchedTypes.length && !lower.includes("视频") && !lower.includes("gif") && !lower.includes("投票")) {
+      suggestions.push("历史数据显示视频/GIF/投票类形式爆款率更高，建议优先考虑动态或结构化形式。");
     }
-    if (!matchedActivityTags.length && !lower.includes("联名") && !lower.includes("限定") && !lower.includes("节日")) {
-      suggestions.push("若可结合限定、联名或节日节点，可显著提升爆发力。");
+    if (!matchedActivityTags.length && !lower.includes("黑五") && !lower.includes("大促") && !lower.includes("节日")) {
+      suggestions.push("若可结合黑五、大促或节日节点，可显著提升爆发力。");
     }
     if (matchedStats.topRate < 0.15 && matched.length > 0) {
       suggestions.push("匹配内容中爆款比例偏低，建议添加更明确的价值主张或标题钩子再试。");
