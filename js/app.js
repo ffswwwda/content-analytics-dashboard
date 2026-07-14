@@ -3469,6 +3469,62 @@ ${sim || "（无同主题关联帖）"}
       renderBoard();
       renderBlindboxFloat();
     }));
+    // 单帖深度分析 → 导出/复制图片
+    const dExp = $("#deep-export"); if (dExp) dExp.addEventListener("click", () => exportDeepImage("download"));
+    const dCpy = $("#deep-copyimg"); if (dCpy) dCpy.addEventListener("click", () => exportDeepImage("copy"));
+  }
+
+  // 把 #deep-body 渲染成图片（离屏舞台，避免玻璃拟态/透明背景问题）
+  async function exportDeepImage(mode) {
+    if (typeof html2canvas === "undefined") { toast("图片库未加载，刷新页面后重试"); return; }
+    const stage = $("#deep-body");
+    if (!stage || !stage.innerHTML.trim()) { toast("暂无可导出的内容"); return; }
+    const expBtn = $("#deep-export"), cpyBtn = $("#deep-copyimg");
+    if (expBtn) expBtn.disabled = true;
+    if (cpyBtn) cpyBtn.disabled = true;
+    const oldTxtE = expBtn ? expBtn.textContent : "", oldTxtC = cpyBtn ? cpyBtn.textContent : "";
+    if (expBtn) expBtn.textContent = "生成中…";
+    if (cpyBtn) cpyBtn.textContent = "生成中…";
+    try {
+      // 构建离屏舞台：标题 + 正文
+      const wrap = document.createElement("div");
+      wrap.className = "export-stage";
+      const sub = $("#deep-sub") ? $("#deep-sub").textContent : "";
+      wrap.innerHTML = `<div class="exp-kicker">单帖深度分析</div><div class="exp-sub">${esc(sub)}</div>${stage.innerHTML}`;
+      document.body.appendChild(wrap);
+      const canvas = await html2canvas(wrap, { backgroundColor: null, scale: 2, logging: false, useCORS: true, windowWidth: wrap.scrollWidth });
+      wrap.remove();
+      if (mode === "download") {
+        const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = `单帖分析_${state.deepId || "post"}.png`;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+        toast("图片已导出");
+      } else {
+        if (!navigator.clipboard || !window.ClipboardItem) { toast("当前浏览器不支持复制图片"); return; }
+        const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
+        try {
+          await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+          toast("图片已复制到剪贴板");
+        } catch (err) {
+          // 退回到下载
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url; a.download = `单帖分析_${state.deepId || "post"}.png`;
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1500);
+          toast("浏览器拒绝剪贴板，已改为下载");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      toast("生成图片失败：" + (err && err.message ? err.message : "未知错误"));
+    } finally {
+      if (expBtn) { expBtn.disabled = false; expBtn.textContent = oldTxtE; }
+      if (cpyBtn) { cpyBtn.disabled = false; cpyBtn.textContent = oldTxtC; }
+    }
   }
   function renderBlindboxModal() {
     // 若弹层已打开，重新渲染卡牌（语言切换等）
