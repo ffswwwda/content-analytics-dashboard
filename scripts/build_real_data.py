@@ -80,10 +80,14 @@ def derive_sentiment(text):
 SENT_MAP = {"正面": "pos", "负面": "neg", "中性": "neu", "pos": "pos", "neg": "neg", "neu": "neu"}
 EMO_MAP = {"正面": "pos", "负面": "neg", "中性": "neu"}
 
-def peak_view(row):
-    cands = [to_int(row.get(f"D{i}-View", 0)) for i in (0, 1, 2, 7)]
-    cands.append(to_int(row.get("View数", 0)))
-    return max(cands)
+def real_exposure(row):
+    """真实曝光 = 表格「View数」列（头条浏览量指标）。
+    该列缺失/为 0 时回退「D7-View」（第 7 天累计浏览），不再跨 D0/D1/D2/D7 取 max——
+    旧逻辑取 max 会把部分行的曝光抬高到 D 列轨迹值之上，与表格真值不符。"""
+    v = to_int(row.get("View数", 0))
+    if v > 0:
+        return v
+    return to_int(row.get("D7-View", 0))
 
 def load_sheet(name):
     wb = openpyxl.load_workbook(XLSX, read_only=True, data_only=True)
@@ -126,7 +130,7 @@ for r in posts:
         "campaign_name": None,
         "text": (text or "")[:1500],
         "text_zh": (trans or "")[:1500],
-        "exposure": peak_view(rec),
+        "exposure": real_exposure(rec),
         "likes": to_int(rec.get("Like数")),
         "shares": to_int(rec.get("Repost数")),
         "comments": to_int(rec.get("Reply数")),

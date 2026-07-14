@@ -5,7 +5,10 @@
 
 const Analysis = (function () {
   function safeRate(numerator, denominator) {
-    return denominator > 0 ? numerator / denominator : 0;
+    if (denominator <= 0) return 0;
+    // 比率本质是「部分/整体」，不可能 >100%。源数据偶发「互动>曝光」（曝光采集缺失），
+    // 限幅避免爆款率/ROI 被虚高，属于校正而非伪造。
+    return Math.min(numerator, denominator) / denominator;
   }
 
   function enrich(contents) {
