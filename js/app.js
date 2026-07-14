@@ -101,6 +101,7 @@
     users: null, uvTab: "corpus", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all", uvCorpusMarker: "all", uvLayerDrill: null, uvLayerCmp: false, uvDeep: false, uvSegDeep: false, uvDrillMeta: null,
     brandUserSel: null, brandUserCmp: [], brandUserCompare: false, brandUserRankAll: false,
     libMode: "sort", libQuick: "all",
+    page: 0, pageSize: 24, randList: null,
     compSel: new Set(), cmpSel: new Set(),
     compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false },
     deepId: null, deepCompare: [], deepView: "main",
@@ -276,7 +277,7 @@
       onFilterChange();
     });
   }
-  function onFilterChange() { syncFilterUI(); renderActiveFilters(); renderBoard(); }
+  function onFilterChange() { state.page = 0; state.randList = null; syncFilterUI(); renderActiveFilters(); renderBoard(); }
 
   /* ============ 板块切换 ============ */
   function switchBoard(id) {
@@ -312,16 +313,29 @@
 
   /* ---------- 灵感库（整合：随机浏览 + 指标排序 + 只看爆款 + 类型ROI）---------- */
   function renderLibrary(data) {
-    let list = [...data];
-    if (state.libQuick === "top") list = list.filter((c) => c.isTop);
+    // 先按「只看爆款」过滤（两种模式都生效）
+    let base = [...data];
+    if (state.libQuick === "top") base = base.filter((c) => c.isTop);
+    // —— 随机模式：缓存抽样结果，跨页稳定（否则每次翻页都重新洗牌）——
+    let list;
     if (state.libMode === "rand") {
-      list = sampleN(list, Math.max(12, list.length));
-    } else if (state.sort === "roi") {
-      const roiMap = new Map(state.analysis.contentTypeROI.map((t) => [t.type, t.avgViralScore]));
-      list = [...list].sort((a, b) => (roiMap.get(b.contentType) || 0) - (roiMap.get(a.contentType) || 0));
+      if (!state.randList) state.randList = sampleN(base, Math.min(Math.max(12, base.length), 200));
+      list = state.randList;
     } else {
-      list = sortContents(list, state.sort);
+      state.randList = null;
+      if (state.sort === "roi") {
+        const roiMap = new Map(state.analysis.contentTypeROI.map((t) => [t.type, t.avgViralScore]));
+        list = [...base].sort((a, b) => (roiMap.get(b.contentType) || 0) - (roiMap.get(a.contentType) || 0));
+      } else {
+        list = sortContents(base, state.sort);
+      }
     }
+    const PAGE = state.pageSize;
+    const total = list.length;
+    const totalPages = Math.max(1, Math.ceil(total / PAGE));
+    const page = Math.min(Math.max(0, state.page), totalPages - 1);
+    state.page = page;
+    const pageItems = list.slice(page * PAGE, (page + 1) * PAGE); // 只渲染当前页，避免 8k+ DOM 节点
     const tools = `<div class="board-tools" style="flex-wrap:wrap">
       <div class="seg" id="lib-mode">
         <button data-mode="rand" class="${state.libMode === "rand" ? "on" : ""}">🎲 随机浏览</button>
@@ -356,9 +370,34 @@
       roiPanel = `<div class="panel" style="margin-bottom:14px"><div class="panel-title">内容形式 ROI 概览（按平均爆款指数排序）</div><div class="panel-sub">作为「高 ROI 形式」的评估标准——哪种形式最值得借鉴</div>
         ${state.analysis.contentTypeROI.map((t) => `<div class="qc-bar"><span class="qc-name" style="width:90px">${esc(t.type)}</span><span class="qc-track"><i style="width:${((t.avgViralScore / maxV) * 100).toFixed(0)}%"></i></span><span class="qc-val">${t.count}条 · 互动率${(t.avgEngagementRate * 100).toFixed(1)}%</span></div>`).join("")}</div>`;
     }
-    const body = state.view === "grid" ? `<div class="grid">${list.map(cardHTML).join("")}</div>` : list.map(listHTML).join("");
-    const randBar = state.libMode === "rand" ? `<div class="blindbox-bar"><button class="btn-primary" id="lib-reshuffle">🎲 重新随机</button><span class="bx-tip">当前为随机抽样 ${list.length} 条，用于灵感发散</span></div>` : "";
-    return head + roiPanel + randBar + body;
+    const body = state.view === "grid" ? `<div class="grid">${pageItems.map(cardHTML).join("")}</div>` : pageItems.map(listHTML).join("");
+    const randBar = state.libMode === "rand" ? `<div class="blindbox-bar"><button class="btn-primary" id="lib-reshuffle">🎲 重新随机</button><span class="bx-tip">当前为随机抽样 ${total} 条，用于灵感发散（第 ${page + 1}/${totalPages} 页）</span></div>` : "";
+    const pager = total > PAGE ? paginationHTML(page, totalPages, total, PAGE) : "";
+    return head + roiPanel + randBar + body + pager;
+  }
+  function paginationHTML(page, totalPages, total, PAGE) {
+    const from = page * PAGE + 1;
+    const to = Math.min((page + 1) * PAGE, total);
+    const cur = page + 1;
+    const nums = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) nums.push(i);
+    } else {
+      nums.push(1);
+      const start = Math.max(2, cur - 1), end = Math.min(totalPages - 1, cur + 1);
+      if (start > 2) nums.push("…");
+      for (let i = start; i <= end; i++) nums.push(i);
+      if (end < totalPages - 1) nums.push("…");
+      nums.push(totalPages);
+    }
+    const pageBtns = nums.map((n) => n === "…" ? `<span class="pg-ellipsis">…</span>` : `<button class="pg-num${n === cur ? " on" : ""}" data-pg="${n - 1}">${n}</button>`).join("");
+    return `<div class="pager">
+      <button class="pg-btn" data-pg="prev" ${page === 0 ? "disabled" : ""}>‹ 上一页</button>
+      <div class="pg-nums">${pageBtns}</div>
+      <button class="pg-btn" data-pg="next" ${page >= totalPages - 1 ? "disabled" : ""}>下一页 ›</button>
+      <span class="pg-info">${from}–${to} / 共 ${total} 条</span>
+      <span class="pg-jump">每页<select id="pg-size">${[12, 24, 48, 96].map((n) => `<option value="${n}"${n === PAGE ? " selected" : ""}>${n}</option>`).join("")}</select>条</span>
+    </div>`;
   }
   function sortContents(data, mode) {
     const a = [...data];
@@ -369,22 +408,25 @@
     return a;
   }
   function cardHTML(c) {
+    const hashtags = (c.content_tags && c.content_tags.length) ? c.content_tags.slice(0, 4).map((t) => `<span class="tag hashtag">#${esc(t)}</span>`).join("") : "";
     return `<div class="card" data-id="${c.id}">
       <div class="card-top">
         ${c.isTop ? '<span class="badge-top">爆款</span>' : ""}
+        ${c.is_viral ? '<span class="badge-viral-real">真标爆款</span>' : ""}
         ${c.isActivity ? `<span class="badge-act">${esc(c.activityTag)}</span>` : ""}
         <span class="tag" data-facet="accounts" data-val="${esc(c.account)}">${esc(c.account)}</span>
         <span class="tag" data-facet="types" data-val="${esc(c.contentType)}">${esc(c.contentType)}</span>
       </div>
       <div class="card-text">${esc(dispText(c))}</div>
       <div class="card-meta">${c.topicTags.map((t) => `<span class="tag topic" data-facet="topics" data-val="${esc(t)}">${esc(t)}</span>`).join("")}</div>
+      ${hashtags ? `<div class="card-meta">${hashtags}</div>` : ""}
       <div class="card-meta"><span>${esc(c.platform)}</span><span class="dot"></span><span>${c.publishDate}</span><span class="dot"></span><span>${esc(c.emotion)}</span></div>
       <div class="card-score"><span class="score-num">${rate(c)}<small>/100</small></span><div class="score-bar"><i style="width:${rate(c)}%"></i></div></div>
     </div>`;
   }
   function listHTML(c) {
     return `<div class="list-row" data-id="${c.id}">
-      <div><div class="lr-text">${esc(dispText(c))}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.contentType)} · ${c.publishDate}</div></div>
+      <div><div class="lr-text">${esc(dispText(c))}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.contentType)} · ${c.publishDate}${c.is_viral ? ' · <span class="real-viral">真标爆款</span>' : ''}</div></div>
       <div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div>
       <div class="lr-num">${fmt(c.engagement)}<small>互动</small></div>
       <div><div class="lr-num">${rate(c)}<small>爆款率</small></div><div class="mini-bar" style="margin-top:5px"><i style="width:${rate(c)}%"></i></div></div>
@@ -3030,9 +3072,11 @@ ${topMatches || "（无强匹配）"}
     const drawer = $("#drawer");
     drawer.innerHTML = `<div class="drawer-head"><div class="dh-text">${esc(dispText(c))}</div><button class="drawer-close" id="drawer-close">×</button></div>
       <div class="drawer-body">
-        <div class="dr-tags">${c.isTop ? '<span class="badge-top">爆款</span>' : ""}${c.isActivity ? `<span class="badge-act">${esc(c.activityTag)}</span>` : ""}
+        <div class="dr-tags">${c.isTop ? '<span class="badge-top">爆款</span>' : ""}${c.is_viral ? '<span class="badge-viral-real">真标爆款</span>' : ""}${c.isActivity ? `<span class="badge-act">${esc(c.activityTag)}</span>` : ""}
           <span class="tag">${esc(c.account)}</span><span class="tag">${esc(c.platform)}</span><span class="tag">${esc(c.contentType)}</span><span class="tag">${esc(c.emotion)}</span>
-          ${c.topicTags.map((t) => `<span class="tag topic">${esc(t)}</span>`).join("")}</div>
+          ${c.topicTags.map((t) => `<span class="tag topic">${esc(t)}</span>`).join("")}
+          ${(c.content_tags || []).slice(0, 8).map((t) => `<span class="tag hashtag">#${esc(t)}</span>`).join("")}</div>
+        ${(c.content_topic || c.marketing_goal || c.content_source) ? `<div class="dr-extra">${c.content_topic ? `<span class="de-k">主题</span><b class="de-v">${esc(c.content_topic)}</b>` : ""}${c.marketing_goal ? `<span class="de-k">目的</span><b class="de-v">${esc(c.marketing_goal)}</b>` : ""}${c.content_source ? `<span class="de-k">来源</span><b class="de-v">${esc(c.content_source)}</b>` : ""}</div>` : ""}
         <div class="dr-metrics">
           <div class="dr-metric"><div class="dm-k">爆款率</div><div class="dm-v" style="color:var(--hot)">${rate(c)}</div></div>
           <div class="dr-metric"><div class="dm-k">曝光</div><div class="dm-v">${fmt(c.exposure)}</div></div>
@@ -3065,6 +3109,8 @@ ${topMatches || "（无强匹配）"}
 内容：${dispText(c)}
 账号/平台：${c.account} / ${c.platform} · 形式：${c.contentType} · 情绪：${c.emotion}
 主题标签：${c.topicTags.join("、")}
+内容标签：${(c.content_tags || []).join("、") || "—"}
+${c.content_topic ? `内容主题：${c.content_topic}\n` : ""}${c.marketing_goal ? `营销目的：${c.marketing_goal}\n` : ""}${c.content_source ? `内容来源：${c.content_source}\n` : ""}是否爆款(真实标签)：${c.is_viral ? "是" : "否"}
 爆款率：${rate(c)} · 曝光 ${fmt(c.exposure)} · 互动 ${fmt(c.engagement)} · 互动率 ${c.engagementRate.toFixed(2)}%
 —— 请分析 ——
 1) 这条内容为什么能爆（可复用的要素）；
@@ -3185,6 +3231,9 @@ ${sim || "（无同主题关联帖）"}
         <div class="dp-profile-card"><div class="dp-pk">平台</div><div class="dp-pv">${esc(c.platform)}</div></div>
         <div class="dp-profile-card"><div class="dp-pk">发布时间</div><div class="dp-pv">${c.publishDate}</div><div class="dp-sub">${c.publishHour}:00 时段</div></div>
         <div class="dp-profile-card"><div class="dp-pk">主题标签</div><div class="dp-pv">${c.topicTags.length ? c.topicTags.map((t) => `<span class="tag topic">${esc(t)}</span>`).join(" ") : "—"}</div></div>
+        <div class="dp-profile-card"><div class="dp-pk">内容标签（话题）</div><div class="dp-pv">${(c.content_tags || []).length ? c.content_tags.slice(0, 6).map((t) => `<span class="tag hashtag">#${esc(t)}</span>`).join(" ") : "—"}</div></div>
+        <div class="dp-profile-card"><div class="dp-pk">真实爆款标签</div><div class="dp-pv">${c.is_viral ? '<span class="badge-viral-real">真标爆款</span>' : "否"}</div></div>
+        <div class="dp-profile-card dp-span2"><div class="dp-pk">内容主题 / 营销目的 / 来源</div><div class="dp-pv">${[c.content_topic, c.marketing_goal, c.content_source].filter(Boolean).map((x) => esc(x)).join(" &nbsp;·&nbsp; ") || "—"}</div></div>
       </div>
       <div class="dp-cmp-note">该形式在 <b>${esc(c.account)}</b> 账号内的平均爆款率 <b style="color:var(--hot)">${sc.typeRate}</b>，对比账号整体平均 <b>${sc.acctRate}</b> —— ${sc.typeRate >= sc.acctRate ? "这种形式在该账号表现优于平均，值得借鉴" : "这种形式在该账号表现低于平均，可优化或换形式"}。</div>`;
     // 帖子数据
@@ -3372,12 +3421,21 @@ ${sim || "（无同主题关联帖）"}
     }));
     // 灵感库工具
     if (state.board === "library") {
-      $$("#view-seg button").forEach((b) => b.addEventListener("click", () => { state.view = b.dataset.view; renderBoard(); }));
-      $$("#sort-chips button").forEach((b) => b.addEventListener("click", () => { state.sort = b.dataset.sort; renderBoard(); }));
-      $$("#lib-mode button").forEach((b) => b.addEventListener("click", () => { state.libMode = b.dataset.mode; renderBoard(); }));
-      $$("#lib-eval button").forEach((b) => b.addEventListener("click", () => { state.libQuick = b.dataset.eval; renderBoard(); }));
-      const rs = $("#lib-reshuffle"); if (rs) rs.addEventListener("click", () => renderBoard());
+      $$("#view-seg button").forEach((b) => b.addEventListener("click", () => { state.view = b.dataset.view; state.page = 0; renderBoard(); }));
+      $$("#sort-chips button").forEach((b) => b.addEventListener("click", () => { state.sort = b.dataset.sort; state.page = 0; renderBoard(); }));
+      $$("#lib-mode button").forEach((b) => b.addEventListener("click", () => { state.libMode = b.dataset.mode; state.page = 0; state.randList = null; renderBoard(); }));
+      $$("#lib-eval button").forEach((b) => b.addEventListener("click", () => { state.libQuick = b.dataset.eval; state.page = 0; state.randList = null; renderBoard(); }));
+      const rs = $("#lib-reshuffle"); if (rs) rs.addEventListener("click", () => { state.randList = null; renderBoard(); });
       const bxLaunch = $("#bx-launch"); if (bxLaunch) bxLaunch.addEventListener("click", openBlindboxModal);
+      // 分页控件
+      $$(".pager [data-pg]", $("#board")).forEach((b) => b.addEventListener("click", () => {
+        const v = b.dataset.pg;
+        if (v === "prev") state.page = Math.max(0, state.page - 1);
+        else if (v === "next") state.page = state.page + 1; // 由 renderLibrary 自动夹紧
+        else state.page = +v;
+        renderBoard();
+      }));
+      const pgs = $("#pg-size"); if (pgs) pgs.addEventListener("change", () => { state.pageSize = +pgs.value; state.page = 0; renderBoard(); });
     }
     // 参考建议中枢
     // 看参考建议（现在在灵感工具组下，但保持绑定）

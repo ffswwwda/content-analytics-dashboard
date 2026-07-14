@@ -272,6 +272,10 @@ body::after {
 .tag.topic { background: var(--accent-soft) !important; border-color: rgba(0, 195, 243, 0.35) !important; color: var(--accent-strong) !important; }
 .badge-top { font-size: 10.5px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #ff7a93, var(--hot)); border-radius: 7px; padding: 2px 7px; letter-spacing: .3px; box-shadow: var(--glow-hot); }
 .badge-act { font-size: 10.5px; font-weight: 600; color: var(--accent-strong); background: var(--accent-soft); border-radius: 7px; padding: 2px 7px; }
+.badge-viral-real { font-size: 10.5px; font-weight: 700; color: #1a1300; background: linear-gradient(135deg, #ffd76a, #ffb020); border-radius: 7px; padding: 2px 7px; letter-spacing: .3px; box-shadow: 0 0 12px rgba(255, 176, 32, 0.4); }
+.real-viral { color: #ffb020; font-weight: 600; }
+.tag.hashtag { background: rgba(255, 176, 32, 0.12) !important; border-color: rgba(255, 176, 32, 0.32) !important; color: #ffcf66 !important; cursor: default; }
+.tag.hashtag:hover { transform: none; border-color: rgba(255, 176, 32, 0.32) !important; }
 .card-text { font-size: 13.5px; line-height: 1.5; color: var(--text); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .card-meta { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--text-3); flex-wrap: wrap; }
 .card-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-3); }
@@ -1000,6 +1004,7 @@ body::after {
 .dp-profile-card .dp-pk { font-size: 11.5px; color: var(--text-3); font-weight: 600; }
 .dp-profile-card .dp-pv { font-size: 15px; font-weight: 700; color: var(--text); margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; }
 .dp-profile-card .dp-sub { font-size: 11.5px; color: var(--accent-strong); margin-top: 4px; }
+.dp-profile-card.dp-span2 { grid-column: span 2; }
 .dp-metric-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
 .dp-metric-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); padding: 13px 15px; text-align: center; box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.06); }
 .dp-metric-card .dp-mk { font-size: 11.5px; color: var(--text-3); font-weight: 600; }
@@ -1183,3 +1188,20 @@ body::after {
 .uv-deep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 8px; }
 .uv-deep-cell { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 12.5px; color: var(--text-2); line-height: 1.6; }
 .uv-deep-cell b { color: var(--text); display: block; margin-bottom: 4px; }
+
+/* 抽屉：打标补充信息行 */
+.dr-extra { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 10px 0 2px; font-size: 12px; color: var(--text-3); }
+.dr-extra .de-k { color: var(--text-3); margin-right: 5px; font-weight: 500; }
+.dr-extra .de-v { color: var(--accent-strong); font-weight: 600; }
+
+/* 灵感库分页控件 */
+.pager { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 18px; padding: 12px 14px; background: var(--glass-bg); border: 1px solid var(--glass-line); border-radius: var(--radius-sm); }
+.pg-btn, .pg-num { font-size: 12.5px; font-weight: 600; color: var(--text-2); background: var(--glass-bg-strong); border: 1px solid var(--glass-line); border-radius: 8px; padding: 6px 12px; cursor: pointer; transition: all .12s; font-family: var(--font-mono); }
+.pg-btn:hover:not(:disabled), .pg-num:hover { border-color: var(--accent); color: var(--accent-strong); }
+.pg-btn:disabled { opacity: .38; cursor: not-allowed; }
+.pg-nums { display: flex; align-items: center; gap: 5px; }
+.pg-num.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-strong); }
+.pg-ellipsis { color: var(--text-3); padding: 0 2px; }
+.pg-info { font-size: 12px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.pg-jump { font-size: 12px; color: var(--text-3); margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.pg-jump select { font-size: 12px; color: var(--text-2); background: var(--glass-bg-strong); border: 1px solid var(--glass-line); border-radius: 7px; padding: 4px 6px; }

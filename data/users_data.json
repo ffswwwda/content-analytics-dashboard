@@ -5,12 +5,12 @@
    "2025-07-10",
    "2026-07-10"
   ],
-  "total_replies": 11317,
-  "brand_reply_filtered": 1521,
-  "genuine_replies": 9726,
-  "genuine_replies_in_window": 9617,
-  "genuine_users": 3294,
-  "multi_reply_users": 2297,
+  "total_replies": 9780,
+  "brand_reply_filtered": 0,
+  "genuine_replies": 9710,
+  "genuine_replies_in_window": 9601,
+  "genuine_users": 3290,
+  "multi_reply_users": 2295,
   "eng_meta": {
    "heavy": {
     "name": "重度用户 (≥10 次)",
@@ -35,11 +35,11 @@
   "wordFreq": [
    {
     "w": "lovense",
-    "n": 6266
+    "n": 6251
    },
    {
     "w": "tantalyglobal",
-    "n": 1436
+    "n": 1435
    },
    {
     "w": "fleshlight",
@@ -47,7 +47,7 @@
    },
    {
     "w": "love",
-    "n": 749
+    "n": 747
    },
    {
     "w": "officialhismith",
@@ -67,7 +67,7 @@
    },
    {
     "w": "hush",
-    "n": 364
+    "n": 360
    },
    {
     "w": "vibemateapp",
@@ -95,11 +95,11 @@
    },
    {
     "w": "fun",
-    "n": 275
+    "n": 273
    },
    {
     "w": "try",
-    "n": 261
+    "n": 259
    },
    {
     "w": "edge",
@@ -107,7 +107,7 @@
    },
    {
     "w": "make",
-    "n": 248
+    "n": 246
    },
    {
     "w": "good",
@@ -135,7 +135,7 @@
    },
    {
     "w": "play",
-    "n": 193
+    "n": 192
    },
    {
     "w": "really",
@@ -162,16 +162,16 @@
     "n": 160
    },
    {
-    "w": "amazing",
-    "n": 159
-   },
-   {
     "w": "warm",
     "n": 158
    },
    {
     "w": "partner",
     "n": 158
+   },
+   {
+    "w": "amazing",
+    "n": 157
    },
    {
     "w": "definitely",
@@ -191,19 +191,19 @@
    },
    {
     "w": "long",
-    "n": 145
-   },
-   {
-    "w": "analaugust",
-    "n": 144
-   },
-   {
-    "w": "always",
     "n": 143
    },
    {
     "w": "gravity",
     "n": 143
+   },
+   {
+    "w": "always",
+    "n": 142
+   },
+   {
+    "w": "analaugust",
+    "n": 142
    },
    {
     "w": "much",
@@ -354,11 +354,11 @@
     "n": 91
    },
    {
-    "w": "sure",
-    "n": 90
+    "w": "see",
+    "n": 88
    },
    {
-    "w": "see",
+    "w": "sure",
     "n": 88
    },
    {
@@ -462,15 +462,15 @@
     "n": 70
    },
    {
-    "w": "before",
-    "n": 69
-   },
-   {
     "w": "after",
     "n": 68
    },
    {
     "w": "night",
+    "n": 68
+   },
+   {
+    "w": "before",
     "n": 68
    },
    {
@@ -515,41 +515,41 @@
    }
   ],
   "lang": {
-   "en": 9498,
+   "en": 9482,
    "de": 98,
    "zh": 15,
    "ru": 4,
    "ja": 2
   },
   "sentiment": {
-   "pos": 7140,
-   "neu": 2341,
+   "pos": 7125,
+   "neu": 2340,
    "neg": 136
   },
   "intent": {
-   "praise": 5733,
+   "praise": 5719,
    "request": 1535,
    "other": 900,
-   "banter": 759,
-   "question": 554,
+   "banter": 758,
+   "question": 553,
    "complaint": 136
   },
   "topic": {
-   "vibrators": 6084,
-   "sexdoll": 1527,
+   "vibrators": 6069,
+   "sexdoll": 1526,
    "Male Masturbators": 1267,
    "sexmachine": 724,
    "Anal": 15
   },
   "form": {
-   "图片": 5316,
-   "视频": 2875,
-   "GIF": 858,
+   "图片": 5305,
+   "视频": 2873,
+   "GIF": 855,
    "纯文本": 340,
    "引用转发": 158,
    "投票": 70
   },
-  "total": 9617
+  "total": 9601
  },
  "topUsers": [
   {
@@ -8247,90 +8247,6 @@
    ]
   },
   {
-   "name": "E",
-   "replyCount": 12,
-   "totalWords": 155,
-   "avgWords": 12.9,
-   "brands": [
-    {
-     "b": "Lovense",
-     "n": 12
-    }
-   ],
-   "topBrand": "Lovense",
-   "forms": [
-    {
-     "f": "图片",
-     "n": 8
-    },
-    {
-     "f": "GIF",
-     "n": 3
-    },
-    {
-     "f": "视频",
-     "n": 1
-    }
-   ],
-   "langs": {
-    "en": 12
-   },
-   "sents": {
-    "pos": 12
-   },
-   "intents": {
-    "praise": 12
-   },
-   "first": "2025-08-08",
-   "last": "2026-06-10",
-   "samples": [
-    {
-     "text": "@Lovense I’ll leave my bedroom door open and play and hope I get to o before I’m caught. Always such intense orgasms ✨",
-     "likes": 4,
-     "brand": "Lovense",
-     "form": "GIF",
-     "lang": "en",
-     "sent": "pos",
-     "intent": "praise",
-     "date": "2025-08-08",
-     "link": "https://x.com/i/status/1953888473686958478"
-    },
-    {
-     "text": "@Lovense I would love a  Tenera to add to my collection 🙌🏻 @switchpuppypv ✨",
-     "likes": 3,
-     "brand": "Lovense",
-     "form": "图片",
-     "lang": "en",
-     "sent": "pos",
-     "intent": "praise",
-     "date": "2025-12-19",
-     "link": "https://x.com/i/status/2002104185253446098"
-    },
-    {
-     "text": "@Lovense I would love a  Tenera to add to my collection 🙌🏻 @switchpuppypv ✨",
-     "likes": 3,
-     "brand": "Lovense",
-     "form": "图片",
-     "lang": "en",
-     "sent": "pos",
-     "intent": "praise",
-     "date": "2025-12-19",
-     "link": "https://x.com/i/status/2002104185253446098"
-    },
-    {
-     "text": "@Lovense My hush 2 for sure 😏 #analaugust",
-     "likes": 3,
-     "brand": "Lovense",
-     "form": "图片",
-     "lang": "en",
-     "sent": "pos",
-     "intent": "praise",
-     "date": "2025-08-25",
-     "link": "https://x.com/i/status/1960059952745062443"
-    }
-   ]
-  },
-  {
    "name": "Grazer",
    "replyCount": 12,
    "totalWords": 89,
@@ -9083,6 +8999,89 @@
      "link": "https://x.com/i/status/2053174629179474191"
     }
    ]
+  },
+  {
+   "name": "AGhost",
+   "replyCount": 11,
+   "totalWords": 165,
+   "avgWords": 15.0,
+   "brands": [
+    {
+     "b": "Fleshlight",
+     "n": 11
+    }
+   ],
+   "topBrand": "Fleshlight",
+   "forms": [
+    {
+     "f": "图片",
+     "n": 7
+    },
+    {
+     "f": "视频",
+     "n": 4
+    }
+   ],
+   "langs": {
+    "en": 11
+   },
+   "sents": {
+    "neu": 3,
+    "pos": 8
+   },
+   "intents": {
+    "banter": 1,
+    "praise": 6,
+    "question": 4
+   },
+   "first": "2026-04-22",
+   "last": "2026-07-09",
+   "samples": [
+    {
+     "text": "@Fleshlight ‼️‼️‼️‼️‼️‼️‼️‼️‼️‼️🥹\nShe did it! @EllyClutchxo is going to be a FleshlightGirl!! \n‼️‼️‼️‼️‼️‼️‼️‼️‼️‼️🥹\nThank you, @Fleshlight ! 🥹\n‼️‼️‼️‼️‼️💖💖💖💖💖‼️‼️‼️‼️‼️",
+     "likes": 1,
+     "brand": "Fleshlight",
+     "form": "图片",
+     "lang": "en",
+     "sent": "pos",
+     "intent": "praise",
+     "date": "2026-04-30",
+     "link": "https://x.com/i/status/2049861375543939313"
+    },
+    {
+     "text": "@Fleshlight ‼️‼️‼️‼️‼️‼️‼️‼️‼️‼️🥹\nShe did it! @EllyClutchxo is going to be a FleshlightGirl!! \n‼️‼️‼️‼️‼️‼️‼️‼️‼️‼️🥹\nThank you, @Fleshlight ! 🥹\n‼️‼️‼️‼️‼️💖💖💖💖💖‼️‼️‼️‼️‼️",
+     "likes": 1,
+     "brand": "Fleshlight",
+     "form": "图片",
+     "lang": "en",
+     "sent": "pos",
+     "intent": "praise",
+     "date": "2026-04-30",
+     "link": "https://x.com/i/status/2049861375543939313"
+    },
+    {
+     "text": "@Fleshlight @imevesweet Holy fucking shit.... THOSE TITS!!!! 😳 😍🥵🥵🥵🥵\nSo fucking sexy, Eve! Your Fleshlight is one of my new favorites!! 💖💖💖💖💖\n\nI did notice.. the one I got doesn't look like the one she's holding. \nWas it a temporary Fleshlight..? A \"stand in\"...? I'm just curious. \n⚘️😁",
+     "likes": 0,
+     "brand": "Fleshlight",
+     "form": "视频",
+     "lang": "en",
+     "sent": "pos",
+     "intent": "question",
+     "date": "2026-07-09",
+     "link": "https://x.com/i/status/2075339589078630500"
+    },
+    {
+     "text": "@Fleshlight @imevesweet Holy fucking shit.... THOSE TITS!!!! 😳 😍🥵🥵🥵🥵\nSo fucking sexy, Eve! Your Fleshlight is one of my new favorites!! 💖💖💖💖💖\n\nI did notice.. the one I got doesn't look like the one she's holding. \nWas it a temporary Fleshlight..? A \"stand in\"...? I'm just curious. \n⚘️😁",
+     "likes": 0,
+     "brand": "Fleshlight",
+     "form": "视频",
+     "lang": "en",
+     "sent": "pos",
+     "intent": "question",
+     "date": "2026-07-09",
+     "link": "https://x.com/i/status/2075339589078630500"
+    }
+   ]
   }
  ],
  "layers": {
@@ -9091,16 +9090,16 @@
     "name": "极短回复 (≤5词)",
     "desc": "多为玩梗、单选项投票、表情、简短互动——低承诺、高频率的社区氛围信号。"
    },
-   "count": 3658,
+   "count": 3656,
    "sentiment": {
-    "pos": 2462,
-    "neu": 1178,
+    "pos": 2461,
+    "neu": 1177,
     "neg": 18
    },
    "intent": {
-    "praise": 1959,
+    "praise": 1958,
     "request": 707,
-    "banter": 600,
+    "banter": 599,
     "other": 258,
     "question": 116,
     "complaint": 18
@@ -9108,11 +9107,11 @@
    "brands": [
     {
      "b": "Lovense",
-     "n": 1931
+     "n": 1930
     },
     {
      "b": "Tantaly",
-     "n": 726
+     "n": 725
     },
     {
      "b": "Hismith",
@@ -9150,11 +9149,11 @@
    "forms": [
     {
      "f": "图片",
-     "n": 1766
+     "n": 1765
     },
     {
      "f": "视频",
-     "n": 1390
+     "n": 1389
     },
     {
      "f": "GIF",
@@ -9261,24 +9260,24 @@
     "name": "短回复 (6–20词)",
     "desc": "一句完整表达：提问、赞美、求购意向——最具行动/意图价值的层。"
    },
-   "count": 4652,
+   "count": 4639,
    "sentiment": {
-    "pos": 3510,
+    "pos": 3497,
     "neu": 1078,
     "neg": 64
    },
    "intent": {
-    "praise": 2907,
+    "praise": 2895,
     "other": 619,
     "request": 578,
-    "question": 339,
+    "question": 338,
     "banter": 145,
     "complaint": 64
    },
    "brands": [
     {
      "b": "Lovense",
-     "n": 3006
+     "n": 2993
     },
     {
      "b": "Tantaly",
@@ -9320,15 +9319,15 @@
    "forms": [
     {
      "f": "图片",
-     "n": 2622
+     "n": 2612
     },
     {
      "f": "视频",
-     "n": 1310
+     "n": 1309
     },
     {
      "f": "GIF",
-     "n": 472
+     "n": 470
     },
     {
      "f": "纯文本",
@@ -9431,14 +9430,14 @@
     "name": "中回复 (21–50词)",
     "desc": "一段说明或建议，含具体场景与诉求，适合做需求洞察。"
    },
-   "count": 1209,
+   "count": 1208,
    "sentiment": {
-    "pos": 1084,
+    "pos": 1083,
     "neg": 45,
     "neu": 80
    },
    "intent": {
-    "praise": 808,
+    "praise": 807,
     "request": 226,
     "question": 95,
     "complaint": 45,
@@ -9448,7 +9447,7 @@
    "brands": [
     {
      "b": "Lovense",
-     "n": 1000
+     "n": 999
     },
     {
      "b": "Fleshlight",
@@ -9498,7 +9497,7 @@
     },
     {
      "f": "GIF",
-     "n": 138
+     "n": 137
     },
     {
      "f": "纯文本",
@@ -9791,11 +9790,11 @@
     "total": 2
    },
    "Lovense": {
-    "l1": 1931,
-    "l2": 3006,
-    "l3": 1000,
+    "l1": 1930,
+    "l2": 2993,
+    "l3": 999,
     "l4": 88,
-    "total": 6025
+    "total": 6010
    },
    "Motorbunny": {
     "l1": 9,
@@ -9826,11 +9825,11 @@
     "total": 43
    },
    "Tantaly": {
-    "l1": 726,
+    "l1": 725,
     "l2": 699,
     "l3": 59,
     "l4": 3,
-    "total": 1487
+    "total": 1486
    },
    "The Handy": {
     "l1": 0,
@@ -9849,18 +9848,18 @@
   },
   "byForm": {
    "图片": {
-    "l1": 1766,
-    "l2": 2622,
+    "l1": 1765,
+    "l2": 2612,
     "l3": 859,
     "l4": 69,
-    "total": 5316
+    "total": 5305
    },
    "视频": {
-    "l1": 1390,
-    "l2": 1310,
+    "l1": 1389,
+    "l2": 1309,
     "l3": 167,
     "l4": 8,
-    "total": 2875
+    "total": 2873
    },
    "引用转发": {
     "l1": 88,
@@ -9871,10 +9870,10 @@
    },
    "GIF": {
     "l1": 234,
-    "l2": 472,
-    "l3": 138,
+    "l2": 470,
+    "l3": 137,
     "l4": 14,
-    "total": 858
+    "total": 855
    },
    "纯文本": {
     "l1": 158,
@@ -9895,13 +9894,13 @@
  "brandEval": [
   {
    "brand": "Lovense",
-   "replyCount": 6025,
+   "replyCount": 6010,
    "sentiment": {
-    "pos": 5940,
+    "pos": 5925,
     "neg": 85
    },
    "lang": {
-    "en": 5948,
+    "en": 5933,
     "de": 64,
     "zh": 7,
     "ru": 4,
@@ -9910,17 +9909,17 @@
    "topics": [
     {
      "t": "vibrators",
-     "n": 6025
+     "n": 6010
     }
    ],
    "keywords": [
     {
      "w": "lovense",
-     "n": 6266
+     "n": 6251
     },
     {
      "w": "love",
-     "n": 553
+     "n": 551
     },
     {
      "w": "solace",
@@ -9931,12 +9930,12 @@
      "n": 426
     },
     {
-     "w": "hush",
-     "n": 364
-    },
-    {
      "w": "toy",
      "n": 362
+    },
+    {
+     "w": "hush",
+     "n": 360
     },
     {
      "w": "vibemateapp",
@@ -9956,7 +9955,7 @@
     },
     {
      "w": "fun",
-     "n": 251
+     "n": 249
     },
     {
      "w": "need",
@@ -9980,33 +9979,33 @@
     },
     {
      "w": "try",
-     "n": 191
+     "n": 189
     },
     {
      "w": "play",
-     "n": 183
-    },
-    {
-     "w": "make",
-     "n": 183
+     "n": 182
     },
     {
      "w": "good",
+     "n": 181
+    },
+    {
+     "w": "make",
      "n": 181
     }
    ],
    "forms": [
     {
      "f": "图片",
-     "n": 3509
+     "n": 3499
     },
     {
      "f": "视频",
-     "n": 1187
+     "n": 1185
     },
     {
      "f": "GIF",
-     "n": 835
+     "n": 832
     },
     {
      "f": "纯文本",
@@ -10022,9 +10021,9 @@
     }
    ],
    "intents": {
-    "praise": 4824,
+    "praise": 4810,
     "request": 839,
-    "question": 277,
+    "question": 276,
     "complaint": 85
    },
    "topUsers": [
@@ -10089,25 +10088,25 @@
   },
   {
    "brand": "Tantaly",
-   "replyCount": 1487,
+   "replyCount": 1486,
    "sentiment": {
-    "neu": 1002,
+    "neu": 1001,
     "pos": 466,
     "neg": 19
    },
    "lang": {
-    "en": 1487
+    "en": 1486
    },
    "topics": [
     {
      "t": "sexdoll",
-     "n": 1487
+     "n": 1486
     }
    ],
    "keywords": [
     {
      "w": "tantalyglobal",
-     "n": 1436
+     "n": 1435
     },
     {
      "w": "usa",
@@ -10193,7 +10192,7 @@
     },
     {
      "f": "图片",
-     "n": 666
+     "n": 665
     },
     {
      "f": "引用转发",
@@ -10209,7 +10208,7 @@
     }
    ],
    "intents": {
-    "banter": 421,
+    "banter": 420,
     "praise": 419,
     "other": 412,
     "question": 120,
@@ -12158,43 +12157,43 @@
  "brandUsers": [
   {
    "brand": "Lovense",
-   "replyCount": 6025,
-   "userCount": 2251,
-   "multiReplyUsers": 1586,
+   "replyCount": 6010,
+   "userCount": 2248,
+   "multiReplyUsers": 1584,
    "multiReplyShare": 70.5,
-   "avgRepliesPerUser": 2.68,
-   "totalLikes": 5738,
+   "avgRepliesPerUser": 2.67,
+   "totalLikes": 5711,
    "avgLikes": 1.0,
    "sentiment": {
-    "pos": 5940,
+    "pos": 5925,
     "neg": 85
    },
    "intents": {
-    "praise": 4824,
+    "praise": 4810,
     "request": 839,
-    "question": 277,
+    "question": 276,
     "complaint": 85
    },
    "wcLayers": {
-    "l3": 1000,
-    "l2": 3006,
-    "l1": 1931,
+    "l3": 999,
+    "l2": 2993,
+    "l1": 1930,
     "l4": 88
    },
    "wcLayerPct": {
     "l3": 16.6,
-    "l2": 49.9,
-    "l1": 32.0,
+    "l2": 49.8,
+    "l1": 32.1,
     "l4": 1.5
    },
    "engLayers": {
-    "heavy": 67,
+    "heavy": 66,
     "active": 345,
-    "light": 1174,
-    "once": 665
+    "light": 1173,
+    "once": 664
    },
    "engLayerPct": {
-    "heavy": 3.0,
+    "heavy": 2.9,
     "active": 15.3,
     "light": 52.2,
     "once": 29.5
@@ -12202,9 +12201,9 @@
    "concentration": {
     "top10Replies": 283,
     "top10Share": 4.7,
-    "top1pctUsers": 23,
-    "top1pctReplies": 509,
-    "top1pctShare": 8.4
+    "top1pctUsers": 22,
+    "top1pctReplies": 493,
+    "top1pctShare": 8.2
    },
    "topUsers": [
     {
@@ -12927,11 +12926,11 @@
    "keywords": [
     {
      "w": "lovense",
-     "n": 6266
+     "n": 6251
     },
     {
      "w": "love",
-     "n": 553
+     "n": 551
     },
     {
      "w": "solace",
@@ -12939,7 +12938,7 @@
     },
     {
      "w": "hush",
-     "n": 364
+     "n": 360
     },
     {
      "w": "vibemateapp",
@@ -12975,11 +12974,7 @@
     },
     {
      "w": "play",
-     "n": 183
-    },
-    {
-     "w": "make",
-     "n": 183
+     "n": 182
     },
     {
      "w": "good",
@@ -12987,6 +12982,10 @@
     },
     {
      "w": "https",
+     "n": 181
+    },
+    {
+     "w": "make",
      "n": 181
     },
     {
@@ -13006,19 +13005,24 @@
      "n": 158
     }
    ],
-   "topics": [],
+   "topics": [
+    {
+     "t": "vibrators",
+     "n": 6010
+    }
+   ],
    "forms": [
     {
      "f": "图片",
-     "n": 3509
+     "n": 3499
     },
     {
      "f": "视频",
-     "n": 1187
+     "n": 1185
     },
     {
      "f": "GIF",
-     "n": 835
+     "n": 832
     },
     {
      "f": "纯文本",
@@ -13036,20 +13040,20 @@
   },
   {
    "brand": "Tantaly",
-   "replyCount": 1487,
-   "userCount": 389,
+   "replyCount": 1486,
+   "userCount": 388,
    "multiReplyUsers": 287,
-   "multiReplyShare": 73.8,
-   "avgRepliesPerUser": 3.82,
+   "multiReplyShare": 74.0,
+   "avgRepliesPerUser": 3.83,
    "totalLikes": 5503,
    "avgLikes": 3.7,
    "sentiment": {
-    "neu": 1002,
+    "neu": 1001,
     "pos": 466,
     "neg": 19
    },
    "intents": {
-    "banter": 421,
+    "banter": 420,
     "praise": 419,
     "other": 412,
     "question": 120,
@@ -13057,7 +13061,7 @@
     "complaint": 19
    },
    "wcLayers": {
-    "l1": 726,
+    "l1": 725,
     "l2": 699,
     "l3": 59,
     "l4": 3
@@ -13072,13 +13076,13 @@
     "heavy": 26,
     "active": 60,
     "light": 201,
-    "once": 102
+    "once": 101
    },
    "engLayerPct": {
     "heavy": 6.7,
-    "active": 15.4,
-    "light": 51.7,
-    "once": 26.2
+    "active": 15.5,
+    "light": 51.8,
+    "once": 26.0
    },
    "concentration": {
     "top10Replies": 415,
@@ -13876,7 +13880,7 @@
    "keywords": [
     {
      "w": "tantalyglobal",
-     "n": 1436
+     "n": 1435
     },
     {
      "w": "love",
@@ -13955,7 +13959,12 @@
      "n": 26
     }
    ],
-   "topics": [],
+   "topics": [
+    {
+     "t": "sexdoll",
+     "n": 1486
+    }
+   ],
    "forms": [
     {
      "f": "视频",
@@ -13963,7 +13972,7 @@
     },
     {
      "f": "图片",
-     "n": 666
+     "n": 665
     },
     {
      "f": "引用转发",
@@ -14863,7 +14872,12 @@
      "n": 40
     }
    ],
-   "topics": [],
+   "topics": [
+    {
+     "t": "Male Masturbators",
+     "n": 1042
+    }
+   ],
    "forms": [
     {
      "f": "图片",
@@ -15696,7 +15710,12 @@
      "n": 12
     }
    ],
-   "topics": [],
+   "topics": [
+    {
+     "t": "sexmachine",
+     "n": 706
+    }
+   ],
    "forms": [
     {
      "f": "视频",
@@ -16538,7 +16557,12 @@
      "n": 6
     }
    ],
-   "topics": [],
+   "topics": [
+    {
+     "t": "Male Masturbators",
+     "n": 176
+    }
+   ],
    "forms": [
     {
      "f": "图片",
@@ -17340,7 +17364,12 @@
      "n": 2
     }
    ],
-   "topics": [],
+   "topics": [
+    {
+     "t": "vibrators",
+     "n": 58
+    }
+   ],
    "forms": [
     {
      "f": "图片",
@@ -18075,7 +18104,12 @@
      "n": 1
     }
    ],
-   "topics": [],
+   "topics": [
+    {
+     "t": "Male Masturbators",
+     "n": 43
+    }
+   ],
    "forms": [
     {
      "f": "图片",
@@ -18619,7 +18653,12 @@
      "n": 1
     }
    ],
-   "topics": [],
+   "topics": [
+    {
+     "t": "sexdoll",
+     "n": 26
+    }
+   ],
    "forms": [
     {
      "f": "图片",
@@ -19118,7 +19157,12 @@
      "n": 1
     }
    ],
-   "topics": [],
+   "topics": [
+    {
+     "t": "sexmachine",
+     "n": 18
+    }
+   ],
    "forms": [
     {
      "f": "图片",
@@ -19581,7 +19625,12 @@
      "n": 1
     }
    ],
-   "topics": [],
+   "topics": [
+    {
+     "t": "sexdoll",
+     "n": 14
+    }
+   ],
    "forms": [
     {
      "f": "图片",
@@ -19985,7 +20034,12 @@
      "n": 1
     }
    ],
-   "topics": [],
+   "topics": [
+    {
+     "t": "Anal",
+     "n": 13
+    }
+   ],
    "forms": [
     {
      "f": "图片",
@@ -20281,7 +20335,12 @@
      "n": 1
     }
    ],
-   "topics": [],
+   "topics": [
+    {
+     "t": "Male Masturbators",
+     "n": 6
+    }
+   ],
    "forms": [
     {
      "f": "视频",
@@ -20353,7 +20412,12 @@
      "n": 2
     }
    ],
-   "topics": [],
+   "topics": [
+    {
+     "t": "Anal",
+     "n": 2
+    }
+   ],
    "forms": [
     {
      "f": "图片",
@@ -20434,7 +20498,12 @@
      "n": 1
     }
    ],
-   "topics": [],
+   "topics": [
+    {
+     "t": "vibrators",
+     "n": 1
+    }
+   ],
    "forms": [
     {
      "f": "图片",
@@ -20446,14 +20515,14 @@
  "formEval": [
   {
    "form": "图片",
-   "replyCount": 5316,
+   "replyCount": 5305,
    "sentiment": {
-    "pos": 4011,
-    "neu": 1232,
+    "pos": 4001,
+    "neu": 1231,
     "neg": 73
    },
    "lang": {
-    "en": 5272,
+    "en": 5261,
     "de": 37,
     "zh": 3,
     "ru": 2,
@@ -20462,19 +20531,19 @@
    "keywords": [
     {
      "w": "lovense",
-     "n": 3677
-    },
-    {
-     "w": "tantalyglobal",
-     "n": 673
+     "n": 3667
     },
     {
      "w": "fleshlight",
      "n": 672
     },
     {
+     "w": "tantalyglobal",
+     "n": 672
+    },
+    {
      "w": "love",
-     "n": 535
+     "n": 533
     },
     {
      "w": "solace",
@@ -20490,7 +20559,7 @@
     },
     {
      "w": "hush",
-     "n": 345
+     "n": 341
     },
     {
      "w": "officialhismith",
@@ -20514,7 +20583,7 @@
     },
     {
      "w": "fun",
-     "n": 204
+     "n": 202
     },
     {
      "w": "gush",
@@ -20550,21 +20619,21 @@
   },
   {
    "form": "视频",
-   "replyCount": 2875,
+   "replyCount": 2873,
    "sentiment": {
-    "pos": 1802,
+    "pos": 1800,
     "neu": 1039,
     "neg": 34
    },
    "lang": {
-    "en": 2811,
+    "en": 2809,
     "de": 52,
     "zh": 12
    },
    "keywords": [
     {
      "w": "lovense",
-     "n": 1222
+     "n": 1220
     },
     {
      "w": "tantalyglobal",
@@ -20652,20 +20721,20 @@
   },
   {
    "form": "GIF",
-   "replyCount": 858,
+   "replyCount": 855,
    "sentiment": {
     "neu": 20,
-    "pos": 821,
+    "pos": 818,
     "neg": 17
    },
    "lang": {
-    "en": 856,
+    "en": 853,
     "de": 2
    },
    "keywords": [
     {
      "w": "lovense",
-     "n": 859
+     "n": 856
     },
     {
      "w": "retiring",
@@ -21153,8 +21222,8 @@
  },
  "corpusAnalysis": {
   "style": {
-   "total": 9498,
-   "emojiRate": 29.2,
+   "total": 9482,
+   "emojiRate": 29.1,
    "capsRate": 4.8,
    "exclaimRate": 13.9,
    "questionRate": 5.8,
@@ -21179,7 +21248,7 @@
    },
    {
     "w": "lovense love",
-    "n": 200
+    "n": 198
    },
    {
     "w": "lovense solace",
@@ -21214,12 +21283,12 @@
     "n": 97
    },
    {
-    "w": "lovense hush",
+    "w": "lovense analaugust",
     "n": 94
    },
    {
-    "w": "lovense analaugust",
-    "n": 94
+    "w": "lovense hush",
+    "n": 90
    },
    {
     "w": "lovense lush",
@@ -26102,16 +26171,16 @@
    {
     "key": "vibrators",
     "name": "震动棒 Vibrators",
-    "count": 6084,
+    "count": 6069,
     "sentiment": {
      "neu": 38,
-     "pos": 5961,
+     "pos": 5946,
      "neg": 85
     },
     "brands": [
      {
       "b": "Lovense",
-      "n": 6025
+      "n": 6010
      },
      {
       "b": "LELO",
@@ -26125,7 +26194,7 @@
     "intents": [
      {
       "k": "praise",
-      "n": 4838
+      "n": 4824
      },
      {
       "k": "request",
@@ -26133,7 +26202,7 @@
      },
      {
       "k": "question",
-      "n": 285
+      "n": 284
      },
      {
       "k": "complaint",
@@ -26230,16 +26299,16 @@
    {
     "key": "sexdoll",
     "name": "实体娃娃 Sex Doll",
-    "count": 1527,
+    "count": 1526,
     "sentiment": {
-     "neu": 1025,
+     "neu": 1024,
      "pos": 482,
      "neg": 20
     },
     "brands": [
      {
       "b": "Tantaly",
-      "n": 1487
+      "n": 1486
      },
      {
       "b": "RosemaryDoll",
@@ -26257,7 +26326,7 @@
      },
      {
       "k": "banter",
-      "n": 427
+      "n": 426
      },
      {
       "k": "other",
@@ -26731,14 +26800,14 @@
    {
     "key": "praise",
     "name": "赞美",
-    "count": 5733,
+    "count": 5719,
     "sentiment": {
-     "pos": 5733
+     "pos": 5719
     },
     "brands": [
      {
       "b": "Lovense",
-      "n": 4824
+      "n": 4810
      },
      {
       "b": "Tantaly",
@@ -26772,7 +26841,7 @@
     "topics": [
      {
       "t": "震动棒 Vibrators",
-      "n": 4838
+      "n": 4824
      },
      {
       "t": "实体娃娃 Sex Doll",
@@ -27166,14 +27235,14 @@
    {
     "key": "banter",
     "name": "玩梗互动",
-    "count": 759,
+    "count": 758,
     "sentiment": {
-     "neu": 759
+     "neu": 758
     },
     "brands": [
      {
       "b": "Tantaly",
-      "n": 421
+      "n": 420
      },
      {
       "b": "Fleshlight",
@@ -27207,7 +27276,7 @@
     "topics": [
      {
       "t": "实体娃娃 Sex Doll",
-      "n": 427
+      "n": 426
      },
      {
       "t": "男用杯 Male Masturbators",
@@ -27308,15 +27377,15 @@
    {
     "key": "question",
     "name": "提问",
-    "count": 554,
+    "count": 553,
     "sentiment": {
-     "pos": 326,
+     "pos": 325,
      "neu": 228
     },
     "brands": [
      {
       "b": "Lovense",
-      "n": 277
+      "n": 276
      },
      {
       "b": "Tantaly",
@@ -27350,7 +27419,7 @@
     "topics": [
      {
       "t": "震动棒 Vibrators",
-      "n": 285
+      "n": 284
      },
      {
       "t": "实体娃娃 Sex Doll",
@@ -27595,11 +27664,11 @@
    {
     "key": "pos",
     "name": "正面",
-    "count": 7140,
+    "count": 7125,
     "intents": [
      {
       "k": "praise",
-      "n": 5733
+      "n": 5719
      },
      {
       "k": "request",
@@ -27607,13 +27676,13 @@
      },
      {
       "k": "question",
-      "n": 326
+      "n": 325
      }
     ],
     "brands": [
      {
       "b": "Lovense",
-      "n": 5940
+      "n": 5925
      },
      {
       "b": "Tantaly",
@@ -27645,8 +27714,8 @@
      }
     ],
     "style": {
-     "emoji": 2174,
-     "slang": 421,
+     "emoji": 2162,
+     "slang": 419,
      "caps": 269
     },
     "samples": [
@@ -27735,7 +27804,7 @@
    {
     "key": "neu",
     "name": "中性",
-    "count": 2341,
+    "count": 2340,
     "intents": [
      {
       "k": "other",
@@ -27743,7 +27812,7 @@
      },
      {
       "k": "banter",
-      "n": 759
+      "n": 758
      },
      {
       "k": "request",
@@ -27757,7 +27826,7 @@
     "brands": [
      {
       "b": "Tantaly",
-      "n": 1002
+      "n": 1001
      },
      {
       "b": "Fleshlight",

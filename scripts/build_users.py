@@ -1,31 +1,35 @@
 # -*- coding: utf-8 -*-
 """
-用户板块数据构建器（真实 CSV 全量抽取）
+用户板块数据构建器（真实 xlsx 全量抽取）
 ========================================
 输入：
-  - 内容数据记录 CSV（全量 8672 发帖 + 11317 回帖）
-  - 账号数据记录 CSV（品牌官方账号识别）
+  - GTM跨境社媒数据监控_已翻译_打标_v2.xlsx
+    · 全部发帖（建原帖索引：形式 / 品牌 / 主题）
+    · 用户回帖（真实用户回帖，按 发布者类型 == 用户 过滤品牌官方）
 输出：
   - data/users_data.json —— 供前端「了解用户 / 用户讨论与语言」板块使用
 
 设计要点：
-  1. 过滤「品牌官方账号」回复（如 @TantalyGlobal / LovenseOfficial / fleshlight …），
-     只保留真实用户声音。
+  1. 按「发布者类型 == 用户」过滤，只保留真实用户声音。
   2. 通过「关联帖ID」把每条回帖 join 到原帖，得到用户「参与的内容形式」。
   3. 按发布人(用户)聚合画像：回复数 / 字数 / 品牌归属 / 内容形式 / 语言 / 情绪 / 意图 / 代表语录。
   4. 语料统计：词频(词云) / 语言分布 / 情绪 / 意图 / 主题。
   5. 回复字数分层、分品牌评价、分内容形式评价。
   6. 透明的「LLM 语料分析框架」+ 真实样例标注（让用户看到分析逻辑）。
 """
-import csv, json, re, math
+import json, re, math
 from collections import Counter, defaultdict
+import openpyxl
 
-csv.field_size_limit(10 ** 7)
-
-BASE = "/Users/fsw/Downloads"
-CONTENT_CSV = f"{BASE}/GTM跨境社媒数据监控_内容数据记录-X.csv"
-ACCOUNT_CSV = f"{BASE}/GTM跨境社媒数据监控_账号数据记录-X.csv"
+XLSX = "/Users/fsw/Downloads/GTM跨境社媒数据监控_已翻译_打标_v2.xlsx"
 OUT = "/Users/fsw/WorkBuddy/2026-07-10-18-44-40/content-analytics-dashboard/data/users_data.json"
+
+def load_sheet(name):
+    wb = openpyxl.load_workbook(XLSX, read_only=True, data_only=True)
+    ws = wb[name]
+    rows = list(ws.iter_rows(values_only=True))
+    header = [str(h) if h is not None else "" for h in rows[0]]
+    return header, rows[1:]
 
 # ---------- 工具 ----------
 def to_int(s):
@@ -101,58 +105,42 @@ def detect_intent(t):
         return "banter"
     return "other"
 
-# ---------- 1. 读取账号表，建立品牌官方身份集合 ----------
-brand_ident = set()
-with open(ACCOUNT_CSV, encoding="utf-8-sig") as f:
-    for row in csv.DictReader(f):
-        for v in (row.get("品牌"), row.get("账号名"), row.get("账号链接")):
-            if v:
-                brand_ident.add(v.lower().replace("@", "").replace("https://x.com/", "").strip())
-# 额外已知品牌词（兜底）
-brand_ident |= {"tantaly", "lovense", "fleshlight", "kiiroo", "hismith", "tenga", "lelo",
-                "lovehoney", "aneros", "hotpowers", "funfactory", "svakom", "satisfyer",
-                "docjohnson", "maleedge", "tracy's dog", "the handy", "realdoll", "rosemarydoll",
-                "motorbunny", "dame"}
+# ---------- 1. 真实用户过滤（按 发布者类型 == 用户） ----------
+def is_user_reply(author_type):
+    return (author_type or "").strip() == "用户"
 
-def is_brand_reply(author, brand, account_url):
-    a = (author or "").lower().strip()
-    if not a:
-        return False
-    if any(b in a for b in brand_ident):
-        return True
-    # 账号链接里含品牌 handle
-    if account_url:
-        u = account_url.lower().replace("https://x.com/", "").replace("@", "").strip()
-        if u and u in a:
-            return True
-    return False
-
-# ---------- 2. 读取内容 CSV，建立原帖索引 + 收集回帖 ----------
+# ---------- 2. 读取 xlsx，建立原帖索引 + 收集用户回帖 ----------
+ph, posts = load_sheet("全部发帖")
 posts_by_id = {}
+for r in posts:
+    rec = dict(zip(ph, r))
+    pid = rec.get("内容ID")
+    if pid:
+        topic = rec.get("类目") or ""
+        posts_by_id[pid] = {
+            "form": rec.get("发布内容形式") or "未知",
+            "brand": rec.get("品牌") or "",
+            "topic": topic,
+            "topic_tags": [topic] if topic else [],
+        }
+
+rh, replies_raw = load_sheet("用户回帖")
 replies = []
-with open(CONTENT_CSV, encoding="utf-8-sig") as f:
-    for row in csv.DictReader(f):
-        if row["内容类型"] == "发帖":
-            pid = row.get("内容ID") or row.get("ID")
-            posts_by_id[pid] = {
-                "form": row.get("发布内容形式") or "未知",
-                "brand": row.get("品牌") or "",
-                "topic": row.get("类目") or "",
-            }
-        elif row["内容类型"] == "回帖":
-            replies.append(row)
-
-print(f"读入回帖 {len(replies)}，原帖索引 {len(posts_by_id)}")
-
-# 品牌官方回复数（用于 meta 说明）
 brand_reply_count = 0
+for r in replies_raw:
+    rec = dict(zip(rh, r))
+    if is_user_reply(rec.get("发布者类型")):
+        replies.append(rec)
+    else:
+        brand_reply_count += 1
+
+print(f"读入用户回帖 {len(replies)}（过滤品牌官方 {brand_reply_count}），原帖索引 {len(posts_by_id)}")
+
+# 真实用户回帖（读取时已按 发布者类型==用户 过滤，这里仅剔除空作者）
 genuine = []
 for r in replies:
-    author = r.get("发布人") or ""
-    if is_brand_reply(author, r.get("品牌"), r.get("账号")):
-        brand_reply_count += 1
-        continue
-    if not author.strip():
+    author = (r.get("发布人") or "").strip()
+    if not author:
         continue
     genuine.append(r)
 
