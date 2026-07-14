@@ -28,8 +28,17 @@
 
   /* 文本：近白 → 雾蓝 → 静默灰，保证深空玻璃上可读 */
   --text: #eef4ff;
+  --text-1: #eef4ff;
   --text-2: #9fb2cc;
   --text-3: #66788f;
+
+  /* 霓虹别名（兼容部分组件引用） */
+  --neon-cyan: #5be3ff;
+  --neon-purple: #b388ff;
+  --accent-glow: rgba(0, 240, 255, 0.35);
+
+  /* 字体别名 */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
 
   /* 形状 / 阴影 / 发光（深空取向：投影更深、霓虹外发光） */
   --radius: 16px;
@@ -100,7 +109,7 @@ body::after {
 
 /* 侧边栏：玻璃悬浮体 */
 .sidebar {
-  width: 236px; flex-shrink: 0;
+  width: 256px; flex-shrink: 0;
   background: var(--glass-bg-strong);
   backdrop-filter: blur(22px) saturate(170%);
   -webkit-backdrop-filter: blur(22px) saturate(170%);
@@ -119,19 +128,23 @@ body::after {
 .brand-name { font-weight: 680; font-size: 14.5px; letter-spacing: .2px; }
 .brand-sub { font-size: 11px; color: var(--text-3); letter-spacing: .6px; }
 
-.nav { padding: 4px 10px; flex: 1; overflow-y: auto; }
+.nav { padding: 6px 10px 10px; flex: 1; overflow-y: auto; }
 .nav-group-label {
-  font-size: 10.5px; color: var(--text-3); font-weight: 700;
-  padding: 16px 10px 7px; letter-spacing: 1px; text-transform: uppercase;
+  font-size: 10px; color: var(--text-3); font-weight: 700;
+  padding: 18px 10px 6px; letter-spacing: 1.2px; text-transform: uppercase;
+  opacity: .85;
 }
+.nav-group-label:first-child { padding-top: 6px; }
 .nav-item {
   display: flex; align-items: center; gap: 10px;
-  padding: 9px 11px; border-radius: var(--radius-sm);
+  padding: 8px 11px 8px 13px; border-radius: var(--radius-sm);
   color: var(--text-2); cursor: pointer; font-weight: 500;
   transition: background .15s var(--ease), color .15s var(--ease), transform .15s var(--ease);
-  margin-bottom: 3px; position: relative;
+  margin-bottom: 2px; position: relative;
 }
+.nav-item.nav-sub { padding-left: 26px; font-weight: 400; color: var(--text-3); }
 .nav-item:hover { background: var(--glass-bg-light); color: var(--text); transform: translateX(2px); }
+.nav-item.nav-sub:hover { color: var(--text); }
 .nav-item.active {
   background: var(--accent-soft); color: var(--accent-strong); font-weight: 650;
   box-shadow: inset 0 0 0 1px rgba(0, 195, 243, 0.25);
@@ -141,13 +154,24 @@ body::after {
   border-radius: 3px; background: linear-gradient(var(--accent), var(--accent-2));
   box-shadow: var(--glow);
 }
-.nav-item .nav-ic { width: 17px; height: 17px; flex-shrink: 0; opacity: .85; }
+.nav-mark {
+  width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%;
+  background: currentColor; opacity: .55;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.08);
+}
+.nav-mark-sub {
+  width: 5px; height: 5px; flex-shrink: 0; border-radius: 50%;
+  border: 1.5px solid currentColor; opacity: .45;
+}
+.nav-item.active .nav-mark, .nav-item.active .nav-mark-sub { opacity: 1; background: var(--accent-strong); border-color: var(--accent-strong); }
+.nav-item .nav-ic { display: none; }
 .nav-item .nav-badge {
   margin-left: auto; font-size: 11px; background: var(--hot); color: #fff;
   border-radius: 20px; padding: 1px 7px; font-weight: 700;
   box-shadow: var(--glow-hot);
 }
 .nav-item .nav-dot { margin-left: auto; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: var(--glow); }
+.nav-item.nav-sub .nav-dot { margin-right: 2px; }
 
 .sidebar-foot { padding: 14px 16px; border-top: 1px solid var(--glass-line); }
 .src-pill {

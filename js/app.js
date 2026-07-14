@@ -69,19 +69,19 @@
   };
   const BOARDS = [
     // —— 灵感/分析 ——
-    { id: "library", name: "灵感库", group: "灵感/分析", desc: "全部内容的灵感库。可随机浏览，也可按爆款率 / 曝光 / 互动 / 类型 ROI / 时间趋势多指标排序与筛选；一键只看爆款(Top10%)。点标签加筛选，点卡片看详情，再进单帖深度分析。" },
-    { id: "reference", name: "评估想法 / 找参考", group: "灵感/分析", desc: "两个方向：①评估想法——输入你的内容想法，输出多维度评估结果；②找参考——没想法有目的时，输入你的目的，推荐匹配你目的的灵感内容。还有回测校准准确率。" },
-    { id: "viraldeep", name: "爆款内容深度分析", group: "灵感/分析", desc: "跨所有品牌的爆款内容共性研究：什么品牌/形式/情绪/主题/时段最容易出爆款？纯数据驱动，一键看清爆款配方。" },
+    { id: "library", name: "灵感库", group: "灵感/分析", level: 1, desc: "全部内容的灵感库。可随机浏览，也可按爆款率 / 曝光 / 互动 / 类型 ROI / 时间趋势多指标排序与筛选；一键只看爆款(Top10%)。点标签加筛选，点卡片看详情，再进单帖深度分析。" },
+    { id: "reference", name: "评估想法 / 找参考", group: "灵感/分析", level: 1, desc: "两个方向：①评估想法——输入你的内容想法，输出多维度评估结果；②找参考——没想法有目的时，输入你的目的，推荐匹配你目的的灵感内容。还有回测校准准确率。" },
+    { id: "viraldeep", name: "爆款内容深度分析", group: "灵感/分析", level: 1, desc: "跨所有品牌的爆款内容共性研究：什么品牌/形式/情绪/主题/时段最容易出爆款？纯数据驱动，一键看清爆款配方。" },
     // —— 看竞品情况 ——
-    { id: "competitor", name: "竞品内容监测", group: "看竞品情况", desc: "选择单竞品 → 深度查看（整体数据 + 内容排序列表 + 形式/数据筛选 + 用户评价 + 运营节奏×表现 + Campaign 爆发监测）；也可看全部竞品排名。" },
-    { id: "compare", name: "多竞品横向对比", group: "看竞品情况", desc: "勾选多个品牌横向对比：数据表现 + Top3 内容 + 用户情况，全面看标杆与差距。" },
+    { id: "competitor", name: "竞品内容监测", group: "看竞品情况", level: 1, desc: "选择单竞品 → 深度查看（整体数据 + 内容排序列表 + 形式/数据筛选 + 用户评价 + 运营节奏×表现 + Campaign 爆发监测）；也可看全部竞品排名。" },
+    { id: "compare", name: "多竞品横向对比", group: "看竞品情况", level: 2, desc: "勾选多个品牌横向对比：数据表现 + Top3 内容 + 用户情况，全面看标杆与差距。" },
     // —— 了解用户 ——
-    { id: "uservoice", name: "用户讨论与语言", group: "了解用户", desc: "基于用户语料的深度分析：情绪倾向、语言风格、词频、美式本土化表达、分内容形式——学习美国用户的表达与话题讨论方式。" },
-    { id: "branduser", name: "品牌-用户讨论", group: "了解用户", desc: "分品牌查看用户对该品牌的讨论：情感极性、内容形式、用户倾向、高频词与主题、代表语录——全面看每个品牌的用户声音。可点进品牌看品牌互动用户深度分析（用户词云、主题排序、分层占比、跨品牌对比）。" },
-    { id: "usertier", name: "用户分层分析", group: "了解用户", desc: "按「回复字数」和「参与度」将用户分层——不是研究单个用户，而是研究「某一类用户」的整体特征：他们关注什么品牌、聊什么话题、情绪倾向如何、偏好什么内容形式。每层可下钻看细节，支持四层横向对比。" },
-    { id: "userseg", name: "高互动用户", group: "了解用户", desc: "窗口内回复数最高的活跃用户排行——研究「单个深度用户」：他是谁、活跃周期、品牌归属、语言模式、参与形式、情感/意图倾向、全部代表语录。支持展开深度画像、跨品牌用户对比。" },
+    { id: "uservoice", name: "用户讨论与语言", group: "了解用户", level: 1, desc: "基于用户语料的深度分析：情绪倾向、语言风格、词频、美式本土化表达、分内容形式——学习美国用户的表达与话题讨论方式。" },
+    { id: "branduser", name: "品牌-用户讨论", group: "了解用户", level: 2, desc: "分品牌查看用户对该品牌的讨论：情感极性、内容形式、用户倾向、高频词与主题、代表语录——全面看每个品牌的用户声音。可点进品牌看品牌互动用户深度分析（用户词云、主题排序、分层占比、跨品牌对比）。" },
+    { id: "usertier", name: "用户分层分析", group: "了解用户", level: 2, desc: "按「回复字数」和「参与度」将用户分层——不是研究单个用户，而是研究「某一类用户」的整体特征：他们关注什么品牌、聊什么话题、情绪倾向如何、偏好什么内容形式。每层可下钻看细节，支持四层横向对比。" },
+    { id: "userseg", name: "高互动用户", group: "了解用户", level: 2, desc: "窗口内回复数最高的活跃用户排行——研究「单个深度用户」：他是谁、活跃周期、品牌归属、语言模式、参与形式、情感/意图倾向、全部代表语录。支持展开深度画像、跨品牌用户对比。" },
     // —— 我方运营 ——
-    { id: "myops", name: "我方运营", group: "我方运营", desc: "选一个或多个竞品 → 勾选要参考的维度（节奏 / 选题 / 形式 / 风格 / 指标）→ 生成可执行的运营方案，支持导出。" },
+    { id: "myops", name: "我方运营", group: "我方运营", level: 1, desc: "选一个或多个竞品 → 勾选要参考的维度（节奏 / 选题 / 形式 / 风格 / 指标）→ 生成可执行的运营方案，支持导出。" },
   ];
   const boardDesc = (id) => (BOARDS.find((b) => b.id === id) || {}).desc || "";
 
@@ -198,8 +198,10 @@
     nav.innerHTML = groups.map((g) => {
       const items = BOARDS.filter((b) => b.group === g).map((b) => {
         const badge = b.id === "top" ? `<span class="nav-badge">${state.analysis.overview.topCount}</span>` : (b.id === "library" ? '<span class="nav-dot"></span>' : "");
-        return `<div class="nav-item${state.board === b.id ? " active" : ""}" data-board="${b.id}">
-          <svg viewBox="0 0 24 24" class="nav-ic">${ICON[b.id]}</svg>
+        const level = b.level === 2 ? " nav-sub" : "";
+        const marker = b.level === 2 ? "nav-mark-sub" : "nav-mark";
+        return `<div class="nav-item${level}${state.board === b.id ? " active" : ""}" data-board="${b.id}">
+          <span class="${marker}"></span>
           <span>${b.name}</span>${badge}</div>`;
       }).join("");
       return `<div class="nav-group-label">${g}</div>${items}`;
