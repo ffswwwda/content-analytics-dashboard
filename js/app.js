@@ -70,7 +70,7 @@
   const BOARDS = [
     // —— 灵感/分析 ——
     { id: "library", name: "灵感库", group: "灵感/分析", level: 1, desc: "全部内容的灵感库。可随机浏览，也可按爆款指数 / 曝光 / 互动 / 类型 ROI / 时间趋势多指标排序与筛选；一键只看爆款(Top10%)。点标签加筛选，点卡片看详情，再进单帖深度分析。" },
-    { id: "reference", name: "评估想法 / 找参考", group: "灵感/分析", level: 1, desc: "两个方向：①评估想法——输入你的内容想法，输出多维度评估结果；②找参考——没想法有目的时，输入你的目的，推荐匹配你目的的灵感内容。还有回测校准准确率。" },
+    { id: "reference", name: "评估想法 / 找参考", group: "灵感/分析", level: 1, desc: "两个方向：①评估想法——输入内容想法，左侧即时评估、右侧输出多维度结果；②找参考——没想法有目的时，输入目的，右侧推荐匹配灵感内容。" },
     { id: "viraldeep", name: "爆款内容深度分析", group: "灵感/分析", level: 1, desc: "跨所有品牌的爆款内容共性研究：什么品牌/形式/情绪/主题/时段最容易出爆款？纯数据驱动，一键看清爆款配方。" },
     // —— 看竞品情况 ——
     { id: "competitor", name: "竞品内容监测", group: "看竞品情况", level: 1, desc: "选择单竞品 → 深度查看（整体数据 + 内容排序列表 + 形式/数据筛选 + 用户评价 + 运营节奏×表现 + Campaign 爆发监测）；也可看全部竞品排名。" },
@@ -117,12 +117,12 @@
       ],
     },
     reference: {
-      tip: "评估想法与回测为 AI 生成/预测，准确率非 100%，已标红；匹配内容本身来自源真实字段。",
+      tip: "评估想法为前端算法 + 历史源数据匹配；找参考匹配内容全部来自源真实字段。",
       metrics: [
-        { name: "想法多维度评估结果", type: "ai", acc: "AI", flag: true, formula: "A.predictIdea() 由大模型对想法评分（可行性/爆款潜力等）。", note: "AI 估算，非精确值，准确率 < 100%。" },
-        { name: "爆款率预测分", type: "ai", acc: "AI", flag: true, formula: "模型预测 0–100 分，对应该想法若发布可能达到的水准。", note: "AI 预测，存在模型误差。" },
+        { name: "想法多维度评估结果", type: "frontend", acc: 100, formula: "A.predictIdea() 基于输入文本与历史内容做关键词/主题/情绪匹配，从源字段计算相似度与统计特征。" },
+        { name: "爆款率预测分", type: "frontend", acc: 100, formula: "由历史匹配内容的平均爆款指数、主题/情绪历史爆款率等源字段加权估算。" },
         { name: "找参考匹配内容", type: "combined", acc: 100, formula: "相似度匹配（真实字段检索）+ 源数据返回，匹配结果确定可溯源。" },
-        { name: "回测准确率", type: "combined", acc: "AI", flag: true, formula: "AI 预测分 vs 源真实爆款指数比对校准。", note: "含 AI 预测误差，准确率 < 100%。" },
+        { name: "匹配维度命中/分布", type: "frontend", acc: 100, formula: "由匹配算法记录的命中维度与源字段计数统计。" },
       ],
     },
     viraldeep: {
@@ -208,7 +208,7 @@
     campaignSort: "lift",
     detailId: null, predictor: null,
     dim: "brand", dimBrands: new Set(), topicWeights: { viral: 35, eng: 25, rec: 20, cov: 20 },
-    blindbox: null, bxSeed: null, refMode: "eval", backtests: [], maxExposure: 1,
+    blindbox: null, bxSeed: null, refMode: "eval", maxExposure: 1,
     users: null, uvTab: "corpus", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all", uvCorpusMarker: "all", uvLayerDrill: null, uvLayerCmp: false, uvDeep: false, uvSegDeep: false, uvDrillMeta: null,
     brandUserSel: null, brandUserCmp: [], brandUserCompare: false, brandUserRankAll: false,
     libMode: "sort", libQuick: "all",
@@ -750,17 +750,29 @@
   ];
 
   function renderPredictor() {
-    return `<div class="predictor-wrap">
-      <div class="board-head"><div class="board-desc"><b>① 评估想法</b> · 输入你的内容想法，输出多维度评估结果</div></div>
-      <div class="example-chips">
-        <span class="ec-label">内置示例（点击载入）：</span>
-        ${EXAMPLE_IDEAS.map((e) => `<button class="chip ec-chip" data-example="${esc(e.text)}">${esc(e.label)}</button>`).join("")}
+    return `<div class="ref-split">
+      <div class="ref-left">
+        <div class="ref-sec-title"><span class="ref-sec-dot"></span>输入内容想法</div>
+        <div class="ref-sec-sub">描述你想做的内容，前端会基于历史爆款特征即时给出评估。</div>
+        <div class="example-chips" style="margin:12px 0 10px">
+          <span class="ec-label">内置示例：</span>
+          ${EXAMPLE_IDEAS.map((e) => `<button class="chip ec-chip" data-example="${esc(e.text)}">${esc(e.label)}</button>`).join("")}
+        </div>
+        <div class="predictor-input" style="margin-bottom:10px">
+          <textarea id="idea-input" rows="7" placeholder="描述你的内容想法，例如：Anal toy 实测对比，哪款体验更上头？"></textarea>
+        </div>
+        <div class="ref-actions">
+          <button class="btn-primary" id="predict-btn">🚀 生成评估结果</button>
+          <span class="ref-hint">Ctrl / ⌘ + Enter 快捷生成</span>
+        </div>
       </div>
-      <div class="predictor-input">
-        <textarea id="idea-input" placeholder="描述你的内容想法，例如：Anal toy 实测对比，哪款体验更上头？"></textarea>
-        <button class="btn-primary" id="predict-btn">评估爆款率</button>
+      <div class="ref-right" id="predict-result">
+        <div class="ref-empty">
+          <div class="ref-empty-icon">✨</div>
+          <div class="ref-empty-title">右侧将展示评估结果</div>
+          <div class="ref-empty-sub">输入左侧内容想法并点击「生成」后，这里会显示多维度评分、匹配内容与优化建议。</div>
+        </div>
       </div>
-      <div class="predict-result" id="predict-result"></div>
     </div>`;
   }
   function runPredict() {
@@ -839,7 +851,7 @@
         <div class="handoff-text"><b>要让分析更准、更深入？</b><br>点右侧按钮，把你的想法 + 即时评估 + 匹配到的历史内容复制下来，发给我（大模型），我结合真实爆款特征给你详细报告与修改建议。</div>
         <button class="btn-primary" id="copy-ai">复制给 AI 做深度分析</button>
       </div>`;
-    box.classList.add("show");
+    box.classList.add("ref-has-result");
     $("#copy-ai").addEventListener("click", copyToAI);
     // 匹配卡片可点击打开抽屉
     $$(".match-card", box).forEach((el) => el.addEventListener("click", () => openDrawer(el.dataset.id)));
@@ -1097,21 +1109,18 @@ ${topMatches || "（无强匹配）"}
     { id: "brand", name: "品牌曝光", emotion: ["高级感", "艺术感", "科技感"], type: ["图片", "视频"], goal: ["品牌曝光"], w: { exposure: 1.5, shares: 1.2, collections: 1 } },
   ];
   function renderReference() {
-    const tabs = `<div class="ref-tabs">
-      <button class="ref-tab${state.refMode === "eval" ? " on" : ""}" data-rm="eval">① 评估想法</button>
-      <button class="ref-tab${state.refMode === "find" ? " on" : ""}" data-rm="find">② 找参考</button>
-      <button class="ref-tab${state.refMode === "back" ? " on" : ""}" data-rm="back">③ 回测校准</button></div>`;
-    let body = "";
-    if (state.refMode === "eval") body = renderPredictor();
-    else if (state.refMode === "find") body = renderFind();
-    else body = renderBacktest();
-    return `<div class="board-head"><div class="board-desc">${BOARDS.find((b) => b.id === "reference").desc}</div></div>${tabs}<div id="ref-body">${body}</div>`;
+    const body = state.refMode === "eval" ? renderPredictor() : renderFind();
+    return `<div class="board-head"><div class="board-desc">${BOARDS.find((b) => b.id === "reference").desc}</div></div>
+      <div class="ref-tabs">
+        <button class="ref-tab${state.refMode === "eval" ? " on" : ""}" data-rm="eval">评估想法</button>
+        <button class="ref-tab${state.refMode === "find" ? " on" : ""}" data-rm="find">找参考</button>
+      </div>
+      <div id="ref-body">${body}</div>`;
   }
   function bindReference() {
     $$(".ref-tab").forEach((b) => b.addEventListener("click", () => { state.refMode = b.dataset.rm; renderBoard(); }));
     if (state.refMode === "eval") bindPredictorBoard();
-    else if (state.refMode === "find") bindFind();
-    else bindBacktest();
+    else bindFind();
   }
   function bindPredictorBoard() {
     const pb = $("#predict-btn"); if (pb) pb.addEventListener("click", runPredict);
@@ -1132,20 +1141,34 @@ ${topMatches || "（无强匹配）"}
     const presets = findPurposeChips();
     const dims = [["type", "形式"], ["topic", "主题"], ["emotion", "情绪"], ["goal", "营销目的"], ["source", "来源"], ["platform", "平台"], ["keyword", "关键词"], ["perf", "表现"]];
     const dimHTML = dims.map(([k, l]) => `<label class="dim-toggle on" data-dim="${k}"><input type="checkbox" checked> ${l}</label>`).join("");
-    return `<div class="predictor-wrap">
-      <div class="board-desc" style="margin-bottom:10px"><b>② 找参考</b> · 没想法有目的找参考：输入你的目的，推荐匹配你目的的灵感内容。下方是常用目的模板，可点选一键载入到输入框。</div>
-      <details class="find-preset-toggle"><summary>📋 常用目的（点击自动填入输入框 · ${GOAL_PRESETS.length} 个模板）</summary>
-        <div class="example-chips" id="find-presets">${presets}</div>
-      </details>
-      <div class="find-block" style="margin-top:12px">
-        <textarea id="goal-detail" class="goal-textarea" rows="3" placeholder="输入你的目的…例如：想给美国男性用户推一款高端 Anal 玩具，主打成分安全与体验升级，希望引发讨论和测评，而不是硬广"></textarea>
+    return `<div class="ref-split">
+      <div class="ref-left">
+        <div class="ref-sec-title"><span class="ref-sec-dot"></span>输入参考目的</div>
+        <div class="ref-sec-sub">没想法有目的时，输入你的营销目的，右侧推荐匹配的历史灵感内容。</div>
+        <div class="ref-presets">
+          <div class="ref-presets-label">📋 常用目的（点击自动填入输入框）</div>
+          <div class="example-chips" id="find-presets">${presets}</div>
+        </div>
+        <div class="predictor-input" style="margin-bottom:10px">
+          <textarea id="goal-detail" class="goal-textarea" rows="5" placeholder="输入你的目的…例如：想给美国男性用户推一款高端 Anal 玩具，主打成分安全与体验升级，希望引发讨论和测评，而不是硬广"></textarea>
+        </div>
+        <div class="find-block" style="margin-bottom:14px">
+          <div class="find-label">匹配维度（可关掉不相关的）</div>
+          <div class="find-dims" id="find-dims">${dimHTML}</div>
+        </div>
+        <div class="ref-actions">
+          <button class="btn-primary" id="find-btn">🔍 推荐参考内容</button>
+          <span class="ref-hint">Ctrl / ⌘ + Enter 快捷生成</span>
+        </div>
       </div>
-      <div class="find-block">
-        <div class="find-label">匹配维度（可关掉不相关的）</div>
-        <div class="find-dims" id="find-dims">${dimHTML}</div>
+      <div class="ref-right" id="find-result">
+        <div class="ref-empty">
+          <div class="ref-empty-icon">🔍</div>
+          <div class="ref-empty-title">右侧将展示推荐内容</div>
+          <div class="ref-empty-sub">输入左侧目的并点击「推荐」后，这里会显示匹配度可视化看板与参考内容列表。</div>
+        </div>
       </div>
-      <div class="predictor-input"><button class="btn-primary" id="find-btn">🔍 推荐参考内容</button></div>
-      <div class="predict-result" id="find-result"></div></div>`;
+    </div>`;
   }
   // 双向包含：a 含 b 或 b 含 a（应对「种草」⊂「种草内容」这类词表错位）
   function contains(a, b) {
@@ -1364,55 +1387,8 @@ ${topMatches || "（无强匹配）"}
     box.innerHTML = `${dashHTML}
       <div class="find-cards-title" style="margin-top:16px">匹配内容列表（点击卡片进入单帖深度分析）</div>
       <div class="match-grid">${top.slice(0, 10).map(({ c, score, reasons, dimHits }) => matchCardHTML(c, score, reasons, dimHits)).join("")}</div>`;
-    box.classList.add("show");
+    box.classList.add("ref-has-result");
     $$(".match-card", box).forEach((el) => el.addEventListener("click", () => openDeepAnalysis(el.dataset.id)));
-  }
-
-  /* 回测：预测 vs 真实 */
-  function loadBacktests() { try { return JSON.parse(localStorage.getItem("cad_backtests") || "[]"); } catch (e) { return []; } }
-  function saveBacktests(a) { try { localStorage.setItem("cad_backtests", JSON.stringify(a)); } catch (e) {} }
-  function backtestAccuracy(list) {
-    if (!list.length) return "";
-    const hit = list.filter((b) => b.hit).length;
-    const mae = list.reduce((s, b) => s + Math.abs(b.predicted - b.actualRate), 0) / list.length;
-    return `<div class="stat"><div class="stat-label">回测样本</div><div class="stat-val">${list.length}</div></div>
-      <div class="stat"><div class="stat-label">预测命中率</div><div class="stat-val" style="color:var(--hot)">${Math.round((hit / list.length) * 100)}%</div></div>
-      <div class="stat"><div class="stat-label">平均绝对误差</div><div class="stat-val">${mae.toFixed(1)}</div></div>`;
-  }
-  function btRowHTML(b) {
-    return `<div class="bt-row"><div class="bt-text">${esc((b.text || "").slice(0, 50))}</div>
-      <div class="bt-nums"><span>预测 ${b.predicted}</span><span>实际 ${b.actualRate}${b.actualTop ? "(爆)" : ""}</span><span class="${b.hit ? "ok" : "no"}">${b.hit ? "✓命中" : "✗偏差"}</span></div>
-      <button class="mini-btn ghost" data-bt-del="${b.id}">删</button></div>`;
-  }
-  function renderBacktest() {
-    const list = state.backtests || [];
-    const options = state.analysis.contents.map((c) => `<option value="${c.id}">${esc(dispText(c).slice(0, 40))}</option>`).join("");
-    const agg = backtestAccuracy(list);
-    return `<div class="predictor-wrap">
-      <div class="board-desc" style="margin-bottom:10px">回测：拿真实活动来，回填实际表现，对比「预测 vs 真实」，累积准确率以校准工具权重。</div>
-      <div class="bt-form">
-        <select id="bt-content" class="sel">${options}</select>
-        <label class="bt-check"><input type="checkbox" id="bt-top"> 实际是爆款</label>
-        <input id="bt-rate" class="bt-num" type="number" min="0" max="100" placeholder="实际爆款率 0-100">
-        <button class="btn-primary" id="bt-add">记录回测</button>
-      </div>
-      ${agg ? `<div class="stat-row" style="margin:14px 0">${agg}</div>` : ""}
-      <div id="bt-list">${list.length ? list.map(btRowHTML).join("") : emptyState("暂无回测记录")}</div></div>`;
-  }
-  function bindBacktest() {
-    const add = $("#bt-add"); if (add) add.addEventListener("click", () => {
-      const id = $("#bt-content").value; const c = state.analysis.contents.find((x) => x.id === id);
-      if (!c) return;
-      const actualTop = $("#bt-top").checked; const actualRate = +($("#bt-rate").value || 0);
-      const predicted = rate(c);
-      const hit = (predicted >= 70) === actualTop;
-      state.backtests.push({ id: "bt" + Date.now(), contentId: id, text: c.text, predicted, actualTop, actualRate, hit, ts: new Date().toISOString() });
-      saveBacktests(state.backtests); renderBoard();
-    });
-    $$("[data-bt-del]").forEach((b) => b.addEventListener("click", () => {
-      state.backtests = state.backtests.filter((x) => x.id !== b.dataset.btDel);
-      saveBacktests(state.backtests); renderBoard();
-    }));
   }
 
   /* ============ 我方运营 ============ */
@@ -3840,7 +3816,6 @@ ${sim || "（无同主题关联帖）"}
     state.maxViral = Math.max(...state.analysis.contents.map((c) => c.viralScore), 0.0001);
     state.maxExposure = Math.max(...state.analysis.contents.map((c) => c.exposure), 1);
     state.users = await DataLoader.loadUsers();
-    state.backtests = loadBacktests();
     state.insights = await DataLoader.loadInsights();
     // 数据源标记
     const pill = $("#src-pill");
