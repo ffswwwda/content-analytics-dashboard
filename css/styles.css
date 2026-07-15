@@ -219,6 +219,61 @@ body::after {
   transition: all .15s var(--ease);
 }
 .btn-filter:hover { border-color: var(--accent); color: var(--accent-strong); box-shadow: var(--glow); }
+/* 数据来源/公式 按钮 */
+.btn-prov {
+  display: flex; align-items: center; gap: 6px;
+  background: linear-gradient(135deg, rgba(14, 239, 219, 0.12), rgba(168, 85, 247, 0.12));
+  border: 1px solid var(--glass-line-strong);
+  border-radius: var(--radius-sm); padding: 8px 13px; cursor: pointer;
+  font-size: 13px; font-weight: 600; color: var(--accent-strong); font-family: var(--font);
+  transition: all .15s var(--ease); white-space: nowrap;
+}
+.btn-prov:hover { border-color: var(--accent); box-shadow: var(--glow); transform: translateY(-1px); }
+.btn-prov .ic { width: 15px; height: 15px; }
+
+/* 数据来源/公式 弹层 */
+.prov-backdrop { position: fixed; inset: 0; background: rgba(3, 7, 18, 0.62); backdrop-filter: blur(3px); z-index: 200; }
+.prov-modal {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: min(720px, 94vw); max-height: 84vh; overflow: hidden; z-index: 201;
+  background: var(--surface, #0b1020); border: 1px solid var(--glass-line-strong);
+  border-radius: 16px; box-shadow: 0 24px 80px rgba(0,0,0,.6), var(--glow);
+  display: flex; flex-direction: column;
+}
+.prov-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--glass-border); }
+.prov-head-left { display: flex; align-items: center; gap: 12px; }
+.prov-icon { font-size: 22px; }
+.prov-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.prov-sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+.prov-close { width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-2); font-size: 20px; cursor: pointer; line-height: 1; }
+.prov-close:hover { color: var(--hot); border-color: var(--hot); }
+.prov-body { padding: 16px 20px 22px; overflow-y: auto; }
+.prov-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.prov-legend .lg { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-2); background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 4px 10px; }
+.prov-legend .lg i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.prov-summary { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.prov-summary .ps { font-size: 12px; font-weight: 600; border-radius: 8px; padding: 5px 11px; }
+.prov-summary .ps.ok { background: rgba(34,197,94,.14); color: #4ade80; border: 1px solid rgba(34,197,94,.3); }
+.prov-summary .ps.bad { background: rgba(255,93,143,.14); color: #ff7a93; border: 1px solid rgba(255,93,143,.32); }
+.prov-tip { font-size: 11.5px; color: var(--text-3); margin-bottom: 14px; line-height: 1.6; }
+.prov-row { display: grid; grid-template-columns: 150px 96px 1fr 84px; gap: 10px; align-items: start; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--glass-border); margin-bottom: 8px; background: var(--glass-bg); }
+.prov-row .pr-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.prov-row .pr-tag { font-size: 11px; font-weight: 700; border-radius: 6px; padding: 3px 0; text-align: center; }
+.prov-row .pr-tag.source { background: rgba(14,239,219,.16); color: #2ee6d6; }
+.prov-row .pr-tag.frontend { background: rgba(96,165,250,.16); color: #7cb0ff; }
+.prov-row .pr-tag.ai { background: rgba(168,85,247,.18); color: #c084fc; }
+.prov-row .pr-tag.combined { background: rgba(245,158,11,.16); color: #fbbf24; }
+.prov-row .pr-formula { font-size: 12px; color: var(--text-2); line-height: 1.55; }
+.prov-row .pr-formula .pr-note { display: block; margin-top: 4px; color: var(--text-3); font-size: 11px; }
+.prov-row .pr-acc { font-size: 12.5px; font-weight: 700; text-align: center; border-radius: 6px; padding: 4px 0; font-family: var(--font-mono); }
+.prov-row .pr-acc.ok { background: rgba(34,197,94,.14); color: #4ade80; }
+.prov-row .pr-acc.bad { background: rgba(255,93,143,.16); color: #ff7a93; border: 1px solid rgba(255,93,143,.35); }
+.prov-row.flag { border-color: rgba(255,93,143,.4); box-shadow: 0 0 0 1px rgba(255,93,143,.18) inset; }
+@media (max-width: 560px) {
+  .prov-row { grid-template-columns: 1fr 1fr; }
+  .prov-row .pr-formula { grid-column: 1 / -1; }
+  .prov-row .pr-acc { grid-column: 1 / -1; }
+}
 .filter-count {
   background: var(--accent); color: #fff; border-radius: 20px;
   font-size: 11px; padding: 0 6px; min-width: 16px; text-align: center; display: none;

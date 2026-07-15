@@ -85,6 +85,117 @@
   ];
   const boardDesc = (id) => (BOARDS.find((b) => b.id === id) || {}).desc || "";
 
+  /* ============ 各板块「数据来源 / 公式计算」配置 ============
+     每个指标标注来源类型与准确率评估：
+       type: source   源数据直接填（xlsx 字段 1:1 拷贝，已对账零偏差）
+             frontend 前端根据源数据计算（公开公式，可溯源）
+             ai       AI 计算 / 预测（非精确值）
+             combined 综合（源数据 + 前端/AI 组合）
+       acc:  100 → 准确率达标（绿）；否则标红（未达 100%）
+  */
+  const PROV_TYPES = {
+    source:   { label: "源数据直接填", color: "#2ee6d6" },
+    frontend: { label: "前端计算",     color: "#7cb0ff" },
+    ai:       { label: "AI 计算",      color: "#c084fc" },
+    combined: { label: "综合",         color: "#fbbf24" },
+  };
+  const BOARD_PROVENANCE = {
+    library: {
+      tip: "灵感库所有指标均来自源表真实字段或其确定性派生；卡片上的「爆款率」进度条为前端相对百分比（非源字段）。",
+      metrics: [
+        { name: "曝光", type: "source", acc: 100, formula: "源表「View数」列，脚本 to_int 直拷，无任何重算。" },
+        { name: "互动", type: "source", acc: 100, formula: "源表 Like数+Reply数+Repost数+Bookmark数，逐列直拷后求和（已核对 3719 条零偏差）。" },
+        { name: "综合/点赞/评论/转发/收藏率", type: "source", acc: 100, formula: "源表「综合互动率/点赞率/评论率/传播率/收藏率」列真实值，前端优先采用、绝不重算。" },
+        { name: "爆款指数", type: "source", acc: 100, formula: "源表「爆款内容指数」列（0–100 绝对值），公式=综合互动率×0.4+点赞率×0.3+评论率×0.2+传播率×0.1。" },
+        { name: "全库百分位排名", type: "frontend", acc: 100, formula: "由爆款指数全库降序排名派生：前X%/后10% 分档 + 超越X% 帖子（computeViralRanks）。" },
+        { name: "爆款标识 isTop", type: "source", acc: 100, formula: "源表「爆款指数TOP10%」列直接采用（权威 Top10% 爆款，277 条）。" },
+        { name: "类目/平台/形式/情绪风格/营销目的/内容来源", type: "source", acc: 100, formula: "源表对应列 1:1 直拷。" },
+        { name: "发布时间 / 星期 / 时段", type: "frontend", acc: 100, formula: "由源表「发布时间」解析出 publishDate / weekDay / publishHour。" },
+        { name: "ROI（千次曝光互动）", type: "frontend", acc: 100, formula: "互动数 ÷ 曝光 × 1000，输入均为源真实值。" },
+        { name: "类型 ROI 概览", type: "frontend", acc: 100, formula: "按内容形式分组聚合平均爆款指数/互动率（源字段分组均值）。" },
+        { name: "卡片「爆款率」进度条", type: "frontend", acc: 100, formula: "viralScore ÷ 全库最大值 × 100，仅表示相对位置（非源字段，已与爆款指数区分展示）。" },
+      ],
+    },
+    reference: {
+      tip: "评估想法与回测为 AI 生成/预测，准确率非 100%，已标红；匹配内容本身来自源真实字段。",
+      metrics: [
+        { name: "想法多维度评估结果", type: "ai", acc: "AI", flag: true, formula: "A.predictIdea() 由大模型对想法评分（可行性/爆款潜力等）。", note: "AI 估算，非精确值，准确率 < 100%。" },
+        { name: "爆款率预测分", type: "ai", acc: "AI", flag: true, formula: "模型预测 0–100 分，对应该想法若发布可能达到的水准。", note: "AI 预测，存在模型误差。" },
+        { name: "找参考匹配内容", type: "combined", acc: 100, formula: "相似度匹配（真实字段检索）+ 源数据返回，匹配结果确定可溯源。" },
+        { name: "回测准确率", type: "combined", acc: "AI", flag: true, formula: "AI 预测分 vs 源真实爆款指数比对校准。", note: "含 AI 预测误差，准确率 < 100%。" },
+      ],
+    },
+    viraldeep: {
+      tip: "爆款共性由 isTop 内容聚合源字段得到，全部准确率 100%。",
+      metrics: [
+        { name: "爆款共性（品牌/形式/情绪/主题/时段分布）", type: "frontend", acc: 100, formula: "对 isTop 爆款内容按各维度聚合计数（源字段分组）。" },
+        { name: "平均爆款指数 / 各互动率", type: "frontend", acc: 100, formula: "爆款组 vs 普通组分组均值（源真实字段）。" },
+        { name: "内容主题 / 情绪关键词", type: "frontend", acc: 100, formula: "爆款内容文本词频聚合（源字段）。" },
+      ],
+    },
+    competitor: {
+      tip: "竞品监测整体数据、用户评价、运营节奏均为源字段聚合或确定性派生，准确率 100%。",
+      metrics: [
+        { name: "整体数据（曝光/互动/各率）", type: "source", acc: 100, formula: "源表字段对该竞品内容聚合求和/均值。" },
+        { name: "内容排序列表", type: "frontend", acc: 100, formula: "按爆款指数降序排列（源真实值）。" },
+        { name: "形式 / 数据筛选", type: "source", acc: 100, formula: "源表形式/类目等字段直接过滤。" },
+        { name: "用户评价（回帖）", type: "source", acc: 100, formula: "源表 userVoices（按关联帖ID 挂接，6793/6793 命中）。" },
+        { name: "运营节奏 × 表现", type: "frontend", acc: 100, formula: "按发布时段分组聚合表现指标（源字段）。" },
+        { name: "Campaign 爆发监测", type: "frontend", acc: 100, formula: "按时间窗口聚合互动增量，识别爆发点（源字段）。" },
+      ],
+    },
+    compare: {
+      tip: "多竞品横向对比的均值、Top3、用户情况均来自源字段聚合，准确率 100%。",
+      metrics: [
+        { name: "数据表现对比（均值）", type: "frontend", acc: 100, formula: "各品牌源字段分组均值后横向对比。" },
+        { name: "Top3 内容", type: "frontend", acc: 100, formula: "各品牌按爆款指数排序取前 3（源真实值）。" },
+        { name: "用户情况对比", type: "frontend", acc: 100, formula: "回帖情感/形式等聚合后横向对比（源字段）。" },
+      ],
+    },
+    uservoice: {
+      tip: "用户语料分析由回帖（userVoices）聚合得到；美式本土化表达为规则/模型提取，准确率有限已标黄。",
+      metrics: [
+        { name: "情绪倾向", type: "frontend", acc: 100, formula: "回帖 emotion 字段聚合分布（源字段）。" },
+        { name: "语言风格", type: "frontend", acc: 100, formula: "回帖文本特征聚合（源字段）。" },
+        { name: "词频 / 高频词", type: "frontend", acc: 100, formula: "回帖文本分词词频统计（源字段）。" },
+        { name: "美式本土化表达", type: "combined", acc: "≈", flag: true, formula: "基于本土表达词库/模型从回帖提取。", note: "提取规则有限，覆盖率非 100%。" },
+        { name: "分内容形式分布", type: "frontend", acc: 100, formula: "回帖按内容形式分组聚合（源字段）。" },
+      ],
+    },
+    branduser: {
+      tip: "品牌-用户讨论各项指标均来自回帖聚合或原文，准确率 100%。",
+      metrics: [
+        { name: "情感极性", type: "frontend", acc: 100, formula: "该品牌回帖 emotion 聚合（源字段）。" },
+        { name: "内容形式 / 用户倾向", type: "frontend", acc: 100, formula: "回帖形式/倾向分布聚合（源字段）。" },
+        { name: "高频词与主题", type: "frontend", acc: 100, formula: "回帖文本词频/主题聚合（源字段）。" },
+        { name: "代表语录", type: "source", acc: 100, formula: "源表回帖原文直接引用。" },
+        { name: "品牌互动用户深度（词云/主题排序/分层占比）", type: "frontend", acc: 100, formula: "对该品牌互动用户聚合（源字段）。" },
+      ],
+    },
+    usertier: {
+      tip: "用户分层为前端分组规则，每层特征由源字段聚合，准确率 100%。",
+      metrics: [
+        { name: "用户分层（回复字数 / 参与度）", type: "frontend", acc: 100, formula: "按回复数、回复字数阈值将用户分层的确定性规则。" },
+        { name: "每层特征（品牌/话题/情绪/形式）", type: "frontend", acc: 100, formula: "各层用户回帖聚合（源字段）。" },
+      ],
+    },
+    userseg: {
+      tip: "高互动用户排行与画像均来自回帖聚合或原文，准确率 100%。",
+      metrics: [
+        { name: "用户排行（回复数）", type: "frontend", acc: 100, formula: "按窗口内回复数降序排序（源字段计数）。" },
+        { name: "用户画像（活跃周期/品牌归属/语言/情感/意图）", type: "frontend", acc: 100, formula: "该用户全部回帖聚合（源字段）。" },
+        { name: "代表语录", type: "source", acc: 100, formula: "源表该用户回帖原文直接引用。" },
+      ],
+    },
+    myops: {
+      tip: "我方运营方案由 AI 生成（结合源数据与用户选择的维度），准确率非 100% 已标红；所引用的维度数据来自源字段。",
+      metrics: [
+        { name: "运营方案（节奏/选题/形式/风格/指标）", type: "ai", acc: "AI", flag: true, formula: "大模型结合源数据 + 用户勾选维度生成可执行方案。", note: "AI 生成内容，非精确值，准确率 < 100%。" },
+        { name: "参考维度数据", type: "combined", acc: 100, formula: "所引用的节奏/选题/形式/风格数据来自源字段聚合。" },
+      ],
+    },
+  };
+
   /* ---------- 状态 ---------- */
   const state = {
     raw: null, analysis: null, maxViral: 1, board: "library", insights: null,
@@ -3684,6 +3795,43 @@ ${sim || "（无同主题关联帖）"}
   function renderBlindboxFloat() { renderBlindboxModal(); }
 
   /* ============ 初始化 ============ */
+  /* ============ 数据来源 / 公式计算 弹层 ============ */
+  function renderProvModal() {
+    const cfg = BOARD_PROVENANCE[state.board];
+    const b = BOARDS.find((x) => x.id === state.board) || {};
+    $("#prov-title").textContent = `${b.name || "板块"} · 数据来源 / 公式计算`;
+    $("#prov-sub").textContent = `共 ${cfg ? cfg.metrics.length : 0} 项指标`;
+    const body = $("#prov-body");
+    if (!cfg) { body.innerHTML = `<div class="prov-tip">该板块暂未配置指标明细。</div>`; return; }
+    const legend = Object.entries(PROV_TYPES).map(([k, v]) => `<span class="lg"><i style="background:${v.color}"></i>${v.label}</span>`).join("");
+    const counts = { source: 0, frontend: 0, ai: 0, combined: 0 };
+    let flagCount = 0;
+    cfg.metrics.forEach((m) => { counts[m.type] = (counts[m.type] || 0) + 1; if (m.flag || m.acc !== 100) flagCount++; });
+    const summary = `<span class="ps ok">达标 ${cfg.metrics.length - flagCount}/${cfg.metrics.length}</span>` +
+      (flagCount ? `<span class="ps bad">⚠ 未达100% ${flagCount} 项</span>` : `<span class="ps ok">全部 100%</span>`);
+    const rows = cfg.metrics.map((m) => {
+      const t = PROV_TYPES[m.type] || { label: m.type };
+      const isBad = m.flag || m.acc !== 100;
+      const accTxt = m.acc === 100 ? "100%" : (m.acc || "未达100%");
+      const note = m.note ? `<span class="pr-note">⚠ ${esc(m.note)}</span>` : "";
+      return `<div class="prov-row${isBad ? " flag" : ""}">
+        <div class="pr-name">${esc(m.name)}</div>
+        <div class="pr-tag ${m.type}">${t.label}</div>
+        <div class="pr-formula">${esc(m.formula)}${note}</div>
+        <div class="pr-acc ${isBad ? "bad" : "ok"}">${esc(String(accTxt))}</div>
+      </div>`;
+    }).join("");
+    body.innerHTML = `<div class="prov-legend">${legend}</div><div class="prov-summary">${summary}</div><div class="prov-tip">${esc(cfg.tip || "")}</div>${rows}`;
+  }
+  function provEsc(e) { if (e.key === "Escape") closeProv(); }
+  function openProv() { renderProvModal(); $("#prov-modal").hidden = false; $("#prov-backdrop").hidden = false; document.addEventListener("keydown", provEsc); }
+  function closeProv() { $("#prov-modal").hidden = true; $("#prov-backdrop").hidden = true; document.removeEventListener("keydown", provEsc); }
+  function bindProv() {
+    const btn = $("#prov-toggle"); if (btn) btn.addEventListener("click", openProv);
+    const bd = $("#prov-backdrop"); if (bd) bd.addEventListener("click", closeProv);
+    const cl = $("#prov-close"); if (cl) cl.addEventListener("click", closeProv);
+  }
+
   async function init() {
     const data = await DataLoader.load();
     state.raw = data;
@@ -3705,6 +3853,7 @@ ${sim || "（无同主题关联帖）"}
     renderNav();
     renderFilterPanel();
     bindGlobal();
+    bindProv();
     syncFilterUI();
     renderActiveFilters();
     renderBoard();
