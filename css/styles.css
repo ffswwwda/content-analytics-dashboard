@@ -764,9 +764,12 @@ body::after {
 .bx-reopen:active { cursor: grabbing; }
 .bx-reopen-ic { font-size: 15px; }
 .bx-reopen-txt { display: inline; }
-.fab-rand { position: fixed; left: 24px; bottom: 24px; z-index: 80; display: none; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border: none; border-radius: 28px; padding: 12px 20px; font-size: 13.5px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(0,240,255,.35); transition: transform .16s var(--ease), box-shadow .16s var(--ease); user-select: none; }
-.fab-rand:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,240,255,.55); }
-.fab-rand .fab-ic { font-size: 15px; }
+/* 随机按钮：固定在灵感库底部 */
+.rand-float { position: sticky; bottom: 20px; z-index: 10; display: flex; justify-content: center; margin-top: 16px; }
+.rand-float button { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border: none; border-radius: 28px; padding: 12px 24px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(0,240,255,.35); transition: transform .16s var(--ease), box-shadow .16s var(--ease); user-select: none; }
+.rand-float button:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,240,255,.55); }
+.rand-float button:active { transform: translateY(0); }
+.rand-float .rf-ic { font-size: 16px; }
 .fab-top { position: fixed; right: 24px; bottom: 24px; z-index: 80; display: inline-flex; align-items: center; gap: 6px; background: var(--glass-bg-strong); color: var(--text); border: 1px solid var(--glass-border); border-radius: 28px; padding: 11px 18px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,.35); backdrop-filter: blur(10px); opacity: 0; pointer-events: none; transform: translateY(20px); transition: opacity .2s, transform .2s var(--ease); user-select: none; }
 .fab-top.show { opacity: 1; pointer-events: auto; transform: none; }
 .fab-top:hover { border-color: var(--accent); color: var(--accent-strong); box-shadow: 0 8px 24px rgba(0,240,255,.25); }

@@ -532,7 +532,10 @@
           ? `<div class="load-more-hint" style="text-align:center;padding:16px 0;color:var(--text-3);font-size:12px">向下滚动继续加载…</div>`
           : `<div class="load-more-hint" style="text-align:center;padding:16px 0;color:var(--text-3);font-size:12px">已加载全部 ${total} 条</div>`)
       : (total > PAGE ? paginationHTML(page, totalPages, total, PAGE) : "");
-    return head + roiPanel + body + pager;
+    const randFloat = state.libMode === "rand"
+      ? `<div class="rand-float"><button data-action="rerand"><span class="rf-ic">🎲</span> 重新随机一批</button></div>`
+      : "";
+    return head + roiPanel + body + pager + randFloat;
   }
   function paginationHTML(page, totalPages, total, PAGE) {
     const from = page * PAGE + 1;
@@ -3883,9 +3886,9 @@ ${sim || "（无同主题关联帖）"}
     if (state.board === "library") {
       $$("#view-seg button").forEach((b) => b.addEventListener("click", () => { state.view = b.dataset.view; state.page = 0; renderBoard(); }));
       $$("#sort-chips button").forEach((b) => b.addEventListener("click", () => { state.sort = b.dataset.sort; state.page = 0; renderBoard(); }));
-      $$("#lib-mode button").forEach((b) => b.addEventListener("click", () => { state.libMode = b.dataset.mode; state.page = 0; state.randList = null; syncRandFloat(); renderBoard(); }));
+      $$("#lib-mode button").forEach((b) => b.addEventListener("click", () => { state.libMode = b.dataset.mode; state.page = 0; state.randList = null; renderBoard(); }));
       $$("#lib-eval button").forEach((b) => b.addEventListener("click", () => { state.libQuick = b.dataset.eval; state.page = 0; state.randList = null; renderBoard(); }));
-      const rs = $("#fab-rand"); if (rs) rs.addEventListener("click", () => { state.randList = null; renderBoard(); });
+      const rs = $("[data-action=rerand]"); if (rs) rs.addEventListener("click", () => { state.randList = null; renderBoard(); });
       const bxLaunch = $("#bx-launch"); if (bxLaunch) bxLaunch.addEventListener("click", openBlindboxModal);
       // 分页控件
       $$(".pager [data-pg]", $("#board")).forEach((b) => b.addEventListener("click", () => {
@@ -4111,21 +4114,8 @@ ${sim || "（无同主题关联帖）"}
   }
 
   /* ============ 全局浮动按钮：随机、回到顶部、盲盒入口 ============ */
-  function syncRandFloat() {
-    const el = $("#fab-rand");
-    if (!el) return;
-    el.style.display = (state.board === "library" && state.libMode === "rand") ? "flex" : "none";
-  }
+  function syncRandFloat() {} // no-op (replaced by inline button)
   function createFloatingButtons() {
-    if (!$("#fab-rand")) {
-      const rand = document.createElement("button");
-      rand.id = "fab-rand";
-      rand.className = "fab-rand";
-      rand.title = "重新随机一批";
-      rand.innerHTML = `<span class="fab-ic">🎲</span><span class="fab-txt">重新随机</span>`;
-      rand.onclick = () => { state.randList = null; renderBoard(); };
-      document.body.appendChild(rand);
-    }
     if (!$("#fab-top")) {
       const top = document.createElement("button");
       top.id = "fab-top";
