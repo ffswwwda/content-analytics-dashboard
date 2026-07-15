@@ -259,7 +259,7 @@ const Analysis = (function () {
   }
 
   // AI 选题预测器：基于历史爆款特征计算概率，并给出匹配内容与关键成功点
-  function predictIdea(contents, ideaText) {
+  function predictIdea(contents, ideaText, userVoices) {
     const top = contents.filter((i) => i.isTop);
     const normal = contents.filter((i) => !i.isTop);
     if (!top.length || !normal.length) return null;
@@ -424,6 +424,11 @@ const Analysis = (function () {
       count: matchedItems.length,
       avgExposure: matched.length ? avg(matched, "exposure") : 0,
       avgEngagementRate: matched.length ? avg(matched, "engagementRate") : 0,
+      avgLikes: matched.length ? avg(matched, "likes") : 0,
+      avgComments: matched.length ? avg(matched, "comments") : 0,
+      avgShares: matched.length ? avg(matched, "shares") : 0,
+      avgCollections: matched.length ? avg(matched, "collections") : 0,
+      avgEngagement: matched.length ? avg(matched, "engagement") : 0,
       avgViralScore: matched.length ? avg(matched, "viralScore") : 0,
       topRate: matched.length ? matched.filter((i) => i.isTop).length / matched.length : 0,
       avgViralRate: matched.length ? Math.round(matched.reduce((s, i) => s + Math.round((i.viralScore / Math.max(...contents.map((c) => c.viralScore))) * 100), 0) / matched.length) : 0,
@@ -495,24 +500,53 @@ const Analysis = (function () {
       suggestions.push("匹配内容中爆款比例偏低，建议添加更明确的价值主张或标题钩子再试。");
     }
 
-    // 用户指标与风评：基于匹配到的历史内容提炼用户侧表现
+    // 用户指标与风评：基于匹配内容 + 真实用户回帖（userVoices.associated_id）联合统计
     const umAvgEng = matched.length ? avg(matched, "engagement") : 0;
     const umAvgComments = matched.length ? avg(matched, "comments") : 0;
     const umAvgLikes = matched.length ? avg(matched, "likes") : 0;
+    const umAvgShares = matched.length ? avg(matched, "shares") : 0;
+    const umAvgCollections = matched.length ? avg(matched, "collections") : 0;
+    const umAvgExposure = matched.length ? avg(matched, "exposure") : 0;
     const kwCount = {};
     matched.forEach((it) => (it.topicTags || []).forEach((t) => { kwCount[t] = (kwCount[t] || 0) + 1; }));
-    const cq = {};
-    matched.forEach((it) => Object.entries(it.commentQuality || {}).forEach(([k, v]) => { cq[k] = (cq[k] || 0) + v; }));
     const topKeywords = Object.entries(kwCount).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k]) => k);
-    const topSentiment = Object.entries(cq).sort((a, b) => b[1] - a[1])[0];
-    const reviewDist = Object.entries(cq).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, count]) => ({ name, count }));
+
+    // 用真实回帖（按 associated_id 关联到匹配帖）做情绪/意图/赞聚合
+    const matchedIds = new Set(matched.map((m) => m.id));
+    const voices = (userVoices || []).filter((v) => v.associated_id && matchedIds.has(v.associated_id));
+    const voiceSent = { "正面": 0, "中性": 0, "负面": 0 };
+    const voiceIntent = {};
+    const voiceFocus = {};
+    const voiceLikes = [];
+    voices.forEach((v) => {
+      const s = v.sentiment || "";
+      if (s === "正面" || s === "中性" || s === "负面") voiceSent[s]++;
+      const it = v.reply_intent || "其他";
+      voiceIntent[it] = (voiceIntent[it] || 0) + 1;
+      const fc = v.reply_focus || "其他";
+      voiceFocus[fc] = (voiceFocus[fc] || 0) + 1;
+      if (typeof v.likes === "number") voiceLikes.push(v.likes);
+    });
+    const voiceCount = voices.length;
+    const topSentName = Object.entries(voiceSent).sort((a, b) => b[1] - a[1])[0];
+    const reviewTone = (voiceCount && topSentName && topSentName[1] > 0) ? topSentName[0] : "—";
+    const reviewDist = Object.entries(voiceSent).filter(([k, v]) => v > 0).map(([name, count]) => ({ name, count }));
+    const topIntents = Object.entries(voiceIntent).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k]) => k);
+    const topFocuses = Object.entries(voiceFocus).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k]) => k);
     const userMetrics = {
       avgEngagement: Math.round(umAvgEng),
       avgComments: Math.round(umAvgComments),
       avgLikes: Math.round(umAvgLikes),
+      avgShares: Math.round(umAvgShares),
+      avgCollections: Math.round(umAvgCollections),
+      avgExposure: Math.round(umAvgExposure),
       topKeywords,
-      reviewTone: topSentiment ? topSentiment[0] : "—",
+      reviewTone,
       reviewDist,
+      voiceCount,
+      voiceSent,
+      topIntents,
+      topFocuses,
     };
 
     return {

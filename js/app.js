@@ -783,7 +783,7 @@
   function runPredict() {
     const idea = $("#idea-input").value.trim();
     if (!idea) { toast("先输入你的内容想法"); return; }
-    const r = A.predictIdea(state.analysis.contents, idea);
+    const r = A.predictIdea(state.analysis.contents, idea, (state.raw && state.raw.userVoices) || []);
     if (!r) { toast("数据不足，无法预测"); return; }
     state.predictor = { idea, r };
     const box = $("#predict-result");
@@ -810,19 +810,43 @@
       <div class="stat"><div class="stat-label">其中爆款占比</div><div class="stat-val" style="color:var(--hot)">${(ms.topRate * 100).toFixed(0)}<small>%</small></div></div>
       <div class="stat"><div class="stat-label">来自活动/Campaign</div><div class="stat-val">${(ms.activityRatio * 100).toFixed(0)}<small>%</small></div></div>
       <div class="stat"><div class="stat-label">平均爆款指数位</div><div class="stat-val">${ms.avgViralRate}</div></div>
+    </div>
+    <div class="stat-row" style="margin-bottom:14px">
+      <div class="stat"><div class="stat-label">平均曝光</div><div class="stat-val">${fmt(ms.avgExposure)}</div></div>
+      <div class="stat"><div class="stat-label">平均互动</div><div class="stat-val">${fmt(ms.avgEngagement)}</div></div>
+      <div class="stat"><div class="stat-label">平均点赞</div><div class="stat-val">${fmt(ms.avgLikes)}</div></div>
+      <div class="stat"><div class="stat-label">平均评论</div><div class="stat-val">${fmt(ms.avgComments)}</div></div>
+      <div class="stat"><div class="stat-label">平均转发</div><div class="stat-val">${fmt(ms.avgShares)}</div></div>
+      <div class="stat"><div class="stat-label">平均收藏</div><div class="stat-val">${fmt(ms.avgCollections)}</div></div>
+      <div class="stat"><div class="stat-label">平均互动率</div><div class="stat-val">${ms.avgEngagementRate ? ms.avgEngagementRate.toFixed(2) : "0"}<small>%</small></div></div>
     </div>` : "";
 
     const um = r.userMetrics;
-    const userHTML = um && um.topKeywords.length ? `<div class="panel" style="margin-bottom:16px"><div class="panel-title">用户指标与风评</div><div class="panel-sub">基于匹配到的历史内容，提炼用户侧的互动表现与口碑倾向</div>
-      <div class="stat-row" style="margin-bottom:12px">
+    const voiceSent = um.voiceSent || {};
+    const vsTotal = (voiceSent["正面"] || 0) + (voiceSent["中性"] || 0) + (voiceSent["负面"] || 0) || 1;
+    const posPct = Math.round((voiceSent["正面"] || 0) / vsTotal * 100);
+    const negPct = Math.round((voiceSent["负面"] || 0) / vsTotal * 100);
+    const neuPct = 100 - posPct - negPct;
+    const userHTML = `<div class="panel" style="margin-bottom:16px"><div class="panel-title">用户指标与风评</div><div class="panel-sub">基于匹配到的历史内容 + 真实回帖（${um.voiceCount || 0} 条）提炼用户侧表现</div>
+      <div class="stat-row" style="margin-bottom:10px">
+        <div class="stat"><div class="stat-label">平均曝光</div><div class="stat-val">${fmt(um.avgExposure)}</div></div>
         <div class="stat"><div class="stat-label">平均互动</div><div class="stat-val">${fmt(um.avgEngagement)}</div></div>
-        <div class="stat"><div class="stat-label">平均评论</div><div class="stat-val">${fmt(um.avgComments)}</div></div>
         <div class="stat"><div class="stat-label">平均点赞</div><div class="stat-val">${fmt(um.avgLikes)}</div></div>
-        <div class="stat"><div class="stat-label">评价倾向</div><div class="stat-val" style="color:var(--accent-2)">${esc(um.reviewTone)}</div></div>
+        <div class="stat"><div class="stat-label">平均评论</div><div class="stat-val">${fmt(um.avgComments)}</div></div>
+        <div class="stat"><div class="stat-label">平均转发</div><div class="stat-val">${fmt(um.avgShares)}</div></div>
+        <div class="stat"><div class="stat-label">平均收藏</div><div class="stat-val">${fmt(um.avgCollections)}</div></div>
       </div>
-      <div class="hit-tags"><span class="hit-label">用户高频关键词：</span>${um.topKeywords.map((t) => `<span class="tag topic">${esc(t)}</span>`).join("")}</div>
-      <div style="margin-top:10px">${um.reviewDist.map((x) => barHTML("评价·" + x.name, x.count)).join("")}</div>
-    </div>` : "";
+      <div class="stat-row" style="margin-bottom:10px">
+        <div class="stat"><div class="stat-label">评价倾向</div><div class="stat-val" style="color:var(--accent-2)">${esc(um.reviewTone)}</div></div>
+        <div class="stat"><div class="stat-label">正面占比</div><div class="stat-val" style="color:#22c55e">${posPct}<small>%</small></div></div>
+        <div class="stat"><div class="stat-label">中性占比</div><div class="stat-val" style="color:#94a3b8">${neuPct}<small>%</small></div></div>
+        <div class="stat"><div class="stat-label">负面占比</div><div class="stat-val" style="color:#ff5d8f">${negPct}<small>%</small></div></div>
+        <div class="stat"><div class="stat-label">回帖样本</div><div class="stat-val">${um.voiceCount || 0}<small>条</small></div></div>
+      </div>
+      <div class="hit-tags" style="margin-top:6px"><span class="hit-label">用户高频关键词：</span>${(um.topKeywords || []).map((t) => `<span class="tag topic">${esc(t)}</span>`).join("") || "<span style='color:var(--text-3)'>—</span>"}</div>
+      ${(um.topIntents && um.topIntents.length) ? `<div class="hit-tags" style="margin-top:4px"><span class="hit-label">回帖意图：</span>${um.topIntents.map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>` : ""}
+      ${(um.topFocuses && um.topFocuses.length) ? `<div class="hit-tags" style="margin-top:4px"><span class="hit-label">关注焦点：</span>${um.topFocuses.map((t) => `<span class="tag hashtag">${esc(t)}</span>`).join("")}</div>` : ""}
+    </div>`;
 
     const keyFeaturesHTML = r.keyTakeaways.length ? `<div class="panel" style="margin-bottom:16px"><div class="panel-title">这类内容的关键特征</div><div class="panel-sub">基于匹配到的历史内容提炼，非空泛结论</div><ul class="sugg-list">${r.keyTakeaways.map((k) => `<li>${esc(k)}</li>`).join("")}</ul></div>` : "";
 
@@ -876,8 +900,9 @@
 爆款指数位：${r.score}/100
 同主题历史爆款占比：${r.topicViralRate}% | 同情绪历史爆款占比：${r.emotionViralRate}%
 命中关键词数：${r.keywordHits}
-匹配历史内容：${r.matches.total} 条，其中 ${(r.matchedStats.topRate * 100).toFixed(0)}% 为爆款
-用户侧：平均互动 ${fmt(r.userMetrics.avgEngagement)} · 平均评论 ${fmt(r.userMetrics.avgComments)} · 评价倾向「${r.userMetrics.reviewTone}」 · 用户高频关键词：${r.userMetrics.topKeywords.join("、")}
+匹配历史内容：${r.matches.total} 条，其中 ${(r.matchedStats.topRate * 100).toFixed(0)}% 为爆款 · 来自活动 ${(r.matchedStats.activityRatio * 100).toFixed(0)}% · 平均爆款指数位 ${r.matchedStats.avgViralRate}
+匹配内容数据：平均曝光 ${fmt(r.matchedStats.avgExposure)} · 平均互动 ${fmt(r.matchedStats.avgEngagement)} · 平均点赞 ${fmt(r.matchedStats.avgLikes)} · 平均评论 ${fmt(r.matchedStats.avgComments)} · 平均转发 ${fmt(r.matchedStats.avgShares)} · 平均收藏 ${fmt(r.matchedStats.avgCollections)} · 平均互动率 ${(r.matchedStats.avgEngagementRate || 0).toFixed(2)}%
+用户侧：平均曝光 ${fmt(r.userMetrics.avgExposure)} · 平均互动 ${fmt(r.userMetrics.avgEngagement)} · 平均点赞 ${fmt(r.userMetrics.avgLikes)} · 平均评论 ${fmt(r.userMetrics.avgComments)} · 评价倾向「${r.userMetrics.reviewTone}」（回帖样本 ${r.userMetrics.voiceCount} 条） · 用户高频关键词：${r.userMetrics.topKeywords.join("、")} · 回帖意图：${(r.userMetrics.topIntents || []).join("、")}
 
 —— 匹配到的关键历史内容 ——
 ${topMatches || "（无强匹配）"}
@@ -1208,7 +1233,7 @@ ${topMatches || "（无强匹配）"}
     const { g, detail, dims } = ctx;
     let score = 0; const reasons = []; const dimHits = [];
     // 合并可搜索文本：原文 + 中文译文 + 结构化字段，关键词维度在此检索
-    const kwField = `${c.text || ""} ${c.text_zh || ""} ${c.category || ""} ${c.content_topic || ""} ${(c.content_tags || []).join(" ")} ${c.marketing_goal || ""} ${c.content_source || ""} ${(c.topicTags || []).join(" ")}`.toLowerCase();
+    const kwField = `${c.text || ""} ${c.text_zh || ""} ${c.category || ""} ${c.content_topic || ""} ${(c.content_tags || []).join(" ")} ${c.marketing_goal || ""} ${c.content_source || ""} ${(c.topicTags || []).join(" ")} ${c.contentType || ""} ${c.platform || ""} ${c.emotion || ""}`.toLowerCase();
     // 结构化意图（来自目的预设）：双向包含匹配真实取值
     if (g) {
       if (g.emotion && dims.has("emotion") && g.emotion.some((e) => contains(c.emotion, e))) { score += 22; reasons.push(`情绪「${c.emotion}」契合目的`); dimHits.push("emotion"); }
@@ -1223,13 +1248,22 @@ ${topMatches || "（无强匹配）"}
       kws.forEach((k) => {
         if (k.startsWith("PHRASE:")) {
           const ph = k.slice(7);
-          if (ph.length >= 2 && kwField.includes(ph)) { kwScore += 12; if (kwEx.length < 3) kwEx.push(ph); }
+          if (ph.length >= 2 && kwField.includes(ph)) { kwScore += 14; if (kwEx.length < 3) kwEx.push(ph); }
         } else if (kwField.includes(k)) {
-          kwScore += latinish(k) ? (k.length >= 4 ? 6 : 3) : 3;
+          // 直接命中：拉丁词按长度加分，中文 2/3 字 3 分
+          kwScore += latinish(k) ? (k.length >= 4 ? 6 : 3) : (k.length >= 3 ? 4 : 2);
           if (kwEx.length < 4) kwEx.push(k);
+        } else if (!latinish(k) && k.length >= 3) {
+          // 粗略识别：中文 ≥3 字，任取其中 2 字连续子串命中也算（覆盖错位/同义）
+          const chars = k.split("");
+          let looseHit = false;
+          for (let i = 0; i + 2 <= chars.length; i++) {
+            if (kwField.includes(chars.slice(i, i + 2).join(""))) { looseHit = true; break; }
+          }
+          if (looseHit) { kwScore += 2; if (kwEx.length < 4) kwEx.push(k + "(粗)"); }
         }
       });
-      if (kwScore && dims.has("keyword")) { score += Math.min(30, kwScore); reasons.push(`关键词命中（${kwEx.join("、")}）`); dimHits.push("keyword"); }
+      if (kwScore && dims.has("keyword")) { score += Math.min(36, kwScore); reasons.push(`关键词命中（${kwEx.join("、")}）`); dimHits.push("keyword"); }
       if (dims.has("topic")) {
         const topicTokens = (c.topicTags || []).concat(String(c.content_topic || "").split(/[、，,]/)).map((s) => String(s).trim()).filter(Boolean);
         const goalKws = kws.filter((k) => !k.startsWith("PHRASE:"));
@@ -1329,6 +1363,10 @@ ${topMatches || "（无强匹配）"}
     const avgLikes = top.length ? Math.round(top.reduce((s, {c}) => s + (c.likes || 0), 0) / top.length) : 0;
     const avgComments = top.length ? Math.round(top.reduce((s, {c}) => s + (c.comments || 0), 0) / top.length) : 0;
     const avgShares = top.length ? Math.round(top.reduce((s, {c}) => s + (c.shares || 0), 0) / top.length) : 0;
+    const avgCollections = top.length ? Math.round(top.reduce((s, {c}) => s + (c.collections || 0), 0) / top.length) : 0;
+    const avgEngRate = top.length ? (top.reduce((s, {c}) => s + (c.engagementRate || 0), 0) / top.length) : 0;
+    const relevancePct = avgScore; // 相关性指标：基于匹配分（已是 0-100）
+    const relevanceLabel = relevancePct >= 80 ? "高度契合" : relevancePct >= 60 ? "比较契合" : relevancePct >= 40 ? "一般契合" : "低度契合";
 
     // 匹配度分布
     const scoreBuckets = [["90-100", 90, 100], ["80-89", 80, 89], ["70-79", 70, 79], ["60-69", 60, 69], ["<60", 0, 59]];
@@ -1369,12 +1407,25 @@ ${topMatches || "（无强匹配）"}
     const dashHTML = `<div class="find-dash">
       <div class="find-dash-title">📊 匹配度可视化看板 · 「${esc(label)}」</div>
       ${isFallback ? `<div class="uv-insight" style="margin-bottom:10px;font-size:12.5px">⚠️ 当前目的下未找到严格匹配的内容。已自动回退为<b>整体爆款指数位排序</b>的 Top 内容。在输入框补充更多具体词（如品牌、形式、风格）可获得更精准匹配。</div>` : ""}
+      <div class="find-rel-bar">
+        <div class="find-rel-label">📈 相关性指标</div>
+        <div class="find-rel-track"><div class="find-rel-fill" style="width:${relevancePct}%"></div></div>
+        <div class="find-rel-meta"><b>${relevancePct}</b><small>/100</small> · <span class="find-rel-tag">${relevanceLabel}</span></div>
+      </div>
       <div class="bud-stats" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
         <div class="bud-stat"><div class="bud-stat-val">${top.length}</div><div class="bud-stat-lab">匹配内容</div></div>
         <div class="bud-stat"><div class="bud-stat-val">${avgScore}</div><div class="bud-stat-lab">平均匹配分</div></div>
         <div class="bud-stat"><div class="bud-stat-val" style="color:var(--hot)">${topAvgRate}%</div><div class="bud-stat-lab">平均爆款指数位</div></div>
         <div class="bud-stat"><div class="bud-stat-val" style="color:var(--hot)">${topCount}</div><div class="bud-stat-lab">已爆款数</div></div>
         <div class="bud-stat"><div class="bud-stat-val">${fmt(topEngAvg)}</div><div class="bud-stat-lab">平均互动</div></div>
+      </div>
+      <div class="bud-stats" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:8px">
+        <div class="bud-stat"><div class="bud-stat-val">${fmt(avgExp)}</div><div class="bud-stat-lab">平均曝光</div></div>
+        <div class="bud-stat"><div class="bud-stat-val">${fmt(avgLikes)}</div><div class="bud-stat-lab">平均点赞</div></div>
+        <div class="bud-stat"><div class="bud-stat-val">${fmt(avgComments)}</div><div class="bud-stat-lab">平均评论</div></div>
+        <div class="bud-stat"><div class="bud-stat-val">${fmt(avgShares)}</div><div class="bud-stat-lab">平均转发</div></div>
+        <div class="bud-stat"><div class="bud-stat-val">${fmt(avgCollections)}</div><div class="bud-stat-lab">平均收藏</div></div>
+        <div class="bud-stat"><div class="bud-stat-val">${avgEngRate.toFixed(2)}<small>%</small></div><div class="bud-stat-lab">平均互动率</div></div>
       </div>
       <div class="find-dash-row">
         <div class="vd-col"><div class="vd-title">匹配度分布</div>${scoreBars}</div>
@@ -1386,14 +1437,6 @@ ${topMatches || "（无强匹配）"}
       </div>
       <div class="find-dash-row">
         <div class="vd-col"><div class="vd-title">用户情绪分布（匹配账号的用户语料）</div>${sentBars}</div>
-        <div class="vd-col"><div class="vd-title">内容数据均值</div>
-          <div class="data-mean-grid">
-            <div class="data-mean"><span>曝光</span><b>${fmt(avgExp)}</b></div>
-            <div class="data-mean"><span>点赞</span><b>${fmt(avgLikes)}</b></div>
-            <div class="data-mean"><span>评论</span><b>${fmt(avgComments)}</b></div>
-            <div class="data-mean"><span>转发</span><b>${fmt(avgShares)}</b></div>
-          </div>
-        </div>
       </div>
     </div>`;
 
