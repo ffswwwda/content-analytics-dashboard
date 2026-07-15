@@ -369,8 +369,9 @@ body::after {
 .score-num small { font-size: 10px; color: var(--text-3); font-weight: 500; }
 
 /* 列表视图 */
-.list-row { display: grid; grid-template-columns: 1fr 120px 130px 110px; gap: 14px; align-items: center; background: var(--glass-bg); backdrop-filter: blur(14px); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); padding: 12px 16px; cursor: pointer; transition: all .14s var(--ease); box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.05); }
-.list-row.has-link { grid-template-columns: 1fr 120px 130px 110px auto; }
+.list-row { display: grid; grid-template-columns: 1fr 100px 110px 90px; gap: 12px; align-items: center; background: var(--glass-bg); backdrop-filter: blur(14px); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); padding: 12px 16px; cursor: pointer; transition: all .14s var(--ease); box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.05); min-width: 0; overflow: hidden; }
+.list-row > * { min-width: 0; }
+.list-row.has-link { grid-template-columns: 1fr 100px 110px 90px auto; }
 .list-row:hover { border-color: rgba(0, 184, 230, 0.42); box-shadow: var(--shadow), var(--glow); transform: translateY(-2px); }
 .list-row + .list-row { margin-top: 8px; }
 .lr-text { font-size: 13.5px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
