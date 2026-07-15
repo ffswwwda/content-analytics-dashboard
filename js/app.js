@@ -69,7 +69,7 @@
   };
   const BOARDS = [
     // —— 灵感/分析 ——
-    { id: "library", name: "灵感库", group: "灵感/分析", level: 1, desc: "全部内容的灵感库。可随机浏览，也可按爆款指数 / 曝光 / 互动 / 类型 ROI / 时间趋势多指标排序与筛选；一键只看爆款(Top10%)。点标签加筛选，点卡片看详情，再进单帖深度分析。" },
+    { id: "library", name: "灵感库", group: "灵感/分析", level: 1, desc: "全部内容的灵感库。可随机浏览，也可按爆款指数 / 曝光 / 综合互动率 / 点赞率 / 评论率 / 转发率 / 收藏率 / 时间多指标排序与筛选；一键只看爆款(Top10%)。点标签加筛选，点卡片看详情，再进单帖深度分析。" },
     { id: "reference", name: "评估想法 / 找参考", group: "灵感/分析", level: 1, desc: "两个方向：①评估想法——输入内容想法，左侧即时评估、右侧输出多维度结果；②找参考——没想法有目的时，输入目的，右侧推荐匹配灵感内容。" },
     { id: "viraldeep", name: "爆款内容深度分析", group: "灵感/分析", level: 1, desc: "跨所有品牌的爆款内容共性研究：什么品牌/形式/情绪/主题/时段最容易出爆款？纯数据驱动，一键看清爆款配方。" },
     // —— 看竞品情况 ——
@@ -505,11 +505,14 @@
         <button data-eval="roi" class="${state.libQuick === "roi" ? "on" : ""}">类型ROI</button>
       </div>
       <div class="seg" id="sort-chips">
-        <button data-sort="viral" class="${state.sort === "viral" ? "on" : ""}">🔥 爆款指数</button>
-        <button data-sort="exposure" class="${state.sort === "exposure" ? "on" : ""}">👁 曝光</button>
-        <button data-sort="engagement" class="${state.sort === "engagement" ? "on" : ""}">💬 互动</button>
-        <button data-sort="date" class="${state.sort === "date" ? "on" : ""}">🕐 最新发布</button>
-        <button data-sort="roi" class="${state.sort === "roi" ? "on" : ""}">💰 ROI</button>
+        <button data-sort="viral" class="${state.sort === "viral" ? "on" : ""}">爆款指数</button>
+        <button data-sort="compositeRate" class="${state.sort === "compositeRate" ? "on" : ""}">综合互动率</button>
+        <button data-sort="likeRate" class="${state.sort === "likeRate" ? "on" : ""}">点赞率</button>
+        <button data-sort="commentRate" class="${state.sort === "commentRate" ? "on" : ""}">评论率</button>
+        <button data-sort="shareRate" class="${state.sort === "shareRate" ? "on" : ""}">转发率</button>
+        <button data-sort="collectRate" class="${state.sort === "collectRate" ? "on" : ""}">收藏率</button>
+        <button data-sort="exposure" class="${state.sort === "exposure" ? "on" : ""}">曝光</button>
+        <button data-sort="date" class="${state.sort === "date" ? "on" : ""}">时间排序</button>
       </div>
       <div class="seg" id="view-seg">
         <button data-view="grid" class="${state.view === "grid" ? "on" : ""}">卡片</button>
@@ -568,7 +571,11 @@
     if (mode === "viral") a.sort((x, y) => y.viralScore - x.viralScore);
     else if (mode === "date") a.sort((x, y) => y.publish_time.localeCompare(x.publish_time));
     else if (mode === "exposure") a.sort((x, y) => y.exposure - x.exposure);
-    else if (mode === "engagement") a.sort((x, y) => y.engagement - x.engagement);
+    else if (mode === "compositeRate") a.sort((x, y) => y.engagementRate - x.engagementRate);
+    else if (mode === "likeRate") a.sort((x, y) => y.likeRate - x.likeRate);
+    else if (mode === "commentRate") a.sort((x, y) => y.commentRate - x.commentRate);
+    else if (mode === "shareRate") a.sort((x, y) => y.shareRate - x.shareRate);
+    else if (mode === "collectRate") a.sort((x, y) => y.collectRate - x.collectRate);
     return a;
   }
   function cardHTML(c) {
