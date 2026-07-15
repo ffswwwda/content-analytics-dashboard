@@ -716,6 +716,7 @@ body::after {
 .bx-card.face-down .bx-back { transform: rotateY(180deg); }
 .bx-card.flipped .bx-front { transform: rotateY(180deg); }
 .bx-card.flipped .bx-back { transform: rotateY(0deg); }
+.bx-card.flipped:hover .bx-back { box-shadow: 0 0 24px rgba(0,240,255,.35); }
 .bx-rarity { align-self: flex-start; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px; }
 .rar-normal { background: var(--glass-bg-strong); color: var(--text-2); border: 1px solid var(--glass-line); }
 .rar-rare { background: var(--accent-soft); color: var(--accent-strong); border: 1px solid rgba(0,240,255,.4); }

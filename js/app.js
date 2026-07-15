@@ -981,7 +981,7 @@ ${topMatches || "（无强匹配）"}
       const voiceHTML = v
         ? `<div class="bx-voice"><div class="bx-voice-head">最高赞用户评价 · <span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span> <span class="uv-likes">♥ ${fmt(v.likes)}</span></div><div class="bx-voice-text">${esc(dispVoice(v))}</div><a class="uv-link" href="${esc(v.originalLink || "#")}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div>`
         : `<div class="bx-voice bx-muted">暂无该内容的用户评价数据</div>`;
-      return `<div class="bx-card face-down" data-bx="${i}">
+      return `<div class="bx-card face-down" data-bx="${i}" data-id="${esc(c.id)}">
         <div class="bx-face bx-front">${cover}</div>
         <div class="bx-face bx-back">
           <div class="bx-rarity ${p.rarity.cls}">${p.rarity.label}</div>
@@ -1024,10 +1024,18 @@ ${topMatches || "（无强匹配）"}
     const cl = $("#bx-close"); if (cl) cl.onclick = (e) => { e.stopPropagation(); closeBlindboxModal(); };
     // 点击遮罩关闭
     const ov = $("#bx-overlay"); if (ov) ov.onclick = closeBlindboxModal;
-    // 翻牌
-    $$(".bx-card.face-down", modal).forEach((el) => el.onclick = () => { el.classList.remove("face-down"); el.classList.add("flipped"); });
-    // 点开详情 → 直接打开单帖深度分析
-    $$("[data-use]", modal).forEach((b) => b.onclick = (e) => { e.stopPropagation(); openDeepAnalysis(b.dataset.use); });
+    // 翻牌（第一次点）；翻开后再点卡的任何位置 → 直接打开单帖深度分析
+    $$(".bx-card", modal).forEach((el) => el.onclick = () => {
+      if (el.classList.contains("face-down")) {
+        el.classList.remove("face-down");
+        el.classList.add("flipped");
+      } else if (el.classList.contains("flipped")) {
+        openDeepAnalysis(el.dataset.id);
+        closeBlindboxModal();
+      }
+    });
+    // 点开详情 → 直接打开单帖深度分析（关闭盲盒弹层）
+    $$("[data-use]", modal).forEach((b) => b.onclick = (e) => { e.stopPropagation(); openDeepAnalysis(b.dataset.use); closeBlindboxModal(); });
     // 分享生图
     $$("[data-share]", modal).forEach((b) => b.onclick = (e) => { e.stopPropagation(); blindboxShareImage(state.blindbox[+b.dataset.share]); });
     // 复制图片
