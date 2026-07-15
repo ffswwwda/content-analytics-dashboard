@@ -130,19 +130,20 @@ body::after {
 
 .nav { padding: 6px 10px 10px; flex: 1; overflow-y: auto; }
 .nav-group-label {
-  font-size: 10px; color: var(--text-3); font-weight: 700;
-  padding: 18px 10px 6px; letter-spacing: 1.2px; text-transform: uppercase;
-  opacity: .85;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13.5px; color: var(--text); font-weight: 700;
+  padding: 18px 12px 8px; letter-spacing: .3px;
 }
-.nav-group-label:first-child { padding-top: 6px; }
+.nav-group-label::after { content: ""; flex: 1; height: 1px; background: var(--glass-line); }
+.nav-group-label:first-child { padding-top: 8px; }
 .nav-item {
   display: flex; align-items: center; gap: 10px;
-  padding: 8px 11px 8px 13px; border-radius: var(--radius-sm);
-  color: var(--text-2); cursor: pointer; font-weight: 500;
+  padding: 7px 12px 7px 14px; border-radius: var(--radius-sm);
+  color: var(--text-2); cursor: pointer; font-weight: 500; font-size: 13px;
   transition: background .15s var(--ease), color .15s var(--ease), transform .15s var(--ease);
   margin-bottom: 2px; position: relative;
 }
-.nav-item.nav-sub { padding-left: 26px; font-weight: 400; color: var(--text-3); }
+/* 所有二级菜单项同一层级，统一缩进与字号；不再有伪三级缩进样式 */
 .nav-item:hover { background: var(--glass-bg-light); color: var(--text); transform: translateX(2px); }
 .nav-item.nav-sub:hover { color: var(--text); }
 .nav-item.active {
@@ -507,7 +508,7 @@ body::after {
 @media (max-width: 860px) {
   .app { padding: 8px; gap: 8px; }
   .sidebar { width: 64px; }
-  .brand-text, .nav-group-label, .nav-item span:not(.nav-badge):not(.nav-dot), .sidebar-foot .foot-hint, .src-pill { display: none; }
+  .brand-text, .nav-group-label, .nav-item span:not(.nav-badge):not(.nav-dot):not(.nav-mark), .sidebar-foot .foot-hint, .src-pill { display: none; }
   .nav-item { justify-content: center; }
   .board { padding: 16px 14px 32px; }
   .topbar { padding: 14px 14px; }

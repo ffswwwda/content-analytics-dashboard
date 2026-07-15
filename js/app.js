@@ -206,12 +206,12 @@
     BOARDS.forEach((b) => { if (!groups.includes(b.group)) groups.push(b.group); });
     nav.innerHTML = groups.map((g) => {
       const items = BOARDS.filter((b) => b.group === g).map((b) => {
-        const badge = b.id === "top" ? `<span class="nav-badge">${state.analysis.overview.topCount}</span>` : (b.id === "library" ? '<span class="nav-dot"></span>' : "");
-        const level = b.level === 2 ? " nav-sub" : "";
-        const marker = b.level === 2 ? "nav-mark-sub" : "nav-mark";
-        return `<div class="nav-item${level}${state.board === b.id ? " active" : ""}" data-board="${b.id}">
-          <span class="${marker}"></span>
-          <span>${b.name}</span>${badge}</div>`;
+        const badge = b.id === "top" ? `<span class="nav-badge">${state.analysis.overview.topCount}</span>` : "";
+        const active = state.board === b.id ? " active" : "";
+        // 所有菜单项同一层级：统一小圆点 + 统一缩进，不再有伪三级缩进
+        return `<div class="nav-item${active}" data-board="${b.id}">
+          <span class="nav-mark"></span>
+          <span class="nav-label">${b.name}</span>${badge}</div>`;
       }).join("");
       return `<div class="nav-group-label">${g}</div>${items}`;
     }).join("");
