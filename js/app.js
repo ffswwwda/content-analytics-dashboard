@@ -574,7 +574,6 @@
     return `<div class="card" data-id="${c.id}">
       <div class="card-top">
         ${c.isTop ? '<span class="badge-top">爆款</span>' : ""}
-        ${c.is_viral ? '<span class="badge-viral-real">真标爆款</span>' : ""}
         ${c.isActivity ? `<span class="badge-act">${esc(c.activityTag)}</span>` : ""}
         <span class="tag" data-facet="accounts" data-val="${esc(c.account)}">${esc(c.account)}</span>
         <span class="tag" data-facet="types" data-val="${esc(c.contentType)}">${esc(c.contentType)}</span>
@@ -588,7 +587,7 @@
   }
   function listHTML(c) {
     return `<div class="list-row" data-id="${c.id}">
-      <div><div class="lr-text">${esc(dispText(c))}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.contentType)} · ${c.publishDate}${c.is_viral ? ' · <span class="real-viral">真标爆款</span>' : ''}</div></div>
+      <div><div class="lr-text">${esc(dispText(c))}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.contentType)} · ${c.publishDate}</div></div>
       <div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div>
       <div class="lr-num">${fmt(c.engagement)}<small>互动</small></div>
       <div><div class="lr-num">${rate(c)}<small>爆款指数位</small></div><div class="mini-bar" style="margin-top:5px"><i style="width:${rate(c)}%"></i></div></div>
@@ -3516,7 +3515,7 @@ ${topMatches || "（无强匹配）"}
     const drawer = $("#drawer");
     drawer.innerHTML = `<div class="drawer-head"><div class="dh-text">${esc(dispText(c))}</div><button class="drawer-close" id="drawer-close">×</button></div>
       <div class="drawer-body">
-        <div class="dr-tags">${c.isTop ? '<span class="badge-top">爆款</span>' : ""}${c.is_viral ? '<span class="badge-viral-real">真标爆款</span>' : ""}${c.isActivity ? `<span class="badge-act">${esc(c.activityTag)}</span>` : ""}
+        <div class="dr-tags">${c.isTop ? '<span class="badge-top">爆款</span>' : ""}${c.isActivity ? `<span class="badge-act">${esc(c.activityTag)}</span>` : ""}
           <span class="tag">${esc(c.account)}</span><span class="tag">${esc(c.platform)}</span><span class="tag">${esc(c.contentType)}</span><span class="tag">${esc(c.emotion)}</span>
           ${c.topicTags.map((t) => `<span class="tag topic">${esc(t)}</span>`).join("")}
           ${(c.content_tags || []).slice(0, 8).map((t) => `<span class="tag hashtag">#${esc(t)}</span>`).join("")}</div>
@@ -3559,7 +3558,7 @@ ${topMatches || "（无强匹配）"}
 账号/平台：${c.account} / ${c.platform} · 形式：${c.contentType} · 情绪：${c.emotion}
 主题标签：${c.topicTags.join("、")}
 内容标签：${(c.content_tags || []).join("、") || "—"}
-${c.content_topic ? `内容主题：${c.content_topic}\n` : ""}${c.marketing_goal ? `营销目的：${c.marketing_goal}\n` : ""}${c.content_source ? `内容来源：${c.content_source}\n` : ""}是否爆款(真实标签)：${c.is_viral ? "是" : "否"}
+${c.content_topic ? `内容主题：${c.content_topic}\n` : ""}${c.marketing_goal ? `营销目的：${c.marketing_goal}\n` : ""}${c.content_source ? `内容来源：${c.content_source}\n` : ""}
 爆款指数位：${rate(c)} · 曝光 ${fmt(c.exposure)} · 互动 ${fmt(c.engagement)} · 互动率 ${c.engagementRate.toFixed(2)}%
 —— 请分析 ——
 1) 这条内容为什么能爆（可复用的要素）；
@@ -3681,7 +3680,6 @@ ${sim || "（无同主题关联帖）"}
         <div class="dp-profile-card"><div class="dp-pk">发布时间</div><div class="dp-pv">${c.publishDate}</div><div class="dp-sub">${c.publishHour}:00 时段</div></div>
         <div class="dp-profile-card"><div class="dp-pk">主题标签</div><div class="dp-pv">${c.topicTags.length ? c.topicTags.map((t) => `<span class="tag topic">${esc(t)}</span>`).join(" ") : "—"}</div></div>
         <div class="dp-profile-card"><div class="dp-pk">内容标签（话题）</div><div class="dp-pv">${(c.content_tags || []).length ? c.content_tags.slice(0, 6).map((t) => `<span class="tag hashtag">#${esc(t)}</span>`).join(" ") : "—"}</div></div>
-        <div class="dp-profile-card"><div class="dp-pk">真实爆款标签</div><div class="dp-pv">${c.is_viral ? '<span class="badge-viral-real">真标爆款</span>' : "否"}</div></div>
         <div class="dp-profile-card dp-span2"><div class="dp-pk">内容主题 / 营销目的 / 来源</div><div class="dp-pv">${[c.content_topic, c.marketing_goal, c.content_source].filter(Boolean).map((x) => esc(x)).join(" &nbsp;·&nbsp; ") || "—"}</div></div>
       </div>
       <div class="dp-cmp-note">该形式在 <b>${esc(c.account)}</b> 账号内的平均爆款指数位 <b style="color:var(--hot)">${sc.typeRate}</b>，对比账号整体平均 <b>${sc.acctRate}</b> —— ${sc.typeRate >= sc.acctRate ? "这种形式在该账号表现优于平均，值得借鉴" : "这种形式在该账号表现低于平均，可优化或换形式"}。</div>`;
