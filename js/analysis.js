@@ -13,20 +13,26 @@ const Analysis = (function () {
 
   function enrich(contents) {
     return contents.map((item) => {
-      const engagement = item.likes + item.shares + item.comments + item.collections;
-      const engagementRate = safeRate(engagement, item.exposure) * 100;
-      const likeRate = safeRate(item.likes, item.exposure) * 100;
-      const commentRate = safeRate(item.comments, item.exposure) * 100;
-      const shareRate = safeRate(item.shares, item.exposure) * 100;
-      const viralScore = engagementRate * 0.4 + likeRate * 0.3 + commentRate * 0.2 + shareRate * 0.1;
+      // 优先使用原始打标表的真实指标；缺字段时回退到按曝光/互动推算
+      const engagement = item.engagement != null ? item.engagement
+        : (item.likes + item.shares + item.comments + item.collections);
+      const compositeRate = item.composite_rate != null ? item.composite_rate : safeRate(engagement, item.exposure) * 100;
+      const likeRate = item.like_rate != null ? item.like_rate : safeRate(item.likes, item.exposure) * 100;
+      const commentRate = item.comment_rate != null ? item.comment_rate : safeRate(item.comments, item.exposure) * 100;
+      const shareRate = item.repost_rate != null ? item.repost_rate : safeRate(item.shares, item.exposure) * 100;
+      const collectRate = item.collect_rate != null ? item.collect_rate : safeRate(item.collections, item.exposure) * 100;
+      // 爆款指数：原始打标表的「爆款内容指数」最权威，直接采用
+      const viralScore = item.viral_score != null ? item.viral_score
+        : (compositeRate * 0.4 + likeRate * 0.3 + commentRate * 0.2 + shareRate * 0.1);
       const roi = safeRate(engagement, item.exposure) * 1000; // 千次曝光互动
       return {
         ...item,
         engagement,
-        engagementRate,
+        engagementRate: compositeRate,
         likeRate,
         commentRate,
         shareRate,
+        collectRate,
         viralScore,
         roi,
         // 统一驼峰别名，方便分析引擎使用
@@ -38,14 +44,23 @@ const Analysis = (function () {
         brandReplies: item.brand_replies,
         avgReplyTimeMinutes: item.avg_reply_time_minutes,
         commentQuality: item.comment_quality,
-        publishDate: item.publish_time.slice(0, 10),
-        publishHour: Number(item.publish_time.slice(11, 13)),
-        weekDay: new Date(item.publish_time).getDay(),
+        publishDate: (item.publish_time || "").slice(0, 10),
+        publishHour: Number((item.publish_time || "").slice(11, 13)),
+        weekDay: item.publish_time ? new Date(item.publish_time).getDay() : 0,
       };
     });
   }
 
   function markTop(contents, pct = 0.1, key = "viralScore") {
+    // 若数据自带权威的「爆款指数TOP10%」标记，直接采用，避免与源表口径不一致
+    if (contents.length && contents[0].is_top !== undefined) {
+      const sorted = [...contents].sort((a, b) => b[key] - a[key]);
+      return contents.map((item) => ({
+        ...item,
+        isTop: !!item.is_top,
+        topRank: sorted.findIndex((s) => s.id === item.id) + 1,
+      }));
+    }
     const sorted = [...contents].sort((a, b) => b[key] - a[key]);
     const cutoffIndex = Math.max(1, Math.floor(sorted.length * pct));
     const threshold = sorted[cutoffIndex - 1][key];

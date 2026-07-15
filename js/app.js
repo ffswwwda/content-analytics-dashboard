@@ -69,7 +69,7 @@
   };
   const BOARDS = [
     // —— 灵感/分析 ——
-    { id: "library", name: "灵感库", group: "灵感/分析", level: 1, desc: "全部内容的灵感库。可随机浏览，也可按爆款率 / 曝光 / 互动 / 类型 ROI / 时间趋势多指标排序与筛选；一键只看爆款(Top10%)。点标签加筛选，点卡片看详情，再进单帖深度分析。" },
+    { id: "library", name: "灵感库", group: "灵感/分析", level: 1, desc: "全部内容的灵感库。可随机浏览，也可按爆款指数 / 曝光 / 互动 / 类型 ROI / 时间趋势多指标排序与筛选；一键只看爆款(Top10%)。点标签加筛选，点卡片看详情，再进单帖深度分析。" },
     { id: "reference", name: "评估想法 / 找参考", group: "灵感/分析", level: 1, desc: "两个方向：①评估想法——输入你的内容想法，输出多维度评估结果；②找参考——没想法有目的时，输入你的目的，推荐匹配你目的的灵感内容。还有回测校准准确率。" },
     { id: "viraldeep", name: "爆款内容深度分析", group: "灵感/分析", level: 1, desc: "跨所有品牌的爆款内容共性研究：什么品牌/形式/情绪/主题/时段最容易出爆款？纯数据驱动，一键看清爆款配方。" },
     // —— 看竞品情况 ——
@@ -89,7 +89,7 @@
   const state = {
     raw: null, analysis: null, maxViral: 1, board: "library", insights: null,
     lang: (function () { try { return localStorage.getItem("ca_lang") || "en"; } catch (e) { return "en"; } })(),
-    filters: { search: "", accounts: new Set(), platforms: new Set(), types: new Set(), topics: new Set(), emotions: new Set(), viralMin: 0, dateFrom: "", dateTo: "", topOnly: false },
+    filters: { search: "", accounts: new Set(), category: new Set(), platforms: new Set(), types: new Set(), topics: new Set(), emotions: new Set(), goals: new Set(), sources: new Set(), viralMin: 0, dateFrom: "", dateTo: "", topOnly: false },
     sort: "viral", view: "grid",
     topThreshold: 0,
     freqMode: "week",
@@ -110,10 +110,13 @@
 
   const FACETS = [
     { key: "accounts", label: "账号", field: "account" },
+    { key: "category", label: "类目", field: "category" },
     { key: "platforms", label: "平台", field: "platform" },
     { key: "types", label: "形式", field: "contentType" },
-    { key: "topics", label: "主题", field: "topicTags", multi: true },
-    { key: "emotions", label: "情绪", field: "emotion" },
+    { key: "topics", label: "内容主题", field: "topicTags", multi: true },
+    { key: "emotions", label: "情绪风格", field: "emotion_style", multi: true },
+    { key: "goals", label: "营销目的", field: "marketing_goal", multi: true },
+    { key: "sources", label: "内容来源", field: "content_source" },
   ];
 
   /* ---------- 工具 ---------- */
@@ -167,15 +170,21 @@
   function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("show"), 1900); }
 
   /* ---------- 筛选 ---------- */
+  function facetMatch(c, fc, set) {
+    if (!set.size) return true;
+    const v = c[fc.field];
+    if (v == null || v === "") return false;
+    if (Array.isArray(v)) return v.some((x) => set.has(x));
+    if (fc.multi) return String(v).split(/[、,，/]/).map((x) => x.trim()).filter(Boolean).some((x) => set.has(x));
+    return set.has(v);
+  }
   function getFiltered() {
     const f = state.filters;
     return state.analysis.contents.filter((c) => {
       if (f.search && !c.text.toLowerCase().includes(f.search.toLowerCase())) return false;
-      if (f.accounts.size && !f.accounts.has(c.account)) return false;
-      if (f.platforms.size && !f.platforms.has(c.platform)) return false;
-      if (f.types.size && !f.types.has(c.contentType)) return false;
-      if (f.topics.size && !c.topicTags.some((t) => f.topics.has(t))) return false;
-      if (f.emotions.size && !f.emotions.has(c.emotion)) return false;
+      for (const fc of FACETS) {
+        if (!facetMatch(c, fc, f[fc.key])) return false;
+      }
       if (f.topOnly && !c.isTop) return false;
       if (rate(c) < f.viralMin) return false;
       if (f.dateFrom && c.publishDate < f.dateFrom) return false;
@@ -234,8 +243,10 @@
     const set = new Set();
     all.forEach((c) => {
       const v = c[fc.field];
+      if (v == null || v === "") return;
       if (Array.isArray(v)) v.forEach((x) => x && set.add(x));
-      else if (v) set.add(v);
+      else if (fc.multi) String(v).split(/[、,，/]/).map((x) => x.trim()).filter(Boolean).forEach((x) => set.add(x));
+      else set.add(v);
     });
     return Array.from(set).sort();
   }
@@ -258,7 +269,7 @@
     const box = $("#active-filters");
     const f = state.filters; const pills = [];
     FACETS.forEach((fc) => f[fc.key].forEach((v) => pills.push({ label: `${fc.label}：${v}`, key: fc.key, val: v })));
-    if (f.viralMin > 0) pills.push({ label: `爆款率 ≥ ${f.viralMin}`, kind: "viralMin" });
+    if (f.viralMin > 0) pills.push({ label: `爆款指数 ≥ ${f.viralMin}`, kind: "viralMin" });
     if (f.topOnly) pills.push({ label: "只看爆款", kind: "topOnly" });
     if (f.dateFrom || f.dateTo) pills.push({ label: `时间 ${f.dateFrom || "…"}~${f.dateTo || "…"}`, kind: "date" });
     if (!pills.length) { box.innerHTML = ""; return; }
@@ -356,7 +367,7 @@
         <button data-eval="roi" class="${state.libQuick === "roi" ? "on" : ""}">类型ROI</button>
       </div>
       <div class="seg" id="sort-chips">
-        <button data-sort="viral" class="${state.sort === "viral" ? "on" : ""}">🔥 爆款率</button>
+        <button data-sort="viral" class="${state.sort === "viral" ? "on" : ""}">🔥 爆款指数</button>
         <button data-sort="exposure" class="${state.sort === "exposure" ? "on" : ""}">👁 曝光</button>
         <button data-sort="engagement" class="${state.sort === "engagement" ? "on" : ""}">💬 互动</button>
         <button data-sort="date" class="${state.sort === "date" ? "on" : ""}">🕐 最新发布</button>
@@ -449,7 +460,7 @@
   /* ---------- 高表现内容 ---------- */
   function renderTop(data) {
     const ranked = [...data].sort((a, b) => b.viralScore - a.viralScore).filter((c) => rate(c) >= state.topThreshold);
-    const tools = `<div class="board-tools"><div class="fp-range-group"><label>爆款率 ≥</label>
+    const tools = `<div class="board-tools"><div class="fp-range-group"><label>爆款指数 ≥</label>
       <input type="range" id="top-threshold" min="0" max="100" value="${state.topThreshold}" step="1" style="width:110px;accent-color:var(--hot)">
       <span class="range-val" id="top-threshold-val" style="color:var(--hot)">${state.topThreshold}</span></div></div>`;
     const head = `<div class="board-head"><div class="board-desc">${BOARDS[1].desc}<br>当前显示 <b style="color:var(--hot)">${ranked.length}</b> 条头部内容（门槛 ${state.topThreshold}）。</div>${tools}</div>`;
@@ -1748,7 +1759,7 @@ ${topMatches || "（无强匹配）"}
       return `<details class="uv-user-card">
         <summary class="uv-user-summary">
           <span class="uv-rank">#${i + 1}</span>
-          <span class="uv-uname">@${esc(u.name)}</span>
+          <span class="uv-uname" title="@${esc(u.name)}">@${esc(u.name)}</span>
           <span class="uv-ucount">${u.replyCount} 次回复</span>
           <span class="uv-uavg">${u.avgWords} 词/条</span>
           <span class="uv-uchev">▾</span>
@@ -2169,7 +2180,7 @@ ${topMatches || "（无强匹配）"}
       return `<details class="uv-user-card">
         <summary class="uv-user-summary">
           <span class="uv-rank">#${i + 1}</span>
-          <span class="uv-uname">@${esc(u.name)}</span>
+          <span class="uv-uname" title="@${esc(u.name)}">@${esc(u.name)}</span>
           <span class="uv-ucount">${u.replyCount} 次回复</span>
           <span class="uv-uavg">${u.avgWords} 词/条 · ♥${fmt(u.totalLikes)}</span>
           <span class="uv-uchev">▾</span>
@@ -3017,9 +3028,8 @@ ${topMatches || "（无强匹配）"}
     const brands = aggregateByField(data, "account");
     const chips = brands.map((b) => `<span class="chip cmp-chip${state.cmpSel.has(b.name) ? " on" : ""}" data-brand="${esc(b.name)}">${esc(b.name)}</span>`).join("");
     const sel = brands.filter((b) => state.cmpSel.has(b.name));
-    const compare = sel.length >= 2 ? renderBrandCompare(sel) : `<div class="dim-note">勾选 2 个及以上品牌，查看横向对比表与对标建议。</div>`;
+    const compare = sel.length >= 2 ? renderBrandCompare(sel) : `<div class="empty-state"><svg viewBox="0 0 24 24" class="ic" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><b>尚未选择对比品牌</b><span>请在上方的品牌列表中勾选 2 个及以上品牌，即可查看横向数据对比、Top3 内容与用户情况分析。</span></div>`;
     return `<div class="board-head"><div class="board-desc">${boardDesc("compare")}</div></div>
-      <div class="dim-note">勾选多个品牌进行横向对比。</div>
       <div class="fp-chips" style="margin-bottom:16px">${chips}</div>
       ${compare}`;
   }

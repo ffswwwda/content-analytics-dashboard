@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 """
-把真实 xlsx（已翻译、已打标 v2）转成前端 content_data.json 格式。
-- 全部发帖(8672) -> contents（竞品内容，含品牌官方 + 用户发帖）
-- 用户回帖(9780) -> userVoices（真实用户声音，带原帖关联）
-- 账号表 -> accounts（从发帖去重派生，无粉丝数则用 0）
-全量接入：不再抽样。新增字段承载打标成果：
-  内容标签 / 内容主题 / 情绪风格 / 营销目的 / 内容来源 / 发布者类型 / 是否爆款真实标签 / 关联帖ID / 译文(text_zh)
+把真实 xlsx（GTM社媒数据_打标全表_爆款版）转成前端 content_data.json。
+- 单 sheet 统一表：内容类型=发帖 → contents（竞品/品牌内容）；内容类型=回帖 → userVoices（真实用户声音，按关联帖ID 挂接原帖）
+- 全部指标来自原始打标表真实列：
+  · 爆款内容指数 → viral_score（最权威的「爆款指数」，作为首要筛选项）
+  · 爆款指数TOP10%   → is_top（真实 Top10% 爆款，用于「只看爆款」）
+  · 是否爆款        → is_viral（更宽的真标爆款）
+  · 综合互动率/点赞率/评论率/传播率/收藏率 → 各真实分率
+  · 类目 / 内容主题 / 情绪风格 / 营销目的 / 内容来源 / 发布者类型 → 真实打标维度
+全量接入，不抽样。
 """
-import json, re, random
-from collections import defaultdict, Counter
-import openpyxl
+import json, re
+from collections import defaultdict
 
-random.seed(20260714)
-XLSX = "/Users/fsw/Downloads/GTM跨境社媒数据监控_已翻译_打标_v2.xlsx"
+XLSX = "/Users/fsw/Downloads/GTM社媒数据_打标全表_爆款版.xlsx"
 OUT_DIR = "/Users/fsw/WorkBuddy/2026-07-10-18-44-40/content-analytics-dashboard/data"
+
 
 def to_int(s):
     try:
@@ -21,23 +23,41 @@ def to_int(s):
     except Exception:
         return 0
 
-def norm_datetime(v):
-    """把 openpyxl 可能返回的 datetime / 字符串统一成 'YYYY-MM-DDTHH:MM:SS' 字符串。"""
+
+def to_float(s):
+    try:
+        return float(s or 0)
+    except Exception:
+        return 0.0
+
+
+def norm(v):
+    """把 None / 空 / 字符串 'None' 统一成 ''，其余转字符串去空白。"""
     if v is None:
         return ""
-    if hasattr(v, "strftime"):  # datetime
+    s = str(v).strip()
+    if s.lower() == "none" or s == "":
+        return ""
+    return s
+
+
+def norm_datetime(v):
+    if v is None:
+        return ""
+    if hasattr(v, "strftime"):
         return v.strftime("%Y-%m-%dT%H:%M:%S")
     s = str(v).strip()
-    # 去掉多余毫秒/时区尾缀，统一格式
     m = re.match(r"^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}:\d{2})", s)
     if m:
         return f"{m.group(1)}T{m.group(2)}"
     return s
 
+
 def split_multi(v):
     if not v:
         return []
     return [x.strip() for x in re.split(r"[、,，/]", str(v)) if x.strip()]
+
 
 def split_tags(v):
     """内容标签形如 '#A,#B' -> ['A','B']"""
@@ -50,154 +70,124 @@ def split_tags(v):
             out.append(part)
     return out
 
-def derive_emotion(text, form):
-    t = text or ""
-    if t.strip().startswith("RT @"):
-        return "资讯转发"
-    if form == "投票":
-        return "互动投票"
-    low = t.lower()
-    promo = ["新品", "首发", "优惠", "折扣", "打折", "限时", "福利", "shop", "buy", "order", "% off", "deal", "sale", "promo", "促销", "活动"]
-    if any(k in low for k in promo):
-        return "促销推广"
-    if "?" in t or "？" in t or "吗" in t or "how" in low or "what" in low:
-        return "互动提问"
-    return "种草内容"
 
-def derive_sentiment(text):
-    t = (text or "")
-    low = t.lower()
-    if "?" in t or "？" in t:
-        return "提问"
-    pos = ["love", "like", "great", "amazing", "interested", "thanks", "thank", "good", "nice", "cool", "awesome", "🔥", "❤", "赞", "好", "爱", "喜欢", "棒", "interest"]
-    neg = ["hate", "bad", "worst", "terrible", "awful", "disappoint", "差", "烂", "失望", "broke", "broken", "scam", "fake", "refund"]
-    if any(k in low for k in pos):
-        return "正面"
-    if any(k in low for k in neg):
-        return "负面"
-    return "中性"
+def truthy(v):
+    return v in (True, "True", "TRUE", 1, "1")
 
-SENT_MAP = {"正面": "pos", "负面": "neg", "中性": "neu", "pos": "pos", "neg": "neg", "neu": "neu"}
-EMO_MAP = {"正面": "pos", "负面": "neg", "中性": "neu"}
 
-def real_exposure(row):
-    """真实曝光 = 表格「View数」列（头条浏览量指标）。
-    该列缺失/为 0 时回退「D7-View」（第 7 天累计浏览），不再跨 D0/D1/D2/D7 取 max——
-    旧逻辑取 max 会把部分行的曝光抬高到 D 列轨迹值之上，与表格真值不符。"""
-    v = to_int(row.get("View数", 0))
-    if v > 0:
-        return v
-    return to_int(row.get("D7-View", 0))
-
-def load_sheet(name):
+def load():
+    import openpyxl
     wb = openpyxl.load_workbook(XLSX, read_only=True, data_only=True)
-    ws = wb[name]
+    ws = wb["Sheet1"]
     rows = list(ws.iter_rows(values_only=True))
     header = [str(h) if h is not None else "" for h in rows[0]]
     return header, rows[1:]
 
+
 print("读取 xlsx ...")
-ph, posts = load_sheet("全部发帖")
-rh, replies = load_sheet("用户回帖")
-print(f"  全部发帖: {len(posts)} 行 | 用户回帖: {len(replies)} 行")
+header, rows = load()
+idx = {h: i for i, h in enumerate(header)}
+NI = idx["内容ID"]
+print(f"  总行数: {len(rows)}")
 
-def idx(header, col):
-    return header.index(col)
+posts = [r for r in rows if norm(r[idx["内容类型"]]) == "发帖"]
+reps = [r for r in rows if norm(r[idx["内容类型"]]) == "回帖"]
+print(f"  发帖: {len(posts)} | 回帖: {len(reps)}")
 
-PI, RI = idx(ph, "内容ID"), idx(rh, "内容ID")
-PB, ACC = idx(ph, "品牌"), idx(ph, "账号")
+# 关联帖ID -> 发帖 内容ID（用于回帖挂接）
+post_ids = set(norm(r[NI]) for r in posts)
 
-# ---------- 帖子 -> contents ----------
+# ---------- 发帖 -> contents ----------
 contents = []
 for r in posts:
-    rec = dict(zip(ph, r))
-    cid = rec.get("内容ID") or rec.get("ID") or ""
+    rec = dict(zip(header, r))
+    cid = norm(rec.get("内容ID"))
     text = rec.get("内容文本") or ""
     trans = rec.get("内容文本翻译") or ""
-    emo_raw = rec.get("情绪风格") or ""
-    emotion = (split_multi(emo_raw)[0] if emo_raw else derive_emotion(text, rec.get("发布内容形式")))
-    is_viral = str(rec.get("是否爆款") or "").strip().lower() == "true"
+    emo_raw = norm(rec.get("情绪风格"))
+    emotion = (split_multi(emo_raw)[0] if emo_raw else "")
     contents.append({
         "id": cid,
-        "account": rec.get("品牌") or "",
-        "platform": rec.get("社媒平台") or "",
-        "content_type": rec.get("发布内容形式") or "",
-        "topic_tags": [rec.get("类目")] if rec.get("类目") else [],
+        "account": norm(rec.get("品牌")),
+        "platform": norm(rec.get("社媒平台")),
+        "content_type": norm(rec.get("发布内容形式")),
+        "category": norm(rec.get("类目")),
+        "topic_tags": split_multi(rec.get("内容主题")),   # 内容主题（产品展示/促销…）
         "emotion": emotion,
-        "emotion_style": emo_raw,           # 情绪风格（完整，可能多值）
+        "emotion_style": emo_raw,
+        "marketing_goal": norm(rec.get("营销目的")),
+        "content_source": norm(rec.get("内容来源")),
+        "author_type": norm(rec.get("发布者类型")),
+        "relationship": norm(rec.get("关系类型")),
         "activity_tag": "无",
         "is_activity": False,
         "campaign_name": None,
         "text": (text or "")[:1500],
         "text_zh": (trans or "")[:1500],
-        "exposure": real_exposure(rec),
+        "exposure": to_int(rec.get("View数")),
         "likes": to_int(rec.get("Like数")),
         "shares": to_int(rec.get("Repost数")),
         "comments": to_int(rec.get("Reply数")),
         "collections": to_int(rec.get("Bookmark数")),
+        "engagement": to_int(rec.get("互动总数")),
+        # —— 真实指标（来自原始打标表） ——
+        "viral_score": to_float(rec.get("爆款内容指数")),     # 爆款指数（首要筛选项）
+        "is_top": truthy(rec.get("爆款指数TOP10%")),          # 真实 Top10% 爆款
+        "is_viral": truthy(rec.get("是否爆款")),              # 更宽的真标爆款
+        "composite_rate": to_float(rec.get("综合互动率")),
+        "like_rate": to_float(rec.get("点赞率")),
+        "comment_rate": to_float(rec.get("评论率")),
+        "repost_rate": to_float(rec.get("传播率")),
+        "collect_rate": to_float(rec.get("收藏率")),
         "brand_replies": 0,
         "avg_reply_time_minutes": 0,
         "comment_quality": {},
         "publish_time": norm_datetime(rec.get("发布时间")),
+        "publish_date": norm(rec.get("发布日期"))[:10],
         "image": None,
-        "category": rec.get("类目") or "",
-        "post_link": rec.get("主帖链接") or "",
+        "post_link": norm(rec.get("主帖链接")),
         "is_reply": False,
-        # —— 打标新增字段 ——
         "content_tags": split_tags(rec.get("内容标签")),
-        "content_topic": rec.get("内容主题") or "",
-        "marketing_goal": rec.get("营销目的") or "",
-        "content_source": rec.get("内容来源") or "",
-        "author_type": rec.get("发布者类型") or "",
-        "is_viral": is_viral,
-        "associated_id": rec.get("关联帖ID") or "",
-        "timeseries": {
-            "D0": {"view": to_int(rec.get("D0-View")), "like": to_int(rec.get("D0-Like")), "reply": to_int(rec.get("D0-Reply")), "repost": to_int(rec.get("D0-Repost")), "bookmark": to_int(rec.get("D0-Bookmark"))},
-            "D1": {"view": to_int(rec.get("D1-View")), "like": to_int(rec.get("D1-Like")), "reply": to_int(rec.get("D1-Reply")), "repost": to_int(rec.get("D1-Repost")), "bookmark": to_int(rec.get("D1-Bookmark"))},
-            "D2": {"view": to_int(rec.get("D2-View")), "like": to_int(rec.get("D2-Like")), "reply": to_int(rec.get("D2-Reply")), "repost": to_int(rec.get("D2-Repost")), "bookmark": to_int(rec.get("D2-Bookmark"))},
-            "D7": {"view": to_int(rec.get("D7-View")), "like": to_int(rec.get("D7-Like")), "reply": to_int(rec.get("D7-Reply")), "repost": to_int(rec.get("D7-Repost")), "bookmark": to_int(rec.get("D7-Bookmark"))},
-        },
+        "content_topic": norm(rec.get("内容主题")),
+        "associated_id": norm(rec.get("关联帖ID")),
+        "timeseries": None,   # 新表无 D0/D1/D2/D7 时序明细
     })
 
-# ---------- 用户回帖 -> userVoices ----------
+# ---------- 回帖 -> userVoices ----------
 voices = []
-for r in replies:
-    rec = dict(zip(rh, r))
-    re_raw = rec.get("回帖情绪") or ""
-    sentiment = SENT_MAP.get((re_raw or "").strip(), derive_sentiment(rec.get("内容文本")))
+for r in reps:
+    rec = dict(zip(header, r))
+    re_raw = norm(rec.get("回帖情绪"))
+    sentiment = re_raw if re_raw in ("正面", "负面", "中性") else ""
     voices.append({
-        "contentId": rec.get("内容ID") or "",
-        "account": rec.get("品牌") or "",
-        "platform": rec.get("社媒平台") or "",
+        "contentId": norm(rec.get("内容ID")),
+        "account": norm(rec.get("品牌")),
+        "platform": norm(rec.get("社媒平台")),
+        "category": norm(rec.get("类目")),
+        "author_type": norm(rec.get("发布者类型")),
+        "relationship": norm(rec.get("关系类型")),
         "text": (rec.get("内容文本") or "")[:1500],
         "text_zh": (rec.get("内容文本翻译") or "")[:1500],
         "likes": to_int(rec.get("Like数")),
         "sentiment": sentiment,
-        "originalLink": rec.get("主帖链接") or rec.get("回帖链接") or "",
-        "replyLink": rec.get("回帖链接") or "",
-        "publishDate": (rec.get("发布日期") or "")[:10],
-        "reply_emotion": re_raw,
-        "reply_intent": rec.get("回帖意图") or "",
-        "reply_focus": rec.get("回帖关注点") or "",
-        "associated_id": rec.get("关联帖ID") or "",
+        "reply_intent": norm(rec.get("回帖意图")),
+        "reply_focus": norm(rec.get("回帖关注点")),
+        "publishDate": norm(rec.get("发布日期"))[:10],
+        "originalLink": norm(rec.get("主帖链接")),
+        "replyLink": norm(rec.get("回帖链接")),
+        "associated_id": norm(rec.get("关联帖ID")),
+        "viral_score": to_float(rec.get("爆款内容指数")),
+        "is_top": truthy(rec.get("爆款指数TOP10%")),
     })
+linked = sum(1 for v in voices if v["associated_id"] in post_ids)
+print(f"  回帖关联原帖命中: {linked}/{len(voices)}")
 
-# ---------- 账号表（从发帖去重派生） ----------
+# ---------- 账号表（从发帖品牌去重派生） ----------
 brand_meta = {}
 for c in contents:
     b = c["account"]
-    if b not in brand_meta:
+    if b and b not in brand_meta:
         brand_meta[b] = {"category": c["category"], "platform": c["platform"], "handle": "", "link": c["post_link"]}
-    # handle 取账号 URL 末尾
-    acc_url = ""
-    # 账号列在 posts header
-# 用全部发帖的账号列填充 handle
-pi_acc = idx(ph, "账号")
-for r in posts:
-    rec = dict(zip(ph, r))
-    b = rec.get("品牌") or ""
-    if b and b in brand_meta and not brand_meta[b]["handle"]:
-        brand_meta[b]["handle"] = rec.get("账号") or ""
 accounts = []
 for b, m in brand_meta.items():
     cnt = sum(1 for c in contents if c["account"] == b)
@@ -206,7 +196,7 @@ for b, m in brand_meta.items():
         "category": m["category"],
         "subcategory": "",
         "platform": m["platform"],
-        "handle": m["handle"],
+        "handle": "",
         "followers": 0,
         "following": 0,
         "total_posts": cnt,
@@ -216,11 +206,11 @@ for b, m in brand_meta.items():
     })
 
 # ---------- 组装 ----------
-dates = sorted([c["publish_time"][:10] for c in contents if c["publish_time"]])
+dates = sorted([c["publish_date"] for c in contents if c["publish_date"]])
 meta = {
-    "updated_at": "2026-07-14T11:30:00",
+    "updated_at": "2026-07-15T08:30:00",
     "source": "real",
-    "source_note": "GTM跨境社媒数据监控 已翻译_打标_v2.xlsx（全量真实数据）",
+    "source_note": "GTM社媒数据_打标全表_爆款版.xlsx（全量真实数据，含爆款内容指数/综合互动率/各分率）",
     "account_count": len(brand_meta),
     "content_count": len(contents),
     "voice_count": len(voices),
@@ -234,5 +224,6 @@ with open(f"{OUT_DIR}/sample_data.json", "w", encoding="utf-8") as f:
 
 import os
 sz = os.path.getsize(f"{OUT_DIR}/content_data.json")
-print(f"contents {len(contents)} / voices {len(voices)} / 覆盖品牌 {len(brand_meta)}")
+top_n = sum(1 for c in contents if c["is_top"])
+print(f"contents {len(contents)} (is_top={top_n}) / voices {len(voices)} / 覆盖品牌 {len(brand_meta)}")
 print(f"写出 content_data.json ({sz/1024/1024:.2f} MB)")
