@@ -560,6 +560,7 @@ body::after {
 .qc-bar .qc-name { width: 64px; color: var(--text-2); flex-shrink: 0; }
 .qc-bar .qc-track { flex: 1; height: 8px; background: var(--glass-bg-strong); border-radius: 4px; overflow: hidden; }
 .qc-bar .qc-track > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)) !important; border-radius: 4px; }
+.qc-bar .qc-track-stacked { display: flex; gap: 3px; flex: 1; height: 8px; align-items: center; }
 .qc-bar .qc-val { width: 38px; text-align: right; color: var(--text-3); font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
 
 /* 空态 */
