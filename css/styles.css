@@ -232,7 +232,8 @@ body::after {
 .btn-prov .ic { width: 15px; height: 15px; }
 
 /* 数据来源/公式 弹层 */
-.prov-backdrop { position: fixed; inset: 0; background: rgba(3, 7, 18, 0.62); backdrop-filter: blur(3px); z-index: 200; }
+.prov-backdrop[hidden], .prov-modal[hidden] { display: none !important; }
+.prov-backdrop { position: fixed; inset: 0; background: rgba(3, 7, 18, 0.62); backdrop-filter: blur(3px); z-index: 200; cursor: pointer; }
 .prov-modal {
   position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
   width: min(720px, 94vw); max-height: 84vh; overflow: hidden; z-index: 201;
@@ -245,9 +246,10 @@ body::after {
 .prov-icon { font-size: 22px; }
 .prov-title { font-size: 15px; font-weight: 700; color: var(--text); }
 .prov-sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
-.prov-close { width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-2); font-size: 20px; cursor: pointer; line-height: 1; }
-.prov-close:hover { color: var(--hot); border-color: var(--hot); }
-.prov-body { padding: 16px 20px 22px; overflow-y: auto; }
+.prov-close { width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-2); font-size: 20px; cursor: pointer; line-height: 1; display: inline-flex; align-items: center; justify-content: center; transition: all .15s; }
+.prov-close:hover { color: var(--hot); border-color: var(--hot); background: rgba(255,93,143,.12); }
+.prov-body { padding: 16px 20px 22px; overflow-y: auto; min-height: 120px; }
+.prov-body:empty::before { content: "该板块暂未配置指标明细"; display: block; color: var(--text-3); font-size: 13px; text-align: center; padding: 36px 0 20px; }
 .prov-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
 .prov-legend .lg { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-2); background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 4px 10px; }
 .prov-legend .lg i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
