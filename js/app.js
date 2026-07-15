@@ -3308,62 +3308,171 @@ ${topMatches || "（无强匹配）"}
     };
   }
   function renderBrandCompare(sel) {
-    if (sel.length < 2) return `<div class="dim-note">勾选 2 个及以上品牌，查看横向对比（真实指标矩阵 + Top3 内容 + 用户情况）。</div>`;
+    if (sel.length < 2) return `<div class="dim-note">勾选 2 个及以上品牌，查看横向对比。</div>`;
     const aggs = sel.map((b) => brandAgg(b.name, state.analysis.contents)).filter(Boolean);
     if (!aggs.length) return `<div class="dim-note">所选品牌暂无内容数据。</div>`;
-    // 指标行定义：label / 取值 / 格式化 / 越大越好
-    const rows = [
-      { label: "内容量", get: (a) => a.c0, fmt: (v) => fmt(v), better: "high" },
-      { label: "总曝光", get: (a) => a.totalExp, fmt: (v) => fmt(v), better: "high" },
-      { label: "平均曝光", get: (a) => a.avgExp, fmt: (v) => fmt(v), better: "high" },
-      { label: "总互动", get: (a) => a.totalEng, fmt: (v) => fmt(v), better: "high" },
-      { label: "平均互动", get: (a) => a.avgEng, fmt: (v) => fmt(v), better: "high" },
-      { label: "互动率（综合）", get: (a) => a.avgEngRate, fmt: (v) => v + "%", better: "high" },
-      { label: "平均爆款指数", get: (a) => a.avgViral, fmt: (v) => v, better: "high" },
-      { label: "爆款占比（Top10%）", get: (a) => a.topPct, fmt: (v) => v + "%", better: "high" },
-      { label: "平均点赞率", get: (a) => a.avgLikeRate, fmt: (v) => v + "%", better: "high" },
-      { label: "平均评论率", get: (a) => a.avgCommentRate, fmt: (v) => v + "%", better: "high" },
-      { label: "平均转发率", get: (a) => a.avgShareRate, fmt: (v) => v + "%", better: "high" },
-      { label: "平均收藏率", get: (a) => a.avgCollectRate, fmt: (v) => v + "%", better: "high" },
-      { label: "用户讨论量", get: (a) => a.voiceCount, fmt: (v) => fmt(v), better: "high" },
-      { label: "平均讨论赞", get: (a) => a.voiceAvg, fmt: (v) => fmt(v), better: "high" },
-      { label: "正面情绪占比", get: (a) => a.posPct, fmt: (v) => v + "%", better: "high" },
-      { label: "原创占比", get: (a) => a.originalPct, fmt: (v) => v + "%", better: "high" },
+
+    const BRAND_COLORS = ['#00b8e6','#f97316','#10b981','#8b5cf6','#ec4899','#f59e0b','#06b6d4','#6b7280'];
+    const color = (i) => BRAND_COLORS[i % BRAND_COLORS.length];
+
+    // ---------- 1. 结论面板（谁在哪个维度领先） ----------
+    const kings = [
+      { label: "爆款之王", icon: "🏆", key: "avgViral", fmt: (a) => `爆款指数 ${a.avgViral}`, sort: (arr) => arr.slice().sort((a,b) => b.avgViral - a.avgViral)[0] },
+      { label: "声量之王", icon: "📢", key: "totalExp", fmt: (a) => `总曝光 ${fmt(a.totalExp)}`, sort: (arr) => arr.slice().sort((a,b) => b.totalExp - a.totalExp)[0] },
+      { label: "互动之王", icon: "💬", key: "avgEngRate", fmt: (a) => `互动率 ${a.avgEngRate}%`, sort: (arr) => arr.slice().sort((a,b) => b.avgEngRate - a.avgEngRate)[0] },
+      { label: "讨论热度王", icon: "🗣️", key: "voiceCount", fmt: (a) => `${fmt(a.voiceCount)} 条讨论`, sort: (arr) => arr.slice().sort((a,b) => b.voiceCount - a.voiceCount)[0] },
+      { label: "原创王", icon: "✍️", key: "originalPct", fmt: (a) => `原创 ${a.originalPct}%`, sort: (arr) => arr.slice().sort((a,b) => b.originalPct - a.originalPct)[0] },
     ];
-    const rowHTML = rows.map((r) => {
-      const vals = aggs.map((a) => r.get(a));
-      const max = Math.max(...vals, 0.0001);
-      const cells = aggs.map((a, i) => {
-        const v = vals[i];
-        const isBest = aggs.length > 1 && v === max;
-        const w = max > 0 ? Math.round(v / max * 100) : 0;
-        return `<td class="cmp-td${isBest ? " best" : ""}"><div class="cmp-td-val">${r.fmt(v)}</div><div class="cmp-td-bar"><i style="width:${w}%"></i></div></td>`;
-      }).join("");
-      return `<tr><td class="cmp-rlabel">${r.label}</td>${cells}</tr>`;
+    const insightHTML = kings.map((k) => {
+      const champ = k.sort(aggs);
+      const ci = aggs.indexOf(champ);
+      return `<div class="cmp-insight-card"><div class="ci-icon">${k.icon}</div><div class="ci-label">${k.label}</div><div class="ci-brand">${esc(champ.name)}</div><div class="ci-value">${k.fmt(champ)}</div><div class="ci-bar" style="background:${color(ci)};width:100%"></div></div>`;
     }).join("");
-    const headCells = aggs.map((a) => `<th class="cmp-th">${esc(a.name)}<span class="cmp-th-sub">${a.c0} 条 · 爆款 ${a.topCount}（${a.topPct}%）</span></th>`).join("");
-    const table = `<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th class="cmp-rlabel">指标 ＼ 品牌</th>${headCells}</tr></thead><tbody>${rowHTML}</tbody></table></div>`;
-    const cards = aggs.map((a) => `<div class="cmp-brand-card">
-      <div class="cmp-brand-head"><span class="cmp-brand-name">${esc(a.name)}</span><span class="cmp-brand-badge">${a.c0} 条 · 爆款 ${a.topCount}（${a.topPct}%）</span></div>
-      <div class="cmp-kv"><span>平均爆款指数</span><b style="color:var(--hot)">${a.avgViral}</b></div>
-      <div class="cmp-kv"><span>互动率</span><b>${a.avgEngRate}%</b></div>
-      <div class="cmp-kv"><span>点赞 / 评论 / 转发 / 收藏率</span><b>${a.avgLikeRate}% / ${a.avgCommentRate}% / ${a.avgShareRate}% / ${a.avgCollectRate}%</b></div>
-      <div class="cmp-kv"><span>用户讨论</span><b>${fmt(a.voiceCount)} 条 · 正面 ${a.posPct}%</b></div>
-      <div class="cmp-kv"><span>主力形式</span><b>${esc(a.domType)}</b></div>
-      <div class="cmp-kv"><span>主力情绪</span><b>${esc(a.domEmotion)}</b></div>
-      <div class="cmp-kv"><span>主力类目</span><b>${esc(a.domCategory)}</b></div>
-      <div class="cmp-kv"><span>主力营销目的</span><b>${esc(a.domGoal)}</b></div>
-      <div class="cmp-top3">
-        <div class="cmp-top3-title">Top3 内容（按爆款指数）</div>
-        ${a.top3.map((c) => `<div class="cmp-top3-item"><div class="ct-text">${c.isTop ? "🔥 " : ""}${esc(dispText(c))}</div><div class="ct-meta">爆款指数 ${c.viralScore.toFixed(1)} · ${esc(c.contentType)} · ${fmt(c.exposure)} 曝光</div></div>`).join("")}
-      </div>
-    </div>`).join("");
+
+    // ---------- 2. SVG 雷达图 ----------
+    const DIMS = [
+      { key: "avgViral", label: "爆款指数", max: Math.ceil(Math.max(...aggs.map((a) => a.avgViral), 5)) },
+      { key: "avgEngRate", label: "互动率%", max: Math.ceil(Math.max(...aggs.map((a) => a.avgEngRate), 5)) },
+      { key: "topPct", label: "爆款占比%", max: Math.ceil(Math.max(...aggs.map((a) => a.topPct), 5)) },
+      { key: "posPct", label: "正面情绪%", max: Math.ceil(Math.max(...aggs.map((a) => a.posPct), 5)) },
+      { key: "voiceCount", label: "用户讨论", max: Math.ceil(Math.max(...aggs.map((a) => a.voiceCount), 5)) },
+      { key: "originalPct", label: "原创占比%", max: Math.ceil(Math.max(...aggs.map((a) => a.originalPct), 5)) },
+    ];
+    const cv = { cx: 180, cy: 180, r: 150 };
+    const N = DIMS.length;
+    const flat = (i, r) => {
+      const a = Math.PI * (2 * i / N - 0.5);
+      return { x: cv.cx + r * Math.cos(a), y: cv.cy + r * Math.sin(a) };
+    };
+    // grid rings
+    const rings = [0.2, 0.4, 0.6, 0.8, 1];
+    const gridPaths = rings.map((pct) => {
+      const pts = Array.from({ length: N }, (_, i) => { const p = flat(i, cv.r * pct); return `${p.x},${p.y}`; });
+      pts.push(pts[0]);
+      return `<polygon points="${pts.join(" ")}" fill="none" stroke="var(--glass-line)" stroke-width="${pct === 1 ? 1.2 : 0.6}" />`;
+    }).join("");
+    // axis lines + labels
+    const axisLines = Array.from({ length: N }, (_, i) => {
+      const p = flat(i, cv.r);
+      return `<line x1="${cv.cx}" y1="${cv.cy}" x2="${p.x}" y2="${p.y}" stroke="var(--glass-line)" stroke-width="0.6" />`;
+    }).join("");
+    const axisLabels = Array.from({ length: N }, (_, i) => {
+      const p = flat(i, cv.r + 22);
+      // align text-anchor based on position
+      const norm = (i / N) % 1;
+      let anchor = "middle", dy = "0";
+      if (norm < 0.15 || norm > 0.85) { anchor = "middle"; dy = norm < 0.5 ? "-4" : "14"; }
+      else if (norm < 0.35) { anchor = "start"; dy = "4"; }
+      else if (norm < 0.65) { anchor = "middle"; dy = "14"; }
+      else { anchor = "end"; dy = "4"; }
+      return `<text x="${p.x}" y="${p.y}" text-anchor="${anchor}" dy="${dy}" font-size="10" fill="var(--text-3)" font-weight="600">${DIMS[i].label}</text>`;
+    }).join("");
+    const polygons = aggs.map((a, bi) => {
+      const pts = DIMS.map((dim, i) => {
+        const raw = dim.key === "voiceCount" ? a.voiceCount : a[dim.key];
+        const pct = Math.min(raw / dim.max, 1);
+        const p = flat(i, cv.r * pct);
+        return `${p.x},${p.y}`;
+      });
+      pts.push(pts[0]);
+      return `<polygon points="${pts.join(" ")}" fill="${color(bi)}" fill-opacity="0.12" stroke="${color(bi)}" stroke-width="2" />`;
+    }).join("");
+    // brand dots at each axis for each brand
+    const brandDots = aggs.map((a, bi) => {
+      return DIMS.map((dim, i) => {
+        const raw = dim.key === "voiceCount" ? a.voiceCount : a[dim.key];
+        const pct = Math.min(raw / dim.max, 1);
+        const p = flat(i, cv.r * pct);
+        return `<circle cx="${p.x}" cy="${p.y}" r="2.5" fill="${color(bi)}" stroke="#fff" stroke-width="0.5" />`;
+      }).join("");
+    }).join("");
+    // Legend
+    const legendHTML = aggs.map((a, i) => `<span class="crl-item"><span class="crl-dot" style="background:${color(i)}"></span>${esc(a.name)}</span>`).join("");
+    const svgW = 360, svgH = 380;
+    const radarSVG = `<div class="cmp-radar-wrap">
+      <div class="cr-title">品牌能力雷达图（6 维度归一化对比）</div>
+      <svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
+        ${gridPaths}
+        ${axisLines}
+        ${axisLabels}
+        ${polygons}
+        ${brandDots}
+      </svg>
+      <div class="cmp-radar-legend">${legendHTML}</div>
+    </div>`;
+
+    // ---------- 3. 视觉指标赛道对比 ----------
+    const metricRows = [
+      { label: "平均曝光", key: "avgExp", fmt: (v) => fmt(v), better: "high" },
+      { label: "平均互动", key: "avgEng", fmt: (v) => fmt(v), better: "high" },
+      { label: "综合互动率", key: "avgEngRate", fmt: (v) => v + "%", better: "high" },
+      { label: "平均爆款指数", key: "avgViral", fmt: (v) => v, better: "high" },
+      { label: "爆款占比", key: "topPct", fmt: (v) => v + "%", better: "high" },
+      { label: "平均点赞率", key: "avgLikeRate", fmt: (v) => v + "%", better: "high" },
+      { label: "平均评论率", key: "avgCommentRate", fmt: (v) => v + "%", better: "high" },
+      { label: "平均转发率", key: "avgShareRate", fmt: (v) => v + "%", better: "high" },
+      { label: "平均收藏率", key: "avgCollectRate", fmt: (v) => v + "%", better: "high" },
+      { label: "用户讨论量", key: "voiceCount", fmt: (v) => fmt(v), better: "high" },
+      { label: "正面情绪占比", key: "posPct", fmt: (v) => v + "%", better: "high" },
+      { label: "原创占比", key: "originalPct", fmt: (v) => v + "%", better: "high" },
+    ];
+    const metricsHTML = metricRows.map((mr) => {
+      const vals = aggs.map((a) => (mr.key === "voiceCount" ? a.voiceCount : mr.key === "avgViral" ? a.avgViral : a[mr.key]));
+      const max = Math.max(...vals, 0.0001);
+      const bestIdx = vals.indexOf(Math.max(...vals));
+      // Build tracks — one per row, with dots for each brand
+      const dots = aggs.map((a, i) => {
+        const pct = vals[i] / max * 100;
+        return `<div class="cm-dot${i === bestIdx ? " best" : ""}" style="left:${pct}%;background:${color(i)};color:${color(i)}" title="${esc(a.name)}: ${mr.fmt(vals[i])}">
+          <span class="cm-dot-label">${esc(a.name)}</span>
+          <span class="cm-dot-value">${mr.fmt(vals[i])}</span>
+        </div>`;
+      }).join("");
+      return `<div class="cmp-metric-row">
+        <div class="cm-row-label"><span>${mr.label}</span><span class="cm-best">🥇 ${esc(aggs[bestIdx].name)} ${mr.fmt(vals[bestIdx])}</span></div>
+        <div class="cm-track">
+          <div class="cm-track-fill" style="width:100%;background:${color(bestIdx)}"></div>
+          ${dots}
+        </div>
+      </div>`;
+    }).join("");
+
+    // ---------- 4. 品牌摘要卡片 ----------
+    const cardsHTML = aggs.map((a, i) => {
+      const maxViral = Math.max(...aggs.map((x) => x.avgViral), 0.0001);
+      const viralPct = (a.avgViral / maxViral * 100).toFixed(0);
+      const maxEng = Math.max(...aggs.map((x) => x.avgEngRate), 0.0001);
+      const engPct = (a.avgEngRate / maxEng * 100).toFixed(0);
+      return `<div class="cmp-card">
+        <div class="cmp-card-head"><span class="cmp-card-dot" style="background:${color(i)}"></span><span class="cmp-card-name">${esc(a.name)}</span><span class="cmp-card-badge">${a.c0} 条 · 爆款 ${a.topCount}</span></div>
+        <div class="cmp-card-grid">
+          <div class="cmp-card-metric"><span class="cc-k">爆款指数</span><span class="cc-v hot">${a.avgViral}</span><div class="ci-bar" style="background:${color(i)};width:${viralPct}%;margin-top:3px"></div></div>
+          <div class="cmp-card-metric"><span class="cc-k">互动率</span><span class="cc-v good">${a.avgEngRate}%</span><div class="ci-bar" style="background:${color(i)};width:${engPct}%;margin-top:3px"></div></div>
+          <div class="cmp-card-metric"><span class="cc-k">形式</span><span class="cc-v">${esc(a.domType)}</span></div>
+          <div class="cmp-card-metric"><span class="cc-k">情绪</span><span class="cc-v">${esc(a.domEmotion)}</span></div>
+          <div class="cmp-card-metric"><span class="cc-k">类目</span><span class="cc-v">${esc(a.domCategory)}</span></div>
+          <div class="cmp-card-metric"><span class="cc-k">营销目的</span><span class="cc-v">${esc(a.domGoal)}</span></div>
+        </div>
+      </div>`;
+    }).join("");
+
+    // ---------- 5. 对标小结 ----------
     const bestViral = aggs.slice().sort((a, b) => b.avgViral - a.avgViral)[0];
     const bestExp = aggs.slice().sort((a, b) => b.totalExp - a.totalExp)[0];
     const bestVoice = aggs.slice().sort((a, b) => b.voiceCount - a.voiceCount)[0];
     const bestEng = aggs.slice().sort((a, b) => b.avgEngRate - a.avgEngRate)[0];
-    const benchmark = `<div class="bench-box"><b>对标建议：</b>以「<b>${esc(bestViral.name)}</b>」为<b>爆款标杆</b>（平均爆款指数 ${bestViral.avgViral} · 爆款占比 ${bestViral.topPct}%）；「<b>${esc(bestExp.name)}</b>」曝光体量最大（${fmt(bestExp.totalExp)}），适合做声量对标；「<b>${esc(bestVoice.name)}</b>」用户讨论最活跃（${fmt(bestVoice.voiceCount)} 条），用户洞察优先看它；「<b>${esc(bestEng.name)}</b>」互动率最高（${bestEng.avgEngRate}%），内容质量标杆。可重点观测爆款指数、互动率、爆款形式占比，并据此设定追赶目标值。</div>`;
-    return `<div class="cmp-wrap">${table}<div class="cmp-grid" style="margin-top:18px">${cards}</div>${benchmark}</div>`;
+    const vt = Math.round(bestViral.topPct), ve = fmt(bestExp.totalExp), vv = fmt(bestVoice.voiceCount), vg = bestEng.avgEngRate;
+    const benchmark = `<div class="bench-box">
+      <b>对标建议：</b><br/>• <b>爆款标杆</b>：「${esc(bestViral.name)}」（平均爆款指数 ${bestViral.avgViral}·爆款占比 ${vt}%）<br/>• <b>声量标杆</b>：「${esc(bestExp.name)}」（总曝光 ${ve}，适合品牌声量对标）<br/>• <b>互动标杆</b>：「${esc(bestEng.name)}」（互动率 ${vg}%，内容质量最高）<br/>• <b>用户洞察标杆</b>：「${esc(bestVoice.name)}」（用户讨论 ${vv} 条，最值得分析用户反馈）<br/>建议重点观测各品牌的爆款指数·互动率·爆款形式占比，据此设定追赶目标。
+    </div>`;
+
+    return `<div class="cmp-wrap">
+      <div class="cmp-insight">${insightHTML}</div>
+      ${radarSVG}
+      <div class="cmp-metrics">${metricsHTML}</div>
+      <div class="cmp-cards">${cardsHTML}</div>
+      ${benchmark}
+    </div>`;
   }
   function bindCompetitor() {
     if (state.board === "competitor") {

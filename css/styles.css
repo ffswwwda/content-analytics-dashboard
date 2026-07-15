@@ -630,11 +630,51 @@ body::after {
 .mini-btn { background: var(--glass-bg-strong); border: 1px solid var(--glass-line-strong); color: var(--text-2); border-radius: var(--radius-xs); padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font); transition: all .14s; }
 .mini-btn:hover { border-color: var(--accent); color: var(--accent-strong); }
 
-.cmp-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 13px; }
-.cmp-table th, .cmp-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--glass-line); }
-.cmp-table th { font-size: 12px; color: var(--text-3); font-weight: 700; }
-.cmp-table td:first-child { color: var(--text-2); }
-.cmp-table tbody tr:hover { background: var(--glass-bg-light); }
+/* ====== 多竞品横向对比 · 可视化重构 ====== */
+.cmp-insight { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 18px; }
+.cmp-insight-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); padding: 12px 14px; text-align: center; box-shadow: var(--shadow-sm); }
+.cmp-insight-card .ci-icon { font-size: 22px; margin-bottom: 3px; }
+.cmp-insight-card .ci-label { font-size: 10.5px; color: var(--text-3); font-weight: 600; letter-spacing: .3px; }
+.cmp-insight-card .ci-brand { font-size: 14px; font-weight: 800; color: var(--accent-strong); margin: 2px 0; }
+.cmp-insight-card .ci-value { font-size: 11px; color: var(--text-2); font-family: var(--font-mono); }
+.cmp-insight-card .ci-bar { height: 3px; border-radius: 2px; margin-top: 6px; opacity: .6; }
+
+/* 雷达图 */
+.cmp-radar-wrap { background: var(--glass-bg-light); border: 1px solid var(--glass-line); border-radius: var(--radius); padding: 16px 18px 18px; margin-bottom: 18px; }
+.cmp-radar-wrap .cr-title { font-size: 12px; color: var(--text-3); font-weight: 700; margin-bottom: 8px; }
+.cmp-radar-wrap svg { display: block; margin: 0 auto; }
+.cmp-radar-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; margin-top: 6px; }
+.cmp-radar-legend .crl-item { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-2); }
+.cmp-radar-legend .crl-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* 视觉指标对比（赛道模式） */
+.cmp-metrics { margin-bottom: 18px; }
+.cmp-metric-row { margin-bottom: 8px; }
+.cmp-metric-row:last-child { margin-bottom: 0; }
+.cm-row-label { font-size: 11.5px; color: var(--text-3); font-weight: 700; margin-bottom: 4px; display: flex; justify-content: space-between; }
+.cm-row-label .cm-best { color: var(--accent-strong); font-weight: 800; }
+.cm-track { position: relative; height: 28px; background: var(--glass-bg-strong); border-radius: 14px; overflow: hidden; }
+.cm-track-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: 14px; transition: width .6s ease; opacity: .15; }
+.cm-dot { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,.7); box-shadow: 0 1px 4px rgba(0,0,0,.15); transition: left .6s ease; z-index: 1; }
+.cm-dot:hover { z-index: 2; transform: translate(-50%, -50%) scale(1.3); }
+.cm-dot-label { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: var(--text-2); white-space: nowrap; pointer-events: none; }
+.cm-dot-value { position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); font-size: 9.5px; font-family: var(--font-mono); color: var(--text-3); white-space: nowrap; pointer-events: none; }
+.cm-dot.best { width: 20px; height: 20px; border-width: 3px; z-index: 3; filter: drop-shadow(0 0 6px currentColor); }
+
+/* 品牌摘要卡片 */
+.cmp-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.cmp-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow-sm); }
+.cmp-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.cmp-card-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.cmp-card-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.cmp-card-badge { font-size: 11px; color: var(--text-3); font-family: var(--font-mono); margin-left: auto; }
+.cmp-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+.cmp-card-metric { display: flex; flex-direction: column; background: var(--glass-bg-strong); border-radius: var(--radius-xs); padding: 6px 8px; }
+.cmp-card-metric .cc-k { font-size: 10px; color: var(--text-3); }
+.cmp-card-metric .cc-v { font-size: 12.5px; font-weight: 700; font-family: var(--font-mono); }
+.cmp-card-metric .cc-v.good { color: var(--accent-strong); }
+.cmp-card-metric .cc-v.hot { color: var(--hot); }
+
 .bench-box { background: var(--accent-soft); border: 1px solid rgba(0,195,243,.3); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 12.5px; color: var(--accent-strong); line-height: 1.55; }
 .bench-box b { color: var(--accent-strong); }
 
