@@ -856,8 +856,8 @@
       </div>`;
     box.classList.add("ref-has-result");
     $("#copy-ai").addEventListener("click", copyToAI);
-    // 匹配卡片可点击打开抽屉
-    $$(".match-card", box).forEach((el) => el.addEventListener("click", () => openDrawer(el.dataset.id)));
+    // 匹配卡片点击直接打开单帖深度分析
+    $$(".match-card", box).forEach((el) => el.addEventListener("click", () => openDeepAnalysis(el.dataset.id)));
   }
   function copyToAI() {
     if (!state.predictor) return;
@@ -1537,11 +1537,6 @@ ${topMatches || "（无强匹配）"}
       </div>
       <div class="vd-title" style="margin-top:20px">🔥 Top 爆款内容</div>
       <div class="list">${postCards}</div>`;
-  }
-  function bindViralDeep() {
-    $$(".list-row", $("#board")).forEach((row) => row.addEventListener("click", () => {
-      openDeepAnalysis(row.dataset.id);
-    }));
   }
 
   function renderMyOps() {
@@ -3191,7 +3186,7 @@ ${topMatches || "（无强匹配）"}
       ? `<div class="uv-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:8px">${voices.slice(0, 6).map((v) => `<div class="uv-card"><div class="uv-top"><span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span><span class="uv-likes">♥ ${fmt(v.likes)}</span></div><div class="uv-text">${esc(dispVoice(v))}</div><a class="uv-link" href="${esc(v.originalLink || "#")}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div>`).join("")}</div>`
       : `<div style="color:var(--text-3);font-size:12.5px;margin-top:6px">暂无该竞品的用户评价数据</div>`;
     const listCap = cf ? items.length : Math.min(items.length, 8);
-    const contentHTML = `<div class="list-rows">${items.slice(0, listCap).map((c) => `<div class="list-row" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(dispText(c))}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div></div><div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div><div class="lr-num">${fmt(c.engagement)}<small>互动</small></div><div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款指数位</small></div></div>${c.post_link ? `<a class="lr-link" href="${esc(c.post_link)}" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">原帖↗</a>` : ""}</div>`).join("")}${cf && items.length > listCap ? `<div style="color:var(--text-3);font-size:12px;padding:8px 0;text-align:center">已显示全部 ${items.length} 条（受筛选约束）</div>` : ""}</div>`;
+    const contentHTML = `<div class="list-rows">${items.slice(0, listCap).map((c) => `<div class="list-row ${c.post_link ? 'has-link' : ''}" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(dispText(c))}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div></div><div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div><div class="lr-num">${fmt(c.engagement)}<small>互动</small></div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款指数位</small></div>${c.post_link ? `<a class="lr-link" href="${esc(c.post_link)}" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">原帖↗</a>` : ""}</div>`).join("")}${cf && items.length > listCap ? `<div style="color:var(--text-3);font-size:12px;padding:8px 0;text-align:center">已显示全部 ${items.length} 条（受筛选约束）</div>` : ""}</div>`;
     const typeBreak = groupRate(itemsAll, "contentType");
     const topicBreak = groupRate(itemsAll, "topicTags", true).slice(0, 8);
     const emotionBreak = groupRate(itemsAll, "emotion");
@@ -3760,10 +3755,12 @@ ${sim || "（无同主题关联帖）"}
 
   /* ============ 事件绑定 ============ */
   function bindBoard(data) {
-    // 卡片 / 列表点击 → 抽屉
+    // 帖子卡片/列表点击：灵感库保持「抽屉 → 深度分析」两步；其余板块直接弹出深度分析
     $$("[data-id]", $("#board")).forEach((el) => el.addEventListener("click", (e) => {
       if (e.target.closest("[data-facet]")) return; // 标签点击走筛选
-      openDrawer(el.dataset.id);
+      if (e.target.closest("a")) return; // 链接不触发帖子交互
+      if (state.board === "library") openDrawer(el.dataset.id);
+      else openDeepAnalysis(el.dataset.id);
     }));
     // 标签点击 → 加入全局筛选
     $$("[data-facet]", $("#board")).forEach((el) => el.addEventListener("click", (e) => {
@@ -4107,7 +4104,16 @@ ${sim || "（无同主题关联帖）"}
     if (data.meta && data.meta.source === "feishu") { pill.textContent = "飞书实时"; pill.classList.add("live"); }
     else if (data.meta && data.meta.source === "real") { pill.textContent = "真实数据"; pill.classList.add("live"); }
     else { pill.textContent = "演示数据"; pill.classList.remove("live"); }
-    $("#last-updated") && ($("#last-updated").textContent = "");
+    const lu = $("#last-updated");
+    if (lu) {
+      const ua = data.meta && data.meta.updated_at;
+      if (ua) {
+        const d = new Date(ua);
+        lu.textContent = isNaN(d) ? `数据更新 ${ua}` : `数据更新 ${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+      } else {
+        lu.textContent = "数据更新 待同步";
+      }
+    }
     // 时间范围默认值
     if (data.meta && data.meta.date_range) { /* 可选：预设 */ }
     renderNav();
