@@ -101,7 +101,7 @@
   };
   const BOARD_PROVENANCE = {
     library: {
-      tip: "灵感库所有指标均来自源表真实字段或其确定性派生；卡片上的「爆款率」进度条为前端相对百分比（非源字段）。",
+      tip: "灵感库所有指标均来自源表真实字段或其确定性派生；卡片上的「爆款指数位」进度条为前端相对百分比（非源字段）。",
       metrics: [
         { name: "曝光", type: "source", acc: 100, formula: "源表「View数」列，脚本 to_int 直拷，无任何重算。" },
         { name: "互动", type: "source", acc: 100, formula: "源表 Like数+Reply数+Repost数+Bookmark数，逐列直拷后求和（已核对 3719 条零偏差）。" },
@@ -113,14 +113,14 @@
         { name: "发布时间 / 星期 / 时段", type: "frontend", acc: 100, formula: "由源表「发布时间」解析出 publishDate / weekDay / publishHour。" },
         { name: "ROI（千次曝光互动）", type: "frontend", acc: 100, formula: "互动数 ÷ 曝光 × 1000，输入均为源真实值。" },
         { name: "类型 ROI 概览", type: "frontend", acc: 100, formula: "按内容形式分组聚合平均爆款指数/互动率（源字段分组均值）。" },
-        { name: "卡片「爆款率」进度条", type: "frontend", acc: 100, formula: "viralScore ÷ 全库最大值 × 100，仅表示相对位置（非源字段，已与爆款指数区分展示）。" },
+        { name: "卡片「爆款指数位」进度条", type: "frontend", acc: 100, formula: "viralScore ÷ 全库最大值 × 100，仅表示相对位置（非源字段，已与爆款指数区分展示）。" },
       ],
     },
     reference: {
       tip: "评估想法为前端算法 + 历史源数据匹配；找参考匹配内容全部来自源真实字段。",
       metrics: [
         { name: "想法多维度评估结果", type: "frontend", acc: 100, formula: "A.predictIdea() 基于输入文本与历史内容做关键词/主题/情绪匹配，从源字段计算相似度与统计特征。" },
-        { name: "爆款率预测分", type: "frontend", acc: 100, formula: "由历史匹配内容的平均爆款指数、主题/情绪历史爆款率等源字段加权估算。" },
+        { name: "爆款指数位预测分", type: "frontend", acc: 100, formula: "由历史匹配内容的平均爆款指数、主题/情绪历史爆款指数位等源字段加权估算。" },
         { name: "找参考匹配内容", type: "combined", acc: 100, formula: "相似度匹配（真实字段检索）+ 源数据返回，匹配结果确定可溯源。" },
         { name: "匹配维度命中/分布", type: "frontend", acc: 100, formula: "由匹配算法记录的命中维度与源字段计数统计。" },
       ],
@@ -145,11 +145,14 @@
       ],
     },
     compare: {
-      tip: "多竞品横向对比的均值、Top3、用户情况均来自源字段聚合，准确率 100%。",
+      tip: "多竞品横向对比改用真实指标矩阵（16 项）：曝光/互动/互动率/爆款指数/爆款占比/点赞·评论·转发·收藏率/用户讨论/正面情绪/原创占比等，全部来自源字段聚合。源数据为空或未采集的字段（粉丝数、品牌回复数、评论质量、平均回复时长）一律不再展示，避免误导。",
       metrics: [
-        { name: "数据表现对比（均值）", type: "frontend", acc: 100, formula: "各品牌源字段分组均值后横向对比。" },
+        { name: "数据表现矩阵（均值/占比）", type: "frontend", acc: 100, formula: "各品牌源字段分组均值/占比后横向对比，每行高亮最优品牌。" },
+        { name: "爆款指数 / 爆款占比(Top10%)", type: "source", acc: 100, formula: "爆款指数=源表「爆款内容指数」均值；爆款占比=is_top 内容数 ÷ 该品牌内容数（源真实标签）。" },
+        { name: "点赞/评论/转发/收藏率", type: "source", acc: 100, formula: "源表 like_rate/comment_rate/repost_rate/collect_rate 均值（真实百分比）。" },
+        { name: "用户讨论量 / 正面情绪占比", type: "source", acc: 100, formula: "该品牌回帖数（userVoices 聚合）与正面 sentiment 占比（源字段）。" },
         { name: "Top3 内容", type: "frontend", acc: 100, formula: "各品牌按爆款指数排序取前 3（源真实值）。" },
-        { name: "用户情况对比", type: "frontend", acc: 100, formula: "回帖情感/形式等聚合后横向对比（源字段）。" },
+        { name: "主力形式/情绪/类目/营销目的", type: "frontend", acc: 100, formula: "该品牌内容按频次聚合得到的主导维度（源字段）。" },
       ],
     },
     uservoice: {
@@ -585,7 +588,7 @@
       <div><div class="lr-text">${esc(dispText(c))}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.contentType)} · ${c.publishDate}${c.is_viral ? ' · <span class="real-viral">真标爆款</span>' : ''}</div></div>
       <div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div>
       <div class="lr-num">${fmt(c.engagement)}<small>互动</small></div>
-      <div><div class="lr-num">${rate(c)}<small>爆款率</small></div><div class="mini-bar" style="margin-top:5px"><i style="width:${rate(c)}%"></i></div></div>
+      <div><div class="lr-num">${rate(c)}<small>爆款指数位</small></div><div class="mini-bar" style="margin-top:5px"><i style="width:${rate(c)}%"></i></div></div>
     </div>`;
   }
 
@@ -601,7 +604,7 @@
       <div><div class="lr-text">${i < 3 ? "🔥 " : ""}${esc(dispText(c))}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div></div>
       <div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div>
       <div class="lr-num">${fmt(c.engagement)}<small>互动</small></div>
-      <div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款率</small></div><div class="mini-bar" style="margin-top:5px"><i style="width:${rate(c)}%"></i></div></div>
+      <div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款指数位</small></div><div class="mini-bar" style="margin-top:5px"><i style="width:${rate(c)}%"></i></div></div>
     </div>`).join("");
   }
 
@@ -616,7 +619,7 @@
       <div class="stat"><div class="stat-label">爆款数量 (Top 10%)</div><div class="stat-val">${top.length}<small> / ${data.length}</small></div></div>
       <div class="stat"><div class="stat-label">平均曝光</div><div class="stat-val">${fmt(avg(top, "exposure"))}</div><div class="stat-foot">普通 ${fmt(avg(normal, "exposure"))}</div></div>
       <div class="stat"><div class="stat-label">平均互动率</div><div class="stat-val">${avg(top, "engagementRate").toFixed(2)}<small>%</small></div><div class="stat-foot">普通 ${avg(normal, "engagementRate").toFixed(2)}%</div></div>
-      <div class="stat"><div class="stat-label">平均爆款率</div><div class="stat-val" style="color:var(--hot)">${top.length ? rate(top[0]) : 0}</div><div class="stat-foot">头部基准</div></div>
+      <div class="stat"><div class="stat-label">平均爆款指数位</div><div class="stat-val" style="color:var(--hot)">${top.length ? rate(top[0]) : 0}</div><div class="stat-foot">头部基准</div></div>
     </div>`;
     const commonHTML = (arr, label) => {
       if (!arr || !arr.length) return "";
@@ -635,10 +638,10 @@
       <div><div class="lr-text">${esc(dispText(c))}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.contentType)} · ${c.topicTags.join("/")}</div></div>
       <div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div>
       <div class="lr-num">${fmt(c.engagement)}<small>互动</small></div>
-      <div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款率</small></div><div class="mini-bar" style="margin-top:5px"><i style="width:${rate(c)}%"></i></div></div>
+      <div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款指数位</small></div><div class="mini-bar" style="margin-top:5px"><i style="width:${rate(c)}%"></i></div></div>
     </div>`).join("");
     return `<div class="board-head"><div class="board-desc">${BOARDS[2].desc}</div></div>${statRow}${commons}
-      <div class="panel" style="margin-top:16px"><div class="panel-title">爆款清单（按爆款率排序）</div><div class="panel-sub">点击查看详情与可复用的爆款特征</div>${list}</div>`;
+      <div class="panel" style="margin-top:16px"><div class="panel-title">爆款清单（按爆款指数位排序）</div><div class="panel-sub">点击查看详情与可复用的爆款特征</div>${list}</div>`;
   }
 
   /* ---------- 频率 × 表现 ---------- */
@@ -649,8 +652,8 @@
     const head = `<div class="board-head"><div class="board-desc">${BOARDS[3].desc} 当前筛选 <b>${data.length}</b> 条内容。</div>${tools}</div>`;
     if (state.freqMode === "week") {
       const weeks = aggregateWeeks(data);
-      return head + `<div class="panel"><div class="panel-title">每周发布频率 vs 平均爆款率</div><div class="panel-sub">柱=当周发布数（左轴） · 线=当周平均爆款率（右轴 0-100）</div>${comboSVG(weeks)}</div>
-        <div class="panel"><div class="panel-title">周明细</div>${weeks.map((w) => `<div class="rank-row"><div class="rank-main"><div class="rank-name">${w.label}</div><div class="rank-sub">发布 ${w.count} 条</div></div><div class="rank-right"><div class="rank-val">${w.avgRate}<small> 爆款率</small></div><div class="rank-track"><i style="width:${w.avgRate}%"></i></div></div></div>`).join("")}</div>`;
+      return head + `<div class="panel"><div class="panel-title">每周发布频率 vs 平均爆款指数位</div><div class="panel-sub">柱=当周发布数（左轴） · 线=当周平均爆款指数位（右轴 0-100）</div>${comboSVG(weeks)}</div>
+        <div class="panel"><div class="panel-title">周明细</div>${weeks.map((w) => `<div class="rank-row"><div class="rank-main"><div class="rank-name">${w.label}</div><div class="rank-sub">发布 ${w.count} 条</div></div><div class="rank-right"><div class="rank-val">${w.avgRate}<small> 爆款指数位</small></div><div class="rank-track"><i style="width:${w.avgRate}%"></i></div></div></div>`).join("")}</div>`;
     } else {
       const byType = state.analysis.contentTypeROI.map((t) => {
         const items = data.filter((c) => c.contentType === t.type);
@@ -658,8 +661,8 @@
         return { type: t.type, freq: items.length / weeks, rate: rate(items.sort((a, b) => b.viralScore - a.viralScore)[0] || { viralScore: 0 }), avgRate: items.length ? Math.round(items.reduce((s, c) => s + rate(c), 0) / items.length) : 0, count: items.length };
       }).filter((x) => x.count);
       const maxF = Math.max(...byType.map((x) => x.freq), 1);
-      return head + `<div class="panel"><div class="panel-title">各形式：发布频率 vs 平均爆款率</div><div class="panel-sub">频率=该形式平均每周发布条数</div>
-        ${byType.sort((a, b) => b.avgRate - a.avgRate).map((x) => `<div class="rank-row"><div class="rank-main"><div class="rank-name">${esc(x.type)}</div><div class="rank-sub">${x.count} 条 · ${x.freq.toFixed(1)} 条/周</div></div><div class="rank-right"><div class="rank-val">${x.avgRate}<small> 爆款率</small></div><div class="rank-track"><i style="width:${x.avgRate}%"></i></div></div></div>`).join("")}</div>`;
+      return head + `<div class="panel"><div class="panel-title">各形式：发布频率 vs 平均爆款指数位</div><div class="panel-sub">频率=该形式平均每周发布条数</div>
+        ${byType.sort((a, b) => b.avgRate - a.avgRate).map((x) => `<div class="rank-row"><div class="rank-main"><div class="rank-name">${esc(x.type)}</div><div class="rank-sub">${x.count} 条 · ${x.freq.toFixed(1)} 条/周</div></div><div class="rank-right"><div class="rank-val">${x.avgRate}<small> 爆款指数位</small></div><div class="rank-track"><i style="width:${x.avgRate}%"></i></div></div></div>`).join("")}</div>`;
     }
   }
   function aggregateWeeks(data) {
@@ -701,14 +704,14 @@
     const sorted = [...rows].sort((a, b) => b[state.roiSort === "rate" ? "rate" : state.roiSort === "eng" ? "avgEngagementRate" : "avgExposure"] - a[state.roiSort === "rate" ? "rate" : state.roiSort === "eng" ? "avgEngagementRate" : "avgExposure"]);
     const maxR = Math.max(...sorted.map((r) => r.rate), 1);
     const tools = `<div class="board-tools"><select class="sel" id="roi-sel">
-      <option value="rate"${state.roiSort === "rate" ? " selected" : ""}>按爆款率</option>
+      <option value="rate"${state.roiSort === "rate" ? " selected" : ""}>按爆款指数位</option>
       <option value="eng"${state.roiSort === "eng" ? " selected" : ""}>按互动率</option>
       <option value="exp"${state.roiSort === "exp" ? " selected" : ""}>按曝光</option></select></div>`;
     const head = `<div class="board-head"><div class="board-desc">${BOARDS[4].desc} 当前筛选命中 <b>${data.length}</b> 条。</div>${tools}</div>`;
-    return head + `<div class="panel"><div class="panel-title">内容形式 ROI 排行</div><div class="panel-sub">爆款率=该形式内容的平均相对爆款指数（0-100）</div>
+    return head + `<div class="panel"><div class="panel-title">内容形式 ROI 排行</div><div class="panel-sub">爆款指数位=该形式内容的平均相对爆款指数（0-100）</div>
       ${sorted.map((r, i) => `<div class="rank-row"><div class="rank-no${i === 0 ? " top" : ""}">${i + 1}</div>
         <div class="rank-main"><div class="rank-name">${esc(r.type)}</div><div class="rank-sub">${r.realCount} 条 · 平均曝光 ${fmt(r.avgExposure)} · 互动率 ${r.avgEngagementRate.toFixed(2)}%</div></div>
-        <div class="rank-right"><div class="rank-val">${r.rate}<small> 爆款率</small></div><div class="rank-track"><i style="width:${(r.rate / maxR) * 100}%"></i></div></div></div>`).join("")}</div>`;
+        <div class="rank-right"><div class="rank-val">${r.rate}<small> 爆款指数位</small></div><div class="rank-track"><i style="width:${(r.rate / maxR) * 100}%"></i></div></div></div>`).join("")}</div>`;
   }
 
   /* ---------- Campaign 监测 ---------- */
@@ -727,7 +730,7 @@
     const tools = `<div class="board-tools"><select class="sel" id="camp-sel">
       <option value="lift"${state.campaignSort === "lift" ? " selected" : ""}>按爆发倍数</option>
       <option value="date"${state.campaignSort === "date" ? " selected" : ""}>按时间</option>
-      <option value="rate"${state.campaignSort === "rate" ? " selected" : ""}>按爆款率</option></select></div>`;
+      <option value="rate"${state.campaignSort === "rate" ? " selected" : ""}>按爆款指数位</option></select></div>`;
     const head = `<div class="board-head"><div class="board-desc">${BOARDS[5].desc} 「爆发倍数」= 活动期日均发布频次 ÷ 日常日均频次，越高说明越「集中爆发」。</div>${tools}</div>`;
     if (!rows.length) return head + emptyState("无活动期间内容");
     return head + rows.map((r, i) => `<div class="panel" style="${i ? "margin-top:14px" : ""}">
@@ -737,7 +740,7 @@
         <div class="stat"><div class="stat-label">发布条数</div><div class="stat-val">${r.count}</div></div>
         <div class="stat"><div class="stat-label">爆发倍数</div><div class="stat-val" style="color:${r.lift >= 2 ? "var(--hot)" : "var(--text)"}">${r.lift.toFixed(1)}×</div></div>
         <div class="stat"><div class="stat-label">日均频次</div><div class="stat-val">${r.freq.toFixed(1)}</div></div>
-        <div class="stat"><div class="stat-label">平均爆款率</div><div class="stat-val" style="color:var(--hot)">${r.avgRate}</div></div>
+        <div class="stat"><div class="stat-label">平均爆款指数位</div><div class="stat-val" style="color:var(--hot)">${r.avgRate}</div></div>
       </div></div>`).join("");
   }
 
@@ -793,7 +796,7 @@
         <div class="match-meta">${esc(c.account)} · ${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div>
         <div class="match-reason"><span>匹配原因：</span>${esc(c.matchReason)}</div>
         <div class="match-mini-metrics">
-          <span>爆款率 <b>${rateOf(c)}</b></span>
+          <span>爆款指数位 <b>${rateOf(c)}</b></span>
           <span>曝光 <b>${fmt(c.exposure)}</b></span>
           <span>互动 <b>${fmt(c.engagement)}</b></span>
         </div>
@@ -804,7 +807,7 @@
       <div class="stat"><div class="stat-label">匹配历史内容</div><div class="stat-val">${ms.count}<small>条</small></div></div>
       <div class="stat"><div class="stat-label">其中爆款占比</div><div class="stat-val" style="color:var(--hot)">${(ms.topRate * 100).toFixed(0)}<small>%</small></div></div>
       <div class="stat"><div class="stat-label">来自活动/Campaign</div><div class="stat-val">${(ms.activityRatio * 100).toFixed(0)}<small>%</small></div></div>
-      <div class="stat"><div class="stat-label">平均爆款率</div><div class="stat-val">${ms.avgViralRate}</div></div>
+      <div class="stat"><div class="stat-label">平均爆款指数位</div><div class="stat-val">${ms.avgViralRate}</div></div>
     </div>` : "";
 
     const um = r.userMetrics;
@@ -834,8 +837,8 @@
         <div class="score-ring" style="--p:${r.score}"><div><b>${r.score}</b><small>/100</small></div></div>
         <div class="score-meta">
           <div class="sm-row">
-            <div class="sm-item"><div class="sm-k">同主题历史爆款率</div><div class="sm-v hot">${r.topicViralRate}%</div></div>
-            <div class="sm-item"><div class="sm-k">同情绪历史爆款率</div><div class="sm-v hot">${r.emotionViralRate}%</div></div>
+            <div class="sm-item"><div class="sm-k">同主题历史爆款占比</div><div class="sm-v hot">${r.topicViralRate}%</div></div>
+            <div class="sm-item"><div class="sm-k">同情绪历史爆款占比</div><div class="sm-v hot">${r.emotionViralRate}%</div></div>
             <div class="sm-item"><div class="sm-k">命中关键词</div><div class="sm-v">${r.keywordHits}</div></div>
           </div>
           ${hitTagsHTML}
@@ -862,14 +865,14 @@
     const topMatches = r.matches.items.slice(0, 4).map((c) => {
       const maxV = Math.max(...state.analysis.contents.map((x) => x.viralScore), 0.0001);
       const viralRate = Math.round((c.viralScore / maxV) * 100);
-      return `- ${dispText(c)}（${c.account} · ${c.contentType} · 爆款率 ${viralRate} · 匹配原因：${c.matchReason}）`;
+      return `- ${dispText(c)}（${c.account} · ${c.contentType} · 爆款指数位 ${viralRate} · 匹配原因：${c.matchReason}）`;
     }).join("\n");
     const ctx = `【内容选题深度分析请求】
 我的内容想法：${idea}
 
 —— 前端即时快评 ——
-爆款率：${r.score}/100
-同主题历史爆款率：${r.topicViralRate}% | 同情绪历史爆款率：${r.emotionViralRate}%
+爆款指数位：${r.score}/100
+同主题历史爆款占比：${r.topicViralRate}% | 同情绪历史爆款占比：${r.emotionViralRate}%
 命中关键词数：${r.keywordHits}
 匹配历史内容：${r.matches.total} 条，其中 ${(r.matchedStats.topRate * 100).toFixed(0)}% 为爆款
 用户侧：平均互动 ${fmt(r.userMetrics.avgEngagement)} · 平均评论 ${fmt(r.userMetrics.avgComments)} · 评价倾向「${r.userMetrics.reviewTone}」 · 用户高频关键词：${r.userMetrics.topKeywords.join("、")}
@@ -1229,12 +1232,12 @@ ${topMatches || "（无强匹配）"}
     }
     if (dims.has("perf")) {
       const vr = rate(c);
-      if (vr >= 70) { score += 20; reasons.push(`爆款内容（爆款率 ${vr}%）`); }
-      else if (vr >= 50) { score += 12; reasons.push(`高表现（爆款率 ${vr}%）`); }
+      if (vr >= 70) { score += 20; reasons.push(`爆款内容（爆款指数位 ${vr}%）`); }
+      else if (vr >= 50) { score += 12; reasons.push(`高表现（爆款指数位 ${vr}%）`); }
       else if (vr >= 30) { score += 6; }
       dimHits.push("perf");
     }
-    // 保底：仅在完全无命中时按整体爆款率给分，避免看板空白
+    // 保底：仅在完全无命中时按整体爆款指数位给分，避免看板空白
     if (score < 1) {
       const vr = rate(c);
       score = Math.max(1, Math.round(vr / 5));
@@ -1245,7 +1248,7 @@ ${topMatches || "（无强匹配）"}
     const vr = rate(c);
     const eng = (c.engagementRate || 0).toFixed(2);
     const topics = (c.topicTags || []).join("、") || "未标注";
-    const hit = c.isTop ? "属于爆款(Top10%)内容" : `爆款率 ${vr}%`;
+    const hit = c.isTop ? "属于爆款(Top10%)内容" : `爆款指数位 ${vr}%`;
     const tail = (reasons && reasons.length)
       ? `结合你的目的，它在「${reasons.slice(0, 2).join("、")}」等维度上高度契合，可作为同类内容的参考范本。`
       : "在当前筛选下表现居前，适合作为参考样本。";
@@ -1294,11 +1297,11 @@ ${topMatches || "（无强匹配）"}
       const r = matchScoreMulti(c, { g, topic: null, detail, dims: fstate.dims });
       if (r.score > 0) scored.push({ c, ...r });
     }
-    // 无任何严格匹配时回退：按爆款率/表现排序，让看板永远有输出
+    // 无任何严格匹配时回退：按爆款指数位/表现排序，让看板永远有输出
     const isFallback = scored.length === 0;
     const fallback = data.slice().sort((a, b) => (rate(b) - rate(a)) || ((b.engagement || 0) - (a.engagement || 0))).slice(0, 15).map((c) => ({
       c, score: rate(c),
-      reasons: [isFallback ? "无严格匹配 · 按整体爆款率排序" : "整体表现优异"],
+      reasons: [isFallback ? "无严格匹配 · 按整体爆款指数位排序" : "整体表现优异"],
       dimHits: ["perf"],
     }));
     const list = isFallback ? fallback : scored.sort((a, b) => b.score - a.score);
@@ -1355,11 +1358,11 @@ ${topMatches || "（无强匹配）"}
 
     const dashHTML = `<div class="find-dash">
       <div class="find-dash-title">📊 匹配度可视化看板 · 「${esc(label)}」</div>
-      ${isFallback ? `<div class="uv-insight" style="margin-bottom:10px;font-size:12.5px">⚠️ 当前目的下未找到严格匹配的内容。已自动回退为<b>整体爆款率排序</b>的 Top 内容。在输入框补充更多具体词（如品牌、形式、风格）可获得更精准匹配。</div>` : ""}
+      ${isFallback ? `<div class="uv-insight" style="margin-bottom:10px;font-size:12.5px">⚠️ 当前目的下未找到严格匹配的内容。已自动回退为<b>整体爆款指数位排序</b>的 Top 内容。在输入框补充更多具体词（如品牌、形式、风格）可获得更精准匹配。</div>` : ""}
       <div class="bud-stats" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
         <div class="bud-stat"><div class="bud-stat-val">${top.length}</div><div class="bud-stat-lab">匹配内容</div></div>
         <div class="bud-stat"><div class="bud-stat-val">${avgScore}</div><div class="bud-stat-lab">平均匹配分</div></div>
-        <div class="bud-stat"><div class="bud-stat-val" style="color:var(--hot)">${topAvgRate}%</div><div class="bud-stat-lab">平均爆款率</div></div>
+        <div class="bud-stat"><div class="bud-stat-val" style="color:var(--hot)">${topAvgRate}%</div><div class="bud-stat-lab">平均爆款指数位</div></div>
         <div class="bud-stat"><div class="bud-stat-val" style="color:var(--hot)">${topCount}</div><div class="bud-stat-lab">已爆款数</div></div>
         <div class="bud-stat"><div class="bud-stat-val">${fmt(topEngAvg)}</div><div class="bud-stat-lab">平均互动</div></div>
       </div>
@@ -1418,7 +1421,7 @@ ${topMatches || "（无强匹配）"}
     const data = getFiltered();
     const tops = data.filter((c) => c.isTop);
     const desc = boardDesc("viraldeep");
-    if (!tops.length) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + `<div class="empty-state">当前数据中暂无爆款内容（Top10%）。爆款阈值基于爆款率 ≥70。</div>`;
+    if (!tops.length) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + `<div class="empty-state">当前筛选下暂无爆款内容（爆款指数 TOP10% 真实标签）。</div>`;
     const allLen = data.length;
     const topPct = Math.round(tops.length / Math.max(allLen, 1) * 100);
 
@@ -1434,7 +1437,7 @@ ${topMatches || "（无强匹配）"}
       <div class="bud-stat"><div class="bud-stat-num">${avgER}%</div><div class="bud-stat-lab">平均互动率</div></div>
     </div>`;
 
-    // 2. 按品牌 —— 爆款率排行
+    // 2. 按品牌 —— 爆款指数位排行
     const byBrand = aggregateByField(data, "account");
     const brandTop = byBrand.map((b) => {
       const items = data.filter((c) => c.account === b.name);
@@ -1485,12 +1488,12 @@ ${topMatches || "（无强匹配）"}
 
     // 8. 关键洞察
     const topBrand = brandTop[0], topForm = formTop[0], topEmo = emoTop[0], topPlat = platTop[0], topHour = hourList[0];
-    const insight = `跨所有 ${fmt(allLen)} 条内容的爆款共性分析：<br><br>
-      <b>🏆 品牌</b>：<b style="color:var(--hot)">${esc(topBrand ? topBrand.name : "—")}</b> 爆款率最高（${topBrand ? topBrand.rate : "—"}%），说明其运营策略或受众匹配度领先。<br>
-      <b>🎨 内容形式</b>：<b style="color:var(--hot)">${esc(topForm ? topForm.name : "—")}</b> 形式的爆款率最高（${topForm ? topForm.rate : "—"}%），是当前市场最有效的形式。<br>
+    const insight = `跨所有 ${fmt(allLen)} 条内容的爆款共性分析（「爆款占比」= 该维度下进入爆款指数 TOP10% 真实标签的内容比例）：<br><br>
+      <b>🏆 品牌</b>：<b style="color:var(--hot)">${esc(topBrand ? topBrand.name : "—")}</b> 爆款占比最高（${topBrand ? topBrand.rate : "—"}%），说明其运营策略或受众匹配度领先。<br>
+      <b>🎨 内容形式</b>：<b style="color:var(--hot)">${esc(topForm ? topForm.name : "—")}</b> 形式的爆款占比最高（${topForm ? topForm.rate : "—"}%），是当前市场最有效的形式。<br>
       <b>💬 情绪调性</b>：<b style="color:var(--hot)">${esc(topEmo ? topEmo.name : "—")}</b> 风格内容更易引爆，建议优先匹配该情绪与目标受众。<br>
-      <b>📡 平台</b>：<b style="color:var(--hot)">${esc(topPlat ? topPlat.name : "—")}</b> 爆款率领先，值得重点投入。<br>
-      <b>⏰ 时段</b>：<b style="color:var(--hot)">${topHour ? topHour.hour + ":00" : "—"} 时段</b> 发布的爆款率最高（${topHour ? topHour.rate : "—"}%），可能是用户活跃高峰。<br>
+      <b>📡 平台</b>：<b style="color:var(--hot)">${esc(topPlat ? topPlat.name : "—")}</b> 爆款占比领先，值得重点投入。<br>
+      <b>⏰ 时段</b>：<b style="color:var(--hot)">${topHour ? topHour.hour + ":00" : "—"} 时段</b> 发布的爆款占比最高（${topHour ? topHour.rate : "—"}%），可能是用户活跃高峰。<br>
       <b>🏷 主题</b>：${topicList.length ? topicList.slice(0, 5).map(([t]) => `<b>${esc(t)}</b>`).join("、") : "暂无统计"} 是爆款最密集的主题。`;
 
     // 9. Top 爆款内容展示
@@ -1498,7 +1501,7 @@ ${topMatches || "（无强匹配）"}
     const postCards = topPosts.map((c, i) => `<div class="list-row" data-id="${c.id}">
       <div class="lr-rank">#${i + 1}</div>
       <div><div class="lr-text">${esc(dispText(c))}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.platform)} · ${esc(c.contentType)} · ${esc(c.emotion)}</div></div>
-      <div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款率</small></div>
+      <div class="lr-num" style="color:var(--hot)">${c.viralScore.toFixed(1)}<small>爆款指数</small></div>
     </div>`).join("");
 
     return `<div class="board-head"><div class="board-desc">${desc}</div></div>
@@ -1506,25 +1509,25 @@ ${topMatches || "（无强匹配）"}
       <div class="uv-insight" style="margin-bottom:20px">${insight}</div>
       <div class="vd-grid">
         <div class="vd-col">
-          <div class="vd-title">🏆 爆款率 · 按品牌</div>
+          <div class="vd-title">🏆 爆款占比 · 按品牌</div>
           <div class="vd-bars">${brandRows}</div>
         </div>
         <div class="vd-col">
-          <div class="vd-title">🎨 爆款率 · 按内容形式</div>
+          <div class="vd-title">🎨 爆款占比 · 按内容形式</div>
           <div class="vd-bars">${formRows}</div>
         </div>
         <div class="vd-col">
-          <div class="vd-title">💬 爆款率 · 按情绪调性</div>
+          <div class="vd-title">💬 爆款占比 · 按情绪调性</div>
           <div class="vd-bars">${emoRows}</div>
         </div>
         <div class="vd-col">
-          <div class="vd-title">📡 爆款率 · 按平台</div>
+          <div class="vd-title">📡 爆款占比 · 按平台</div>
           <div class="vd-bars">${platRows}</div>
         </div>
       </div>
       <div class="vd-grid">
         <div class="vd-col">
-          <div class="vd-title">⏰ 最佳发布时段（爆款率 Top8）</div>
+          <div class="vd-title">⏰ 最佳发布时段（爆款占比 Top8）</div>
           <div class="vd-bars">${hourRows}</div>
         </div>
         <div class="vd-col" style="flex:2">
@@ -1585,11 +1588,11 @@ ${topMatches || "（无强匹配）"}
         const topEmo = Object.entries(emotions).sort((a, b) => b[1] - a[1])[0] || ["—", 0];
         const avgEng = Math.min(3, items.reduce((s, c) => s + c.engagementRate, 0) / items.length).toFixed(2);
         let sec = "", mdSec = "";
-        if (refs.has("rhythm")) { sec += opsSec("① 运营节奏", `<li>建议发布频率：<b>${freq}</b> 条/周（参照该竞品历史节奏）</li><li>爆款率基准：${avgRate} · 爆款数 ${topCount}/${items.length}</li>`); mdSec += `### ① 运营节奏\n- 发布频率 ${freq} 条/周\n- 爆款率基准 ${avgRate}\n`; }
+        if (refs.has("rhythm")) { sec += opsSec("① 运营节奏", `<li>建议发布频率：<b>${freq}</b> 条/周（参照该竞品历史节奏）</li><li>爆款指数位基准：${avgRate} · 爆款数 ${topCount}/${items.length}</li>`); mdSec += `### ① 运营节奏\n- 发布频率 ${freq} 条/周\n- 爆款指数位基准 ${avgRate}\n`; }
         if (refs.has("topic")) { const tops = [...new Set(items.flatMap((c) => c.topicTags))].slice(0, 5).join("、") || "—"; const actPct = Math.round(items.filter((c) => c.isActivity).length / items.length * 100); sec += opsSec("② 选题 / 内容", `<li>高频主题：${esc(tops)}</li><li>活动型内容占比：${actPct}%</li>`); mdSec += `### ② 选题/内容\n- 高频主题 ${tops}\n- 活动占比 ${actPct}%\n`; }
         if (refs.has("format")) { sec += opsSec("③ 内容形式建议", `<li>主力形式：<b>${esc(topType[0])}</b>（占 ${topType[1]}/${items.length}）</li>`); mdSec += `### ③ 内容形式\n- 主力 ${topType[0]}\n`; }
         if (refs.has("style")) { sec += opsSec("④ 风格调性", `<li>推荐情绪调性：<b>${esc(topEmo[0])}</b></li>`); mdSec += `### ④ 风格调性\n- ${topEmo[0]}\n`; }
-        if (refs.has("metric")) { sec += opsSec("⑤ 要观测的指标 + 阈值", `<li>爆款率：周均值 ≥ ${avgRate}</li><li>互动率：≥ ${avgEng}%</li><li>发布频率：稳定 ≥ ${freq} 条/周</li><li>异常预警：单条爆款率连续 2 周低于基准即复盘</li>`); mdSec += `### ⑤ 指标阈值\n- 爆款率≥${avgRate}\n- 互动率≥${avgEng}%\n- 频率≥${freq}条/周\n`; }
+        if (refs.has("metric")) { sec += opsSec("⑤ 要观测的指标 + 阈值", `<li>爆款指数位：周均值 ≥ ${avgRate}</li><li>互动率：≥ ${avgEng}%</li><li>发布频率：稳定 ≥ ${freq} 条/周</li><li>异常预警：单条爆款指数位连续 2 周低于基准即复盘</li>`); mdSec += `### ⑤ 指标阈值\n- 爆款指数位≥${avgRate}\n- 互动率≥${avgEng}%\n- 频率≥${freq}条/周\n`; }
         if (refs.has("copy")) {
           const ca = (state.users && state.users.corpusAnalysis) || {};
           const libAll = ca.localized || [];
@@ -1604,9 +1607,9 @@ ${topMatches || "（无强匹配）"}
           }
         }
         const topContent = items.slice().sort((a, b) => b.viralScore - a.viralScore).slice(0, 3);
-        const tcHTML = topContent.map((c) => `<div class="list-row" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(dispText(c))}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)}</div></div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款率</small></div></div>`).join("");
+        const tcHTML = topContent.map((c) => `<div class="list-row" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(dispText(c))}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)}</div></div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款指数位</small></div></div>`).join("");
         sec += opsSec("该竞品优质内容（可借鉴）", tcHTML);
-        mdSec += `### 优质内容\n` + topContent.map((c, i) => `${i + 1}. ${c.text}（${c.contentType}·爆款率${rate(c)}）`).join("\n") + `\n`;
+        mdSec += `### 优质内容\n` + topContent.map((c, i) => `${i + 1}. ${c.text}（${c.contentType}·爆款指数位${rate(c)}）`).join("\n") + `\n`;
         html += `<div class="ops-plan"><div class="ops-head">对标 <b>${esc(name)}</b> 的运营方案</div>${sec}</div>`;
         md += `## 对标 ${name}\n${mdSec}\n`;
       });
@@ -1653,7 +1656,7 @@ ${topMatches || "（无强匹配）"}
     const U = state.users;
     const desc = BOARDS.find((b) => b.id === "uservoice").desc;
     if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
-    const tabs = [["corpus", "用户语料分析"], ["topic", "分内容主题"], ["intent", "分营销目的"], ["emotion", "分情绪风格"], ["form", "分内容形式"]];
+    const tabs = [["corpus", "用户语料分析"], ["topic", "分内容主题"], ["intent", "分营销目的"], ["emotion", "分情绪风格"], ["form", "分内容形式"], ["category", "分产品类目"]];
     const tabBar = `<div class="uv-tabs">${tabs.map(([id, name]) => `<button class="uv-tab${state.uvTab === id ? " on" : ""}" data-uv="${id}">${name}</button>`).join("")}</div>`;
     const m = U.meta;
     const meta = `<div class="uv-meta">真实用户回帖 <b>${fmt(m.genuine_replies_in_window)}</b> · 独立用户 <b>${fmt(m.genuine_users)}</b> · 多帖用户 <b>${fmt(m.multi_reply_users)}</b> · 窗口 ${m.window[0]} ~ ${m.window[1]}<span class="uv-meta-sub">（已过滤品牌官方回复 ${fmt(m.brand_reply_filtered)} 条）</span></div>`;
@@ -1667,12 +1670,14 @@ ${topMatches || "（无强匹配）"}
       else if (dm.tab === "intent") body = backBtn + uvIntentDeep(U, dm.key);
       else if (dm.tab === "emotion") body = backBtn + uvEmotionDeep(U, dm.key);
       else if (dm.tab === "form") body = backBtn + uvFormDeep(U, dm.key);
+      else if (dm.tab === "category") body = backBtn + uvCategoryDeep(U, dm.key);
       else body = backBtn + `<div class="uv-muted">暂不支持该维度钻入</div>`;
     } else {
       if (state.uvTab === "corpus") body = uvCorpus(U);
       else if (state.uvTab === "topic") body = uvTopic(U);
       else if (state.uvTab === "intent") body = uvIntent(U);
       else if (state.uvTab === "emotion") body = uvEmotion(U);
+      else if (state.uvTab === "category") body = uvCategory(U);
       else body = uvForm(U);
     }
     return `<div class="board-head"><div class="board-desc">${desc}</div></div>${meta}${tabBar}${body}`;
@@ -2080,6 +2085,118 @@ ${topMatches || "（无强匹配）"}
     </div>`;
   }
 
+  /* ============================================================
+     新导入真实回帖字段聚合（state.raw.userVoices）
+     reply_intent / reply_focus / category / author_type / sentiment
+     这些字段不在离线 users_data.json 中，需直接从真实回帖聚合
+     ============================================================ */
+  const CAT_NAME = { sexdoll: "实体娃娃", "Male Masturbators": "男用飞机杯", vibrators: "震动棒", sexmachine: "Sex Machine", Anal: "后庭类" };
+  const CAT_COL = { sexdoll: "#ff5d8f", "Male Masturbators": "#00f0ff", vibrators: "#a06bff", sexmachine: "#ffd166", Anal: "#4ade80" };
+  const REPLY_INTENT_NAME = { 购买意向: "购买意向", 咨询问题: "咨询问题", 简单互动: "简单互动", 使用反馈: "使用反馈", 吐槽不满: "吐槽不满" };
+  const REPLY_FOCUS_NAME = { 效果体验: "效果体验", 尺寸外观: "尺寸外观", 材质质量: "材质质量", 价格: "价格", 发货物流: "发货物流", 售后: "售后" };
+
+  function voiceRealAgg(brand) {
+    const uv = (state.raw && state.raw.userVoices) || [];
+    const filtered = brand ? uv.filter((v) => v.account === brand) : uv;
+    const cats = {}, authors = {}, intents = {}, focuses = {};
+    const sents = { pos: 0, neu: 0, neg: 0 };
+    let n = 0, brandOfficial = 0, hasIntent = 0, hasFocus = 0;
+    filtered.forEach((v) => {
+      n++;
+      const cat = v.category || "未标注";
+      const cb = cats[cat] || (cats[cat] = { n: 0, pos: 0, neu: 0, neg: 0, brands: {}, intents: {}, focuses: {} });
+      cb.n++;
+      const s = (v.sentiment || "").trim();
+      if (s === "正面") { cb.pos++; sents.pos++; } else if (s === "负面") { cb.neg++; sents.neg++; } else if (s === "中性") { cb.neu++; sents.neu++; }
+      (v.author_type || "").split("、").forEach((a) => { if (a) { authors[a] = (authors[a] || 0) + 1; if (a === "品牌官方") brandOfficial++; } });
+      const ri = (v.reply_intent || "").trim();
+      if (ri) { hasIntent++; ri.split("、").forEach((x) => { if (x) { cb.intents[x] = (cb.intents[x] || 0) + 1; intents[x] = (intents[x] || 0) + 1; } }); }
+      const rf = (v.reply_focus || "").trim();
+      if (rf) { hasFocus++; rf.split("、").forEach((x) => { if (x) { cb.focuses[x] = (cb.focuses[x] || 0) + 1; focuses[x] = (focuses[x] || 0) + 1; } }); }
+    });
+    return { total: n, cats, authors, intents, focuses, sents, brandOfficial, hasIntent, hasFocus };
+  }
+
+  // 通用「新数据维度」面板（4 个真实字段），可嵌入用户板块各视图
+  function uvRealDimBlock(agg, note) {
+    if (!agg || !agg.total) return `<div class="uv-note">暂无真实回帖数据（content_data.json 未加载）。</div>`;
+    const catPairs = Object.entries(agg.cats).sort((a, b) => b[1].n - a[1].n)
+      .map(([k, b]) => [CAT_NAME[k] || k, b.n, CAT_COL[k] || PAL[0]]);
+    const auPairs = Object.entries(agg.authors).sort((a, b) => b[1] - a[1])
+      .map(([k, v]) => [k, v, k === "品牌官方" ? COL.neg : COL.pos]);
+    const boPct = Math.round((agg.brandOfficial / agg.total) * 100);
+    const intentPairs = Object.entries(agg.intents).sort((a, b) => b[1] - a[1])
+      .map(([k, v], i) => [REPLY_INTENT_NAME[k] || k, v, PAL[i % PAL.length]]);
+    const focusPairs = Object.entries(agg.focuses).sort((a, b) => b[1] - a[1])
+      .map(([k, v], i) => [REPLY_FOCUS_NAME[k] || k, v, PAL[(i + 3) % PAL.length]]);
+    const intentCov = Math.round((agg.hasIntent / agg.total) * 100);
+    const focusCov = Math.round((agg.hasFocus / agg.total) * 100);
+    return `<div class="uv-real">
+      ${note ? `<div class="uv-real-note">${note}</div>` : ""}
+      <div class="uv-real-grid">
+        <div class="bud-panel"><div class="bud-panel-t">① 回帖类目分布（真实回帖关联的原帖类目）</div>${uvBars(catPairs)}</div>
+        <div class="bud-panel"><div class="bud-panel-t">② 回帖者身份（用户 vs 品牌官方）</div>${uvBars(auPairs)}
+          <div class="uv-note">品牌官方亲自回帖 <b>${fmt(agg.brandOfficial)}</b> 条（占 ${boPct}%）——品牌在社群中<b>主动下场互动</b>，利于承接咨询与拉近关系。</div>
+        </div>
+        <div class="bud-panel"><div class="bud-panel-t">③ 回复意图（reply_intent）</div>${intentPairs.length ? uvBars(intentPairs) : `<div class="uv-muted">暂无标注</div>`}
+          <div class="uv-note">覆盖率 ${fmt(agg.hasIntent)}/${fmt(agg.total)} 条（${intentCov}%）有意图标注，以下为已标注部分分布。</div>
+        </div>
+        <div class="bud-panel"><div class="bud-panel-t">④ 回复焦点（reply_focus）</div>${focusPairs.length ? uvBars(focusPairs) : `<div class="uv-muted">暂无标注</div>`}
+          <div class="uv-note">覆盖率 ${fmt(agg.hasFocus)}/${fmt(agg.total)} 条（${focusCov}%）有焦点标注，以下为已标注部分分布。</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // 用户板块新 tab：分产品类目（真实回帖 category 维度）
+  function uvCategory(U) {
+    const agg = voiceRealAgg();
+    const overview = uvRealDimBlock(agg, "下列四个维度全部来自<b>新导入的真实回帖 userVoices</b>（category / author_type / reply_intent / reply_focus），此前离线语料分析未覆盖，现统一接入用户板块。");
+    const catEntries = Object.entries(agg.cats).sort((a, b) => b[1].n - a[1].n);
+    const cards = catEntries.map(([cat, cb]) => {
+      const sPairs = [["正面", cb.pos, COL.pos], ["中性", cb.neu, COL.neu], ["负面", cb.neg, COL.neg]];
+      const brandChips = Object.entries(cb.brands).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => `<span class="uv-chip">${esc(k)}<em>×${v}</em></span>`).join("");
+      const intentChips = Object.entries(cb.intents).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => `<span class="uv-chip uv-chip-intent">${REPLY_INTENT_NAME[k] || k}<em>×${v}</em></span>`).join("");
+      const focusChips = Object.entries(cb.focuses).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => `<span class="uv-chip">${REPLY_FOCUS_NAME[k] || k}<em>×${v}</em></span>`).join("");
+      return `<div class="uv-form-card">
+        <div class="uv-form-head"><span class="uv-form-name">${esc(CAT_NAME[cat] || cat)}</span><span class="uv-form-count">${fmt(cb.n)} 条回帖</span><button class="btn-ghost uv-drill-btn" data-uv-drill="category" data-uv-key="${esc(cat)}">🎯 深度分析 →</button></div>
+        ${uvBars(sPairs)}
+        <div class="uv-row"><b>主要品牌</b><div class="uv-tags">${brandChips || "—"}</div></div>
+        ${intentChips ? `<div class="uv-row"><b>回复意图</b><div class="uv-tags">${intentChips}</div></div>` : ""}
+        ${focusChips ? `<div class="uv-row"><b>回复焦点</b><div class="uv-tags">${focusChips}</div></div>` : ""}
+      </div>`;
+    }).join("");
+    return `<div class="uv-block">
+      ${overview}
+      <div class="uv-block-title" style="margin-top:18px">分产品类目下钻（每个类目：情绪、主要品牌、意图、焦点）</div>
+      <div class="uv-form-grid">${cards}</div>
+    </div>`;
+  }
+  function uvCategoryDeep(U, cat) {
+    const agg = voiceRealAgg();
+    const cb = agg.cats[cat];
+    if (!cb) return `<div class="uv-muted">暂无「${esc(cat)}」深度数据</div>`;
+    const sTot = cb.pos + cb.neu + cb.neg || 1;
+    const posR = Math.round((cb.pos / sTot) * 100);
+    const brandBars = uvBars(Object.entries(cb.brands).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, v], i) => [k, v, PAL[i % PAL.length]]));
+    const intentBars = Object.keys(cb.intents).length ? uvBars(Object.entries(cb.intents).sort((a, b) => b[1] - a[1]).map(([k, v], i) => [REPLY_INTENT_NAME[k] || k, v, PAL[i % PAL.length]])) : `<div class="uv-muted">暂无标注</div>`;
+    const focusHas = Object.keys(cb.focuses).length > 0;
+    const focusBars = focusHas ? uvBars(Object.entries(cb.focuses).sort((a, b) => b[1] - a[1]).map(([k, v], i) => [REPLY_FOCUS_NAME[k] || k, v, PAL[(i + 3) % PAL.length]])) : `<div class="uv-muted">暂无标注</div>`;
+    const samples = ((state.raw && state.raw.userVoices) || []).filter((v) => (v.category || "未标注") === cat)
+      .sort((a, b) => (b.likes || 0) - (a.likes || 0)).slice(0, 8)
+      .map((v) => `<div class="uv-layer-sample">${v.author_type ? `<span class="uv-chip-mini">${esc(v.author_type)}</span>` : ""}${v.sentiment ? uvSentTag(v.sentiment) : ""} <span class="uv-sample-text">${esc(v.text_zh || v.text)}</span> <a class="uv-link" href="${esc(v.replyLink || v.originalLink || "#")}" target="_blank" rel="noreferrer">↗</a></div>`).join("");
+    const intentTop = Object.keys(cb.intents).length ? Object.entries(cb.intents).sort((a, b) => b[1] - a[1])[0][0] : "";
+    const insight = `${CAT_NAME[cat] || cat} 类目共 <b>${fmt(cb.n)}</b> 条真实回帖，正面率 <b>${posR}%</b>${intentTop ? "；用户讨论焦点以「" + intentTop + "」为主" : ""}。`;
+    return `<div class="uv-drill"><div class="uv-drill-title">📊 「${esc(CAT_NAME[cat] || cat)}」类目深度分析</div>
+      <div class="uv-drill-count">${fmt(cb.n)} 条回帖 · 正面 ${posR}%</div>
+      <div class="uv-insight">${insight}</div>
+      <div class="bud-two" style="margin-top:12px"><div class="bud-panel"><div class="bud-panel-t">关联品牌</div>${brandBars}</div>
+      <div class="bud-panel"><div class="bud-panel-t">回复意图</div>${intentBars}</div></div>
+      ${focusHas ? `<div class="dp-section"><div class="dp-sec-title">回复焦点（用户关注什么）</div>${focusBars}</div>` : ""}
+      <div class="dp-section"><div class="dp-sec-title">💬 代表语录（按点赞排序 · 真实回帖）</div><div class="uv-layer-samples">${samples || "—"}</div></div>
+    </div>`;
+  }
+
   // 维度下钻卡牌共用的「代表语录」渲染
   function uvDimQuote(s) {
     if (!s) return "";
@@ -2191,6 +2308,14 @@ ${topMatches || "（无强匹配）"}
       const intents = Object.entries(b.intents || {}).slice(0, 5).map(([k, v]) => `<span class="uv-chip uv-chip-intent">${INTENT_NAME[k] || k}<em>×${v}</em></span>`).join("");
       const tu = (b.topUsers || []).slice(0, 4).map((t) => `<span class="uv-chip">${esc(t.u)}<em>×${t.n}</em></span>`).join("");
       const q = (b.quotes || []).slice(0, 3).map((qq) => `<div class="uv-quote">${uvLangTag(qq.lang)} ${uvSentTag(qq.sent)} <span class="uv-q-text">${esc(dispVoice(qq))}</span> <a class="uv-link" href="${esc(qq.link || "#")}" target="_blank" rel="noreferrer">↗</a></div>`).join("");
+      const ra = voiceRealAgg(b.brand);
+      const realRows = `<div class="uv-real-mini">
+        <div class="uv-real-mini-t">真实回帖新维度（userVoices 直采）</div>
+        <div class="uv-row"><b>回帖身份</b><div class="uv-tags">${Object.entries(ra.authors).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span class="uv-chip">${esc(k)}<em>×${v}</em></span>`).join("")||"—"}</div></div>
+        <div class="uv-row"><b>类目构成</b><div class="uv-tags">${Object.entries(ra.cats).sort((a,b)=>b[1].n-a[1].n).slice(0,5).map(([k,v])=>`<span class="uv-chip">${esc(CAT_NAME[k]||k)}<em>×${v.n}</em></span>`).join("")||"—"}</div></div>
+        ${ra.hasIntent?`<div class="uv-row"><b>回复意图</b><div class="uv-tags">${Object.entries(ra.intents).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,v])=>`<span class="uv-chip uv-chip-intent">${REPLY_INTENT_NAME[k]||k}<em>×${v}</em></span>`).join("")}</div></div>`:""}
+        ${ra.hasFocus?`<div class="uv-row"><b>回复焦点</b><div class="uv-tags">${Object.entries(ra.focuses).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,v])=>`<span class="uv-chip">${REPLY_FOCUS_NAME[k]||k}<em>×${v}</em></span>`).join("")}</div></div>`:""}
+      </div>`;
       const hasDeep = (U.brandUsers || []).some((x) => x.brand === b.brand);
       return `<div class="uv-brand-card">
         <div class="uv-brand-head"><span class="uv-brand-name">${esc(b.brand)}</span><span class="uv-brand-count">${fmt(b.replyCount)} 条用户声音</span></div>
@@ -2201,6 +2326,7 @@ ${topMatches || "（无强匹配）"}
         <div class="uv-row"><b>用户倾向</b><div class="uv-tags">${intents || "—"}</div></div>
         <div class="uv-row"><b>高互动用户</b><div class="uv-tags">${tu}</div></div>
         <div class="uv-row"><b>代表语录</b><div class="uv-quotes">${q}</div></div>
+        ${realRows}
         ${hasDeep ? `<button class="btn-primary bud-enter" data-bud="${esc(b.brand)}">🎯 品牌互动用户深度分析 →</button>` : ""}
       </div>`;
     }).join("");
@@ -2598,7 +2724,9 @@ ${topMatches || "（无强匹配）"}
     const U = state.users;
     const desc = boardDesc("userseg");
     if (!U) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + emptyState("用户分析数据待生成（运行 scripts/build_users.py）");
+    const realOverview = uvRealDimBlock(voiceRealAgg(), "全量真实回帖的新维度概览（来自 userVoices 直采，补充离线分层分析看不到的「类目 / 身份 / 意图 / 焦点」）。");
     return `<div class="board-head"><div class="board-desc">${desc}</div></div>
+      ${realOverview}
       ${uvRank(U)}`;
   }
   function renderUserSegDeep(U) {
@@ -2761,6 +2889,7 @@ ${topMatches || "（无强匹配）"}
     if (state.uvLayerDrill && U.layers[state.uvLayerDrill]) return renderLayerDrill(state.uvLayerDrill);
     if (state.uvLayerDrill && state.uvLayerDrill.startsWith("intent_")) return renderIntentLayerDrill(state.uvLayerDrill);
     if (state.uvLayerDrill && state.uvLayerDrill.startsWith("eng_")) return renderEngLayerDrill(state.uvLayerDrill);
+    const realOverview = uvRealDimBlock(voiceRealAgg(), "全量真实回帖的新维度概览（来自 userVoices 直采，补充离线分层分析看不到的「类目 / 身份 / 意图 / 焦点」）。");
     // 三层架构：投入度 / 忠诚度 / 意图倾向，统一区块标题 + 卡片网格
     const legend = `<div class="uv-legend">
       <span class="uv-legend-chip"><i style="background:var(--accent)"></i>投入度 · 按回复字数</span>
@@ -2769,6 +2898,7 @@ ${topMatches || "（无强匹配）"}
     </div>`;
     return `<div class="board-head"><div class="board-desc">${desc}</div></div>
       ${legend}
+      ${realOverview}
       <div class="uv-sec">
         <div class="uv-sec-head">
           <div class="uv-sec-title">① 投入度分层<span class="uv-sec-sub">按回复字数切分，不同投入度对应不同运营动作</span></div>
@@ -3061,7 +3191,7 @@ ${topMatches || "（无强匹配）"}
       ? `<div class="uv-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:8px">${voices.slice(0, 6).map((v) => `<div class="uv-card"><div class="uv-top"><span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span><span class="uv-likes">♥ ${fmt(v.likes)}</span></div><div class="uv-text">${esc(dispVoice(v))}</div><a class="uv-link" href="${esc(v.originalLink || "#")}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div>`).join("")}</div>`
       : `<div style="color:var(--text-3);font-size:12.5px;margin-top:6px">暂无该竞品的用户评价数据</div>`;
     const listCap = cf ? items.length : Math.min(items.length, 8);
-    const contentHTML = `<div class="list-rows">${items.slice(0, listCap).map((c) => `<div class="list-row" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(dispText(c))}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div></div><div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div><div class="lr-num">${fmt(c.engagement)}<small>互动</small></div><div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款率</small></div></div>${c.post_link ? `<a class="lr-link" href="${esc(c.post_link)}" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">原帖↗</a>` : ""}</div>`).join("")}${cf && items.length > listCap ? `<div style="color:var(--text-3);font-size:12px;padding:8px 0;text-align:center">已显示全部 ${items.length} 条（受筛选约束）</div>` : ""}</div>`;
+    const contentHTML = `<div class="list-rows">${items.slice(0, listCap).map((c) => `<div class="list-row" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(dispText(c))}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div></div><div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div><div class="lr-num">${fmt(c.engagement)}<small>互动</small></div><div><div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款指数位</small></div></div>${c.post_link ? `<a class="lr-link" href="${esc(c.post_link)}" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">原帖↗</a>` : ""}</div>`).join("")}${cf && items.length > listCap ? `<div style="color:var(--text-3);font-size:12px;padding:8px 0;text-align:center">已显示全部 ${items.length} 条（受筛选约束）</div>` : ""}</div>`;
     const typeBreak = groupRate(itemsAll, "contentType");
     const topicBreak = groupRate(itemsAll, "topicTags", true).slice(0, 8);
     const emotionBreak = groupRate(itemsAll, "emotion");
@@ -3072,21 +3202,21 @@ ${topMatches || "（无强匹配）"}
       { title: `风格/情绪分布（${emotionBreak.length}）`, rows: emotionBreak },
     ].map((d) => `<div class="comp-dim-card"><div class="comp-dim-title">${d.title}</div>${d.rows.map((r) => `<div class="qc-bar"><span class="qc-name" style="width:96px">${esc(r.name)}</span><span class="qc-track"><i style="width:${(r.avgRate / maxRate) * 100}%"></i></span><span class="qc-val">${r.count}·${r.avgRate}</span></div>`).join("") || '<div style="color:var(--text-3);font-size:12px">无</div>'}</div>`).join("");
     const weeks = aggregateWeeks(itemsAll);
-    const rhythmHTML = weeks.length ? `<div class="panel" style="margin-top:12px"><div class="panel-title">运营节奏 · 频率 × 表现</div><div class="panel-sub">柱=当周发布数 · 线=当周平均爆款率</div>${comboSVG(weeks)}</div>` : "";
+    const rhythmHTML = weeks.length ? `<div class="panel" style="margin-top:12px"><div class="panel-title">运营节奏 · 频率 × 表现</div><div class="panel-sub">柱=当周发布数 · 线=当周平均爆款指数位</div>${comboSVG(weeks)}</div>` : "";
     const bursts = burstsFor(itemsAll);
     const burstHTML = bursts.length ? `<div class="panel" style="margin-top:12px"><div class="panel-title">Campaign 爆发监测</div>${bursts.map((r) => `<div class="qc-bar"><span class="qc-name">${esc(r.name)}</span><span class="qc-track"><i style="width:${Math.min(100, r.lift * 20)}%"></i></span><span class="qc-val">${r.lift.toFixed(1)}× · ${r.count}条</span></div>`).join("")}</div>` : "";
     return `<div class="comp-section">
-      <div class="comp-sec-head"><span class="comp-sec-name">${esc(name)}</span><span class="comp-sec-badge">内容 ${itemsAll.length} · 平均爆款率 ${avgRate} · 爆款 ${topCount}</span></div>
+      <div class="comp-sec-head"><span class="comp-sec-name">${esc(name)}</span><span class="comp-sec-badge">内容 ${itemsAll.length} · 平均爆款指数位 ${avgRate} · 爆款 ${topCount}</span></div>
       <div class="comp-meta">${m0.category ? `<span class="tag">${esc(m0.category)}</span>` : ""}${followers ? `<span class="comp-followers">👥 ${fmt(followers)} 粉丝</span>` : ""}${handles ? `<span class="comp-handles">${handles}</span>` : ""}</div>
       <div class="stat-row" style="margin:10px 0">
         <div class="stat"><div class="stat-label">内容量</div><div class="stat-val">${itemsAll.length}</div></div>
-        <div class="stat"><div class="stat-label">平均爆款率</div><div class="stat-val" style="color:var(--hot)">${avgRate}</div></div>
+        <div class="stat"><div class="stat-label">平均爆款指数位</div><div class="stat-val" style="color:var(--hot)">${avgRate}</div></div>
         <div class="stat"><div class="stat-label">爆款数</div><div class="stat-val">${topCount}</div></div>
         <div class="stat"><div class="stat-label">总曝光</div><div class="stat-val">${fmt(totalExp)}</div></div>
         <div class="stat"><div class="stat-label">平均互动率</div><div class="stat-val">${avgEng}%</div></div>
       </div>
       <div class="comp-dims">${dimCards}</div>
-      <div class="comp-sub">内容排序列表${cf ? "（受形式 / 数据筛选约束）" : "（按爆款率 · 点开看原帖）"}</div>${contentHTML}
+      <div class="comp-sub">内容排序列表${cf ? "（受形式 / 数据筛选约束）" : "（按爆款指数位 · 点开看原帖）"}</div>${contentHTML}
       <div class="comp-sub">用户对竞品的评价（最高赞）</div>${voiceHTML}
       ${rhythmHTML}${burstHTML}
     </div>`;
@@ -3100,12 +3230,12 @@ ${topMatches || "（无强匹配）"}
     const toolbar = `<div class="comp-toolbar">
       <div class="ct-group"><span class="ct-label">形式</span><div class="ct-chips" id="comp-type-chips">${typeChips || '<span style="color:var(--text-3);font-size:12px">无</span>'}</div></div>
       <div class="ct-group"><span class="ct-label">排序</span><select class="sel" id="comp-sort">
-        <option value="viral"${cf.sort === "viral" ? " selected" : ""}>爆款率</option>
+        <option value="viral"${cf.sort === "viral" ? " selected" : ""}>爆款指数位</option>
         <option value="engagement"${cf.sort === "engagement" ? " selected" : ""}>互动</option>
         <option value="exposure"${cf.sort === "exposure" ? " selected" : ""}>浏览/曝光</option>
         <option value="date"${cf.sort === "date" ? " selected" : ""}>最新发布</option>
       </select></div>
-      <div class="ct-group ct-range"><span class="ct-label">爆款率≥</span><input type="range" id="comp-viral-min" min="0" max="100" value="${cf.viralMin}"><span class="ct-val" id="comp-viral-min-val">${cf.viralMin}</span></div>
+      <div class="ct-group ct-range"><span class="ct-label">爆款指数位≥</span><input type="range" id="comp-viral-min" min="0" max="100" value="${cf.viralMin}"><span class="ct-val" id="comp-viral-min-val">${cf.viralMin}</span></div>
       <div class="ct-group"><label class="chk"><input type="checkbox" id="comp-top-only"${cf.topOnly ? " checked" : ""}>只看爆款</label></div>
       <div class="ct-group"><button class="comp-reset" id="comp-reset">重置筛选</button></div>
     </div>`;
@@ -3142,54 +3272,103 @@ ${topMatches || "（无强匹配）"}
       <div class="fp-chips" style="margin-bottom:16px">${chips}</div>
       ${compare}`;
   }
+  // 多竞品横向对比：品牌聚合（全部采用真实字段，源数据 1:1 聚合）
   function brandAgg(name, data) {
     const items = data.filter((c) => c.account === name);
     const c0 = items.length;
-    const avgRate = c0 ? Math.round(items.reduce((s, c) => s + rate(c), 0) / c0) : 0;
+    if (!c0) return null;
+    const sum = (arr, k) => arr.reduce((s, c) => s + (c[k] || 0), 0);
+    const avg = (arr, k) => sum(arr, k) / arr.length;
     const topCount = items.filter((c) => c.isTop).length;
-    const totalExp = items.reduce((s, c) => s + c.exposure, 0);
-    const avgExp = c0 ? Math.round(totalExp / c0) : 0;
-    const avgEng = c0 ? Math.round(items.reduce((s, c) => s + c.engagement, 0) / c0) : 0;
-    const avgEngRate = c0 ? (items.reduce((s, c) => s + c.engagementRate, 0) / c0).toFixed(2) : 0;
-    const metas = accountMeta(name);
-    const followers = metas.reduce((s, a) => s + (a.followers || 0), 0);
     const voices = ((state.raw && state.raw.userVoices) || []).filter((v) => v.account === name);
     const voiceCount = voices.length;
-    const voiceLikes = voiceCount ? voices.reduce((s, v) => s + (v.likes || 0), 0) : 0;
+    const voiceLikes = voiceCount ? sum(voices, "likes") : 0;
     const voiceAvg = voiceCount ? Math.round(voiceLikes / voiceCount) : 0;
     const sent = { pos: 0, neu: 0, neg: 0 };
-    voices.forEach((v) => { const s = (v.sentiment || ""); if (s.includes("赞美") || s.includes("共鸣") || s.toLowerCase().includes("pos")) sent.pos++; else if (s.includes("震惊") || s.includes("投诉") || s.toLowerCase().includes("neg") || s.includes("抱怨")) sent.neg++; else sent.neu++; });
-    const top3 = [...items].sort((a, b) => b.viralScore - a.viralScore).slice(0, 3);
-    const domType = groupRate(items, "contentType")[0];
-    const domTopic = groupRate(items, "topicTags", true)[0];
-    return { name, c0, avgRate, topCount, totalExp, avgExp, avgEng, avgEngRate, followers, voiceCount, voiceAvg, sent, top3, domType, domTopic };
+    voices.forEach((v) => { const s = (v.sentiment || ""); if (s.includes("正面")) sent.pos++; else if (s.includes("负面")) sent.neg++; else sent.neu++; });
+    const posPct = voiceCount ? Math.round(sent.pos / voiceCount * 100) : 0;
+    // 主导维度（按出现频次）
+    const dom = (key) => { const m = {}; items.forEach((c) => { const v = c[key]; if (v) m[v] = (m[v] || 0) + 1; }); const e = Object.entries(m).sort((a, b) => b[1] - a[1])[0]; return e ? e[0] : "—"; };
+    const originalPct = Math.round(items.filter((c) => (c.content_source || "") === "原创").length / c0 * 100);
+    return {
+      name, c0,
+      totalExp: sum(items, "exposure"),
+      avgExp: Math.round(avg(items, "exposure")),
+      totalEng: sum(items, "engagement"),
+      avgEng: Math.round(avg(items, "engagement")),
+      avgEngRate: +avg(items, "engagementRate").toFixed(2),
+      avgViral: +avg(items, "viralScore").toFixed(1),
+      topCount, topPct: Math.round(topCount / c0 * 100),
+      avgLikeRate: +avg(items, "likeRate").toFixed(2),
+      avgCommentRate: +avg(items, "commentRate").toFixed(2),
+      avgShareRate: +avg(items, "shareRate").toFixed(2),
+      avgCollectRate: +avg(items, "collectRate").toFixed(2),
+      voiceCount, voiceAvg, posPct,
+      domType: dom("contentType"),
+      domEmotion: dom("emotion") || "—",
+      domCategory: dom("category"),
+      domGoal: dom("marketing_goal") || "—",
+      originalPct,
+      top3: [...items].sort((a, b) => b.viralScore - a.viralScore).slice(0, 3),
+    };
   }
   function renderBrandCompare(sel) {
-    if (sel.length < 2) return `<div class="dim-note">勾选 2 个及以上品牌，查看横向对比（数据 + Top3 内容 + 用户情况综合）。</div>`;
-    const aggs = sel.map((b) => brandAgg(b.name, state.analysis.contents));
+    if (sel.length < 2) return `<div class="dim-note">勾选 2 个及以上品牌，查看横向对比（真实指标矩阵 + Top3 内容 + 用户情况）。</div>`;
+    const aggs = sel.map((b) => brandAgg(b.name, state.analysis.contents)).filter(Boolean);
+    if (!aggs.length) return `<div class="dim-note">所选品牌暂无内容数据。</div>`;
+    // 指标行定义：label / 取值 / 格式化 / 越大越好
+    const rows = [
+      { label: "内容量", get: (a) => a.c0, fmt: (v) => fmt(v), better: "high" },
+      { label: "总曝光", get: (a) => a.totalExp, fmt: (v) => fmt(v), better: "high" },
+      { label: "平均曝光", get: (a) => a.avgExp, fmt: (v) => fmt(v), better: "high" },
+      { label: "总互动", get: (a) => a.totalEng, fmt: (v) => fmt(v), better: "high" },
+      { label: "平均互动", get: (a) => a.avgEng, fmt: (v) => fmt(v), better: "high" },
+      { label: "互动率（综合）", get: (a) => a.avgEngRate, fmt: (v) => v + "%", better: "high" },
+      { label: "平均爆款指数", get: (a) => a.avgViral, fmt: (v) => v, better: "high" },
+      { label: "爆款占比（Top10%）", get: (a) => a.topPct, fmt: (v) => v + "%", better: "high" },
+      { label: "平均点赞率", get: (a) => a.avgLikeRate, fmt: (v) => v + "%", better: "high" },
+      { label: "平均评论率", get: (a) => a.avgCommentRate, fmt: (v) => v + "%", better: "high" },
+      { label: "平均转发率", get: (a) => a.avgShareRate, fmt: (v) => v + "%", better: "high" },
+      { label: "平均收藏率", get: (a) => a.avgCollectRate, fmt: (v) => v + "%", better: "high" },
+      { label: "用户讨论量", get: (a) => a.voiceCount, fmt: (v) => fmt(v), better: "high" },
+      { label: "平均讨论赞", get: (a) => a.voiceAvg, fmt: (v) => fmt(v), better: "high" },
+      { label: "正面情绪占比", get: (a) => a.posPct, fmt: (v) => v + "%", better: "high" },
+      { label: "原创占比", get: (a) => a.originalPct, fmt: (v) => v + "%", better: "high" },
+    ];
+    const rowHTML = rows.map((r) => {
+      const vals = aggs.map((a) => r.get(a));
+      const max = Math.max(...vals, 0.0001);
+      const cells = aggs.map((a, i) => {
+        const v = vals[i];
+        const isBest = aggs.length > 1 && v === max;
+        const w = max > 0 ? Math.round(v / max * 100) : 0;
+        return `<td class="cmp-td${isBest ? " best" : ""}"><div class="cmp-td-val">${r.fmt(v)}</div><div class="cmp-td-bar"><i style="width:${w}%"></i></div></td>`;
+      }).join("");
+      return `<tr><td class="cmp-rlabel">${r.label}</td>${cells}</tr>`;
+    }).join("");
+    const headCells = aggs.map((a) => `<th class="cmp-th">${esc(a.name)}<span class="cmp-th-sub">${a.c0} 条 · 爆款 ${a.topCount}（${a.topPct}%）</span></th>`).join("");
+    const table = `<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th class="cmp-rlabel">指标 ＼ 品牌</th>${headCells}</tr></thead><tbody>${rowHTML}</tbody></table></div>`;
     const cards = aggs.map((a) => `<div class="cmp-brand-card">
-      <div class="cmp-brand-head"><span class="cmp-brand-name">${esc(a.name)}</span><span class="cmp-brand-badge">${a.c0} 条 · 爆款 ${a.topCount}</span></div>
-      <div class="dc-metrics" style="grid-template-columns:1fr 1fr 1fr;gap:8px 10px">
-        <div class="dc-m"><span>平均爆款率</span><b style="color:var(--hot)">${a.avgRate}</b></div>
-        <div class="dc-m"><span>总曝光</span><b>${fmt(a.totalExp)}</b></div>
-        <div class="dc-m"><span>平均曝光</span><b>${fmt(a.avgExp)}</b></div>
-        <div class="dc-m"><span>平均互动</span><b>${fmt(a.avgEng)}</b></div>
-        <div class="dc-m"><span>互动率</span><b>${a.avgEngRate}%</b></div>
-        <div class="dc-m"><span>粉丝</span><b>${fmt(a.followers)}</b></div>
-      </div>
-      <div class="cmp-user-row"><span class="cu-k">用户讨论</span><span class="cu-v">${a.voiceCount} 条 · 均赞 ${fmt(a.voiceAvg)}</span></div>
-      <div class="cmp-user-row"><span class="cu-k">情绪分布</span><span class="cu-v">赞 ${a.sent.pos} · 中 ${a.sent.neu} · 负 ${a.sent.neg}</span></div>
-      <div class="cmp-user-row"><span class="cu-k">主力形式</span><span class="cu-v">${a.domType ? esc(a.domType.name) + "（爆款率 " + a.domType.avgRate + "）" : "—"}</span></div>
+      <div class="cmp-brand-head"><span class="cmp-brand-name">${esc(a.name)}</span><span class="cmp-brand-badge">${a.c0} 条 · 爆款 ${a.topCount}（${a.topPct}%）</span></div>
+      <div class="cmp-kv"><span>平均爆款指数</span><b style="color:var(--hot)">${a.avgViral}</b></div>
+      <div class="cmp-kv"><span>互动率</span><b>${a.avgEngRate}%</b></div>
+      <div class="cmp-kv"><span>点赞 / 评论 / 转发 / 收藏率</span><b>${a.avgLikeRate}% / ${a.avgCommentRate}% / ${a.avgShareRate}% / ${a.avgCollectRate}%</b></div>
+      <div class="cmp-kv"><span>用户讨论</span><b>${fmt(a.voiceCount)} 条 · 正面 ${a.posPct}%</b></div>
+      <div class="cmp-kv"><span>主力形式</span><b>${esc(a.domType)}</b></div>
+      <div class="cmp-kv"><span>主力情绪</span><b>${esc(a.domEmotion)}</b></div>
+      <div class="cmp-kv"><span>主力类目</span><b>${esc(a.domCategory)}</b></div>
+      <div class="cmp-kv"><span>主力营销目的</span><b>${esc(a.domGoal)}</b></div>
       <div class="cmp-top3">
-        <div class="cmp-top3-title">Top3 内容（按爆款率）</div>
-        ${a.top3.map((c) => `<div class="cmp-top3-item"><div class="ct-text">${c.isTop ? "🔥 " : ""}${esc(dispText(c))}</div><div class="ct-meta">爆款率 ${rate(c)} · ${esc(c.contentType)} · ${fmt(c.exposure)} 曝光</div></div>`).join("")}
+        <div class="cmp-top3-title">Top3 内容（按爆款指数）</div>
+        ${a.top3.map((c) => `<div class="cmp-top3-item"><div class="ct-text">${c.isTop ? "🔥 " : ""}${esc(dispText(c))}</div><div class="ct-meta">爆款指数 ${c.viralScore.toFixed(1)} · ${esc(c.contentType)} · ${fmt(c.exposure)} 曝光</div></div>`).join("")}
       </div>
     </div>`).join("");
-    const best = aggs.slice().sort((a, b) => b.avgRate - a.avgRate)[0];
-    const mostFollowers = aggs.slice().sort((a, b) => b.followers - a.followers)[0];
-    const mostVoices = aggs.slice().sort((a, b) => b.voiceCount - a.voiceCount)[0];
-    const benchmark = `<div class="bench-box"><b>对标建议：</b>以「${esc(best.name)}」为<b>爆款标杆</b>（平均爆款率 ${best.avgRate}）；「${esc(mostFollowers.name)}」粉丝体量最大（${fmt(mostFollowers.followers)}），适合做声量对标；「${esc(mostVoices.name)}」用户讨论最活跃（${mostVoices.voiceCount} 条），用户洞察优先看它。可重点观测发布频率、互动率、爆款形式占比，并据此设定追赶目标值。</div>`;
-    return `<div class="cmp-grid">${cards}</div>${benchmark}`;
+    const bestViral = aggs.slice().sort((a, b) => b.avgViral - a.avgViral)[0];
+    const bestExp = aggs.slice().sort((a, b) => b.totalExp - a.totalExp)[0];
+    const bestVoice = aggs.slice().sort((a, b) => b.voiceCount - a.voiceCount)[0];
+    const bestEng = aggs.slice().sort((a, b) => b.avgEngRate - a.avgEngRate)[0];
+    const benchmark = `<div class="bench-box"><b>对标建议：</b>以「<b>${esc(bestViral.name)}</b>」为<b>爆款标杆</b>（平均爆款指数 ${bestViral.avgViral} · 爆款占比 ${bestViral.topPct}%）；「<b>${esc(bestExp.name)}</b>」曝光体量最大（${fmt(bestExp.totalExp)}），适合做声量对标；「<b>${esc(bestVoice.name)}</b>」用户讨论最活跃（${fmt(bestVoice.voiceCount)} 条），用户洞察优先看它；「<b>${esc(bestEng.name)}</b>」互动率最高（${bestEng.avgEngRate}%），内容质量标杆。可重点观测爆款指数、互动率、爆款形式占比，并据此设定追赶目标值。</div>`;
+    return `<div class="cmp-wrap">${table}<div class="cmp-grid" style="margin-top:18px">${cards}</div>${benchmark}</div>`;
   }
   function bindCompetitor() {
     if (state.board === "competitor") {
@@ -3245,10 +3424,15 @@ ${topMatches || "（无强匹配）"}
           <div class="dr-metric"><div class="dm-k">转发率</div><div class="dm-v">${c.shareRate.toFixed(2)}%</div></div>
           <div class="dr-metric"><div class="dm-k">发布时间</div><div class="dm-v" style="font-size:14px">${c.publishDate}</div></div>
         </div>
-        <div class="dr-section-title">评论质量分布</div>
-        ${Object.entries(qc).map(([k, v]) => `<div class="qc-bar"><span class="qc-name">${esc(k)}</span><span class="qc-track"><i style="width:${(v / maxQ) * 100}%"></i></span><span class="qc-val">${v}</span></div>`).join("") || '<div style="color:var(--text-3);font-size:12.5px">无数据</div>'}
-        <div class="dr-section-title">品牌互动</div>
-        <div style="font-size:13px;color:var(--text-2);line-height:1.7">品牌回复 ${c.brandReplies} 条 · 平均回复时长 ${c.avgReplyTimeMinutes ? c.avgReplyTimeMinutes + " 分钟" : "—"}${c.post_link ? ` · <a class="dr-link" href="${esc(c.post_link)}" target="_blank" rel="noreferrer">查看原帖 ↗</a>` : ""}</div>
+        ${Object.keys(qc).length ? `<div class="dr-section-title">评论质量分布</div>${Object.entries(qc).map(([k, v]) => `<div class="qc-bar"><span class="qc-name">${esc(k)}</span><span class="qc-track"><i style="width:${(v / maxQ) * 100}%"></i></span><span class="qc-val">${v}</span></div>`).join("")}` : ""}
+        <div class="dr-section-title">内容属性（真实字段）</div>
+        <div class="dr-attr">
+          <div class="dr-attr-item"><span class="da-k">类目</span><b class="da-v">${esc(c.category || "—")}</b></div>
+          <div class="dr-attr-item"><span class="da-k">内容来源</span><b class="da-v">${esc(c.content_source || "—")}</b></div>
+          <div class="dr-attr-item"><span class="da-k">营销目的</span><b class="da-v">${esc(c.marketing_goal || "—")}</b></div>
+          <div class="dr-attr-item"><span class="da-k">点赞 / 评论 / 转发 / 收藏率</span><b class="da-v">${c.likeRate.toFixed(2)}% / ${c.commentRate.toFixed(2)}% / ${c.shareRate.toFixed(2)}% / ${c.collectRate.toFixed(2)}%</b></div>
+          ${c.post_link ? `<div class="dr-attr-item"><a class="dr-link" href="${esc(c.post_link)}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div>` : ""}
+        </div>
         <div class="handoff" style="margin-top:18px">
           <div class="handoff-text"><b>还想看得更深？</b><br>进入单帖深度分析：看用户怎么讨论它、它的风格/形式、以及同主题关联帖并排对比。</div>
           <button class="btn-primary" id="deep-open">进入单帖深度分析 →</button>
@@ -3269,7 +3453,7 @@ ${topMatches || "（无强匹配）"}
 主题标签：${c.topicTags.join("、")}
 内容标签：${(c.content_tags || []).join("、") || "—"}
 ${c.content_topic ? `内容主题：${c.content_topic}\n` : ""}${c.marketing_goal ? `营销目的：${c.marketing_goal}\n` : ""}${c.content_source ? `内容来源：${c.content_source}\n` : ""}是否爆款(真实标签)：${c.is_viral ? "是" : "否"}
-爆款率：${rate(c)} · 曝光 ${fmt(c.exposure)} · 互动 ${fmt(c.engagement)} · 互动率 ${c.engagementRate.toFixed(2)}%
+爆款指数位：${rate(c)} · 曝光 ${fmt(c.exposure)} · 互动 ${fmt(c.engagement)} · 互动率 ${c.engagementRate.toFixed(2)}%
 —— 请分析 ——
 1) 这条内容为什么能爆（可复用的要素）；
 2) 我可以如何借鉴它的选题/结构/钩子做出新内容；
@@ -3333,7 +3517,7 @@ ${c.content_topic ? `内容主题：${c.content_topic}\n` : ""}${c.marketing_goa
     const typeRate = typeItems.length ? Math.round(typeItems.reduce((s, x) => s + rate(x), 0) / typeItems.length) : 0;
     const acctRate = acctItems.length ? Math.round(acctItems.reduce((s, x) => s + rate(x), 0) / acctItems.length) : 0;
     const typeShare = acctItems.length ? Math.round((typeItems.length / acctItems.length) * 100) : 0;
-    // 该账号形式爆款率分布（用于迷你条形）
+    // 该账号形式爆款指数位分布（用于迷你条形）
     const byType = {};
     acctItems.forEach((x) => { (byType[x.contentType] = byType[x.contentType] || []).push(x); });
     const typeBreak = Object.entries(byType).map(([name, items]) => ({
@@ -3343,12 +3527,12 @@ ${c.content_topic ? `内容主题：${c.content_topic}\n` : ""}${c.marketing_goa
     return { typeRate, acctRate, typeShare, typeCount: typeItems.length, acctCount: acctItems.length, typeBreak };
   }
   function deepContextText(c) {
-    const sim = similarContents(c).slice(0, 3).map((s) => `· ${dispText(s.item)}（爆款率 ${rate(s.item)}，共享主题 ${s.shared.join("、") || "—"}）`).join("\n");
+    const sim = similarContents(c).slice(0, 3).map((s) => `· ${dispText(s.item)}（爆款指数位 ${rate(s.item)}，共享主题 ${s.shared.join("、") || "—"}）`).join("\n");
     return `【单帖深度分析】
 内容：${dispText(c)}
 账号/平台：${c.account} / ${c.platform} · 形式：${c.contentType} · 风格：${c.emotion}
 主题：${c.topicTags.join("、") || "—"} · 发布：${c.publishDate}
-爆款率：${rate(c)} · 曝光 ${fmt(c.exposure)} · 互动 ${fmt(c.engagement)} · 互动率 ${c.engagementRate.toFixed(2)}%
+爆款指数位：${rate(c)} · 曝光 ${fmt(c.exposure)} · 互动 ${fmt(c.engagement)} · 互动率 ${c.engagementRate.toFixed(2)}%
 —— 请帮我 ——
 1) 这条内容为什么能爆（可复用要素：形式/钩子/主题/情绪）；
 2) 它与下面同类内容的差异与可借鉴点：
@@ -3393,7 +3577,7 @@ ${sim || "（无同主题关联帖）"}
         <div class="dp-profile-card"><div class="dp-pk">真实爆款标签</div><div class="dp-pv">${c.is_viral ? '<span class="badge-viral-real">真标爆款</span>' : "否"}</div></div>
         <div class="dp-profile-card dp-span2"><div class="dp-pk">内容主题 / 营销目的 / 来源</div><div class="dp-pv">${[c.content_topic, c.marketing_goal, c.content_source].filter(Boolean).map((x) => esc(x)).join(" &nbsp;·&nbsp; ") || "—"}</div></div>
       </div>
-      <div class="dp-cmp-note">该形式在 <b>${esc(c.account)}</b> 账号内的平均爆款率 <b style="color:var(--hot)">${sc.typeRate}</b>，对比账号整体平均 <b>${sc.acctRate}</b> —— ${sc.typeRate >= sc.acctRate ? "这种形式在该账号表现优于平均，值得借鉴" : "这种形式在该账号表现低于平均，可优化或换形式"}。</div>`;
+      <div class="dp-cmp-note">该形式在 <b>${esc(c.account)}</b> 账号内的平均爆款指数位 <b style="color:var(--hot)">${sc.typeRate}</b>，对比账号整体平均 <b>${sc.acctRate}</b> —— ${sc.typeRate >= sc.acctRate ? "这种形式在该账号表现优于平均，值得借鉴" : "这种形式在该账号表现低于平均，可优化或换形式"}。</div>`;
     // 帖子数据
     const metricCards = `
       <div class="dp-metric-grid">
@@ -3414,7 +3598,7 @@ ${sim || "（无同主题关联帖）"}
       const r = t.avgRate;
       return `<div class="qc-bar"><span class="qc-name" style="width:70px">${esc(t.name)}</span><span class="qc-track"><i style="width:${r}%"></i></span><span class="qc-val">${r}</span></div>`;
     }).join("");
-    const typeBreakHTML = typeBreakRows ? `<div class="dp-cmp-note" style="margin-top:14px"><b>${esc(c.account)}</b> 的形式爆款率分布：</div>${typeBreakRows}` : "";
+    const typeBreakHTML = typeBreakRows ? `<div class="dp-cmp-note" style="margin-top:14px"><b>${esc(c.account)}</b> 的形式爆款指数位分布：</div>${typeBreakRows}` : "";
     // 回复词云
     const cloud = voiceWordCloud(voiceItems);
     const cloudHTML = cloud.length
@@ -3430,6 +3614,17 @@ ${sim || "（无同主题关联帖）"}
     const sentHTML = sentDist.length
       ? `<div class="dp-sent-grid">${sentDist.map((s) => `<div class="dp-sent-row"><span class="uv-sent ${esc(s.name)}">${esc(s.name)}</span><span class="dp-sent-track"><i style="width:${s.pct}%"></i></span><span class="dp-sent-pct">${s.pct}% (${s.count})</span></div>`).join("")}</div>`
       : `<div class="dp-novoice">暂无回复情绪数据。</div>`;
+    // 新导入真实字段：回复意图 / 回复焦点分布（仅在该帖讨论有标注时展示）
+    const intentAgg = {}, focusAgg = {};
+    voiceItems.forEach((v) => {
+      (v.reply_intent || "").split("、").forEach((x) => { if (x) intentAgg[x] = (intentAgg[x] || 0) + 1; });
+      (v.reply_focus || "").split("、").forEach((x) => { if (x) focusAgg[x] = (focusAgg[x] || 0) + 1; });
+    });
+    const intentBars = Object.keys(intentAgg).length ? uvBars(Object.entries(intentAgg).sort((a, b) => b[1] - a[1]).map(([k, v], i) => [REPLY_INTENT_NAME[k] || k, v, PAL[i % PAL.length]])) : "";
+    const focusBars = Object.keys(focusAgg).length ? uvBars(Object.entries(focusAgg).sort((a, b) => b[1] - a[1]).map(([k, v], i) => [REPLY_FOCUS_NAME[k] || k, v, PAL[(i + 3) % PAL.length]])) : "";
+    const rfHTML = (intentBars || focusBars)
+      ? `<div class="dp-section"><div class="dp-sec-title">回复意图 / 焦点分布 <span class="dp-sec-note">新导入真实字段 reply_intent / reply_focus</span></div>${intentBars ? `<div class="dp-sub">回复意图</div>${intentBars}` : ""}${focusBars ? `<div class="dp-sub" style="margin-top:12px">回复焦点</div>${focusBars}` : ""}</div>`
+      : "";
     // 问题 / 用户诉求
     const questions = voiceQuestions(voiceItems);
     const questionHTML = questions.length
@@ -3456,7 +3651,7 @@ ${sim || "（无同主题关联帖）"}
       <div class="dp-sim-rank">${i + 1}</div>
       <div class="dp-sim-main">
         <div class="dp-sim-text">${esc(dispText(s.item))}</div>
-        <div class="dp-sim-meta">${esc(s.item.account)} · ${esc(s.item.contentType)} · 爆款率 ${rate(s.item)} · ${s.shared.map((t) => `<span class="tag topic">${esc(t)}</span>`).join(" ")}</div>
+        <div class="dp-sim-meta">${esc(s.item.account)} · ${esc(s.item.contentType)} · 爆款指数位 ${rate(s.item)} · ${s.shared.map((t) => `<span class="tag topic">${esc(t)}</span>`).join(" ")}</div>
       </div>
       <div class="dp-sim-overlap">${s.overlap > 0 ? "同主题×" + s.overlap : "关联"}</div>
       <div class="dp-sim-check"><input type="checkbox" data-cmp="${esc(s.item.id)}" ${state.deepCompare.includes(s.item.id) ? "checked" : ""}></div>
@@ -3491,6 +3686,7 @@ ${sim || "（无同主题关联帖）"}
         <div class="dp-sec-title">回复情绪分布 <span class="dp-sec-note">用户怎么评价它</span></div>
         ${sentHTML}
       </div>
+      ${rfHTML}
       <div class="dp-section">
         <div class="dp-sec-title">问题 / 用户诉求 <span class="dp-sec-note">提问、求购、求助类回复</span></div>
         ${questionHTML}
@@ -3512,7 +3708,7 @@ ${sim || "（无同主题关联帖）"}
     const ids = state.deepCompare.slice(0, 4);
     const posts = [c, ...ids.map((id) => state.analysis.contents.find((x) => x.id === id)).filter(Boolean)];
     const cols = posts.map((p) => `<div class="dp-cmp-col">
-      <div class="dp-cmp-col-head"><span class="dp-cmp-col-name">${esc(p.account)}</span><span class="dp-cmp-col-rate">爆款率 ${rate(p)}</span></div>
+      <div class="dp-cmp-col-head"><span class="dp-cmp-col-name">${esc(p.account)}</span><span class="dp-cmp-col-rate">爆款指数位 ${rate(p)}</span></div>
       <div class="dp-cmp-col-text">${esc(dispText(p))}</div>
       <div class="dp-hero-tags" style="margin-top:0">${p.isTop ? '<span class="badge-top">爆款</span>' : ""}<span class="tag">${esc(p.contentType)}</span><span class="tag">${esc(p.emotion)}</span>${p.topicTags.map((t) => `<span class="tag topic">${esc(t)}</span>`).join("")}</div>
       <div class="dp-cmp-col-metrics">
@@ -3536,7 +3732,7 @@ ${sim || "（无同主题关联帖）"}
     const ov = $("#deep-overlay"); if (ov) ov.addEventListener("click", closeDeep);
     const copy = $("#deep-copy"); if (copy) copy.addEventListener("click", () => {
       const c = state.analysis.contents.find((x) => x.id === state.deepId); if (!c) return;
-      const txt = state.deepView === "compare" ? deepContextText(c) + "\n\n【多帖同看对比】\n" + state.deepCompare.map((id) => { const p = state.analysis.contents.find((x) => x.id === id); return p ? `· ${dispText(p)}（爆款率 ${rate(p)}）` : ""; }).join("\n") : deepContextText(c);
+      const txt = state.deepView === "compare" ? deepContextText(c) + "\n\n【多帖同看对比】\n" + state.deepCompare.map((id) => { const p = state.analysis.contents.find((x) => x.id === id); return p ? `· ${dispText(p)}（爆款指数位 ${rate(p)}）` : ""; }).join("\n") : deepContextText(c);
       navigator.clipboard.writeText(txt).then(() => toast("已复制，去对话框粘贴给我"), () => toast("复制失败"));
     });
     // 相似帖勾选
@@ -3660,7 +3856,7 @@ ${sim || "（无同主题关联帖）"}
     $("#global-search").addEventListener("input", (e) => { state.filters.search = e.target.value; renderBoard(); });
     // 筛选面板开关
     $("#filter-toggle").addEventListener("click", () => $("#filter-panel").classList.toggle("open"));
-    // 爆款率下限
+    // 爆款指数位下限
     $("#viral-min").addEventListener("input", (e) => { state.filters.viralMin = +e.target.value; $("#viral-min-val").textContent = e.target.value; onFilterChange(); });
     // 时间范围
     $("#date-from").addEventListener("change", (e) => { state.filters.dateFrom = e.target.value; onFilterChange(); });
