@@ -454,6 +454,7 @@
     }
     $("#board").innerHTML = html;
     bindBoard(data);
+    syncRandFloat();
   }
 
   /* ---------- 灵感库（整合：随机浏览 + 指标排序 + 只看爆款 + 类型ROI）---------- */
@@ -523,13 +524,12 @@
         ${state.analysis.contentTypeROI.map((t) => `<div class="qc-bar"><span class="qc-name" style="width:90px">${esc(t.type)}</span><span class="qc-track"><i style="width:${((t.avgViralScore / maxV) * 100).toFixed(0)}%"></i></span><span class="qc-val">${t.count}条 · 互动率${(t.avgEngagementRate * 100).toFixed(1)}%</span></div>`).join("")}</div>`;
     }
     const body = state.view === "grid" ? `<div class="grid">${pageItems.map(cardHTML).join("")}</div>` : pageItems.map(listHTML).join("");
-    const randBar = state.libMode === "rand" ? `<div class="blindbox-bar"><button class="btn-primary" id="lib-reshuffle">🎲 重新随机</button><span class="bx-tip">随机浏览：已展示 ${pageItems.length}/${total} 条，向下滚动加载更多</span></div>` : "";
     const pager = state.libMode === "rand"
       ? (state.randVisible < total
           ? `<div class="load-more-hint" style="text-align:center;padding:16px 0;color:var(--text-3);font-size:12px">向下滚动继续加载…</div>`
           : `<div class="load-more-hint" style="text-align:center;padding:16px 0;color:var(--text-3);font-size:12px">已加载全部 ${total} 条</div>`)
       : (total > PAGE ? paginationHTML(page, totalPages, total, PAGE) : "");
-    return head + roiPanel + randBar + body + pager;
+    return head + roiPanel + body + pager;
   }
   function paginationHTML(page, totalPages, total, PAGE) {
     const from = page * PAGE + 1;
@@ -3581,9 +3581,9 @@ ${sim || "（无同主题关联帖）"}
     if (state.board === "library") {
       $$("#view-seg button").forEach((b) => b.addEventListener("click", () => { state.view = b.dataset.view; state.page = 0; renderBoard(); }));
       $$("#sort-chips button").forEach((b) => b.addEventListener("click", () => { state.sort = b.dataset.sort; state.page = 0; renderBoard(); }));
-      $$("#lib-mode button").forEach((b) => b.addEventListener("click", () => { state.libMode = b.dataset.mode; state.page = 0; state.randList = null; renderBoard(); }));
+      $$("#lib-mode button").forEach((b) => b.addEventListener("click", () => { state.libMode = b.dataset.mode; state.page = 0; state.randList = null; syncRandFloat(); renderBoard(); }));
       $$("#lib-eval button").forEach((b) => b.addEventListener("click", () => { state.libQuick = b.dataset.eval; state.page = 0; state.randList = null; renderBoard(); }));
-      const rs = $("#lib-reshuffle"); if (rs) rs.addEventListener("click", () => { state.randList = null; renderBoard(); });
+      const rs = $("#fab-rand"); if (rs) rs.addEventListener("click", () => { state.randList = null; renderBoard(); });
       const bxLaunch = $("#bx-launch"); if (bxLaunch) bxLaunch.addEventListener("click", openBlindboxModal);
       // 分页控件
       $$(".pager [data-pg]", $("#board")).forEach((b) => b.addEventListener("click", () => {
@@ -3808,6 +3808,95 @@ ${sim || "（无同主题关联帖）"}
     const cl = $("#prov-close"); if (cl) cl.addEventListener("click", closeProv);
   }
 
+  /* ============ 全局浮动按钮：随机、回到顶部、盲盒入口 ============ */
+  function syncRandFloat() {
+    const el = $("#fab-rand");
+    if (!el) return;
+    el.style.display = (state.board === "library" && state.libMode === "rand") ? "flex" : "none";
+  }
+  function createFloatingButtons() {
+    if (!$("#fab-rand")) {
+      const rand = document.createElement("button");
+      rand.id = "fab-rand";
+      rand.className = "fab-rand";
+      rand.title = "重新随机一批";
+      rand.innerHTML = `<span class="fab-ic">🎲</span><span class="fab-txt">重新随机</span>`;
+      rand.onclick = () => { state.randList = null; renderBoard(); };
+      document.body.appendChild(rand);
+    }
+    if (!$("#fab-top")) {
+      const top = document.createElement("button");
+      top.id = "fab-top";
+      top.className = "fab-top";
+      top.title = "回到顶部";
+      top.innerHTML = `<span class="fab-ic">↑</span><span class="fab-txt">顶部</span>`;
+      top.onclick = () => { $("#board").scrollTo({ top: 0, behavior: "smooth" }); };
+      document.body.appendChild(top);
+    }
+    // 盲盒入口已 draggable，由 init 调用 makeDraggable
+  }
+  function bindScrollTop() {
+    const board = $("#board");
+    const topBtn = $("#fab-top");
+    if (!board || !topBtn) return;
+    const onScroll = () => {
+      const show = board.scrollTop > 200;
+      topBtn.classList.toggle("show", show);
+    };
+    board.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  }
+  function makeDraggable(el) {
+    if (!el) return;
+    let dragging = false, moved = false, startX, startY, startLeft, startTop;
+    const onDown = (e) => {
+      const evt = e.touches ? e.touches[0] : e;
+      dragging = true; moved = false;
+      startX = evt.clientX; startY = evt.clientY;
+      const rect = el.getBoundingClientRect();
+      startLeft = rect.left; startTop = rect.top;
+      el.style.transition = "none";
+      el.style.cursor = "grabbing";
+      e.preventDefault();
+    };
+    const onMove = (e) => {
+      if (!dragging) return;
+      const evt = e.touches ? e.touches[0] : e;
+      const dx = evt.clientX - startX, dy = evt.clientY - startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+      let nx = startLeft + dx, ny = startTop + dy;
+      const maxW = window.innerWidth - el.offsetWidth, maxH = window.innerHeight - el.offsetHeight;
+      nx = Math.max(0, Math.min(nx, maxW));
+      ny = Math.max(0, Math.min(ny, maxH));
+      el.style.left = nx + "px";
+      el.style.top = ny + "px";
+      el.style.right = "auto";
+      el.style.bottom = "auto";
+      e.preventDefault();
+    };
+    const onUp = () => {
+      if (!dragging) return;
+      dragging = false;
+      el.style.transition = "transform .16s var(--ease), box-shadow .16s var(--ease)";
+      el.style.cursor = "grab";
+      // 保存位置到 localStorage
+      try { localStorage.setItem("ca_bx_pos", JSON.stringify({ left: el.style.left, top: el.style.top })); } catch (e) {}
+    };
+    el.addEventListener("click", (e) => { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+    el.addEventListener("mousedown", onDown);
+    el.addEventListener("touchstart", onDown, { passive: false });
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("touchmove", onMove, { passive: false });
+    document.addEventListener("mouseup", onUp);
+    document.addEventListener("touchend", onUp);
+    el.style.cursor = "grab";
+    // 恢复上次位置
+    try {
+      const saved = JSON.parse(localStorage.getItem("ca_bx_pos") || "null");
+      if (saved && saved.left && saved.top) { el.style.left = saved.left; el.style.top = saved.top; el.style.right = "auto"; el.style.bottom = "auto"; }
+    } catch (e) {}
+  }
+
   async function init() {
     const data = await DataLoader.load();
     state.raw = data;
@@ -3832,15 +3921,20 @@ ${sim || "（无同主题关联帖）"}
     syncFilterUI();
     renderActiveFilters();
     renderBoard();
-    // 右下角盲盒入口
+    // 全局浮动按钮：随机、回到顶部、盲盒入口
+    createFloatingButtons();
+    syncRandFloat();
+    bindScrollTop();
+    // 右下角盲盒入口（可拖动）
     if (!$("#bx-reopen")) {
       const ro = document.createElement("button");
       ro.id = "bx-reopen";
       ro.className = "bx-reopen";
-      ro.textContent = "🎁 每日灵感盲盒";
-      ro.onclick = openBlindboxModal;
+      ro.innerHTML = `<span class="bx-reopen-ic">🎁</span><span class="bx-reopen-txt">每日灵感盲盒</span>`;
+      ro.addEventListener("click", () => openBlindboxModal());
       document.body.appendChild(ro);
     }
+    makeDraggable($("#bx-reopen"));
     // 首次访问自动弹出盲盒（仅一次）
     try {
       const seen = localStorage.getItem("ca_bx_first_seen");
