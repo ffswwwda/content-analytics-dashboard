@@ -840,7 +840,7 @@ ${topMatches || "（无强匹配）"}
             <div class="bx-row"><span class="bx-k">品牌</span><span class="bx-v">${esc(c.account)}</span></div>
             <div class="bx-row"><span class="bx-k">内容形式</span><span class="bx-v">${esc(c.contentType)}</span></div>
             <div class="bx-row bx-row-text"><span class="bx-k">内容</span><span class="bx-v">${esc(dispText(c))}</span></div>
-            <div class="bx-row"><span class="bx-k">数据情况</span><span class="bx-v">曝光 ${fmt(c.exposure)} · 互动 ${fmt(c.engagement)} · 爆款率 ${rate(c)}${c.isTop ? " · 🔥爆款" : ""}</span></div>
+            <div class="bx-row"><span class="bx-k">数据情况</span><span class="bx-v">曝光 ${fmt(c.exposure)} · 互动 ${fmt(c.engagement)} · 爆款指数 ${c.viralScore.toFixed(1)}${c.isTop ? " · 🔥爆款" : ""}</span></div>
             <div class="bx-row bx-row-text"><span class="bx-k">可借鉴</span><span class="bx-v">${esc(borrowTip(c))}</span></div>
             ${voiceHTML}
           </div>
@@ -918,7 +918,7 @@ ${topMatches || "（无强匹配）"}
     }
     if (y <= 420) x.fillText(line, 30, y);
     // 数据条
-    const stats = [`曝光 ${fmt(c.exposure)}`, `互动 ${fmt(c.engagement)}`, `爆款率 ${rate(c)}`];
+    const stats = [`曝光 ${fmt(c.exposure)}`, `互动 ${fmt(c.engagement)}`, `爆款指数 ${c.viralScore.toFixed(1)}`];
     x.textAlign = "center"; x.fillStyle = "#00f0ff"; x.font = "700 15px system-ui,sans-serif";
     stats.forEach((s, i) => x.fillText(s, 30 + (W - 60) * (i + 0.5) / 3, 500));
     // 可借鉴
@@ -3127,7 +3127,7 @@ ${topMatches || "（无强匹配）"}
           ${(c.content_tags || []).slice(0, 8).map((t) => `<span class="tag hashtag">#${esc(t)}</span>`).join("")}</div>
         ${(c.content_topic || c.marketing_goal || c.content_source) ? `<div class="dr-extra">${c.content_topic ? `<span class="de-k">主题</span><b class="de-v">${esc(c.content_topic)}</b>` : ""}${c.marketing_goal ? `<span class="de-k">目的</span><b class="de-v">${esc(c.marketing_goal)}</b>` : ""}${c.content_source ? `<span class="de-k">来源</span><b class="de-v">${esc(c.content_source)}</b>` : ""}</div>` : ""}
         <div class="dr-metrics">
-          <div class="dr-metric"><div class="dm-k">爆款率</div><div class="dm-v" style="color:var(--hot)">${rate(c)}</div></div>
+          <div class="dr-metric"><div class="dm-k">爆款指数</div><div class="dm-v" style="color:var(--hot)">${c.viralScore.toFixed(1)}</div></div>
           <div class="dr-metric"><div class="dm-k">曝光</div><div class="dm-v">${fmt(c.exposure)}</div></div>
           <div class="dr-metric"><div class="dm-k">互动</div><div class="dm-v">${fmt(c.engagement)}</div></div>
           <div class="dr-metric"><div class="dm-k">互动率</div><div class="dm-v">${c.engagementRate.toFixed(2)}%</div></div>
@@ -3291,7 +3291,7 @@ ${sim || "（无同主题关联帖）"}
         <div class="dp-metric-card"><div class="dp-mk">曝光</div><div class="dp-mv">${fmt(c.exposure)}</div></div>
         <div class="dp-metric-card"><div class="dp-mk">互动</div><div class="dp-mv">${fmt(c.engagement)}</div></div>
         <div class="dp-metric-card"><div class="dp-mk">互动率</div><div class="dp-mv">${c.engagementRate.toFixed(2)}%</div></div>
-        <div class="dp-metric-card"><div class="dp-mk">爆款率</div><div class="dp-mv" style="color:var(--hot)">${rate(c)}</div></div>
+        <div class="dp-metric-card"><div class="dp-mk">爆款指数</div><div class="dp-mv" style="color:var(--hot)">${c.viralScore.toFixed(1)}</div></div>
         <div class="dp-metric-card"><div class="dp-mk">点赞</div><div class="dp-mv">${fmt(c.likes || 0)}</div></div>
         <div class="dp-metric-card"><div class="dp-mk">评论</div><div class="dp-mv">${fmt(c.comments || 0)}</div></div>
         <div class="dp-metric-card"><div class="dp-mk">分享</div><div class="dp-mv">${fmt(c.shares || 0)}</div></div>
