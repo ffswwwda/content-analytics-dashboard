@@ -336,7 +336,11 @@ body::after {
 .seg { display: inline-flex; background: var(--glass-bg-strong); border: 1px solid var(--glass-line); border-radius: var(--radius-sm); overflow: hidden; backdrop-filter: blur(10px); }
 .seg button { border: none; background: transparent; padding: 7px 13px; font-size: 12.5px; color: var(--text-2); cursor: pointer; font-family: var(--font); font-weight: 600; transition: all .15s; }
 .seg button.on { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; box-shadow: var(--glow); }
-.sel { border: 1px solid var(--glass-line-strong); border-radius: var(--radius-sm); padding: 7px 10px; font-size: 12.5px; color: var(--text); background: var(--glass-bg-strong); font-family: var(--font); cursor: pointer; }
+.btn-pill { border: 1px solid var(--glass-line-strong); background: var(--glass-bg-strong); border-radius: 999px; padding: 7px 13px; font-size: 12.5px; color: var(--text-2); cursor: pointer; font-family: var(--font); font-weight: 600; transition: all .15s; }
+.btn-pill:hover { border-color: var(--accent); color: var(--accent-strong); }
+.btn-pill.on { background: linear-gradient(135deg, var(--hot), #ff7a45); border-color: transparent; color: #fff; box-shadow: 0 0 12px rgba(255, 90, 70, 0.35); }
+#sort-more { color: var(--text-3); font-size: 12px; padding: 7px 10px; }
+#sort-more:hover { color: var(--accent-strong); }
 
 /* 卡片网格：玻璃卡 + 悬浮 */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(248px, 1fr)); gap: 14px; }
@@ -1268,8 +1272,10 @@ body::after {
 .comp-toolbar .chk { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 12.5px; color: var(--text-2); }
 .comp-toolbar .chk input { accent-color: var(--accent); width: 15px; height: 15px; }
 .cmp-compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
-.cmp-compare-col { background: var(--glass-bg-strong); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 12px 14px; }
+.cmp-compare-col { background: var(--glass-bg-strong); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 12px 14px; transition: all .2s; }
+.cmp-compare-col.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--glow); }
 .cmp-compare-h { font-size: 13px; font-weight: 700; color: var(--text-2); margin-bottom: 10px; }
+.cmp-compare-col.on .cmp-compare-h { color: var(--accent-strong); }
 .comp-selbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
 .comp-selbar .comp-chip { font-size: 12.5px; padding: 6px 14px; }
 .comp-selbar .comp-chip.on { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: var(--accent); color: #fff; font-weight: 600; box-shadow: var(--glow); }
