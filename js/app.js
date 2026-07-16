@@ -491,13 +491,10 @@
       state.page = page;
       pageItems = list.slice(page * PAGE, (page + 1) * PAGE); // 只渲染当前页，避免 8k+ DOM 节点
     }
-    const evalBtn = state.libQuick === "all"
-      ? `<button data-eval="top">只看爆款</button>`
-      : `<button data-eval="all" class="on">全部</button>`;
     const sortTools = state.libMode === "rand"
       ? ""
-      : `<div class="seg" id="lib-eval">${evalBtn}</div>
-      <div class="seg" id="sort-chips">
+      : `<div class="seg" id="sort-chips">
+        <button data-eval="top" class="${state.libQuick === "top" ? "on" : ""}">只看爆款</button>
         <button data-sort="viral" class="${state.sort === "viral" ? "on" : ""}">爆款指数</button>
         <button data-sort="compositeRate" class="${state.sort === "compositeRate" ? "on" : ""}">综合互动率</button>
         <button data-sort="likeRate" class="${state.sort === "likeRate" ? "on" : ""}">点赞率</button>
@@ -4027,9 +4024,9 @@ ${sim || "（无同主题关联帖）"}
     // 灵感库工具
     if (state.board === "library") {
       $$("#view-seg button").forEach((b) => b.addEventListener("click", () => { state.view = b.dataset.view; state.page = 0; renderBoard(); }));
-      $$("#sort-chips button").forEach((b) => b.addEventListener("click", () => { state.sort = b.dataset.sort; state.page = 0; renderBoard(); }));
+      $$("#sort-chips button[data-sort]").forEach((b) => b.addEventListener("click", () => { state.sort = b.dataset.sort; state.page = 0; renderBoard(); }));
+      $$("#sort-chips button[data-eval]").forEach((b) => b.addEventListener("click", () => { state.libQuick = state.libQuick === "top" ? "all" : "top"; state.page = 0; state.randList = null; renderBoard(); }));
       $$("#lib-mode button").forEach((b) => b.addEventListener("click", () => { state.libMode = b.dataset.mode; state.page = 0; state.randList = null; renderBoard(); }));
-      $$("#lib-eval button").forEach((b) => b.addEventListener("click", () => { state.libQuick = b.dataset.eval; state.page = 0; state.randList = null; renderBoard(); }));
       const rs = $("[data-action=rerand]"); if (rs) rs.addEventListener("click", () => { state.randList = null; renderBoard(); });
       const bxLaunch = $("#bx-launch"); if (bxLaunch) bxLaunch.addEventListener("click", openBlindboxModal);
       // 分页控件
