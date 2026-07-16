@@ -466,9 +466,9 @@
     // 只看爆款/类型ROI已合并简化：若旧状态残留则重置
     if (state.libQuick === "roi") state.libQuick = "all";
     if (state.sort === "roi") state.sort = "viral";
-    // 先按「只看爆款」过滤（两种模式都生效）
+    // 先按「只看爆款」过滤（指标模式生效；随机模式追求纯粹，不生效）
     let base = [...data];
-    if (state.libQuick === "top") base = base.filter((c) => c.isTop);
+    if (state.libMode !== "rand" && state.libQuick === "top") base = base.filter((c) => c.isTop);
     // —— 随机模式：全量洗牌后滚动加载，不限制条数 ——
     let list;
     if (state.libMode === "rand") {
