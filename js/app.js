@@ -493,16 +493,25 @@
     }
     const sortTools = state.libMode === "rand"
       ? ""
-      : `<div class="seg" id="sort-chips">
-        <button data-eval="top" class="${state.libQuick === "top" ? "on" : ""}">只看爆款</button>
-        <button data-sort="viral" class="${state.sort === "viral" ? "on" : ""}">爆款指数</button>
-        <button data-sort="compositeRate" class="${state.sort === "compositeRate" ? "on" : ""}">综合互动率</button>
-        <button data-sort="likeRate" class="${state.sort === "likeRate" ? "on" : ""}">点赞率</button>
-        <button data-sort="commentRate" class="${state.sort === "commentRate" ? "on" : ""}">评论率</button>
-        <button data-sort="shareRate" class="${state.sort === "shareRate" ? "on" : ""}">转发率</button>
-        <button data-sort="collectRate" class="${state.sort === "collectRate" ? "on" : ""}">收藏率</button>
-        <button data-sort="exposure" class="${state.sort === "exposure" ? "on" : ""}">曝光</button>
-        <button data-sort="date" class="${state.sort === "date" ? "on" : ""}">时间排序</button>
+      : `<div class="lib-toolrows">
+        <div class="lib-toolrow"><span class="lib-toollabel">范围</span>
+          <div class="seg" id="lib-eval">
+            <button data-eval="all" class="${state.libQuick === "all" ? "on" : ""}">全部</button>
+            <button data-eval="top" class="${state.libQuick === "top" ? "on" : ""}">只看爆款</button>
+          </div>
+        </div>
+        <div class="lib-toolrow"><span class="lib-toollabel">排序</span>
+          <div class="seg" id="sort-chips">
+            <button data-sort="viral" class="${state.sort === "viral" ? "on" : ""}">爆款指数</button>
+            <button data-sort="compositeRate" class="${state.sort === "compositeRate" ? "on" : ""}">综合互动率</button>
+            <button data-sort="likeRate" class="${state.sort === "likeRate" ? "on" : ""}">点赞率</button>
+            <button data-sort="commentRate" class="${state.sort === "commentRate" ? "on" : ""}">评论率</button>
+            <button data-sort="shareRate" class="${state.sort === "shareRate" ? "on" : ""}">转发率</button>
+            <button data-sort="collectRate" class="${state.sort === "collectRate" ? "on" : ""}">收藏率</button>
+            <button data-sort="exposure" class="${state.sort === "exposure" ? "on" : ""}">曝光</button>
+            <button data-sort="date" class="${state.sort === "date" ? "on" : ""}">时间排序</button>
+          </div>
+        </div>
       </div>
       <div class="seg" id="view-seg">
         <button data-view="grid" class="${state.view === "grid" ? "on" : ""}">卡片</button>
@@ -4025,7 +4034,7 @@ ${sim || "（无同主题关联帖）"}
     if (state.board === "library") {
       $$("#view-seg button").forEach((b) => b.addEventListener("click", () => { state.view = b.dataset.view; state.page = 0; renderBoard(); }));
       $$("#sort-chips button[data-sort]").forEach((b) => b.addEventListener("click", () => { state.sort = b.dataset.sort; state.page = 0; renderBoard(); }));
-      $$("#sort-chips button[data-eval]").forEach((b) => b.addEventListener("click", () => { state.libQuick = state.libQuick === "top" ? "all" : "top"; state.page = 0; state.randList = null; renderBoard(); }));
+      $$("#lib-eval button[data-eval]").forEach((b) => b.addEventListener("click", () => { state.libQuick = b.dataset.eval; state.page = 0; state.randList = null; renderBoard(); }));
       $$("#lib-mode button").forEach((b) => b.addEventListener("click", () => { state.libMode = b.dataset.mode; state.page = 0; state.randList = null; renderBoard(); }));
       const rs = $("[data-action=rerand]"); if (rs) rs.addEventListener("click", () => { state.randList = null; renderBoard(); });
       const bxLaunch = $("#bx-launch"); if (bxLaunch) bxLaunch.addEventListener("click", openBlindboxModal);
