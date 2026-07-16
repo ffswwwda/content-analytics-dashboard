@@ -218,7 +218,7 @@
     libMode: "sort", libQuick: "all",
     page: 0, pageSize: 100, randList: null, randVisible: 100, randLoading: false,
     compSel: new Set(), cmpSel: new Set(),
-    compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false },
+    compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false, mode: "all" },
     deepId: null, deepCompare: [], deepView: "main",
     opsBrands: [], opsRefs: new Set(["rhythm", "topic", "format", "style", "metric"]),
   };
@@ -244,6 +244,15 @@
   const dispVoice = (v) => (state.lang === "zh" && v && (v.text_zh || v.translation) ? (v.text_zh || v.translation) : (v ? v.text : ""));
   const fmt = (n) => (n >= 10000 ? (n / 10000).toFixed(1) + "万" : String(Math.round(n)));
   const rate = (c) => Math.max(0, Math.min(100, Math.round((c.viralScore / state.maxViral) * 100)));
+  // 活动帖判定：优先用 is_activity 真值；否则从 topic_tags/content_topic/文本关键词推断
+  function isActivityPost(c) {
+    if (c.is_activity) return true;
+    const topics = ((c.topic_tags || []).join(" ") + " " + (c.content_topic || "")).toLowerCase();
+    const text = ((c.text || "") + " " + (c.text_zh || "")).toLowerCase();
+    const activityTags = ["促销活动", "活动直播"];
+    const activityKeywords = ["促销", "活动", "优惠", "折扣", "抽奖", "giveaway", "sale", "discount", "promo", "campaign"];
+    return activityTags.some((t) => topics.includes(t)) || activityKeywords.some((k) => text.includes(k));
+  }
   // 爆款指数在全库的百分位排名：tier=前10%/20%/.../100%（10%分档），surpass=超越多少%的帖子
   function computeViralRanks(contents) {
     const desc = [...contents].sort((a, b) => b.viralScore - a.viralScore);
@@ -493,14 +502,13 @@
     }
     const sortTools = state.libMode === "rand"
       ? ""
-      : `<div class="lib-toolrows">
-        <div class="lib-toolrow"><span class="lib-toollabel">范围</span>
+      : `<div class="lib-group"><span class="lib-group-label">范围</span>
           <div class="seg" id="lib-eval">
             <button data-eval="all" class="${state.libQuick === "all" ? "on" : ""}">全部</button>
             <button data-eval="top" class="${state.libQuick === "top" ? "on" : ""}">只看爆款</button>
           </div>
         </div>
-        <div class="lib-toolrow"><span class="lib-toollabel">排序</span>
+        <div class="lib-group"><span class="lib-group-label">排序</span>
           <div class="seg" id="sort-chips">
             <button data-sort="viral" class="${state.sort === "viral" ? "on" : ""}">爆款指数</button>
             <button data-sort="compositeRate" class="${state.sort === "compositeRate" ? "on" : ""}">综合互动率</button>
@@ -512,11 +520,10 @@
             <button data-sort="date" class="${state.sort === "date" ? "on" : ""}">时间排序</button>
           </div>
         </div>
-      </div>
-      <div class="seg" id="view-seg">
-        <button data-view="grid" class="${state.view === "grid" ? "on" : ""}">卡片</button>
-        <button data-view="list" class="${state.view === "list" ? "on" : ""}">列表</button>
-      </div>`;
+        <div class="seg" id="view-seg">
+          <button data-view="grid" class="${state.view === "grid" ? "on" : ""}">卡片</button>
+          <button data-view="list" class="${state.view === "list" ? "on" : ""}">列表</button>
+        </div>`;
     const tools = `<div class="board-tools" style="flex-wrap:wrap">
       <div class="seg" id="lib-mode">
         <button data-mode="rand" class="${state.libMode === "rand" ? "on" : ""}">🎲 随机浏览</button>
@@ -3316,6 +3323,8 @@ ${topMatches || "（无强匹配）"}
       if (cf.types.size) items = items.filter((c) => cf.types.has(c.contentType));
       if (cf.topOnly) items = items.filter((c) => c.isTop);
       if (cf.viralMin > 0) items = items.filter((c) => rate(c) >= cf.viralMin);
+      if (cf.mode === "activity") items = items.filter((c) => isActivityPost(c));
+      if (cf.mode === "daily") items = items.filter((c) => !isActivityPost(c));
       items = [...items].sort((a, b) => {
         if (cf.sort === "exposure") return b.exposure - a.exposure;
         if (cf.sort === "engagement") return b.engagement - a.engagement;
@@ -3329,6 +3338,15 @@ ${topMatches || "（无强匹配）"}
     const topCount = itemsAll.filter((c) => c.isTop).length;
     const totalExp = itemsAll.reduce((s, c) => s + c.exposure, 0);
     const avgEng = (itemsAll.reduce((s, c) => s + c.engagementRate, 0) / itemsAll.length).toFixed(2);
+    // 内容构成与互动深度指标
+    const originalCount = itemsAll.filter((c) => (c.content_source || "") === "原创").length;
+    const repostCount = itemsAll.filter((c) => (c.content_source || "") === "转发").length;
+    const replyCount = itemsAll.filter((c) => (c.brand_replies || 0) > 0).length;
+    const activityCount = itemsAll.filter((c) => isActivityPost(c)).length;
+    const originalPct = Math.round(originalCount / itemsAll.length * 100);
+    const repostPct = Math.round(repostCount / itemsAll.length * 100);
+    const replyPct = Math.round(replyCount / itemsAll.length * 100);
+    const activityPct = Math.round(activityCount / itemsAll.length * 100);
     const metas = accountMeta(name);
     const followers = metas.reduce((s, a) => s + (a.followers || 0), 0);
     const m0 = metas[0] || {};
@@ -3352,6 +3370,36 @@ ${topMatches || "（无强匹配）"}
     const rhythmHTML = weeks.length ? `<div class="panel" style="margin-top:12px"><div class="panel-title">运营节奏 · 频率 × 表现</div><div class="panel-sub">柱=当周发布数 · 线=当周平均爆款指数位</div>${comboSVG(weeks)}</div>` : "";
     const bursts = burstsFor(itemsAll);
     const burstHTML = bursts.length ? `<div class="panel" style="margin-top:12px"><div class="panel-title">Campaign 爆发监测</div>${bursts.map((r) => `<div class="qc-bar"><span class="qc-name">${esc(r.name)}</span><span class="qc-track"><i style="width:${Math.min(100, r.lift * 20)}%"></i></span><span class="qc-val">${r.lift.toFixed(1)}× · ${r.count}条</span></div>`).join("")}</div>` : "";
+    // 活动 vs 日常运营对比
+    const activityItems = itemsAll.filter((c) => isActivityPost(c));
+    const dailyItems = itemsAll.filter((c) => !isActivityPost(c));
+    function quickAgg(arr) {
+      const n = arr.length || 1;
+      const totalExp = arr.reduce((s, c) => s + c.exposure, 0);
+      const avgEngRate = arr.reduce((s, c) => s + c.engagementRate, 0) / n;
+      const avgViral = arr.reduce((s, c) => s + c.viralScore, 0) / n;
+      const topN = arr.filter((c) => c.isTop).length;
+      return { count: arr.length, totalExp, avgEngRate: (avgEngRate * 100).toFixed(2), avgViral: avgViral.toFixed(1), topN, topPct: Math.round(topN / n * 100) };
+    }
+    const actAgg = quickAgg(activityItems);
+    const dailyAgg = quickAgg(dailyItems);
+    const maxExp2 = Math.max(actAgg.totalExp, dailyAgg.totalExp, 1);
+    const campaignCompareHTML = `<div class="panel" style="margin-top:12px"><div class="panel-title">活动运营 vs 日常运营</div><div class="panel-sub">基于文本/主题自动识别的 Campaign 帖 vs 日常帖对比</div>
+      <div class="cmp-compare-grid">
+        <div class="cmp-compare-col"><div class="cmp-compare-h">活动帖 (${actAgg.count}条 · ${activityPct}%)</div>
+          <div class="qc-bar"><span class="qc-name">总曝光</span><span class="qc-track"><i style="width:${(actAgg.totalExp / maxExp2 * 100).toFixed(0)}%"></i></span><span class="qc-val">${fmt(actAgg.totalExp)}</span></div>
+          <div class="qc-bar"><span class="qc-name">平均互动率</span><span class="qc-track"><i style="width:${Math.min(100, actAgg.avgEngRate * 10)}%"></i></span><span class="qc-val">${actAgg.avgEngRate}%</span></div>
+          <div class="qc-bar"><span class="qc-name">平均爆款指数</span><span class="qc-track"><i style="width:${Math.min(100, actAgg.avgViral * 4)}%"></i></span><span class="qc-val">${actAgg.avgViral}</span></div>
+          <div class="qc-bar"><span class="qc-name">爆款占比</span><span class="qc-track"><i style="width:${actAgg.topPct}%"></i></span><span class="qc-val">${actAgg.topPct}%</span></div>
+        </div>
+        <div class="cmp-compare-col"><div class="cmp-compare-h">日常帖 (${dailyAgg.count}条 · ${100 - activityPct}%)</div>
+          <div class="qc-bar"><span class="qc-name">总曝光</span><span class="qc-track"><i style="width:${(dailyAgg.totalExp / maxExp2 * 100).toFixed(0)}%"></i></span><span class="qc-val">${fmt(dailyAgg.totalExp)}</span></div>
+          <div class="qc-bar"><span class="qc-name">平均互动率</span><span class="qc-track"><i style="width:${Math.min(100, dailyAgg.avgEngRate * 10)}%"></i></span><span class="qc-val">${dailyAgg.avgEngRate}%</span></div>
+          <div class="qc-bar"><span class="qc-name">平均爆款指数</span><span class="qc-track"><i style="width:${Math.min(100, dailyAgg.avgViral * 4)}%"></i></span><span class="qc-val">${dailyAgg.avgViral}</span></div>
+          <div class="qc-bar"><span class="qc-name">爆款占比</span><span class="qc-track"><i style="width:${dailyAgg.topPct}%"></i></span><span class="qc-val">${dailyAgg.topPct}%</span></div>
+        </div>
+      </div>
+    </div>`;
     return `<div class="comp-section">
       <div class="comp-sec-head"><span class="comp-sec-name">${esc(name)}</span><span class="comp-sec-badge">内容 ${itemsAll.length} · 平均爆款指数位 ${avgRate} · 爆款 ${topCount}</span></div>
       <div class="comp-meta">${m0.category ? `<span class="tag">${esc(m0.category)}</span>` : ""}${followers ? `<span class="comp-followers">👥 ${fmt(followers)} 粉丝</span>` : ""}${handles ? `<span class="comp-handles">${handles}</span>` : ""}</div>
@@ -3361,11 +3409,14 @@ ${topMatches || "（无强匹配）"}
         <div class="stat"><div class="stat-label">爆款数</div><div class="stat-val">${topCount}</div></div>
         <div class="stat"><div class="stat-label">总曝光</div><div class="stat-val">${fmt(totalExp)}</div></div>
         <div class="stat"><div class="stat-label">平均互动率</div><div class="stat-val">${avgEng}%</div></div>
+        <div class="stat"><div class="stat-label">原创 / 转发</div><div class="stat-val">${originalPct}% / ${repostPct}%</div></div>
+        <div class="stat"><div class="stat-label">回复用户占比</div><div class="stat-val">${replyPct}%</div></div>
+        <div class="stat"><div class="stat-label">活动帖占比</div><div class="stat-val">${activityPct}%</div></div>
       </div>
       <div class="comp-dims">${dimCards}</div>
       <div class="comp-sub">内容排序列表${cf ? "（受形式 / 数据筛选约束）" : "（按爆款指数位 · 点开看原帖）"}</div>${contentHTML}
       <div class="comp-sub">用户对竞品的评价（最高赞）</div>${voiceHTML}
-      ${rhythmHTML}${burstHTML}
+      ${campaignCompareHTML}${rhythmHTML}${burstHTML}
     </div>`;
   }
   /* 单品牌多维视图：顶部局部筛选条 + 深度整合 */
@@ -3375,6 +3426,13 @@ ${topMatches || "（无强匹配）"}
     const types = [...new Set(brandItems.map((c) => c.contentType))].sort();
     const typeChips = types.map((t) => `<span class="chip comp-type${cf.types.has(t) ? " on" : ""}" data-type="${esc(t)}">${esc(t)}</span>`).join("");
     const toolbar = `<div class="comp-toolbar">
+      <div class="ct-group"><span class="ct-label">范围</span>
+        <div class="seg" id="comp-mode">
+          <button data-mode="all" class="${cf.mode === "all" ? "on" : ""}">全部</button>
+          <button data-mode="activity" class="${cf.mode === "activity" ? "on" : ""}">活动</button>
+          <button data-mode="daily" class="${cf.mode === "daily" ? "on" : ""}">日常</button>
+        </div>
+      </div>
       <div class="ct-group"><span class="ct-label">形式</span><div class="ct-chips" id="comp-type-chips">${typeChips || '<span style="color:var(--text-3);font-size:12px">无</span>'}</div></div>
       <div class="ct-group"><span class="ct-label">排序</span><select class="sel" id="comp-sort">
         <option value="viral"${cf.sort === "viral" ? " selected" : ""}>爆款指数位</option>
@@ -3644,7 +3702,12 @@ ${topMatches || "（无强匹配）"}
       const sort = $("#comp-sort"); if (sort) sort.addEventListener("change", () => { state.compFilters.sort = sort.value; renderBoard(); });
       const vm = $("#comp-viral-min"); if (vm) vm.addEventListener("input", () => { state.compFilters.viralMin = +vm.value; const v = $("#comp-viral-min-val"); if (v) v.textContent = vm.value; renderBoard(); });
       const to = $("#comp-top-only"); if (to) to.addEventListener("change", () => { state.compFilters.topOnly = to.checked; renderBoard(); });
-      const rs = $("#comp-reset"); if (rs) rs.addEventListener("click", () => { state.compFilters = { types: new Set(), sort: "viral", viralMin: 0, topOnly: false }; renderBoard(); });
+      const cm = $("#comp-mode"); if (cm) cm.addEventListener("click", (e) => {
+        const b = e.target.closest("button"); if (!b) return;
+        state.compFilters.mode = b.dataset.mode;
+        renderBoard();
+      });
+      const rs = $("#comp-reset"); if (rs) rs.addEventListener("click", () => { state.compFilters = { types: new Set(), sort: "viral", viralMin: 0, topOnly: false, mode: "all" }; renderBoard(); });
     }
     if (state.board === "compare") {
       $$(".cmp-chip", $("#board")).forEach((el) => el.addEventListener("click", () => {

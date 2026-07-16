@@ -328,6 +328,8 @@ body::after {
 .board-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 18px; gap: 16px; flex-wrap: wrap; }
 .board-desc { font-size: 13px; color: var(--text-2); max-width: 640px; line-height: 1.55; }
 .board-tools { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.lib-group { display: inline-flex; align-items: center; gap: 6px; }
+.lib-group-label { font-size: 11px; color: var(--text-3); font-weight: 600; letter-spacing: .5px; }
 .lib-toolrows { display: flex; flex-direction: column; gap: 6px; }
 .lib-toolrow { display: flex; align-items: center; gap: 8px; }
 .lib-toollabel { font-size: 11px; color: var(--text-3); font-weight: 600; letter-spacing: .5px; min-width: 30px; flex-shrink: 0; }
@@ -1265,6 +1267,9 @@ body::after {
 .comp-toolbar .ct-val { font-weight: 700; color: var(--accent-strong); font-family: var(--font-mono); font-size: 12.5px; }
 .comp-toolbar .chk { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 12.5px; color: var(--text-2); }
 .comp-toolbar .chk input { accent-color: var(--accent); width: 15px; height: 15px; }
+.cmp-compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 10px; }
+.cmp-compare-col { background: var(--glass-bg-strong); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 12px 14px; }
+.cmp-compare-h { font-size: 13px; font-weight: 700; color: var(--text-2); margin-bottom: 10px; }
 .comp-selbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
 .comp-selbar .comp-chip { font-size: 12.5px; padding: 6px 14px; }
 .comp-selbar .comp-chip.on { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: var(--accent); color: #fff; font-weight: 600; box-shadow: var(--glow); }
