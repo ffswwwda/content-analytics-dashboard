@@ -76,10 +76,10 @@
     { id: "competitor", name: "竞品内容监测", group: "看竞品情况", level: 1, desc: "选择单竞品 → 深度查看（整体数据 + 内容排序列表 + 形式/数据筛选 + 用户评价 + 运营节奏×表现 + Campaign 爆发监测）；也可看全部竞品排名。" },
     { id: "compare", name: "多竞品横向对比", group: "看竞品情况", level: 2, desc: "勾选多个品牌横向对比：数据表现 + Top3 内容 + 用户情况，全面看标杆与差距。" },
     // —— 了解用户 ——
-    { id: "uservoice", name: "用户讨论与语言", group: "了解用户", level: 1, desc: "基于用户语料的深度分析：情绪倾向、语言风格、词频、美式本土化表达、分内容形式——学习美国用户的表达与话题讨论方式。" },
     { id: "branduser", name: "品牌-用户讨论", group: "了解用户", level: 2, desc: "分品牌查看用户对该品牌的讨论：情感极性、内容形式、用户倾向、高频词与主题、代表语录——全面看每个品牌的用户声音。可点进品牌看品牌互动用户深度分析（用户词云、主题排序、分层占比、跨品牌对比）。" },
-    { id: "usertier", name: "用户分层分析", group: "了解用户", level: 2, desc: "按「回复字数」和「参与度」将用户分层——不是研究单个用户，而是研究「某一类用户」的整体特征：他们关注什么品牌、聊什么话题、情绪倾向如何、偏好什么内容形式。每层可下钻看细节，支持四层横向对比。" },
     { id: "userseg", name: "高互动用户", group: "了解用户", level: 2, desc: "窗口内回复数最高的活跃用户排行——研究「单个深度用户」：他是谁、活跃周期、品牌归属、语言模式、参与形式、情感/意图倾向、全部代表语录。支持展开深度画像、跨品牌用户对比。" },
+    { id: "usertier", name: "用户分层分析", group: "了解用户", level: 2, desc: "按「回复字数」和「参与度」将用户分层——不是研究单个用户，而是研究「某一类用户」的整体特征：他们关注什么品牌、聊什么话题、情绪倾向如何、偏好什么内容形式。每层可下钻看细节，支持四层横向对比。" },
+    { id: "uservoice", name: "用户语料分析", group: "了解用户", level: 1, desc: "基于用户语料的深度分析：情绪倾向、语言风格、词频、美式本土化表达、分内容形式——学习美国用户的表达与话题讨论方式。" },
     // —— 我方运营 ——
     { id: "myops", name: "我方运营", group: "我方运营", level: 1, desc: "选一个或多个竞品 → 勾选要参考的维度（节奏 / 选题 / 形式 / 风格 / 指标）→ 生成可执行的运营方案，支持导出。" },
   ];
@@ -1783,7 +1783,7 @@ ${topMatches || "（无强匹配）"}
     });
   }
 
-  /* ============ 了解用户：用户讨论与语言（富用户分析中枢）============ */
+  /* ============ 了解用户：用户语料分析（富用户分析中枢）============ */
   const COL = { pos: "#2ee6a6", neu: "#6b7a99", neg: "#ff5d73", slate: "#6b7a99" };
   const HUES = ["#00f0ff", "#a06bff", "#ff7eb6", "#ffd166", "#2ee6a6", "#5b8cff", "#ff9d5c", "#8ad"];
   const LANG_COL = { en: "#00f0ff", de: "#a06bff", zh: "#ffd166", ru: "#ff7eb6", ja: "#2ee6a6", other: "#6b7a99" };
@@ -2379,7 +2379,7 @@ ${topMatches || "（无强匹配）"}
     return arr.map((x) => `<span class="uv-chip">${esc(x.t)}<em>×${x.n}</em></span>`).join("");
   }
 
-  /* ---------- 用户讨论与语言 · 分内容主题 ---------- */
+  /* ---------- 用户语料分析 · 分内容主题 ---------- */
   function uvTopic(U) {
     const list = (U.dimBreakdown && U.dimBreakdown.topicBreakdown) || [];
     if (!list.length) return `<div class="uv-block"><div class="uv-note">暂无分主题数据（运行 scripts/build_users.py 重建）。</div></div>`;
@@ -2400,7 +2400,7 @@ ${topMatches || "（无强匹配）"}
     </div>`;
   }
 
-  /* ---------- 用户讨论与语言 · 分营销目的（意图） ---------- */
+  /* ---------- 用户语料分析 · 分营销目的（意图） ---------- */
   function uvIntent(U) {
     const c = U.corpus;
     const list = (U.dimBreakdown && U.dimBreakdown.intentBreakdown) || [];
@@ -2425,7 +2425,7 @@ ${topMatches || "（无强匹配）"}
     </div>`;
   }
 
-  /* ---------- 用户讨论与语言 · 分情绪风格 ---------- */
+  /* ---------- 用户语料分析 · 分情绪风格 ---------- */
   function uvEmotion(U) {
     const c = U.corpus;
     const list = (U.dimBreakdown && U.dimBreakdown.sentimentBreakdown) || [];
@@ -4135,7 +4135,7 @@ ${sim || "（无同主题关联帖）"}
     if (["competitor", "compare"].includes(state.board)) bindCompetitor();
     // 我方运营
     if (state.board === "myops") bindMyOps();
-    // 了解用户：用户讨论与语言 / 品牌-用户讨论 / 用户分层分析 / 高互动用户
+    // 了解用户：品牌-用户讨论 / 高互动用户 / 用户分层分析 / 用户语料分析
     if (state.board === "uservoice") bindUserBoard();
     if (state.board === "branduser") bindBrandUser();
     if (state.board === "usertier") bindUserTier();
