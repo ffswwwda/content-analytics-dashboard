@@ -3,14 +3,14 @@
 把真实 xlsx（GTM社媒数据_打标全表_爆款版）转成前端 content_data.json。
 - 单 sheet 统一表：内容类型=发帖 → contents（竞品/品牌内容）；内容类型=回帖 → userVoices（真实用户声音，按关联帖ID 挂接原帖）
 - 全部指标来自原始打标表真实列：
-  · 爆款内容指数 → viral_score（最权威的「爆款指数」，作为首要筛选项）
-  · 爆款指数TOP10%   → is_top（真实 Top10% 爆款，用于「只看爆款」）
-  · 是否爆款        → is_viral（更宽的真标爆款）
+  · 爆款内容指数 → viral_score（最权威的「爆款指数」）
+  · 爆款指数TOP10%   → is_top（经「曝光≥1000」过滤后，再与「曝光Top10%」取并集，作为前端「爆款」标签）
+  · 是否爆款        → is_viral（更宽的真标爆款，前端已弃用）
   · 综合互动率/点赞率/评论率/传播率/收藏率 → 各真实分率
   · 类目 / 内容主题 / 情绪风格 / 营销目的 / 内容来源 / 发布者类型 → 真实打标维度
 全量接入，不抽样。
 """
-import json, re
+import json, re, math
 from collections import defaultdict
 
 XLSX = "/Users/fsw/Downloads/GTM社媒数据_打标全表_爆款版.xlsx"
@@ -152,6 +152,20 @@ for r in posts:
         "associated_id": norm(rec.get("关联帖ID")),
         "timeseries": None,   # 新表无 D0/D1/D2/D7 时序明细
     })
+
+# ---------- 爆款定义：曝光 Top10% + 爆款指数 Top10% 且排除低曝光 ----------
+# 理由：爆款指数由互动率、点赞率、评论率、传播率组成；曝光过低（如几十）时，分母小，率值极不稳定，
+# 容易出现“几十个曝光却爆款指数极高”的噪声。因此要求 爆款指数Top10% 的内容曝光至少 1000 才视为真实爆款；
+# 同时，曝光本身 Top10% 的内容自然有资格进入爆款池。
+MIN_EXPOSURE_FOR_VIRAL_HOT = 1000
+sorted_by_exposure = sorted(contents, key=lambda x: x["exposure"], reverse=True)
+top10_exposure_count = max(1, math.ceil(len(contents) * 0.1))
+top10_exposure_threshold = sorted_by_exposure[top10_exposure_count - 1]["exposure"]
+for c in contents:
+    hot_by_viral = c["is_top"] and c["exposure"] >= MIN_EXPOSURE_FOR_VIRAL_HOT
+    hot_by_exposure = c["exposure"] >= top10_exposure_threshold
+    c["is_top"] = hot_by_viral or hot_by_exposure
+print(f"  爆款定义：曝光Top10%阈值={top10_exposure_threshold}；爆款指数Top10%需曝光≥{MIN_EXPOSURE_FOR_VIRAL_HOT}")
 
 # ---------- 回帖 -> userVoices ----------
 voices = []

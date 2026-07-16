@@ -69,7 +69,7 @@
   };
   const BOARDS = [
     // —— 灵感/分析 ——
-    { id: "library", name: "灵感库", group: "灵感/分析", level: 1, desc: "全部内容的灵感库。可随机浏览，也可按爆款指数 / 曝光 / 综合互动率 / 点赞率 / 评论率 / 转发率 / 收藏率 / 时间多指标排序与筛选；一键只看爆款(Top10%)。点标签加筛选，点卡片看详情，再进单帖深度分析。" },
+    { id: "library", name: "灵感库", group: "灵感/分析", level: 1, desc: "全部内容的灵感库。可随机浏览，也可按爆款指数 / 曝光 / 综合互动率 / 点赞率 / 评论率 / 转发率 / 收藏率 / 时间多指标排序；一键只看爆款（曝光Top10% 或 爆款指数Top10%且曝光≥1000）。点标签加筛选，点卡片看详情，再进单帖深度分析。" },
     { id: "reference", name: "评估想法 / 找参考", group: "灵感/分析", level: 1, desc: "两个方向：①评估想法——输入内容想法，左侧即时评估、右侧输出多维度结果；②找参考——没想法有目的时，输入目的，右侧推荐匹配灵感内容。" },
     { id: "viraldeep", name: "爆款内容深度分析", group: "灵感/分析", level: 1, desc: "跨所有品牌的爆款内容共性研究：什么品牌/形式/情绪/主题/时段最容易出爆款？纯数据驱动，一键看清爆款配方。" },
     // —— 看竞品情况 ——
@@ -108,11 +108,10 @@
         { name: "综合/点赞/评论/转发/收藏率", type: "source", acc: 100, formula: "源表「综合互动率/点赞率/评论率/传播率/收藏率」列真实值，前端优先采用、绝不重算。" },
         { name: "爆款指数", type: "source", acc: 100, formula: "源表「爆款内容指数」列（0–100 绝对值），公式=综合互动率×0.4+点赞率×0.3+评论率×0.2+传播率×0.1。" },
         { name: "全库百分位排名", type: "frontend", acc: 100, formula: "由爆款指数全库降序排名派生：前X%/后10% 分档 + 超越X% 帖子（computeViralRanks）。" },
-        { name: "爆款标识 isTop", type: "source", acc: 100, formula: "源表「爆款指数TOP10%」列直接采用（权威 Top10% 爆款，277 条）。" },
+        { name: "爆款标识 isTop", type: "combined", acc: 100, formula: "综合判定：① 源表「爆款指数TOP10%」且曝光≥1000；② 或曝光进入全库Top10%（阈值21675）。避免低曝光（如几十）的率值噪声被误判为爆款。合计 486 条。" },
         { name: "类目/平台/形式/情绪风格/营销目的/内容来源", type: "source", acc: 100, formula: "源表对应列 1:1 直拷。" },
         { name: "发布时间 / 星期 / 时段", type: "frontend", acc: 100, formula: "由源表「发布时间」解析出 publishDate / weekDay / publishHour。" },
         { name: "ROI（千次曝光互动）", type: "frontend", acc: 100, formula: "互动数 ÷ 曝光 × 1000，输入均为源真实值。" },
-        { name: "类型 ROI 概览", type: "frontend", acc: 100, formula: "按内容形式分组聚合平均爆款指数/互动率（源字段分组均值）。" },
         { name: "卡片「爆款指数位」进度条", type: "frontend", acc: 100, formula: "viralScore ÷ 全库最大值 × 100，仅表示相对位置（非源字段，已与爆款指数区分展示）。" },
       ],
     },
@@ -462,8 +461,11 @@
     syncRandFloat();
   }
 
-  /* ---------- 灵感库（整合：随机浏览 + 指标排序 + 只看爆款 + 类型ROI）---------- */
+  /* ---------- 灵感库（随机浏览 + 指标排序 + 只看爆款一键切换）---------- */
   function renderLibrary(data) {
+    // 只看爆款/类型ROI已合并简化：若旧状态残留则重置
+    if (state.libQuick === "roi") state.libQuick = "all";
+    if (state.sort === "roi") state.sort = "viral";
     // 先按「只看爆款」过滤（两种模式都生效）
     let base = [...data];
     if (state.libQuick === "top") base = base.filter((c) => c.isTop);
@@ -474,12 +476,7 @@
       list = state.randList;
     } else {
       state.randList = null;
-      if (state.sort === "roi") {
-        const roiMap = new Map(state.analysis.contentTypeROI.map((t) => [t.type, t.avgViralScore]));
-        list = [...base].sort((a, b) => (roiMap.get(b.contentType) || 0) - (roiMap.get(a.contentType) || 0));
-      } else {
-        list = sortContents(base, state.sort);
-      }
+      list = sortContents(base, state.sort);
     }
     const PAGE = state.pageSize;
     const total = list.length;
@@ -494,16 +491,12 @@
       state.page = page;
       pageItems = list.slice(page * PAGE, (page + 1) * PAGE); // 只渲染当前页，避免 8k+ DOM 节点
     }
-    const tools = `<div class="board-tools" style="flex-wrap:wrap">
-      <div class="seg" id="lib-mode">
-        <button data-mode="rand" class="${state.libMode === "rand" ? "on" : ""}">🎲 随机浏览</button>
-        <button data-mode="sort" class="${state.libMode === "sort" ? "on" : ""}">📊 指标排序</button>
-      </div>
-      <div class="seg" id="lib-eval">
-        <button data-eval="all" class="${state.libQuick === "all" ? "on" : ""}">全部</button>
-        <button data-eval="top" class="${state.libQuick === "top" ? "on" : ""}">只看爆款</button>
-        <button data-eval="roi" class="${state.libQuick === "roi" ? "on" : ""}">类型ROI</button>
-      </div>
+    const evalBtn = state.libQuick === "all"
+      ? `<button data-eval="top">只看爆款</button>`
+      : `<button data-eval="all" class="on">全部</button>`;
+    const sortTools = state.libMode === "rand"
+      ? ""
+      : `<div class="seg" id="lib-eval">${evalBtn}</div>
       <div class="seg" id="sort-chips">
         <button data-sort="viral" class="${state.sort === "viral" ? "on" : ""}">爆款指数</button>
         <button data-sort="compositeRate" class="${state.sort === "compositeRate" ? "on" : ""}">综合互动率</button>
@@ -517,20 +510,20 @@
       <div class="seg" id="view-seg">
         <button data-view="grid" class="${state.view === "grid" ? "on" : ""}">卡片</button>
         <button data-view="list" class="${state.view === "list" ? "on" : ""}">列表</button>
+      </div>`;
+    const tools = `<div class="board-tools" style="flex-wrap:wrap">
+      <div class="seg" id="lib-mode">
+        <button data-mode="rand" class="${state.libMode === "rand" ? "on" : ""}">🎲 随机浏览</button>
+        <button data-mode="sort" class="${state.libMode === "sort" ? "on" : ""}">📊 指标排序</button>
       </div>
+      ${sortTools}
       <button class="bx-launch" id="bx-launch" title="每日灵感盲盒">
         <svg viewBox="0 0 24 24" class="ic" style="width:18px;height:18px"><rect x="3" y="8" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 8h20M12 8V3m0 0c-1.5 0-2.5 1-2.5 2.5S10.5 8 12 8s2.5-1 2.5-2.5S13.5 3 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
         每日灵感盲盒
       </button>
     </div>`;
-    const head = `<div class="board-head"><div class="board-desc">${boardDesc("library")}<br><b style="color:var(--accent-strong)">${data.length}</b> 条符合筛选 · 随机模式打破信息茧房；指标模式含「只看爆款(Top10%) / 类型 ROI」等评估标准。点标签加筛选，点卡片看详情。</div>${tools}</div>`;
+    const head = `<div class="board-head"><div class="board-desc">${boardDesc("library")}<br><b style="color:var(--accent-strong)">${data.length}</b> 条符合筛选 · 随机模式打破信息茧房；指标模式可按爆款指数/各互动率/曝光/时间排序，并切换「只看爆款」。点标签加筛选，点卡片看详情。</div>${tools}</div>`;
     if (!list.length) return head + emptyState();
-    let roiPanel = "";
-    if (state.libQuick === "roi" || state.sort === "roi") {
-      const maxV = Math.max(...state.analysis.contents.map((c) => c.viralScore), 0.0001);
-      roiPanel = `<div class="panel" style="margin-bottom:14px"><div class="panel-title">内容形式 ROI 概览（按平均爆款指数排序）</div><div class="panel-sub">作为「高 ROI 形式」的评估标准——哪种形式最值得借鉴</div>
-        ${state.analysis.contentTypeROI.map((t) => `<div class="qc-bar"><span class="qc-name" style="width:90px">${esc(t.type)}</span><span class="qc-track"><i style="width:${((t.avgViralScore / maxV) * 100).toFixed(0)}%"></i></span><span class="qc-val">${t.count}条 · 互动率${(t.avgEngagementRate * 100).toFixed(1)}%</span></div>`).join("")}</div>`;
-    }
     const body = state.view === "grid" ? `<div class="grid">${pageItems.map(cardHTML).join("")}</div>` : pageItems.map(listHTML).join("");
     const pager = state.libMode === "rand"
       ? (state.randVisible < total
@@ -540,7 +533,7 @@
     const randFloat = state.libMode === "rand"
       ? `<div class="rand-float"><button data-action="rerand"><span class="rf-ic">🎲</span> 重新随机一批</button></div>`
       : "";
-    return head + roiPanel + body + pager + randFloat;
+    return head + body + pager + randFloat;
   }
   function paginationHTML(page, totalPages, total, PAGE) {
     const from = page * PAGE + 1;
@@ -1524,7 +1517,7 @@ ${topMatches || "（无强匹配）"}
     const tops = data.filter((c) => c.isTop);
     const normal = data.filter((c) => !c.isTop);
     const desc = boardDesc("viraldeep");
-    if (!tops.length) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + `<div class="empty-state">当前筛选下暂无爆款内容（爆款指数 TOP10% 真实标签）。</div>`;
+    if (!tops.length) return `<div class="board-head"><div class="board-desc">${desc}</div></div>` + `<div class="empty-state">当前筛选下暂无爆款内容（爆款 = 曝光Top10% 或 爆款指数Top10%且曝光≥1000）。</div>`;
     const allLen = data.length;
     const topPct = Math.round(tops.length / Math.max(allLen, 1) * 100);
 
