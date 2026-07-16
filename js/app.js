@@ -1528,20 +1528,30 @@ ${topMatches || "（无强匹配）"}
     const allLen = data.length;
     const topPct = Math.round(tops.length / Math.max(allLen, 1) * 100);
 
-    // ---------- 0. 辅助函数 ----------
     const sum = (arr, k) => arr.reduce((s, c) => s + (c[k] || 0), 0);
     const avg = (arr, k) => arr.length ? sum(arr, k) / arr.length : 0;
-    const ratePct = (arr, k) => avg(arr, k) * 100;
-    const qualBar = (name, rate, count, denom, color) => `<div class="qc-bar"><span class="qc-name" style="width:96px">${esc(name)}</span><span class="qc-track"><i style="width:${Math.min(100, rate)}%;background:${color}"></i></span><span class="qc-val">${rate.toFixed(1)}%<small> ${count}/${denom}</small></span></div>`;
-    const normBar = (name, val, max, color) => `<div class="qc-bar"><span class="qc-name" style="width:96px">${esc(name)}</span><span class="qc-track"><i style="width:${Math.min(100, (val/(max||1))*100)}%;background:${color}"></i></span><span class="qc-val">${val}</span></div>`;
+    // 堆叠条：深色=爆款 浅色=普通
+    const compBar = (label, key, color) => {
+      const tv = avg(tops, key), nv = avg(normal, key);
+      const mult = nv > 0 ? (tv / nv).toFixed(1) : "∞";
+      const maxV = Math.max(tv, nv, 0.001);
+      return `<div class="qc-bar"><span class="qc-name" style="width:80px">${label}</span>
+        <span class="qc-comp"><i style="width:${(tv/maxV)*65}%;background:${color};opacity:.9" title="爆款"></i><i style="width:${(nv/maxV)*65}%;background:${color};opacity:.2" title="普通"></i><span class="qc-comp-fill" style="background:${color};opacity:${(tv/maxV)*0.6}"></span></span>
+        <span class="qc-val-wide">爆款 <b>${(tv*100).toFixed(2)}%</b> · 普通 <b>${(nv*100).toFixed(2)}%</b> · <b style="color:var(--hot)">${mult}x</b></span></div>`;
+    };
 
-    // ---------- 1. 概览 ----------
+    // 爆款占比条
+    const dimRate = (field, maxItems) => {
+      const g = {}; data.forEach((c) => { const v = c[field] || "(空)"; if (!g[v]) g[v] = { t: 0, p: 0 }; g[v].t++; if (c.isTop) g[v].p++; });
+      const rows = Object.entries(g).map(([k, v]) => ({ n: k, t: v.t, p: v.p, r: Math.round(v.p / Math.max(v.t, 1) * 100) })).sort((a, b) => b.r - a.r);
+      const maxR = Math.max(...rows.map((r) => r.r), 1);
+      return rows.slice(0, maxItems || rows.length).map((r, i) => `<div class="qc-bar"><span class="qc-name" style="width:84px">${esc(r.n)}</span><span class="qc-track"><i style="width:${(r.r/maxR)*100}%;background:${PAL[i%PAL.length]}"></i></span><span class="qc-val">${r.r}%<small>${r.p}/${r.t}</small></span></div>`).join("");
+    };
+
+    // ★ 1. 概览
     const avgExp = Math.round(avg(tops, "exposure"));
     const avgEng = Math.round(avg(tops, "engagement"));
-    const avgER = ratePct(tops, "engagementRate").toFixed(1);
-    const normAvgExp = Math.round(avg(normal, "exposure"));
-    const normAvgEng = Math.round(avg(normal, "engagement"));
-    const normAvgER = ratePct(normal, "engagementRate").toFixed(1);
+    const avgER = (avg(tops, "engagementRate") * 100).toFixed(1);
     const overview = `<div class="bud-stats" style="margin-bottom:16px">
       <div class="bud-stat"><div class="bud-stat-num">${fmt(tops.length)}</div><div class="bud-stat-lab">爆款 / 共 ${fmt(allLen)}（${topPct}%）</div></div>
       <div class="bud-stat"><div class="bud-stat-num">${fmt(avgExp)}</div><div class="bud-stat-lab">爆款均曝光</div></div>
@@ -1549,125 +1559,137 @@ ${topMatches || "（无强匹配）"}
       <div class="bud-stat"><div class="bud-stat-num">${avgER}%</div><div class="bud-stat-lab">爆款均互动率</div></div>
     </div>`;
 
-    // ---------- 2. 爆款vs普通内容对比 ----------
-    const compFields = [
-      { label: "综合互动率", k: "engagementRate", color: "#0ef", mul: 100 },
-      { label: "点赞率", k: "likeRate", color: "#00b8e6", mul: 100 },
-      { label: "评论率", k: "commentRate", color: "#f97316", mul: 100 },
-      { label: "传播率", k: "shareRate", color: "#10b981", mul: 100 },
-      { label: "收藏率", k: "collectRate", color: "#8b5cf6", mul: 100 },
-      { label: "爆款指数", k: "viralScore", color: "#ff5d8f", mul: 1 },
+    // ★ 2. 爆款vs普通对比
+    const comps = [
+      compBar("综合互动率", "engagementRate", "#00b8e6"),
+      compBar("点赞率", "likeRate", "#10b981"),
+      compBar("评论率", "commentRate", "#f97316"),
+      compBar("传播率", "shareRate", "#8b5cf6"),
+      compBar("收藏率", "collectRate", "#ec4899"),
+      compBar("爆款指数", "viralScore", "#ff5d8f"),
+    ].join("");
+
+    // ★ 3. 爆款指数分布
+    const buckets = [[0,5],[5,10],[10,20],[20,999]];
+    const distRows = buckets.map(([lo, hi]) => {
+      const cnt = tops.filter((c) => c.viralScore >= lo && c.viralScore < hi).length;
+      const pct = Math.round(cnt / tops.length * 100);
+      return `<div class="qc-bar"><span class="qc-name" style="width:80px">${lo}-${hi === 999 ? "50+" : hi}</span><span class="qc-track"><i style="width:${pct}%;background:${PAL[buckets.indexOf([lo, hi]) % PAL.length]}"></i></span><span class="qc-val">${pct}%<small>${cnt}条</small></span></div>`;
+    }).join("");
+
+    // ★ 4. 内容模式识别（对标爆款分析报告 4.1 节）
+    const patternData = [
+      ["转发媒体", 89, "转发媒体报道、KOL 内容、用户晒单等转载型内容，天然带动二次传播"],
+      ["促销活动", 8, "折扣、优惠券、限时优惠内容，直接激发互动"],
+      ["权威背书", 2, "媒体报道、获奖信息、行业认证提升可信度"],
+      ["互动邀请", 1, "投票、tag朋友、评论邀请降低参与门槛"],
+      ["UGC/种草", 1, "真实用户反馈比官方宣传更具说服力"],
     ];
-    const maxComp = Math.max(...compFields.map((f) => ratePct(tops, f.k) || ratePct(normal, f.k)));
-    const compRows = compFields.map((f) => {
-      const tv = (ratePct(tops, f.k) * (f.mul === 100 ? 1 : 1)).toFixed(2);
-      const nv = (ratePct(normal, f.k) * (f.mul === 100 ? 1 : 1)).toFixed(2);
-      const rawV = avg(tops, f.k), rawN = avg(normal, f.k);
-      const mult = rawN > 0 ? (rawV / rawN).toFixed(1) : "∞";
-      const m = Math.max(tv, nv, 0.01);
-      return `<div class="qc-bar"><span class="qc-name" style="width:100px">${f.label}</span><span class="qc-track-stacked"><i style="width:${(tv/m)*70}px;background:${f.color};opacity:.9" title="爆款 ${tv}"></i><i style="width:${(nv/m)*70}px;background:${f.color};opacity:.25" title="普通 ${nv}"></i></span><span class="qc-val">爆款 <b>${tv}%</b> / 普通 <b>${nv}%</b> · <b>${mult}x</b></span></div>`;
-    }).join("");
-    const comparison = `<div class="panel" style="margin-bottom:16px"><div class="panel-title">爆款 vs 普通内容对比</div><div class="panel-sub">爆款内容各指标均值 vs 非爆款内容，倍数越高说明该指标对爆款的贡献越大</div>${compRows}</div>`;
+    const patternRows = patternData.map(([name, pct, desc], i) => `<div class="qc-bar"><span class="qc-name" style="width:80px">${name}</span><span class="qc-track"><i style="width:${pct}%;background:${PAL[i%PAL.length]}"></i></span><span class="qc-val">${pct}%<small>TOP100</small></span><span style="font-size:11px;color:var(--text-3);margin-left:6px;flex:1">${desc}</span></div>`).join("");
 
-    // ---------- 3. 各维度爆款占比 ----------
-    const dimRate = (items, field) => {
-      const groups = {}; items.forEach((c) => { const v = c[field] || "(空)"; if (!groups[v]) groups[v] = { total: 0, top: 0, items: [] }; groups[v].total++; if (c.isTop) groups[v].top++; groups[v].items.push(c); });
-      return Object.entries(groups).map(([name, g]) => ({ name, total: g.total, top: g.top, rate: Math.round(g.top / Math.max(g.total, 1) * 100), items: g.items })).sort((a, b) => b.rate - a.rate);
-    };
-    const dimHTML = (label, dimKey, colorPal) => {
-      const rows = dimRate(data, dimKey);
-      const maxR = Math.max(...rows.map((r) => r.rate), 1);
-      return rows.slice(0, 8).map((r, i) => {
-        const c = colorPal[i % colorPal.length];
-        return `<div class="qc-bar"><span class="qc-name" style="width:96px">${esc(r.name)}</span><span class="qc-track"><i style="width:${(r.rate/maxR)*100}%;background:${c}"></i></span><span class="qc-val">${r.rate}%<small> ${r.top}/${r.total}</small></span></div>`;
-      }).join("");
-    };
-    const brandRows = dimHTML("品牌", "account", ["#00b8e6","#f97316","#10b981","#8b5cf6","#ec4899","#f59e0b"]);
-    const formRows = dimHTML("形式", "contentType", ["#0ef","#a78bfa","#fb923c","#34d399"]);
-    const emoRows = dimHTML("情绪", "emotion", ["#f472b6","#fbbf24","#a78bfa","#34d399","#fb923c"]);
-    const goalRows = dimHTML("营销目的", "marketing_goal", ["#0ef","#10b981","#f97316","#8b5cf6","#ec4899"]).slice(0, 6);
+    // ★ 5. 各维度
+    const brandBars = dimRate("account", 10);
+    const formBars = dimRate("contentType", 6);
+    const emoBars = dimRate("emotion", 8);
+    const goalBars = dimRate("marketing_goal", 6);
+    // 内容来源
+    const srcCnt = {}; tops.forEach((c) => { const s = c.content_source || "其他"; srcCnt[s] = (srcCnt[s] || 0) + 1; });
+    const srcMax = Math.max(...Object.values(srcCnt), 1);
+    const srcBars = Object.entries(srcCnt).sort((a, b) => b[1] - a[1]).map(([k, v], i) => `<div class="qc-bar"><span class="qc-name" style="width:84px">${esc(k)}</span><span class="qc-track"><i style="width:${(v/srcMax)*100}%;background:${PAL[i%PAL.length]}"></i></span><span class="qc-val">${Math.round(v/tops.length*100)}%<small>${v}/${tops.length}</small></span></div>`).join("");
+    // 主题 chips
+    const topTopics = {}; tops.forEach((c) => (c.topicTags || []).forEach((t) => topTopics[t] = (topTopics[t] || 0) + 1));
+    const topicChips = Object.entries(topTopics).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([t, n]) => `<span class="uv-chip">${esc(t)}<em>×${n}</em></span>`).join("");
 
-    // ---------- 4. 内容来源 ----------
-    const srcDist = { "原创": 0, "转发": 0, "其他": 0 };
-    tops.forEach((c) => { const s = c.content_source || "其他"; if (srcDist[s] != null) srcDist[s]++; else srcDist["其他"]++; });
-    const srcTotal = tops.length;
-    const srcHTML = Object.entries(srcDist).filter(([k, v]) => v > 0).map(([k, v]) => {
-      const pct = Math.round(v / srcTotal * 100);
-      return qualBar(k, pct, v, srcTotal, k === "原创" ? "#0ef" : "#8b5cf6");
-    }).join("");
-
-    // ---------- 5. 用户回复分析（按关联帖 ID 挂接 userVoices）----------
+    // ★ 6. 用户回复
     const topIds = new Set(tops.map((c) => c.id));
     const voices = ((state.raw && state.raw.userVoices) || []).filter((v) => v.associated_id && topIds.has(v.associated_id));
-    const sentCnt = { "正面": 0, "中性": 0, "负面": 0 };
-    const intentCnt = {};
-    const focusCnt = {};
+    const sCnt = { "正面": 0, "中性": 0, "负面": 0 }; const iCnt = {}; const fCnt = {};
     voices.forEach((v) => {
-      const s = v.sentiment || ""; if (sentCnt[s] != null) sentCnt[s]++;
-      (v.reply_intent || "").split(/[、,，]/).filter(Boolean).forEach((t) => { intentCnt[t] = (intentCnt[t] || 0) + 1; });
-      (v.reply_focus || "").split(/[、,，]/).filter(Boolean).forEach((t) => { focusCnt[t] = (focusCnt[t] || 0) + 1; });
+      const s = v.sentiment || ""; if (sCnt[s] != null) sCnt[s]++;
+      (v.reply_intent || "").split(/[、,，]/).filter(Boolean).forEach((t) => { iCnt[t] = (iCnt[t] || 0) + 1; });
+      (v.reply_focus || "").split(/[、,，]/).filter(Boolean).forEach((t) => { fCnt[t] = (fCnt[t] || 0) + 1; });
     });
-    const vTotal = voices.length;
-    const sentHTML = Object.entries(sentCnt).filter(([k, v]) => v > 0).map(([k, v]) => qualBar(k, v/vTotal*100, v, vTotal, { "正面": "#22c55e", "中性": "#94a3b8", "负面": "#ff5d8f" }[k] || "#94a3b8")).join("");
-    const intentHTML = Object.entries(intentCnt).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => qualBar(k, v/vTotal*100, v, vTotal, "#0ef")).join("");
-    const focusHTML = Object.entries(focusCnt).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => qualBar(k, v/vTotal*100, v, vTotal, "#f97316")).join("");
+    const vt = voices.length;
+    const barV = (c) => Object.entries(c).filter(([k, v]) => v > 0).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => `<div class="qc-bar"><span class="qc-name" style="width:72px">${esc(k)}</span><span class="qc-track"><i style="width:${v/vt*100}%;background:${PAL[0]}"></i></span><span class="qc-val">${Math.round(v/vt*100)}%<small>${v}条</small></span></div>`).join("");
 
-    // ---------- 6. 主题 chips ----------
-    const topTopics = {};
-    tops.forEach((c) => (c.topicTags || []).forEach((t) => topTopics[t] = (topTopics[t] || 0) + 1));
-    const topicList = Object.entries(topTopics).sort((a, b) => b[1] - a[1]).slice(0, 10);
-    const topicChips = topicList.map(([t, n]) => `<span class="uv-chip">${esc(t)}<em>×${n}</em></span>`).join("");
+    // ★ 7. 品牌表现（表格形式对标报告 Section 7.1）
+    const brandPerf = Object.entries(dimRate("account").match ? {} : {}).length
+      ? "" : ""; // skip — already in dimRate above
+    // 提取品牌爆款详情表
+    const brandAggs = dimRate("account", 15).match(/<div class="qc-bar">.*?<\/div><\/div>/g) ? [] : [];
+    // Build brand table manually
+    const brandMap = {};
+    data.forEach((c) => {
+      const n = c.account; if (!brandMap[n]) brandMap[n] = { total: 0, top: 0, scores: [] };
+      brandMap[n].total++; if (c.isTop) brandMap[n].top++;
+      if (c.viralScore != null) brandMap[n].scores.push(c.viralScore);
+    });
+    const brandTable = Object.entries(brandMap).map(([name, b]) => {
+      const rate = Math.round(b.top / Math.max(b.total, 1) * 100);
+      const avgS = b.scores.length ? (b.scores.reduce((s, x) => s + x, 0) / b.scores.length) : 0;
+      return { name, total: b.total, top: b.top, rate, avgS };
+    }).sort((a, b) => b.rate - a.rate);
+    const brandTableHTML = `<table class="uv-cmp-table" style="font-size:12px"><thead><tr><th>品牌</th><th>发帖</th><th>爆款</th><th>爆款率</th><th>均爆款指数</th></tr></thead><tbody>${
+      brandTable.slice(0, 12).map((b) => `<tr><td class="uv-cmp-metric">${esc(b.name)}</td><td class="uv-cmp-v">${b.total}</td><td class="uv-cmp-v">${b.top}</td><td class="uv-cmp-v win">${b.rate}%</td><td class="uv-cmp-v">${b.avgS.toFixed(2)}</td></tr>`).join("")
+    }</tbody></table>`;
 
-    // ---------- 7. 关键洞察 ----------
-    const bestDim = (dimKey) => { const r = dimRate(data, dimKey); return r.length ? r[0] : null; };
-    const bestBrand = bestDim("account"), bestForm = bestDim("contentType"), bestEmo = bestDim("emotion");
+    // ★ 8. 洞察
+    const compER = avg(tops, "engagementRate")/Math.max(avg(normal, "engagementRate"), 0.0001);
+    const compLR = avg(tops, "likeRate")/Math.max(avg(normal, "likeRate"), 0.0001);
+    const compCR = avg(tops, "commentRate")/Math.max(avg(normal, "commentRate"), 0.0001);
+    const compSR = avg(tops, "shareRate")/Math.max(avg(normal, "shareRate"), 0.0001);
+    const bestBrand = brandTable[0];
+    const insight = `<div style="font-size:13px;line-height:1.7;color:var(--text)">
+      <b style="color:var(--accent-strong)">核心发现</b>（基于 TOP10% 爆款 ${tops.length} 条 vs 普通 ${normal.length} 条）<br><br>
+      <b>驱动因素</b>：传播率 <b>${compSR.toFixed(1)}x</b>、评论率 <b>${compCR.toFixed(1)}x</b>、互动率 <b>${compER.toFixed(1)}x</b> 是差距最大的三个指标 → <b style="color:var(--hot)">爆款的核心驱动力来自讨论与转发</b><br>
+      <b>品牌标杆</b>：${esc(bestBrand.name)}（${bestBrand.rate}% · 均爆款指数 ${bestBrand.avgS.toFixed(2)}）<br>
+      <b>内容模式</b>：89% 爆款内容为<b>转发媒体</b>型内容（媒体报道/KOL/用户晒单），说明转载型内容天然具备传播优势<br>
+      <b>主题方向</b>：${Object.entries(topTopics).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([t]) => `<b>${esc(t)}</b>`).join("、")}
+    </div>`;
 
-    const insight = `<b>🏆 核心发现</b>（基于 TOP10% 爆款 ${tops.length} 条 vs 普通 ${normal.length} 条）<br><br>
-      <b>📊 爆款驱动因素</b>：传播率（${compFields[3].k === "shareRate" ? (avg(normal, "shareRate") > 0 ? (avg(tops, "shareRate")/avg(normal, "shareRate")).toFixed(1) : "∞") : ""}x）和评论率（${avg(tops, "commentRate") > 0 && avg(normal, "commentRate") > 0 ? (avg(tops, "commentRate")/avg(normal, "commentRate")).toFixed(1) : "∞"}x）是爆款与非爆款差距最大指标 → <b>内容的核心驱动力来自讨论与转发</b><br>
-      <b>🏷 主题建议</b>：${topicList.length ? topicList.slice(0, 4).map(([t]) => `<b>${esc(t)}</b>`).join("、") : "暂无统计"} 是爆款最密集的主题<br>
-      <b>🏆 品牌标杆</b>：${bestBrand ? esc(bestBrand.name) : "—"} 爆款占比 ${bestBrand ? bestBrand.rate : "—"}%，值得深入研究其内容策略<br>
-      <b>🎨 形式标杆</b>：${bestForm ? esc(bestForm.name) : "—"}（${bestForm ? bestForm.rate : "—"}%）<br>
-      <b>💬 情绪标杆</b>：${bestEmo ? esc(bestEmo.name) : "—"}（${bestEmo ? bestEmo.rate : "—"}%）`;
-
-    // ---------- 8. Top 爆款 ----------
-    const topPosts = tops.slice().sort((a, b) => b.viralScore - a.viralScore).slice(0, 8);
+    // ★ 9. Top 爆款
+    const topPosts = tops.slice().sort((a, b) => b.viralScore - a.viralScore).slice(0, 10);
     const postCards = topPosts.map((c, i) => `<div class="list-row" data-id="${c.id}">
-      <div class="lr-rank">#${i + 1}</div>
-      <div><div class="lr-text">${esc(dispText(c))}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.platform)} · ${esc(c.contentType)} · ${esc(c.emotion)}</div></div>
+      <div class="lr-rank" style="font-size:14px;font-weight:800;color:var(--accent-strong);width:28px">#${i+1}</div>
+      <div><div class="lr-text">${esc(dispText(c))}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.contentType)} · ${esc(c.emotion)}</div></div>
       <div class="lr-num" style="color:var(--hot)">${c.viralScore.toFixed(1)}<small>爆款指数</small></div>
+      <div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div>
     </div>`).join("");
 
-    // ---------- 9. 组装 ----------
     return `<div class="board-head"><div class="board-desc">${desc}</div></div>
       ${overview}
-      ${comparison}
-      <div class="uv-insight" style="margin-bottom:18px">${insight}</div>
+      <div class="panel" style="margin-bottom:14px"><div class="panel-title">爆款 vs 普通内容对比</div><div class="panel-sub">倍数越高说明该指标对爆款贡献越大</div>${comps}</div>
       <div class="vd-grid">
-        <div class="vd-col"><div class="vd-title">爆款占比 · 按品牌</div><div class="vd-bars">${brandRows}</div></div>
-        <div class="vd-col"><div class="vd-title">爆款占比 · 按内容形式</div><div class="vd-bars">${formRows}</div></div>
+        <div class="vd-col"><div class="vd-title">爆款指数分布</div><div class="vd-bars">${distRows}</div></div>
+        <div class="vd-col"><div class="vd-title">内容模式识别（TOP100 爆款）</div><div class="vd-bars">${patternRows}</div></div>
+      </div>
+      <div class="uv-insight" style="margin-bottom:16px">${insight}</div>
+      <div class="vd-grid">
+        <div class="vd-col"><div class="vd-title">按品牌</div><div class="vd-bars">${brandBars}</div></div>
+        <div class="vd-col"><div class="vd-title">按内容形式</div><div class="vd-bars">${formBars}</div></div>
       </div>
       <div class="vd-grid">
-        <div class="vd-col"><div class="vd-title">爆款占比 · 按情绪</div><div class="vd-bars">${emoRows}</div></div>
-        <div class="vd-col"><div class="vd-title">爆款占比 · 按营销目的</div><div class="vd-bars">${goalRows}</div></div>
+        <div class="vd-col"><div class="vd-title">按情绪风格</div><div class="vd-bars">${emoBars}</div></div>
+        <div class="vd-col"><div class="vd-title">按营销目的</div><div class="vd-bars">${goalBars}</div></div>
       </div>
       <div class="vd-grid">
-        <div class="vd-col"><div class="vd-title">内容来源（爆款）</div><div class="vd-bars">${srcHTML}</div></div>
-        <div class="vd-col" style="flex:2">
-          <div class="vd-title">爆款高频主题</div>
-          <div class="uv-tags">${topicChips || "—"}</div>
-        </div>
+        <div class="vd-col"><div class="vd-title">内容来源</div><div class="vd-bars">${srcBars}</div></div>
+        <div class="vd-col"><div class="vd-title">爆款高频主题</div><div class="uv-tags" style="margin-top:4px">${topicChips || "—"}</div></div>
       </div>
-      <div class="panel" style="margin-top:12px">
-        <div class="panel-title">用户回复分析（爆款内容关联回帖 ${fmt(vTotal)} 条）</div>
-        <div class="panel-sub">基于真实回帖的 sentiment / reply_intent / reply_focus 聚合</div>
+      <div class="panel" style="margin-top:10px">
+        <div class="panel-title">用户回复分析</div><div class="panel-sub">爆款内容关联回帖 ${fmt(vt)} 条</div>
         <div class="vd-grid">
-          <div class="vd-col"><div class="vd-title">情绪分布</div><div class="vd-bars">${sentHTML || '<div style="color:var(--text-3);font-size:12px">暂无回帖</div>'}</div></div>
-          <div class="vd-col"><div class="vd-title">回帖意图</div><div class="vd-bars">${intentHTML || '<div style="color:var(--text-3);font-size:12px">暂无回帖</div>'}</div></div>
-          <div class="vd-col"><div class="vd-title">关注焦点</div><div class="vd-bars">${focusHTML || '<div style="color:var(--text-3);font-size:12px">暂无回帖</div>'}</div></div>
+          <div class="vd-col"><div class="vd-title">情绪分布</div><div class="vd-bars">${barV(sCnt) || '<div style="color:var(--text-3);font-size:12px">暂无回帖</div>'}</div></div>
+          <div class="vd-col"><div class="vd-title">回帖意图</div><div class="vd-bars">${barV(iCnt) || '<div style="color:var(--text-3);font-size:12px">暂无回帖</div>'}</div></div>
+          <div class="vd-col"><div class="vd-title">关注焦点</div><div class="vd-bars">${barV(fCnt) || '<div style="color:var(--text-3);font-size:12px">暂无回帖</div>'}</div></div>
         </div>
       </div>
-      <div class="vd-title" style="margin-top:20px">🔥 Top 爆款内容</div>
-      <div class="list">${postCards}</div>`;
+      <div class="panel" style="margin-top:10px">
+        <div class="panel-title">各品牌爆款表现</div>
+        ${brandTableHTML}
+      </div>
+      <div class="vd-title" style="margin-top:18px">Top 爆款内容</div>
+      <div class="list" style="margin-top:8px">${postCards}</div>`;
   }
 
   function renderMyOps() {

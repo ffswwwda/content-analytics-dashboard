@@ -560,8 +560,12 @@ body::after {
 .qc-bar .qc-name { width: 64px; color: var(--text-2); flex-shrink: 0; }
 .qc-bar .qc-track { flex: 1; height: 8px; background: var(--glass-bg-strong); border-radius: 4px; overflow: hidden; }
 .qc-bar .qc-track > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)) !important; border-radius: 4px; }
-.qc-bar .qc-track-stacked { display: flex; gap: 3px; flex: 1; height: 8px; align-items: center; }
-.qc-bar .qc-val { width: 38px; text-align: right; color: var(--text-3); font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
+.qc-bar .qc-val { min-width: 70px; text-align: right; color: var(--text-3); font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
+.qc-bar .qc-val small { display: inline; font-size: 10px; color: var(--text-3); margin-left: 4px; font-weight: 400; }
+.qc-bar .qc-val-wide { min-width: 200px; text-align: left; color: var(--text-2); font-size: 12px; font-family: var(--font-mono); }
+.qc-bar .qc-val-wide b { font-weight: 700; }
+.qc-bar .qc-comp { display: flex; gap: 2px; flex: 1; height: 8px; align-items: center; }
+.qc-bar .qc-comp > i { display: block; height: 100%; border-radius: 4px; transition: width .3s var(--ease); }
 
 /* 空态 */
 .empty { text-align: center; padding: 60px 20px; color: var(--text-3); }
