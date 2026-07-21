@@ -24,6 +24,9 @@ window.fetch = async (url) => {
 try { window.localStorage.setItem("ca_bx_first_seen", "1"); } catch (e) {}
 window.addEventListener("error", (e) => errors.push("window.error: " + (e.error ? e.error.stack : e.message)));
 window.addEventListener("unhandledrejection", (e) => errors.push("unhandledrejection: " + (e.reason ? e.reason.stack || e.reason : "")));
+window.prompt = (msg) => "测试视图";
+if (!window.URL.createObjectURL) window.URL.createObjectURL = () => "blob:x";
+window.URL.revokeObjectURL = () => {};
 
 for (const f of ["js/data.js", "js/analysis.js", "js/app.js"]) {
   const s = document.createElement("script");
@@ -78,6 +81,25 @@ function report(id, name, extra) {
   if (sdbChip) { sdbChip.click(); await sleep(80); report("sourcedb:filter", "源数据-筛选", { chip: sdbChip.textContent.slice(0, 20) }); }
   const sdbSource2 = document.querySelector(".sdb-source-card[data-source='voices']");
   if (sdbSource2) { sdbSource2.click(); await sleep(80); report("sourcedb:voices", "源数据-切回帖", {}); }
+
+  // 1.6) 视图管理：保存 / 切换 / 勾选 / 对比
+  clickBoard("sourcedb"); await sleep(50);
+  const chipCat = document.querySelector(".sdb-chip[data-filter='category'][data-val]");
+  if (chipCat) { chipCat.click(); await sleep(60); }
+  const saveBtn = document.getElementById("sdb-v-save");
+  if (saveBtn) { saveBtn.click(); await sleep(80); }
+  const afClear = document.getElementById("sdb-af-clear");
+  if (afClear) { afClear.click(); await sleep(60); }
+  if (saveBtn) { saveBtn.click(); await sleep(80); }
+  report("sourcedb:save", "源数据-保存视图", { viewItems: document.querySelectorAll(".sdb-view-item").length });
+  const chks = [...document.querySelectorAll(".sdb-view-check input[data-view-check]")];
+  chks.slice(0, 2).forEach((c) => { c.checked = true; c.dispatchEvent(new window.Event("change", { bubbles: true })); });
+  await sleep(60);
+  const cmpBtn = document.getElementById("sdb-v-cmp");
+  if (cmpBtn) { cmpBtn.click(); await sleep(90); }
+  report("sourcedb:compare", "源数据-对比视图", { modal: !!document.getElementById("sdb-cmp-modal"), cmpRows: document.querySelectorAll("#sdb-cmp-modal .sdb-cmp-table tbody tr").length, cmpCols: document.querySelectorAll("#sdb-cmp-modal .sdb-cmp-table thead th").length });
+  const applyName = document.querySelector(".sdb-view-name[data-view-apply]");
+  if (applyName) { applyName.click(); await sleep(90); report("sourcedb:apply", "源数据-切换视图", { active: document.querySelectorAll(".sdb-view-item.on").length }); }
 
   // 2) 找参考：输入目的并运行
   clickBoard("reference"); await sleep(50);

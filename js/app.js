@@ -68,8 +68,6 @@
     competitor: '<path d="M4 21V6l8-3 8 3v15M9 21v-6h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
   };
   const BOARDS = [
-    // —— 源数据 ——
-    { id: "sourcedb", name: "源数据看板", group: "源数据", level: 1, desc: "直接访问底层源数据：选择数据源后可叠加筛选、排序、保存为新视图，并下载想要的 CSV。所有字段均来自 xlsx 真实打标表。" },
     // —— 灵感/分析 ——
     { id: "library", name: "灵感库", group: "灵感/分析", level: 1, desc: "全部内容灵感库。随机浏览打破茧房，指标模式支持排序、原创/转发筛选、只看爆款。点卡片看详情。" },
     { id: "reference", name: "评估想法 / 找参考", group: "灵感/分析", level: 1, desc: "两个方向：①评估想法——输入内容想法，左侧即时评估、右侧输出多维度结果；②找参考——没想法有目的时，输入目的，右侧推荐匹配灵感内容。" },
@@ -85,6 +83,8 @@
     { id: "uservoice", name: "用户语料分析", group: "了解用户", level: 1, desc: "基于用户语料的深度分析：情绪倾向、语言风格、词频、美式本土化表达、分内容形式——学习美国用户的表达与话题讨论方式。" },
     // —— 我方运营 ——
     { id: "myops", name: "我方运营", group: "我方运营", level: 1, desc: "选一个或多个竞品 → 勾选要参考的维度（节奏 / 选题 / 形式 / 风格 / 指标）→ 生成可执行的运营方案，支持导出。" },
+    // —— 源数据 ——
+    { id: "sourcedb", name: "源数据看板", group: "源数据", level: 1, desc: "直接访问底层源数据：选择数据源后可叠加筛选、排序、保存为新视图，并下载想要的 CSV。所有字段均来自 xlsx 真实打标表。" },
   ];
   const boardDesc = (id) => (BOARDS.find((b) => b.id === id) || {}).desc || "";
 
@@ -329,7 +329,7 @@
     page: 0, pageSize: 100, randList: null, randVisible: 100, randLoading: false,
     compSel: new Set(), cmpSel: new Set(), cmpBase: 0,
     growth: { brand: null },
-    sourceDb: { source: "contents", filters: {}, sort: "viralScore", page: 0, pageSize: 50, search: "", expanded: [] },
+    sourceDb: { source: "contents", filters: {}, sort: "viralScore", page: 0, pageSize: 50, search: "", expanded: [], activeView: null, selectedViews: new Set() },
     sourceViews: [],
     compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false, mode: "all" },
     deepId: null, deepCompare: [], deepView: "main",
@@ -4371,14 +4371,11 @@ ${sim || "（无同主题关联帖）"}
   }
 
   /* ============ 源数据看板：选择数据源 → 筛选 → 排序 → 保存视图 → 下载 ============ */
-  function renderSourceBoard() {
-    const cfg = SOURCE_DEFS.find((d) => d.id === state.sourceDb.source) || SOURCE_DEFS[0];
+  function getSourceRows(cfg, db) {
     const all = cfg.data();
-    const f = state.sourceDb.filters;
+    const f = db.filters || {};
     cfg.filters.forEach((fd) => { if (!Array.isArray(f[fd.key])) f[fd.key] = []; });
-
-    // 筛选 + 搜索
-    let rows = all.filter((r) => {
+    const rows = all.filter((r) => {
       for (const fd of cfg.filters) {
         const sel = f[fd.key];
         if (!sel || !sel.length) continue;
@@ -4393,21 +4390,30 @@ ${sim || "（无同主题关联帖）"}
           if (!sel.includes(val)) return false;
         }
       }
-      if (state.sourceDb.search) {
-        const q = state.sourceDb.search.toLowerCase();
+      if (db.search) {
+        const q = db.search.toLowerCase();
         const hay = [r.text, r.text_zh, r.account, r.marketing_goal, r.category, r.reply_intent, r.reply_focus, r.emotion, r.content_source].map((x) => String(x || "")).join(" ").toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
     });
-
-    // 排序
-    const sortKey = state.sourceDb.sort;
+    const sortKey = db.sort;
     rows.sort((a, b) => {
       const av = a[sortKey], bv = b[sortKey];
       if (typeof av === "string" || typeof bv === "string") return String(bv || "").localeCompare(String(av || ""));
       return (bv || 0) - (av || 0);
     });
+    return rows;
+  }
+
+  function renderSourceBoard() {
+    const cfg = SOURCE_DEFS.find((d) => d.id === state.sourceDb.source) || SOURCE_DEFS[0];
+    const all = cfg.data();
+    const f = state.sourceDb.filters;
+    cfg.filters.forEach((fd) => { if (!Array.isArray(f[fd.key])) f[fd.key] = []; });
+
+    // 筛选 + 搜索 + 排序（统一走 getSourceRows）
+    const rows = getSourceRows(cfg, state.sourceDb);
 
     // 分页
     const pageSize = state.sourceDb.pageSize;
@@ -4424,28 +4430,49 @@ ${sim || "（无同主题关联帖）"}
       <div class="sdb-sc-desc">${esc(d.desc)}</div>
     </div>`).join("");
 
-    // 左侧：已存视图
+    // 左侧：已存视图（带 checkbox 用于批量选择）
     const viewItems = state.sourceViews.length
       ? state.sourceViews.map((v) => {
           const vcfg = SOURCE_DEFS.find((d) => d.id === v.source) || { name: v.source };
+          const checked = state.sourceDb.selectedViews.has(v.id) ? " checked" : "";
           return `<div class="sdb-view-item${v.id === state.sourceDb.activeView ? " on" : ""}" data-view-id="${v.id}">
-            <span class="sdb-view-name">${esc(v.name)}</span>
+            <label class="sdb-view-check" title="勾选用于批量下载 / 对比"><input type="checkbox" data-view-check="${v.id}"${checked}></label>
+            <span class="sdb-view-name" data-view-apply="${v.id}">${esc(v.name)}</span>
             <span class="sdb-view-meta">${esc(vcfg.name)}</span>
-            <button class="sdb-view-del" data-del="${v.id}">×</button>
+            <button class="sdb-view-del" data-del="${v.id}" title="删除视图">×</button>
           </div>`;
         }).join("")
-      : `<div class="sdb-view-empty">筛选后点「保存为新视图」，即可在此保存多组筛选条件。</div>`;
+      : `<div class="sdb-view-empty">筛选后点上方「＋保存」，即可把当前筛选条件存为新视图。</div>`;
 
-    // 快捷筛选 chips
+    // 已选筛选摘要条
+    const activeFilters = [];
+    cfg.filters.forEach((fd) => {
+      (f[fd.key] || []).forEach((val) => {
+        const disp = fd.type === "bool" ? fd.labels[val] : val;
+        activeFilters.push({ key: fd.key, val, disp });
+      });
+    });
+    const activeBar = activeFilters.length
+      ? `<div class="sdb-active-filters">
+          <span class="sdb-af-label">已选筛选 <b>${activeFilters.length}</b></span>
+          ${activeFilters.map((a) => `<button class="sdb-af-tag" data-filter="${a.key}" data-val="${esc(a.val)}">${esc(a.disp)} <span class="sdb-af-x">×</span></button>`).join("")}
+          <button class="sdb-af-clear" id="sdb-af-clear">清空</button>
+        </div>`
+      : "";
+
+    // 筛选卡片（两列网格）
     const isExpanded = (key) => state.sourceDb.expanded.includes(key);
-    const filterChipsHTML = cfg.filters.map((fd) => {
+    const filterCards = cfg.filters.map((fd) => {
       const active = f[fd.key] || [];
+      const selCount = active.length;
+      const valNum = fd.type === "bool" ? 2 : [...new Set(all.map((r) => String(r[fd.key] || "未标记")))].length;
+      const head = `<div class="sdb-fc-head"><span class="sdb-fc-title">${esc(fd.label)} <small>(${valNum})</small></span>${selCount ? `<span class="sdb-fc-sel">已选 ${selCount}</span>` : ""}</div>`;
       if (fd.type === "bool") {
         const chips = [["true", fd.labels.true], ["false", fd.labels.false]].map(([val, label]) => {
           const on = active.includes(val);
           return `<button class="sdb-chip${on ? " on" : ""}" data-filter="${fd.key}" data-val="${val}">${esc(label)}</button>`;
         }).join("");
-        return `<div class="sdb-filter-group"><span class="sdb-filter-label">${esc(fd.label)}</span><div class="sdb-chips">${chips}</div></div>`;
+        return `<div class="sdb-filter-card">${head}<div class="sdb-chips">${chips}</div></div>`;
       }
       const vals = [...new Set(all.map((r) => String(r[fd.key] || "未标记")))].sort((a, b) => a.localeCompare(b, "zh-CN"));
       const showVals = isExpanded(fd.key) ? vals : vals.slice(0, 12);
@@ -4453,13 +4480,13 @@ ${sim || "（无同主题关联帖）"}
         const on = active.includes(val);
         return `<button class="sdb-chip${on ? " on" : ""}" data-filter="${fd.key}" data-val="${esc(val)}">${esc(val)}</button>`;
       }).join("");
-      const more = vals.length > 12 && !isExpanded(fd.key) ? `<button class="sdb-chip sdb-chip-more" data-expand="${fd.key}">+${vals.length - 12} 项</button>` : "";
+      const more = vals.length > 12 && !isExpanded(fd.key) ? `<button class="sdb-chip sdb-chip-more" data-expand="${fd.key}">+${vals.length - 12}</button>` : "";
       const collapse = isExpanded(fd.key) ? `<button class="sdb-chip sdb-chip-more" data-collapse="${fd.key}">收起</button>` : "";
-      return `<div class="sdb-filter-group"><span class="sdb-filter-label">${esc(fd.label)} <small>(${vals.length})</small></span><div class="sdb-chips">${chips}${more}${collapse}</div></div>`;
+      return `<div class="sdb-filter-card">${head}<div class="sdb-chips">${chips}${more}${collapse}</div></div>`;
     }).join("");
 
     // 排序下拉
-    const sortOptions = cfg.sorts.map((s) => `<option value="${s.key}"${s.key === sortKey ? " selected" : ""}>${esc(s.label)}</option>`).join("");
+    const sortOptions = cfg.sorts.map((s) => `<option value="${s.key}"${s.key === state.sourceDb.sort ? " selected" : ""}>${esc(s.label)}</option>`).join("");
 
     // KPI 卡片
     const kpis = cfg.kpis(rows);
@@ -4496,7 +4523,14 @@ ${sim || "（无同主题关联帖）"}
       <div class="sdb-sidebar">
         <div class="sdb-sec-title">数据源</div>
         ${sourceCards}
-        <div class="sdb-sec-title" style="margin-top:18px">视图管理 <span class="sdb-view-count">${state.sourceViews.length}</span></div>
+        <div class="sdb-sec-head">
+          <span class="sdb-sec-title" style="margin:0">视图管理 <span class="sdb-view-count">${state.sourceViews.length}</span></span>
+          <div class="sdb-view-tools">
+            <button class="sdb-vt-btn" id="sdb-v-save" title="把当前筛选条件存为新视图">＋保存</button>
+            <button class="sdb-vt-btn" id="sdb-v-dl" title="批量下载选中的视图（CSV）">下载</button>
+            <button class="sdb-vt-btn" id="sdb-v-cmp" title="对比选中的 2-4 个视图">对比</button>
+          </div>
+        </div>
         <div class="sdb-view-list">${viewItems}</div>
       </div>
       <div class="sdb-main">
@@ -4505,11 +4539,13 @@ ${sim || "（无同主题关联帖）"}
           <div class="sdb-search"><input type="text" id="sdb-search" placeholder="搜索文本、品牌、营销目的…" value="${esc(state.sourceDb.search)}"></div>
           <div class="sdb-sort"><label>排序</label><select id="sdb-sort">${sortOptions}</select></div>
           <div class="sdb-actions">
-            <button class="btn-ghost" id="sdb-save-view">保存为新视图</button>
             <button class="btn-primary" id="sdb-download">下载当前数据 CSV</button>
           </div>
         </div>
-        <div class="sdb-filters">${filterChipsHTML}</div>
+        <div class="sdb-filters">
+          ${activeBar}
+          <div class="sdb-filter-grid">${filterCards}</div>
+        </div>
         <div class="sdb-kpis">${kpiCards}</div>
         <div class="sdb-table-wrap">
           <div class="sdb-table-scroll">
@@ -4551,6 +4587,7 @@ ${sim || "（无同主题关联帖）"}
       search: v.search || "",
       expanded: [],
       activeView: v.id,
+      selectedViews: state.sourceDb.selectedViews,
     };
     renderBoard();
     toast("已切换视图：" + v.name);
@@ -4563,38 +4600,7 @@ ${sim || "（无同主题关联帖）"}
     renderBoard();
   }
 
-  function downloadSourceCsv() {
-    const cfg = SOURCE_DEFS.find((d) => d.id === state.sourceDb.source) || SOURCE_DEFS[0];
-    const all = cfg.data();
-    const f = state.sourceDb.filters;
-    cfg.filters.forEach((fd) => { if (!Array.isArray(f[fd.key])) f[fd.key] = []; });
-    const rows = all.filter((r) => {
-      for (const fd of cfg.filters) {
-        const sel = f[fd.key];
-        if (!sel || !sel.length) continue;
-        if (fd.type === "bool") {
-          const val = String(!!r[fd.key]);
-          const wantTrue = sel.includes("true");
-          const wantFalse = sel.includes("false");
-          if (wantTrue && wantFalse) continue;
-          if ((wantTrue && val !== "true") || (wantFalse && val !== "false")) return false;
-        } else {
-          const val = String(r[fd.key] || "未标记");
-          if (!sel.includes(val)) return false;
-        }
-      }
-      if (state.sourceDb.search) {
-        const q = state.sourceDb.search.toLowerCase();
-        const hay = [r.text, r.text_zh, r.account, r.marketing_goal, r.category, r.reply_intent, r.reply_focus, r.emotion, r.content_source].map((x) => String(x || "")).join(" ").toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      return true;
-    });
-    rows.sort((a, b) => {
-      const av = a[state.sourceDb.sort], bv = b[state.sourceDb.sort];
-      if (typeof av === "string" || typeof bv === "string") return String(bv || "").localeCompare(String(av || ""));
-      return (bv || 0) - (av || 0);
-    });
+  function triggerCsvDownload(cfg, rows, prefix) {
     const headers = cfg.columns.map((c) => c.label);
     const escapeCsv = (v) => {
       if (v == null) return "";
@@ -4610,12 +4616,72 @@ ${sim || "（无同主题关联帖）"}
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${cfg.id}_filtered_${rows.length}_${new Date().toISOString().slice(0,10)}.csv`;
+    a.download = `${prefix}_${rows.length}_${new Date().toISOString().slice(0,10)}.csv`;
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-    toast(`已下载 ${fmt(rows.length)} 条 CSV`);
+    toast(`已下载 ${fmt(rows.length)} 条 CSV（${cfg.name}）`);
+  }
+
+  function downloadSourceCsv() {
+    const cfg = SOURCE_DEFS.find((d) => d.id === state.sourceDb.source) || SOURCE_DEFS[0];
+    const rows = getSourceRows(cfg, state.sourceDb);
+    triggerCsvDownload(cfg, rows, cfg.id + "_filtered");
+  }
+
+  function batchDownloadViews(ids) {
+    if (!ids || !ids.length) { toast("请先勾选要下载的视图"); return; }
+    let n = 0;
+    ids.forEach((id, i) => {
+      const v = state.sourceViews.find((x) => x.id === id);
+      if (!v) return;
+      const cfg = SOURCE_DEFS.find((d) => d.id === v.source) || SOURCE_DEFS[0];
+      const db = { filters: v.filters || {}, search: v.search || "", sort: v.sort || "viralScore" };
+      const rows = getSourceRows(cfg, db);
+      setTimeout(() => triggerCsvDownload(cfg, rows, "视图_" + v.name), i * 350);
+      n++;
+    });
+    toast(`已开始下载 ${n} 个视图的 CSV`);
+  }
+
+  function compareSourceViews(ids) {
+    const views = (ids || []).map((id) => state.sourceViews.find((x) => x.id === id)).filter(Boolean);
+    if (views.length < 2) { toast("请勾选 2-4 个视图进行对比"); return; }
+    if (views.length > 4) { toast("最多对比 4 个视图"); return; }
+    const series = views.map((v) => {
+      const cfg = SOURCE_DEFS.find((d) => d.id === v.source) || SOURCE_DEFS[0];
+      const db = { filters: v.filters || {}, search: v.search || "", sort: v.sort || "viralScore" };
+      const rows = getSourceRows(cfg, db);
+      const kpis = cfg.kpis(rows);
+      const map = {};
+      kpis.forEach((k) => { map[k.label] = k.value; });
+      return { name: v.name, order: kpis.map((k) => k.label), map };
+    });
+    const labels = [];
+    series.forEach((s) => s.order.forEach((l) => { if (!labels.includes(l)) labels.push(l); }));
+    const theadHTML = `<thead><tr><th>指标</th>${series.map((s) => `<th>${esc(s.name)}</th>`).join("")}</tr></thead>`;
+    const rowsHTML = labels.map((l) => `<tr><td class="sdb-cmp-metric">${esc(l)}</td>${series.map((s) => `<td>${esc(s.map[l] || "—")}</td>`).join("")}</tr>`).join("");
+    openCompareModal(`<table class="sdb-cmp-table">${theadHTML}<tbody>${rowsHTML}</tbody></table>`, views.length, labels.length);
+  }
+
+  function openCompareModal(bodyHTML, nViews, nMetrics) {
+    let modal = $("#sdb-cmp-modal");
+    if (!modal) { modal = document.createElement("div"); modal.id = "sdb-cmp-modal"; modal.className = "verify-modal"; document.body.appendChild(modal); }
+    modal.innerHTML = `<div class="verify-backdrop" data-cmp-close></div>
+      <div class="verify-card">
+        <div class="verify-head">
+          <div><div class="verify-title">视图对比</div><div class="verify-sub">按 KPI 横向对比 ${nViews} 个视图（行 = 指标，列 = 视图）</div></div>
+          <button class="verify-close" data-cmp-close>×</button>
+        </div>
+        <div class="verify-scroll">${bodyHTML}</div>
+        <div class="verify-foot">
+          <div class="verify-summary">对比 ${nViews} 个视图 · 共 ${nMetrics} 项指标</div>
+          <button class="verify-run" data-cmp-close>关闭</button>
+        </div>
+      </div>`;
+    modal.hidden = false;
+    modal.querySelectorAll("[data-cmp-close]").forEach((el) => el.addEventListener("click", () => { modal.hidden = true; }));
   }
 
   /* ============ 竞品增长阶段 ============ */
@@ -4860,7 +4926,7 @@ ${sim || "（无同主题关联帖）"}
   function bindSourceBoard() {
     // 切换数据源
     $$(".sdb-source-card", $("#board")).forEach((el) => el.addEventListener("click", () => {
-      state.sourceDb = { source: el.dataset.source, filters: {}, sort: "viralScore", page: 0, pageSize: 50, search: "", expanded: [], activeView: null };
+      state.sourceDb = { source: el.dataset.source, filters: {}, sort: "viralScore", page: 0, pageSize: 50, search: "", expanded: [], activeView: null, selectedViews: new Set() };
       renderBoard();
     }));
     // 筛选 chip（可叠加）
@@ -4892,24 +4958,53 @@ ${sim || "（无同主题关联帖）"}
     // 排序
     const sSort = $("#sdb-sort");
     if (sSort) sSort.addEventListener("change", () => { state.sourceDb.sort = sSort.value; state.sourceDb.page = 0; renderBoard(); });
-    // 保存视图
-    const sSave = $("#sdb-save-view");
+    // 保存视图（侧栏「视图管理」内）
+    const sSave = $("#sdb-v-save");
     if (sSave) sSave.addEventListener("click", () => {
       const name = prompt("给新视图起个名字：", `视图 ${state.sourceViews.length + 1}`);
       if (name !== null) saveSourceView(name.trim());
     });
-    // 下载 CSV
+    // 下载当前数据 CSV
     const sDownload = $("#sdb-download");
     if (sDownload) sDownload.addEventListener("click", downloadSourceCsv);
-    // 切换 / 删除视图
-    $$(".sdb-view-item[data-view-id]", $("#board")).forEach((el) => el.addEventListener("click", (e) => {
-      if (e.target.closest(".sdb-view-del")) return;
-      loadSourceView(el.dataset.viewId);
+    // 批量下载 / 对比 选中视图
+    const vDl = $("#sdb-v-dl");
+    if (vDl) vDl.addEventListener("click", () => batchDownloadViews([...state.sourceDb.selectedViews]));
+    const vCmp = $("#sdb-v-cmp");
+    if (vCmp) vCmp.addEventListener("click", () => compareSourceViews([...state.sourceDb.selectedViews]));
+    // 视图 checkbox 选择（批量）
+    $$(".sdb-view-check input[data-view-check]", $("#board")).forEach((el) => el.addEventListener("change", () => {
+      const id = el.dataset.viewCheck;
+      if (el.checked) state.sourceDb.selectedViews.add(id);
+      else state.sourceDb.selectedViews.delete(id);
+      renderBoard();
     }));
+    // 点击视图名 → 应用/切换
+    $$(".sdb-view-name[data-view-apply]", $("#board")).forEach((el) => el.addEventListener("click", () => {
+      loadSourceView(el.dataset.viewApply);
+    }));
+    // 删除视图
     $$(".sdb-view-del", $("#board")).forEach((el) => el.addEventListener("click", (e) => {
       e.stopPropagation();
       if (confirm("删除该视图？")) deleteSourceView(el.dataset.del);
     }));
+    // 已选筛选摘要条：单条移除 / 清空
+    $$(".sdb-af-tag", $("#board")).forEach((el) => el.addEventListener("click", () => {
+      const key = el.dataset.filter, val = el.dataset.val;
+      const arr = state.sourceDb.filters[key] || (state.sourceDb.filters[key] = []);
+      const idx = arr.indexOf(val);
+      if (idx >= 0) arr.splice(idx, 1);
+      state.sourceDb.page = 0;
+      state.sourceDb.activeView = null;
+      renderBoard();
+    }));
+    const afClear = $("#sdb-af-clear");
+    if (afClear) afClear.addEventListener("click", () => {
+      state.sourceDb.filters = {};
+      state.sourceDb.page = 0;
+      state.sourceDb.activeView = null;
+      renderBoard();
+    });
     // 分页
     $$(".sdb-pager [data-pg]", $("#board")).forEach((b) => b.addEventListener("click", () => {
       const v = b.dataset.pg;
