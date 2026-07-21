@@ -216,6 +216,7 @@
     users: null, uvTab: "corpus", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all", uvCorpusMarker: "all", uvLayerDrill: null, uvLayerCmp: false, uvDeep: false, uvSegDeep: false, uvDrillMeta: null,
     brandUserSel: null, brandUserCmp: [], brandUserCompare: false, brandUserRankAll: false,
     libMode: "sort", libQuick: "all", libSource: "all", sortExpanded: false,
+    vdDim: "account",
     page: 0, pageSize: 100, randList: null, randVisible: 100, randLoading: false,
     compSel: new Set(), cmpSel: new Set(),
     compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false, mode: "all" },
@@ -1680,17 +1681,13 @@ ${topMatches || "（无强匹配）"}
         <div class="vd-col"><div class="vd-title">内容模式识别（TOP100 爆款）</div><div class="vd-bars">${patternRows}</div></div>
       </div>
       <div class="uv-insight" style="margin-bottom:16px">${insight}</div>
-      <div class="vd-grid">
-        <div class="vd-col"><div class="vd-title">按品牌</div><div class="vd-bars">${brandBars}</div></div>
-        <div class="vd-col"><div class="vd-title">按内容形式</div><div class="vd-bars">${formBars}</div></div>
-      </div>
-      <div class="vd-grid">
-        <div class="vd-col"><div class="vd-title">按情绪风格</div><div class="vd-bars">${emoBars}</div></div>
-        <div class="vd-col"><div class="vd-title">按营销目的</div><div class="vd-bars">${goalBars}</div></div>
-      </div>
-      <div class="vd-grid">
-        <div class="vd-col"><div class="vd-title">内容来源</div><div class="vd-bars">${srcBars}</div></div>
-        <div class="vd-col"><div class="vd-title">爆款高频主题</div><div class="uv-tags" style="margin-top:4px">${topicChips || "—"}</div></div>
+      <div class="vd-dim-section">
+        <div class="vd-dim-head-row">
+          <div class="vd-dim-head-title">维度深度钻取</div>
+          <div class="vd-dim-head-sub">点选维度，逐值看「跨维度画像 + 代表爆款」</div>
+        </div>
+        <div class="uv-tabs" id="vd-dim-tabs">${VD_DIMS.map((d) => `<button class="uv-tab${state.vdDim === d.key ? " on" : ""}" data-vd-dim="${d.key}">${d.label}</button>`).join("")}</div>
+        <div id="vd-deep">${renderDimDeep(state.vdDim)}</div>
       </div>
       <div class="panel" style="margin-top:10px">
         <div class="panel-title">用户回复分析</div><div class="panel-sub">爆款内容关联回帖 ${fmt(vt)} 条</div>
@@ -1700,12 +1697,99 @@ ${topMatches || "（无强匹配）"}
           <div class="vd-col"><div class="vd-title">关注焦点</div><div class="vd-bars">${barV(fCnt) || '<div style="color:var(--text-3);font-size:12px">暂无回帖</div>'}</div></div>
         </div>
       </div>
-      <div class="panel" style="margin-top:10px">
-        <div class="panel-title">各品牌爆款表现</div>
-        ${brandTableHTML}
-      </div>
       <div class="vd-title" style="margin-top:18px">Top 爆款内容</div>
       <div class="list" style="margin-top:8px">${postCards}</div>`;
+  }
+
+  // ===== 爆款内容深度分析 · 维度深度钻取 =====
+  const VD_DIMS = [
+    { key: "account",        label: "按品牌",     field: "account",        multi: false, emptyLabel: "(空)" },
+    { key: "contentType",    label: "按内容形式", field: "contentType",    multi: false, emptyLabel: "(空)" },
+    { key: "emotion",        label: "按情绪风格", field: "emotion",        multi: false, emptyLabel: "未标记" },
+    { key: "marketing_goal", label: "按营销目的", field: "marketing_goal", multi: true,  split: /[、,，]/, emptyLabel: "未标记" },
+    { key: "content_source", label: "内容来源",   field: "content_source", multi: false, emptyLabel: "(空)" },
+    { key: "topic",          label: "爆款高频主题", field: "topicTags",     multi: true,  emptyLabel: "(无主题)" },
+  ];
+  const VD_CROSS = [
+    { key: "account",        label: "品牌 TOP",  field: "account",        multi: false, top: 5 },
+    { key: "contentType",    label: "内容形式",  field: "contentType",    multi: false, top: 5 },
+    { key: "emotion",        label: "情绪风格",  field: "emotion",        multi: false, top: 4 },
+    { key: "marketing_goal", label: "营销目的",  field: "marketing_goal", multi: true,  split: /[、,，]/, top: 4 },
+    { key: "topicTags",      label: "高频主题",  field: "topicTags",      multi: true,  top: 6 },
+  ];
+
+  function vdVals(item, cfg) {
+    let vs;
+    if (cfg.multi && cfg.split) vs = String(item[cfg.field] || "").split(cfg.split).map((s) => s.trim()).filter(Boolean);
+    else if (cfg.multi) vs = (item[cfg.field] || []).filter(Boolean);
+    else vs = [item[cfg.field]].map((v) => (typeof v === "string" && !v.trim() ? cfg.emptyLabel : v));
+    return vs.length ? vs : [cfg.emptyLabel];
+  }
+  function vdDimRows(items, cfg) {
+    const g = {};
+    items.forEach((it) => vdVals(it, cfg).forEach((v) => { g[v] = (g[v] || 0) + 1; }));
+    return Object.entries(g).sort((a, b) => b[1] - a[1]);
+  }
+  function vdCrossCol(items, cfg, selfKey) {
+    if (cfg.key === selfKey) return "";
+    const rows = vdDimRows(items, cfg).slice(0, cfg.top || 5);
+    if (!rows.length) return "";
+    const max = rows[0][1] || 1;
+    const bars = rows.map(([k, n], i) => `<div class="qc-bar"><span class="qc-name" style="width:62px;font-size:11px">${esc(k)}</span><span class="qc-track"><i style="width:${(n / max) * 100}%;background:${PAL[i % PAL.length]}"></i></span><span class="qc-val" style="min-width:54px;font-size:11px">${Math.round(n / items.length * 100)}%<small>${n}</small></span></div>`).join("");
+    return `<div class="vd-cross-col"><div class="vd-cross-title">${cfg.label}</div>${bars}</div>`;
+  }
+  function vdRepCard(c) {
+    return `<div class="list-row vd-rep-row" data-id="${c.id}">
+      <div><div class="lr-text">${esc(dispText(c))}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.contentType)} · ${esc(c.emotion || "—")}</div></div>
+      <div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款指数</small></div>
+      <div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div>
+    </div>`;
+  }
+  function vdDimCard(dimCfg, value, items, allLen) {
+    const total = items.length;
+    const top = items.filter((c) => c.isTop).length;
+    const topRate = Math.round((top / Math.max(total, 1)) * 100);
+    const avgExp = Math.round(avg(items, "exposure"));
+    const avgEng = Math.round(avg(items, "engagement"));
+    const avgER = avg(items, "engagementRate").toFixed(2);
+    const avgVS = avg(items, "viralScore").toFixed(1);
+    const share = Math.round((total / Math.max(allLen, 1)) * 100);
+    const cross = [];
+    VD_CROSS.forEach((c) => { if (c.key !== dimCfg.key) { const col = vdCrossCol(items, c, dimCfg.key); if (col) cross.push(col); } });
+    const crossHTML = cross.slice(0, 4).join("");
+    const reps = items.slice().sort((a, b) => b.viralScore - a.viralScore).slice(0, 3).map(vdRepCard).join("");
+    return `<div class="vd-dim-card">
+      <div class="vd-dim-card-head">
+        <span class="vd-dim-card-name">${esc(value)}</span>
+        <span class="vd-dim-badge ${topRate >= 20 ? "win" : ""}">爆款率 ${topRate}%</span>
+      </div>
+      <div class="vd-dim-card-sub">${fmt(total)} 帖 · 全库占比 ${share}% · 爆款 ${top} 条</div>
+      <div class="vd-dim-metrics">
+        <div><b>${fmt(avgExp)}</b><span>均曝光</span></div>
+        <div><b>${fmt(avgEng)}</b><span>均互动</span></div>
+        <div><b>${avgER}%</b><span>均互动率</span></div>
+        <div><b>${avgVS}</b><span>均爆款指数</span></div>
+      </div>
+      <div class="vd-cross-grid">${crossHTML}</div>
+      <div class="vd-rep"><div class="vd-rep-title">代表爆款（点击看深度分析）</div>${reps || '<div class="vd-muted">暂无</div>'}</div>
+    </div>`;
+  }
+  function renderDimDeep(dimKey) {
+    const dimCfg = VD_DIMS.find((d) => d.key === dimKey) || VD_DIMS[0];
+    const data = getFiltered();
+    const allLen = data.length;
+    const groups = {};
+    data.forEach((c) => vdVals(c, dimCfg).forEach((v) => { (groups[v] = groups[v] || []).push(c); }));
+    const cards = Object.entries(groups).map(([value, items]) => {
+      const total = items.length;
+      const top = items.filter((c) => c.isTop).length;
+      const topRate = Math.round((top / Math.max(total, 1)) * 100);
+      return { value, items, total, top, topRate };
+    }).sort((a, b) => (b.topRate - a.topRate) || (b.total - a.total));
+    const dimName = dimCfg.label.replace(/^按/, "");
+    const head = `<div class="vd-dim-summary">共 <b>${cards.length}</b> 个「${esc(dimName)}」取值 · 按爆款率降序 · 全库 ${fmt(allLen)} 帖（已应用当前筛选）</div>`;
+    const grid = `<div class="vd-dim-grid">${cards.map((c) => vdDimCard(dimCfg, c.value, c.items, allLen)).join("")}</div>`;
+    return head + grid;
   }
 
   function renderMyOps() {
@@ -1781,6 +1865,13 @@ ${topMatches || "（无强匹配）"}
       $("#ops-result").innerHTML = html + `<button class="btn-primary" id="ops-export" style="margin-top:14px">⬇ 导出方案（Markdown）</button>`;
       const ex = $("#ops-export"); if (ex) ex.addEventListener("click", () => downloadText(`运营方案_${state.opsBrands.join("_")}.md`, md));
     });
+  }
+
+  function bindViralDeep() {
+    $$("#vd-dim-tabs .uv-tab", $("#board")).forEach((b) => b.addEventListener("click", () => {
+      state.vdDim = b.dataset.vdDim;
+      renderBoard();
+    }));
   }
 
   /* ============ 了解用户：用户语料分析（富用户分析中枢）============ */
@@ -4135,6 +4226,8 @@ ${sim || "（无同主题关联帖）"}
     if (["competitor", "compare"].includes(state.board)) bindCompetitor();
     // 我方运营
     if (state.board === "myops") bindMyOps();
+    // 爆款内容深度分析
+    if (state.board === "viraldeep") bindViralDeep();
     // 了解用户：品牌-用户讨论 / 高互动用户 / 用户分层分析 / 用户语料分析
     if (state.board === "uservoice") bindUserBoard();
     if (state.board === "branduser") bindBrandUser();

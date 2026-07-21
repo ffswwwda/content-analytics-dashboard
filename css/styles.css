@@ -1412,3 +1412,34 @@ body::after {
 .pg-info { font-size: 12px; color: var(--text-3); font-variant-numeric: tabular-nums; }
 .pg-jump { font-size: 12px; color: var(--text-3); margin-left: auto; display: flex; align-items: center; gap: 6px; }
 .pg-jump select { font-size: 12px; color: var(--text-2); background: var(--glass-bg-strong); border: 1px solid var(--glass-line); border-radius: 7px; padding: 4px 6px; }
+
+/* ============ 爆款内容深度分析 · 维度深度钻取 ============ */
+.vd-dim-section { margin-top: 6px; }
+.vd-dim-head-row { display: flex; align-items: baseline; gap: 12px; margin: 4px 0 10px; flex-wrap: wrap; }
+.vd-dim-head-title { font-size: 15px; font-weight: 800; color: var(--accent-strong); letter-spacing: .5px; }
+.vd-dim-head-sub { font-size: 12px; color: var(--text-3); }
+.vd-dim-summary { font-size: 12.5px; color: var(--text-2); background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); padding: 8px 14px; margin-bottom: 12px; }
+.vd-dim-summary b { color: var(--accent-strong); font-family: var(--font-mono); }
+.vd-dim-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 14px; }
+.vd-dim-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
+.vd-dim-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.vd-dim-card-name { font-size: 14px; font-weight: 800; color: var(--text); }
+.vd-dim-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; background: var(--glass-bg-strong); border: 1px solid var(--glass-line); color: var(--text-2); font-family: var(--font-mono); white-space: nowrap; }
+.vd-dim-badge.win { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-strong); box-shadow: var(--glow); }
+.vd-dim-card-sub { font-size: 11.5px; color: var(--text-3); margin: 4px 0 10px; }
+.vd-dim-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 10px 0; border-top: 1px solid var(--glass-line); border-bottom: 1px solid var(--glass-line); margin-bottom: 10px; }
+.vd-dim-metrics div { text-align: center; }
+.vd-dim-metrics b { display: block; font-size: 14px; font-weight: 800; color: var(--accent-strong); font-family: var(--font-mono); }
+.vd-dim-metrics span { font-size: 10.5px; color: var(--text-3); }
+.vd-cross-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-bottom: 10px; }
+.vd-cross-col { min-width: 0; }
+.vd-cross-title { font-size: 11.5px; font-weight: 700; color: var(--text-2); margin-bottom: 5px; }
+.vd-cross-col .qc-bar { margin-bottom: 5px; gap: 6px; }
+.vd-rep { margin-top: auto; border-top: 1px solid var(--glass-line); padding-top: 8px; }
+.vd-rep-title { font-size: 11.5px; font-weight: 700; color: var(--text-2); margin-bottom: 6px; }
+.vd-rep-row { padding: 7px 0; margin: 0; cursor: pointer; border-bottom: 1px dashed var(--glass-line); }
+.vd-rep-row:last-child { border-bottom: none; }
+.vd-rep-row:hover .lr-text { color: var(--accent-strong); }
+.vd-rep-row .lr-text { font-size: 12px; }
+.vd-muted { font-size: 11.5px; color: var(--text-3); padding: 6px 0; }
+@media (max-width: 720px) { .vd-dim-grid { grid-template-columns: 1fr; } .vd-cross-grid { grid-template-columns: 1fr; } }
