@@ -222,7 +222,7 @@ for b, m in brand_meta.items():
 # ---------- 组装 ----------
 dates = sorted([c["publish_date"] for c in contents if c["publish_date"]])
 meta = {
-    "updated_at": "2026-07-15T08:30:00",
+    "updated_at": "2026-07-21T10:30:00",
     "source": "real",
     "source_note": "GTM社媒数据_打标全表_爆款版.xlsx（全量真实数据，含爆款内容指数/综合互动率/各分率）",
     "account_count": len(brand_meta),
