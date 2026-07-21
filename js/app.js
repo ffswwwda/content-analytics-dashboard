@@ -218,7 +218,7 @@
     libMode: "sort", libQuick: "all", libSource: "all", sortExpanded: false,
     vdDim: "all", vdSortField: "topRate",
     page: 0, pageSize: 100, randList: null, randVisible: 100, randLoading: false,
-    compSel: new Set(), cmpSel: new Set(),
+    compSel: new Set(), cmpSel: new Set(), cmpBase: 0,
     compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false, mode: "all" },
     deepId: null, deepCompare: [], deepView: "main",
     opsBrands: [], opsRefs: new Set(["rhythm", "topic", "format", "style", "metric"]),
@@ -3753,26 +3753,27 @@ ${topMatches || "（无强匹配）"}
     const fdata = getFiltered();
     const aggs = sel.map((b) => brandAgg(b.name, fdata)).filter(Boolean);
     if (!aggs.length) return `<div class="dim-note">所选品牌暂无内容数据。</div>`;
+    if (state.cmpBase >= aggs.length) state.cmpBase = 0;
 
     const BRAND_COLORS = ['#00b8e6','#f97316','#10b981','#8b5cf6','#ec4899','#f59e0b','#06b6d4','#6b7280'];
     const color = (i) => BRAND_COLORS[i % BRAND_COLORS.length];
 
     // ---------- 1. 横向对比矩阵（指标 × 品牌，最优格高亮）----------
     const METRICS = [
-      { label: "帖子数", sub: "内容量", get: (a) => a.c0, fmt: (v) => fmt(v) },
-      { label: "总曝光", sub: "声量规模", get: (a) => a.totalExp, fmt: (v) => fmt(v) },
-      { label: "平均曝光", sub: "单帖触达", get: (a) => a.avgExp, fmt: (v) => fmt(v) },
-      { label: "总互动", sub: "互动规模", get: (a) => a.totalEng, fmt: (v) => fmt(v) },
-      { label: "综合互动率", sub: "总互动/总曝光（加权）", get: (a) => a.engRate, fmt: (v) => v + "%" },
-      { label: "平均爆款指数", sub: "内容质量", get: (a) => a.viralAvg, fmt: (v) => v },
-      { label: "爆款率", sub: "爆款占比", get: (a) => a.topRate, fmt: (v) => v + "%" },
-      { label: "点赞率", sub: "总点赞/总曝光", get: (a) => a.likeRate, fmt: (v) => v + "%" },
-      { label: "评论率", get: (a) => a.commentRate, fmt: (v) => v + "%" },
-      { label: "转发率", get: (a) => a.shareRate, fmt: (v) => v + "%" },
-      { label: "收藏率", get: (a) => a.collectRate, fmt: (v) => v + "%" },
-      { label: "用户讨论量", sub: "回帖数", get: (a) => a.voiceCount, fmt: (v) => fmt(v) },
-      { label: "正面情绪占比", get: (a) => a.posPct, fmt: (v) => v + "%" },
-      { label: "原创占比", get: (a) => a.originalPct, fmt: (v) => v + "%" },
+      { label: "帖子数", sub: "内容量", get: (a) => a.c0, fmt: (v) => fmt(v), isRate: false },
+      { label: "总曝光", sub: "声量规模", get: (a) => a.totalExp, fmt: (v) => fmt(v), isRate: false },
+      { label: "平均曝光", sub: "单帖触达", get: (a) => a.avgExp, fmt: (v) => fmt(v), isRate: false },
+      { label: "总互动", sub: "互动规模", get: (a) => a.totalEng, fmt: (v) => fmt(v), isRate: false },
+      { label: "综合互动率", sub: "总互动/总曝光（加权）", get: (a) => a.engRate, fmt: (v) => v + "%", isRate: true },
+      { label: "平均爆款指数", sub: "内容质量", get: (a) => a.viralAvg, fmt: (v) => v, isRate: false },
+      { label: "爆款率", sub: "爆款占比", get: (a) => a.topRate, fmt: (v) => v + "%", isRate: true },
+      { label: "点赞率", sub: "总点赞/总曝光", get: (a) => a.likeRate, fmt: (v) => v + "%", isRate: true },
+      { label: "评论率", get: (a) => a.commentRate, fmt: (v) => v + "%", isRate: true },
+      { label: "转发率", get: (a) => a.shareRate, fmt: (v) => v + "%", isRate: true },
+      { label: "收藏率", get: (a) => a.collectRate, fmt: (v) => v + "%", isRate: true },
+      { label: "用户讨论量", sub: "回帖数", get: (a) => a.voiceCount, fmt: (v) => fmt(v), isRate: false },
+      { label: "正面情绪占比", get: (a) => a.posPct, fmt: (v) => v + "%", isRate: true },
+      { label: "原创占比", get: (a) => a.originalPct, fmt: (v) => v + "%", isRate: true },
     ];
     METRICS.forEach((m) => { const vs = aggs.map(m.get); m.max = Math.max(...vs, 0.0001); m.bestIdx = vs.indexOf(Math.max(...vs)); });
     const matrixHead = `<tr><th class="cmp-mh-name">指标</th>${aggs.map((a, i) => `<th class="cmp-mh-brand"><span class="cmp-dot" style="background:${color(i)}"></span>${esc(a.name)}</th>`).join("")}</tr>`;
@@ -3792,6 +3793,37 @@ ${topMatches || "（无强匹配）"}
       <div class="cmp-sec-title">横向对比矩阵 · 每格 🥇 为该指标最优品牌</div>
       <div class="cmp-matrix-scroll"><table class="cmp-matrix"><thead>${matrixHead}</thead><tbody>${matrixRows}</tbody></table></div>
       <div class="cmp-matrix-note">条形的长度为该品牌相对「本指标最强品牌」的占比；加权率已按总曝光归一，更适合跨体量品牌比较。</div>
+    </div>`;
+
+    // ---------- 1.5 差距对比（vs 基准品牌，谁比谁多%多多少）----------
+    const baseIdx = state.cmpBase;
+    const baseAgg = aggs[baseIdx];
+    const others = aggs.map((a, i) => ({ a, i })).filter((o) => o.i !== baseIdx);
+    const baseChips = aggs.map((a, i) => `<button class="cmp-base-chip${i === baseIdx ? " on" : ""}" data-idx="${i}" style="--bc:${color(i)}">
+      <span class="cmp-dot" style="background:${color(i)}"></span>${esc(a.name)}</button>`).join("");
+    const diffHead = `<tr><th class="cmp-mh-name">指标</th>${others.map((o) => `<th class="cmp-mh-brand"><span class="cmp-dot" style="background:${color(o.i)}"></span>${esc(o.a.name)}<small>vs ${esc(baseAgg.name)}</small></th>`).join("")}</tr>`;
+    const diffRows = METRICS.map((m) => {
+      const base = m.get(baseAgg);
+      const cells = others.map((o) => {
+        const v = m.get(o.a);
+        const diff = v - base;
+        const rel = base ? (diff / base * 100) : 0;
+        const up = diff >= 0;
+        const absStr = m.isRate ? (diff >= 0 ? "+" : "") + diff.toFixed(2) + (m.fmt(v).includes("%") ? "pp" : "") : (diff >= 0 ? "+" : "−") + fmt(Math.abs(diff));
+        const relStr = (rel >= 0 ? "+" : "−") + Math.abs(rel).toFixed(1) + "%";
+        return `<td class="cmp-diff-cell ${up ? "up" : "down"}">
+          <div class="cd-arrow">${up ? "▲" : "▼"}</div>
+          <div class="cd-abs">${absStr}</div>
+          <div class="cd-rel">${relStr}</div>
+        </td>`;
+      }).join("");
+      return `<tr><th class="cmp-row-name">${m.label}${m.sub ? `<small>${m.sub}</small>` : ""}</th>${cells}</tr>`;
+    }).join("");
+    const diffHTML = `<div class="cmp-diff-wrap">
+      <div class="cmp-sec-title">差距对比 · 其余品牌相对「基准」的增减（谁比谁多 / 少多少）</div>
+      <div class="cmp-diff-base"><span class="cmp-diff-base-label">基准品牌</span><div class="cmp-base-chips">${baseChips}</div></div>
+      <div class="cmp-matrix-scroll"><table class="cmp-diff"><thead>${diffHead}</thead><tbody>${diffRows}</tbody></table></div>
+      <div class="cmp-matrix-note">▲ 高于基准 / ▼ 低于基准；左侧为该指标的绝对值差（率指标单位为 pp＝百分点），右侧为相对基准的百分比变化。例如「帖子数 ▲ +123 +45.6%」表示该品牌比基准多 123 帖、高出 45.6%。</div>
     </div>`;
 
     // ---------- 2. 每品牌：Top3 内容 + 用户情况 ----------
@@ -3828,7 +3860,7 @@ ${topMatches || "（无强匹配）"}
       建议围绕标杆品牌的爆款形式与互动打法设定追赶目标。
     </div>`;
 
-    return `<div class="cmp-wrap">${matrixHTML}<div class="cmp-bcards">${brandCards}</div>${benchmark}</div>`;
+    return `<div class="cmp-wrap">${matrixHTML}${diffHTML}<div class="cmp-bcards">${brandCards}</div>${benchmark}</div>`;
   }
   function bindCompetitor() {
     if (state.board === "competitor") {
@@ -3867,6 +3899,10 @@ ${topMatches || "（无强匹配）"}
         renderBoard();
       }));
       $$(".cmp-bc-list .list-row[data-id]", $("#board")).forEach((el) => el.addEventListener("click", () => openDeepAnalysis(el.dataset.id)));
+      $$(".cmp-base-chip", $("#board")).forEach((el) => el.addEventListener("click", () => {
+        state.cmpBase = +el.dataset.idx;
+        renderBoard();
+      }));
     }
   }
 
