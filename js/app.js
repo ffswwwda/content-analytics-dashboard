@@ -1535,6 +1535,10 @@ ${topMatches || "（无强匹配）"}
   }
   function csvCell(s) { s = String(s == null ? "" : s); if (/[",\n]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"'; return s; }
 
+  // 爆款深度分析通用聚合工具（需放在 renderViralDeep 外部，供深度钻取卡片复用）
+  const sum = (arr, k) => arr.reduce((s, c) => s + (c[k] || 0), 0);
+  const avg = (arr, k) => arr.length ? sum(arr, k) / arr.length : 0;
+
   /* ---------- 爆款内容深度分析：跨所有品牌的爆款共性 ---------- */
   function renderViralDeep() {
     const data = getFiltered();
@@ -1545,8 +1549,6 @@ ${topMatches || "（无强匹配）"}
     const allLen = data.length;
     const topPct = Math.round(tops.length / Math.max(allLen, 1) * 100);
 
-    const sum = (arr, k) => arr.reduce((s, c) => s + (c[k] || 0), 0);
-    const avg = (arr, k) => arr.length ? sum(arr, k) / arr.length : 0;
     // 堆叠条：深色=爆款 浅色=普通
     const compBar = (label, key, color) => {
       const tv = avg(tops, key), nv = avg(normal, key);
