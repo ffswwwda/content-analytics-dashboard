@@ -77,6 +77,7 @@
     // —— 看竞品情况 ——
     { id: "competitor", name: "竞品内容监测", group: "看竞品情况", level: 1, desc: "选择单竞品 → 深度查看（整体数据 + 内容排序列表 + 形式/数据筛选 + 用户评价 + 运营节奏×表现 + Campaign 爆发监测）；也可看全部竞品排名。" },
     { id: "compare", name: "多竞品横向对比", group: "看竞品情况", level: 2, desc: "勾选多个品牌横向对比：数据表现 + Top3 内容 + 用户情况，全面看标杆与差距。" },
+    { id: "growth", name: "竞品增长阶段", group: "看竞品情况", level: 2, desc: "按时间还原每个竞品的起量路径：月度声量走势、自动识别「冲量关键期」与起量形态，对比爆发期 vs 全期的运营打法差异，找到他们如何做起来的核心。" },
     // —— 了解用户 ——
     { id: "branduser", name: "品牌-用户讨论", group: "了解用户", level: 2, desc: "分品牌查看用户对该品牌的讨论：情感极性、内容形式、用户倾向、高频词与主题、代表语录——全面看每个品牌的用户声音。可点进品牌看品牌互动用户深度分析（用户词云、主题排序、分层占比、跨品牌对比）。" },
     { id: "userseg", name: "高互动用户", group: "了解用户", level: 2, desc: "窗口内回复数最高的活跃用户排行——研究「单个深度用户」：他是谁、活跃周期、品牌归属、语言模式、参与形式、情感/意图倾向、全部代表语录。支持展开深度画像、跨品牌用户对比。" },
@@ -327,6 +328,7 @@
     vdDim: "all", vdSortField: "topRate",
     page: 0, pageSize: 100, randList: null, randVisible: 100, randLoading: false,
     compSel: new Set(), cmpSel: new Set(), cmpBase: 0,
+    growth: { brand: null },
     sourceDb: { source: "contents", filters: {}, sort: "viralScore", page: 0, pageSize: 50, search: "", expanded: [] },
     sourceViews: [],
     compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false, mode: "all" },
@@ -570,6 +572,7 @@
       case "reference": html = renderReference(); break;
       case "competitor": html = renderCompetitorLib(); break;
       case "compare": html = renderCompareBoard(); break;
+      case "growth": html = renderGrowth(); break;
       case "viraldeep": html = renderViralDeep(); break;
       case "uservoice": html = renderUserBoard(); break;
       case "branduser": html = renderBrandUser(); break;
@@ -4615,6 +4618,190 @@ ${sim || "（无同主题关联帖）"}
     toast(`已下载 ${fmt(rows.length)} 条 CSV`);
   }
 
+  /* ============ 竞品增长阶段 ============ */
+  const gNum = (v) => Number(v) || 0;
+  function growthBrands() { return [...new Set(state.analysis.contents.map((c) => c.account))].filter(Boolean); }
+  function brandMonthly(brand) {
+    const map = new Map();
+    state.analysis.contents.forEach((c) => {
+      if (c.account !== brand) return;
+      const ym = (c.publishDate || "").slice(0, 7);
+      if (ym.length < 7) return;
+      if (!map.has(ym)) map.set(ym, { ym, exp: 0, posts: 0, viral: 0 });
+      const o = map.get(ym);
+      o.exp += gNum(c.exposure); o.posts += 1; if (c.isTop) o.viral += 1;
+    });
+    return Array.from(map.values()).sort((a, b) => a.ym.localeCompare(b.ym));
+  }
+  function detectGrowth(brand) {
+    const months = brandMonthly(brand);
+    if (!months.length) return null;
+    const start = months[0];
+    const peak = months.reduce((a, b) => (b.exp > a.exp ? b : a));
+    const peakIdx = months.indexOf(peak);
+    const peakMultiple = peak.exp / Math.max(gNum(start.exp), 1);
+    const sorted = [...months.map((m) => m.exp)].sort((a, b) => a - b);
+    const median = sorted[Math.floor(sorted.length / 2)];
+    const thr = Math.max(median * 1.5, gNum(start.exp) * 1.5, 1);
+    let hi = months.map((m, i) => (m.exp >= thr ? i : -1)).filter((i) => i >= 0);
+    if (hi.length < 2) {
+      const top3 = [...months].sort((a, b) => b.exp - a.exp).slice(0, 3).map((m) => months.indexOf(m));
+      hi = [...new Set([...hi, ...top3])].sort((a, b) => a - b);
+    }
+    const burstSet = new Set(hi.map((i) => months[i].ym));
+    const burstMonths = hi.map((i) => months[i]);
+    let form;
+    if (peakMultiple < 2) form = "高开低走 / 未见明显爆发";
+    else if (months.length >= 2 && gNum(months[1].exp) >= 0.5 * peak.exp) form = "启动即高位（次月跃升，长期维持）";
+    else if (peakIdx > 0 && peak.exp >= 3 * gNum(months[peakIdx - 1].exp)) form = "单月爆冲";
+    else form = "阶梯爬升（持续加量后到顶）";
+    return { brand, months, start, peak, peakIdx, peakMultiple, median, thr, burstSet, burstMonths, form };
+  }
+  function tacticSplit(items, key, split) {
+    const cnt = new Map(); let total = 0;
+    items.forEach((c) => {
+      let vals = [c[key]];
+      if (split && c[key]) vals = String(c[key]).split(/[,，、]/);
+      vals.forEach((v) => { v = String(v).trim(); if (!v) return; cnt.set(v, (cnt.get(v) || 0) + 1); total++; });
+    });
+    return { cnt, total };
+  }
+  const gPct = (n, t) => (t ? Math.round((n / t) * 100) : 0);
+  function tacticCompare(brand, g) {
+    const all = state.analysis.contents.filter((c) => c.account === brand);
+    const burst = all.filter((c) => g.burstSet.has((c.publishDate || "").slice(0, 7)));
+    const build = (items) => ({
+      type: tacticSplit(items, "contentType", false),
+      goal: tacticSplit(items, "marketing_goal", true),
+      emotion: tacticSplit(items, "emotion_style", false),
+      topic: tacticSplit(items, "content_topic", true),
+      topRate: items.length ? gPct(items.filter((c) => c.isTop).length, items.length) : 0,
+      n: items.length,
+    });
+    return { all: build(all), burst: build(burst) };
+  }
+  const topOf = (split) => { const a = Array.from(split.cnt.entries()).sort((x, y) => y[1] - x[1]); return a.length ? a[0][0] : "—"; };
+  function burstVoices(brand, g) {
+    const vs = (state.raw && state.raw.userVoices) || state.analysis.userVoices || [];
+    const yms = Array.from(g.burstSet).sort();
+    if (!yms.length) return { n: 0, sent: {} };
+    const lo = yms[0], hi = yms[yms.length - 1];
+    const inb = vs.filter((v) => v.account === brand && v.publishDate >= lo && v.publishDate <= hi + "-31");
+    const sent = {};
+    inb.forEach((v) => { const s = v.sentiment || "未标注"; sent[s] = (sent[s] || 0) + 1; });
+    return { n: inb.length, sent };
+  }
+  function growthSVG(months, burstSet) {
+    const W = 760, H = 280, pL = 44, pR = 44, pT = 18, pB = 34;
+    const iw = W - pL - pR, ih = H - pT - pB;
+    const maxE = Math.max(...months.map((m) => m.exp), 1);
+    const maxP = Math.max(...months.map((m) => m.posts), 1);
+    const maxV = Math.max(...months.map((m) => m.viral), 1);
+    const bw = (iw / months.length) * 0.6;
+    const x = (i) => pL + (iw / months.length) * i + (iw / months.length - bw) / 2;
+    const yE = (e) => pT + ih - (e / maxE) * ih;
+    const yP = (p) => pT + ih - (p / maxP) * ih;
+    const yV = (v) => pT + ih - (v / maxV) * ih;
+    const shade = months.map((m, i) => burstSet.has(m.ym) ? `<rect x="${pL + (iw / months.length) * i}" y="${pT}" width="${iw / months.length}" height="${ih}" fill="#2f6bff" opacity="0.07"/>` : "").join("");
+    const bars = months.map((m, i) => `<rect x="${x(i)}" y="${yE(m.exp)}" width="${bw}" height="${pT + ih - yE(m.exp)}" rx="3" fill="${burstSet.has(m.ym) ? "#2f6bff" : "#c9d8ff"}"/>`).join("");
+    const postsPts = months.map((m, i) => `${pL + (iw / months.length) * i + (iw / months.length) / 2},${yP(m.posts)}`).join(" ");
+    const viralPts = months.map((m, i) => `${pL + (iw / months.length) * i + (iw / months.length) / 2},${yV(m.viral)}`).join(" ");
+    const dotsPosts = months.map((m, i) => `<circle cx="${pL + (iw / months.length) * i + (iw / months.length) / 2}" cy="${yP(m.posts)}" r="2.5" fill="#22c55e"/>`).join("");
+    const dotsViral = months.map((m, i) => `<circle cx="${pL + (iw / months.length) * i + (iw / months.length) / 2}" cy="${yV(m.viral)}" r="2.5" fill="#ff5d8f"/>`).join("");
+    const labels = months.map((m, i) => `<text x="${pL + (iw / months.length) * i + (iw / months.length) / 2}" y="${H - 10}" font-size="8.5" fill="#9099a5" text-anchor="middle">${m.ym.slice(2)}</text>`).join("");
+    const grid = [0, 0.25, 0.5, 0.75, 1].map((gg) => { const yy = pT + ih - gg * ih; return `<line x1="${pL}" y1="${yy}" x2="${W - pR}" y2="${yy}" stroke="#eef0f3" stroke-width="1"/><text x="${W - pR + 4}" y="${yy + 3}" font-size="9" fill="#b8bfca">${Math.round(gg * maxE / 10000)}万</text>`; }).join("");
+    return `<svg class="growth-chart" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">${shade}${grid}${bars}<polyline points="${postsPts}" fill="none" stroke="#22c55e" stroke-width="2"/>${dotsPosts}<polyline points="${viralPts}" fill="none" stroke="#ff5d8f" stroke-width="2"/>${dotsViral}${labels}</svg>
+      <div class="growth-legend"><span><i style="background:#2f6bff"></i>曝光（柱·高位月高亮）</span><span><i style="background:#22c55e"></i>帖子数（线）</span><span><i style="background:#ff5d8f"></i>爆款数（线）</span></div>`;
+  }
+  function renderGrowth() {
+    const brands = growthBrands();
+    if (!state.growth.brand || !brands.includes(state.growth.brand)) {
+      const ranked = brands.map((b) => ({ b, g: detectGrowth(b) })).sort((a, b) => (b.g ? b.g.peak.exp : 0) - (a.g ? a.g.peak.exp : 0));
+      state.growth.brand = ranked[0].b;
+    }
+    const brand = state.growth.brand;
+    const g = detectGrowth(brand);
+    const tc = tacticCompare(brand, g);
+    const v = burstVoices(brand, g);
+    const rows = brands.map((b) => ({ b, g: detectGrowth(b) })).sort((a, b) => (b.g ? b.g.peak.exp : 0) - (a.g ? a.g.peak.exp : 0));
+    const summaryRows = rows.map(({ b, g: gg }) => {
+      const tcB = tacticCompare(b, gg);
+      const dom = topOf(tcB.burst.type) + (tcB.burst.goal.total ? " · " + topOf(tcB.burst.goal) : "");
+      const burstLabel = (gg.peakMultiple >= 2 && gg.burstMonths.length) ? `${gg.burstMonths[0].ym}~${gg.burstMonths[gg.burstMonths.length - 1].ym}` : "—";
+      const mult = gg.peakMultiple >= 10 ? gg.peakMultiple.toFixed(0) : gg.peakMultiple.toFixed(1);
+      return `<tr data-brand="${esc(b)}" class="${b === brand ? "on" : ""}">
+        <td class="gw-brand">${esc(b)}</td>
+        <td>${gg.start.ym}</td>
+        <td>${gg.peak.ym}</td>
+        <td>${fmt(gg.peak.exp)}</td>
+        <td class="${gg.peakMultiple >= 2 ? "gw-up" : "gw-down"}">${mult}×</td>
+        <td><span class="gw-form ${gg.peakMultiple < 2 ? "warn" : ""}">${esc(gg.form)}</span></td>
+        <td>${burstLabel}</td>
+        <td class="gw-tactic-cell">${esc(dom)}</td>
+      </tr>`;
+    }).join("");
+    const chips = brands.map((b) => `<button class="gw-chip${b === brand ? " on" : ""}" data-brand="${esc(b)}">${esc(b)}</button>`).join("");
+    const deep = g ? renderGrowthDeep(brand, g, tc, v) : "";
+    return `<div class="board-head"><div class="board-desc">按时间还原每个竞品的起量路径。月度声量来自真实发帖账号；「冲量关键期」= 月度曝光 ≥ 该品牌中位数的 1.5 倍（不足 2 个月则补曝光 Top3 月）。注：源数据无活动/ Campaign 标签，运营打法由内容形式 / 营销目的 / 情绪推断。</div></div>
+      <div class="panel"><div class="panel-title">全品牌起量对比 · 谁靠什么起量</div>
+        <div class="gw-table-wrap"><table class="gw-table"><thead><tr><th>品牌</th><th>启动月</th><th>峰值月</th><th>峰值曝光</th><th>爆发倍数</th><th>起量形态</th><th>冲量关键期</th><th>起量主导打法</th></tr></thead><tbody>${summaryRows}</tbody></table></div>
+        <div class="gw-note">点任意品牌行或下方芯片，查看该品牌月度走势与爆发期运营拆解。</div>
+      </div>
+      <div class="gw-chips">${chips}</div>
+      ${deep}`;
+  }
+  function renderGrowthDeep(brand, g, tc, v) {
+    const burstPosts = state.analysis.contents.filter((c) => c.account === brand && g.burstSet.has((c.publishDate || "").slice(0, 7)))
+      .sort((a, b) => gNum(b.exposure) - gNum(a.exposure)).slice(0, 12);
+    const burstList = burstPosts.map((c) => `<div class="gw-post" data-id="${esc(c.id)}">
+        <div class="gw-post-exp">${fmt(gNum(c.exposure))}</div>
+        <div class="gw-post-main"><div class="gw-post-text">${esc(dispText(c) || c.text || "(无文本)")}</div>
+          <div class="gw-post-meta">${esc(c.contentType || "—")} · ${esc(String(c.marketing_goal || "—"))} · ${c.isTop ? "爆款" : "普通"}</div></div>
+      </div>`).join("");
+    const banner = `<div class="gw-banner">
+        <div class="gw-banner-main">冲量关键期：<b>${g.peakMultiple >= 2 && g.burstMonths.length ? g.burstMonths[0].ym + " ~ " + g.burstMonths[g.burstMonths.length - 1].ym : "—"}</b> · 形态：<b>${esc(g.form)}</b></div>
+        <div class="gw-banner-sub">启动月 ${g.start.ym} 曝光 ${fmt(g.start.exp)} → 峰值月 ${g.peak.ym} 曝光 ${fmt(g.peak.exp)}（${g.peakMultiple >= 10 ? g.peakMultiple.toFixed(0) : g.peakMultiple.toFixed(1)}×）· 高位阈值 ${fmt(g.thr)}/月</div>
+      </div>`;
+    const tacticBlock = (title, splitB, splitA) => {
+      const keys = [...new Set([...splitB.cnt.keys(), ...splitA.cnt.keys()])].filter(Boolean).sort((a, b) => (splitB.cnt.get(b) || 0) - (splitB.cnt.get(a) || 0)).slice(0, 8);
+      const maxB = Math.max(...keys.map((k) => splitB.cnt.get(k) || 0), 1);
+      return `<div class="gw-tactic-col"><div class="gw-tactic-title">${title}</div>${keys.map((k) => {
+        const bv = splitB.cnt.get(k) || 0, av = splitA.cnt.get(k) || 0;
+        const bp = gPct(bv, splitB.total), ap = gPct(av, splitA.total);
+        const diff = bp - ap;
+        return `<div class="gw-tbar"><span class="gw-tbar-name">${esc(k)}</span>
+          <span class="gw-tbar-track"><i class="gw-tbar-burst" style="width:${(bv / maxB) * 100}%"></i></span>
+          <span class="gw-tbar-val">${bp}%${diff > 0 ? `<em class="gw-up">▲${diff}</em>` : diff < 0 ? `<em class="gw-down">▼${-diff}</em>` : ""}</span></div>`;
+      }).join("")}<div class="gw-tactic-foot">蓝条=爆发期占比；▲/▼=爆发期相对全期放大的百分点</div></div>`;
+    };
+    const emotionHas = tc.all.emotion.total > 0;
+    const tacticHTML = `<div class="gw-tactics">
+        ${tacticBlock("内容形式（爆发期 vs 全期）", tc.burst.type, tc.all.type)}
+        ${tacticBlock("营销目的（爆发期 vs 全期）", tc.burst.goal, tc.all.goal)}
+        ${emotionHas ? tacticBlock("情绪风格（爆发期 vs 全期）", tc.burst.emotion, tc.all.emotion) : ""}
+      </div>`;
+    const topicArr = Array.from(tc.burst.topic.cnt.entries()).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const topicHTML = topicArr.length ? `<div class="gw-topics"><span class="gw-topics-label">高频主题：</span>${topicArr.map(([t, n]) => `<span class="gw-topic">${esc(t)} <i>${n}</i></span>`).join("")}</div>` : "";
+    const sentArr = Object.entries(v.sent).sort((a, b) => b[1] - a[1]);
+    const voiceHTML = `<div class="gw-voice"><div class="gw-voice-num">${fmt(v.n)}<small>关键期回帖</small></div>${sentArr.length ? `<div class="gw-voice-sent">${sentArr.map(([s, n]) => `<span>${esc(s)} ${n}</span>`).join("")}</div>` : `<div class="gw-voice-sent">回帖情感字段为空</div>`}</div>`;
+    return `<div class="panel"><div class="panel-title">${esc(brand)} · 月度声量走势</div>
+        <div class="panel-sub">柱=月度曝光 · 绿线=帖子数 · 粉线=爆款数 · 蓝色高亮=冲量关键期</div>
+        ${growthSVG(g.months, g.burstSet)}</div>
+      ${banner}
+      <div class="panel"><div class="panel-title">爆发期 vs 全期 · 运营打法差异</div>
+        <div class="panel-sub">看哪些形式 / 目的在冲量时被放大——这就是「做起来的核心」</div>
+        ${tacticHTML}${topicHTML}</div>
+      <div class="panel gw-deep-grid">
+        <div><div class="panel-title">冲量关键期 · 高曝光帖子（点开看详情）</div>${burstList || "<div class=\"dim-note\">该区间无帖子</div>"}</div>
+        <div>${voiceHTML}</div>
+      </div>`;
+  }
+  function bindGrowth() {
+    $$(".gw-chip[data-brand]", $("#board")).forEach((el) => el.addEventListener("click", () => { state.growth.brand = el.dataset.brand; renderBoard(); }));
+    $$(".gw-table tbody tr[data-brand]", $("#board")).forEach((el) => el.addEventListener("click", () => { state.growth.brand = el.dataset.brand; renderBoard(); }));
+    $$(".gw-post[data-id]", $("#board")).forEach((el) => el.addEventListener("click", () => openDeepAnalysis(el.dataset.id)));
+  }
+
   /* ============ 事件绑定 ============ */
   function bindBoard(data) {
     // 帖子卡片/列表点击：灵感库保持「抽屉 → 深度分析」两步；其余板块直接弹出深度分析
@@ -4667,6 +4854,7 @@ ${sim || "（无同主题关联帖）"}
     if (state.board === "usertier") bindUserTier();
     if (state.board === "userseg") bindUserSeg();
     if (state.board === "sourcedb") bindSourceBoard();
+    if (state.board === "growth") bindGrowth();
   }
 
   function bindSourceBoard() {

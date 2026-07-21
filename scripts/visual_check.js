@@ -26,7 +26,7 @@ const PORT = 8123;
 const OUT = path.join(ROOT, "scripts", "_shots");
 fs.mkdirSync(OUT, { recursive: true });
 
-const BOARDS = ["sourcedb", "library", "reference", "viraldeep", "competitor", "compare", "branduser", "userseg", "usertier", "uservoice", "myops"];
+const BOARDS = ["sourcedb", "library", "reference", "viraldeep", "competitor", "compare", "growth", "branduser", "userseg", "usertier", "uservoice", "myops"];
 
 (async () => {
   // 启动本地静态服务器

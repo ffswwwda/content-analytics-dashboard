@@ -69,7 +69,7 @@ function report(id, name, extra) {
   try { await waitInit(); } catch (e) { console.log("INIT_FAIL:", e.message); process.exit(2); }
 
   // 1) 基础板块点击
-  const boards = ["sourcedb", "library", "reference", "viraldeep", "competitor", "compare", "branduser", "userseg", "usertier", "uservoice", "myops"];
+  const boards = ["sourcedb", "library", "reference", "viraldeep", "competitor", "compare", "growth", "branduser", "userseg", "usertier", "uservoice", "myops"];
   for (const id of boards) { clickBoard(id); await sleep(70); report(id, id); }
 
   // 1.5) 源数据看板：点一个筛选 chip + 切到回帖数据源
