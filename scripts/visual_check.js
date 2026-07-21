@@ -82,6 +82,26 @@ const BOARDS = ["library", "reference", "viraldeep", "competitor", "compare", "b
     await page.screenshot({ path: shot, fullPage: false });
     report.push({ id, overflowX: overflow.diff, scrollW: overflow.scrollW, clientW: overflow.clientW, shot });
   }
+  // 核对数据浮层（真实浏览器验证）
+  try {
+    await page.evaluate(() => { [...document.querySelectorAll(".nav-item")].find((x) => x.dataset.board === "competitor").click(); });
+    await new Promise((r) => setTimeout(r, 500));
+    await page.evaluate(() => document.getElementById("verify-btn").click());
+    await new Promise((r) => setTimeout(r, 300));
+    await page.evaluate(() => document.getElementById("verify-run").click());
+    await new Promise((r) => setTimeout(r, 3500));
+    const v = await page.evaluate(() => {
+      const m = document.getElementById("verify-modal");
+      const rows = m ? m.querySelectorAll(".vrow") : [];
+      const ok = [...rows].filter((r) => r.querySelector(".vrow-status.ok")).length;
+      const fail = [...rows].filter((r) => r.querySelector(".vrow-status.fail")).length;
+      return { open: !!m && !m.hidden, rows: rows.length, ok, fail };
+    });
+    const vshot = path.join(OUT, "verify.png");
+    await page.screenshot({ path: vshot });
+    report.push({ id: "verify-modal", rows: v.rows, ok: v.ok, fail: v.fail, shot: vshot });
+    await page.evaluate(() => { const m = document.getElementById("verify-modal"); if (m) m.hidden = true; });
+  } catch (e) { errors.push("verify-modal: " + e.message); }
   console.log("=== 视觉/溢出报告 ===");
   report.forEach((r) => console.log(JSON.stringify(r)));
   console.log("=== 页面错误 ===");

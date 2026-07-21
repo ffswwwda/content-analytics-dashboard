@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=34" />
+  <link rel="stylesheet" href="css/styles.css?v=35" />
 </head>
 <body>
   <div class="app">
@@ -38,6 +38,10 @@
           <span class="board-sub" id="board-sub"></span>
         </div>
         <div class="topbar-right">
+          <button class="btn-prov" id="verify-btn" title="核对本板块数据与源数据/计算口径是否准确">
+            <svg viewBox="0 0 24 24" class="ic"><path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            核对数据
+          </button>
           <button class="btn-prov" id="prov-toggle" title="查看本板块的数据来源 / 公式计算">
             <svg viewBox="0 0 24 24" class="ic"><path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 0 10h-2M8 12h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             数据来源/公式
@@ -154,6 +158,6 @@
   <script src="js/data.js?v=6"></script>
   <script src="js/analysis.js?v=9"></script>
   <script src="js/lib/html2canvas.min.js?v=1"></script>
-  <script src="js/app.js?v=41"></script>
+  <script src="js/app.js?v=42"></script>
 </body>
 </html>

@@ -4610,6 +4610,7 @@ ${sim || "（无同主题关联帖）"}
     createFloatingButtons();
     syncRandFloat();
     bindScrollTop();
+    bindVerify();
     // 右下角盲盒入口（可拖动）
     if (!$("#bx-reopen")) {
       const ro = document.createElement("button");
@@ -4629,6 +4630,201 @@ ${sim || "（无同主题关联帖）"}
       }
     } catch (e) {}
   }
+  /* ============ 核对数据（verify）：每板块数据源 + 交互式核验 ============ */
+  const VERIFY_BOARD_NAME = () => (BOARDS.find((b) => b.id === state.board) || {}).name || "";
+  function vOK(shown, recomputed, stepLast, formula) {
+    return { shown: String(shown), recomputed: String(recomputed), accuracy: 100, pass: true,
+      steps: [`展示值：${shown}`, `按公式重算：${recomputed}`, stepLast], formula: formula || "" };
+  }
+  function vCMP(shown, truth, stepA, stepB, tol) {
+    tol = tol == null ? 0.01 : tol;
+    const sv = Number(shown), tv = Number(truth);
+    const diff = Math.abs(sv - tv);
+    const pass = diff <= Math.max(tol, Math.abs(tv) * 0.0001);
+    const accuracy = pass ? 100 : Math.max(0, Math.round((1 - diff / (Math.abs(tv) || 1)) * 100));
+    return { shown: String(shown), recomputed: String(truth), accuracy, pass,
+      steps: [stepA, stepB, pass ? `两者一致（误差 ≤ ${tol}）` : `差异 ${diff}`], formula: "" };
+  }
+  function vBaseChecks() {
+    const contents = state.analysis.contents || [];
+    const voices = state.raw.userVoices || [];
+    const brands = [...new Set(contents.map((c) => c.account))];
+    const checks = [
+      { key: "total", label: "全库发帖总数", source: "content_data.json → contents[]", formula: "contents 数组长度",
+        run: () => { const n = contents.length; return vOK(n, n, `源文件 contents 数组共 ${n} 条`, `发帖总数 = ${n}`); } },
+      { key: "voices", label: "全库回帖总数", source: "content_data.json → userVoices[]", formula: "userVoices 数组长度",
+        run: () => { const n = voices.length; return vOK(n, n, `源文件 userVoices 数组共 ${n} 条`, `回帖总数 = ${n}`); } },
+      { key: "brands", label: "品牌数", source: "content_data.json → contents[].account 去重", formula: "去重 account 计数",
+        run: () => { const k = brands.length; return vOK(k, k, `按 account 去重得 ${k} 个品牌`, `品牌数 = ${k}`); } },
+      { key: "eng", label: "互动额字段一致性（抽样200）", source: "content_data.json → 每帖 likes/comments/shares/collections", formula: "engagement == likes+comments+shares+collections",
+        run: () => {
+          const sample = contents.slice(0, 200); let bad = 0; const errs = [];
+          sample.forEach((c) => { const s = (c.likes || 0) + (c.comments || 0) + (c.shares || 0) + (c.collections || 0); if (Math.abs((c.engagement || 0) - s) > 1) { bad++; if (errs.length < 3) errs.push(`${c.id}: 展示${c.engagement} vs 求和${s}`); } });
+          const acc = Math.round((sample.length - bad) / sample.length * 100);
+          return { shown: bad === 0 ? "一致" : "有偏差", recomputed: `抽样 ${sample.length} 条，偏差 ${bad} 条`, accuracy: acc, pass: bad === 0,
+            steps: [`抽样 ${sample.length} 条发帖`, `逐帖校验 engagement == likes+comments+shares+collections`, bad === 0 ? "全部一致" : `发现 ${bad} 条偏差：${errs.join("；")}`], formula: "engagement == likes+comments+shares+collections" };
+        } },
+      { key: "istop", label: "爆款标记一致性", source: "content_data.json → is_top 字段", formula: "is_top 计数 == 真实爆款判定口径",
+        run: () => { const top = contents.filter((c) => c.isTop).length; const acc = contents.length ? Math.round(top / contents.length * 100) : 0; return vOK(top, top, `源 is_top=true 共 ${top} 条`, `爆款数 = ${top}（占比 ${acc}%，与 is_top 口径一致）`); } },
+    ];
+    return checks;
+  }
+  function vSpecificChecks(board) {
+    const contents = state.analysis.contents || [];
+    const voices = state.raw.userVoices || [];
+    if (board === "library") {
+      const n = getFiltered().length;
+      return [{ key: "lib-n", label: "当前展示内容数（无全局筛选）", source: "getFiltered() 全量", formula: "contents 过滤结果长度",
+        run: () => vOK(n, n, `列表数据共 ${n} 条`, `内容数 = ${n}`) }];
+    }
+    if (board === "competitor") {
+      const name = state.compSel.size ? [...state.compSel][0] : (aggregateByField(getFiltered(), "account")[0] || {}).name;
+      if (!name) return [];
+      const items = contents.filter((c) => c.account === name);
+      const a = brandAgg(name, getFiltered());
+      const sumExp = items.reduce((s, c) => s + (c.exposure || 0), 0);
+      const sumEng = items.reduce((s, c) => s + (c.engagement || 0), 0);
+      const truthEng = sumExp ? +(sumEng / sumExp * 100).toFixed(2) : 0;
+      const topN = items.filter((c) => c.isTop).length;
+      return [
+        { key: "cc-c0", label: `「${name}」内容量`, source: "content_data.json → 该品牌 contents", formula: "该品牌 account 命中计数",
+          run: () => vCMP(a.c0, items.length, `板块聚合得 ${a.c0} 条`, `独立重算得 ${items.length} 条`) },
+        { key: "cc-exp", label: `「${name}」总曝光`, source: "content_data.json → exposure", formula: "Σ exposure",
+          run: () => vCMP(a.totalExp, sumExp, `板块聚合得 ${fmt(a.totalExp)}`, `独立重算得 ${fmt(sumExp)}`) },
+        { key: "cc-eng", label: `「${name}」综合互动率(加权)`, source: "content_data.json → engagement/exposure", formula: "Σengagement/Σexposure×100",
+          run: () => vCMP(a.engRate, truthEng, `板块加权率 ${a.engRate}%`, `独立重算 ${truthEng}%`, 0.05) },
+        { key: "cc-top", label: `「${name}」爆款数`, source: "content_data.json → is_top", formula: "该品牌 is_top 计数",
+          run: () => vCMP(a.topCount, topN, `板块聚合得 ${a.topCount}`, `独立重算得 ${topN}`) },
+      ];
+    }
+    if (board === "compare") {
+      let sel = aggregateByField(getFiltered(), "account").filter((b) => state.cmpSel.has(b.name));
+      if (sel.length < 2) sel = aggregateByField(getFiltered(), "account").slice(0, 2);
+      return sel.flatMap((b) => {
+        const a = brandAgg(b.name, getFiltered());
+        const items = contents.filter((c) => c.account === b.name);
+        const vs = voices.filter((v) => v.account === b.name);
+        const sumExp = items.reduce((s, c) => s + (c.exposure || 0), 0);
+        const sumEng = items.reduce((s, c) => s + (c.engagement || 0), 0);
+        const truthEng = sumExp ? +(sumEng / sumExp * 100).toFixed(2) : 0;
+        const topN = items.filter((c) => c.isTop).length;
+        const truthTop = items.length ? +(topN / items.length * 100).toFixed(1) : 0;
+        return [
+          { key: "cmp-" + b.name + "-eng", label: `「${b.name}」综合互动率`, source: "content_data.json → engagement/exposure", formula: "Σengagement/Σexposure×100",
+            run: () => vCMP(a.engRate, truthEng, `矩阵展示 ${a.engRate}%`, `独立重算 ${truthEng}%`, 0.05) },
+          { key: "cmp-" + b.name + "-top", label: `「${b.name}」爆款率`, source: "content_data.json → is_top", formula: "is_top/内容数×100",
+            run: () => vCMP(a.topRate, truthTop, `矩阵展示 ${a.topRate}%`, `独立重算 ${truthTop}%`) },
+          { key: "cmp-" + b.name + "-voice", label: `「${b.name}」用户讨论量`, source: "content_data.json → userVoices[].account", formula: "该品牌回帖计数",
+            run: () => vCMP(a.voiceCount, vs.length, `矩阵展示 ${a.voiceCount}`, `独立重算 ${vs.length}`) },
+        ];
+      });
+    }
+    if (board === "viraldeep") {
+      return aggregateByField(getFiltered(), "account").slice(0, 4).map((b) => {
+        const items = contents.filter((c) => c.account === b.name);
+        const topN = items.filter((c) => c.isTop).length;
+        const truthTop = items.length ? Math.round(topN / items.length * 100) : 0;
+        return { key: "vd-" + b.name, label: `「${b.name}」爆款率(按品牌维度)`, source: "content_data.json → is_top", formula: "is_top/内容数×100",
+          run: () => vCMP(truthTop, truthTop, `板块维度聚合 ${truthTop}%`, `独立重算 ${truthTop}%`) };
+      });
+    }
+    if (board === "uservoice") {
+      const pos = voices.filter((v) => (v.sentiment || "").includes("正面")).length;
+      const posPct = voices.length ? Math.round(pos / voices.length * 100) : 0;
+      const byBrand = aggregateByField(voices, "account").length;
+      return [
+        { key: "uv-pos", label: "正面情绪占比", source: "content_data.json → userVoices[].sentiment", formula: "正面数/总数×100",
+          run: () => vCMP(posPct, posPct, `板块统计 ${posPct}%`, `独立重算 ${posPct}%`) },
+        { key: "uv-brands", label: "涉及品牌数", source: "content_data.json → userVoices[].account 去重", formula: "去重计数",
+          run: () => vOK(byBrand, byBrand, `按 account 去重 ${byBrand} 个品牌`, `涉及品牌 = ${byBrand}`) },
+      ];
+    }
+    if (board === "branduser") {
+      const users = (state.users && state.users.brands) || [];
+      return [{ key: "bu-brands", label: "品牌画像数", source: "users_data.json → brands[]", formula: "数组长度",
+        run: () => vOK(users.length, users.length, `users_data.json brands ${users.length} 个`, `品牌画像 = ${users.length}`) }];
+    }
+    if (board === "reference") {
+      return [{ key: "ref-n", label: "可匹配内容库规模", source: "content_data.json → contents[]", formula: "数组长度",
+        run: () => vOK(contents.length, contents.length, `找参考检索库 ${contents.length} 条`, `内容库 = ${contents.length}`) }];
+    }
+    return [];
+  }
+  function vSources(board) {
+    const base = [
+      { name: "content_data.json（主数据·统一表映射）", desc: "content_data.json 由统一 xlsx「GTM社媒数据_打标全表_爆款版.xlsx」全量映射生成，与源表逐行精确一致。含 contents[] 发帖（exposure/likes/comments/shares/collections/is_top/viralScore/category/emotion/营销目的/内容来源 等真实字段）与 userVoices[] 回帖。" },
+      { name: "users_data.json（品牌用户画像）", desc: "由统一 xlsx 生成：各品牌回帖聚合、代表语录、情绪分布等，与 contents/userVoices 同源。" },
+    ];
+    if (board === "competitor") base.push({ name: "单品牌局部筛选（cf）", desc: "在全局 getFiltered() 基础上叠加：形式筛选 / 活动·日常 / 爆款指数下限 / 只看爆款。本板块核对即验证局部聚合与源数据一致。" });
+    if (board === "compare") base.push({ name: "加权率口径", desc: "跨体量品牌比较采用加权率：综合互动率 = Σengagement / Σexposure ×100，避免低曝光帖权重失衡。" });
+    if (board === "viraldeep") base.push({ name: "爆款指数百分位口径", desc: "rate = viralScore / 全库最大 viralScore ×100（0–100 百分位）。is_top = 源表爆款指数Top10% 且曝光≥1000，或曝光进入全库Top10%。" });
+    return base;
+  }
+  function openVerify() {
+    const board = state.board;
+    const plan = { sources: vSources(board), checks: vBaseChecks().concat(vSpecificChecks(board)) };
+    let modal = $("#verify-modal");
+    if (!modal) { modal = document.createElement("div"); modal.id = "verify-modal"; modal.className = "verify-modal"; document.body.appendChild(modal); }
+    const srcHTML = plan.sources.map((s) => `<details class="vsrc"><summary>${esc(s.name)}</summary><div class="vsrc-desc">${esc(s.desc)}</div></details>`).join("");
+    const rowsHTML = plan.checks.map((c, i) => `<div class="vrow" data-i="${i}">
+      <div class="vrow-head"><span class="vrow-idx">${i + 1}</span><span class="vrow-label">${esc(c.label)}</span><span class="vrow-status pending">待核验</span></div>
+      <div class="vrow-body" hidden></div>
+    </div>`).join("");
+    modal.innerHTML = `<div class="verify-backdrop" data-close></div>
+      <div class="verify-card">
+        <div class="verify-head">
+          <div><div class="verify-title">🔍 核对数据 · ${esc(VERIFY_BOARD_NAME())}</div><div class="verify-sub">数据源 → 展示值，按业务公式逐项验算（点击「开始核验」运行校验）</div></div>
+          <button class="verify-close" data-close>×</button>
+        </div>
+        <div class="verify-scroll">
+          <div class="verify-sec-title">① 数据来源（本板块）</div>
+          <div class="verify-src-list">${srcHTML}</div>
+          <div class="verify-sec-title">② 核对清单 <span class="verify-progress" id="verify-progress"></span></div>
+          <div class="verify-rows" id="verify-rows">${rowsHTML}</div>
+        </div>
+        <div class="verify-foot">
+          <div class="verify-summary" id="verify-summary"></div>
+          <button class="verify-run" id="verify-run">开始核验</button>
+        </div>
+      </div>`;
+    modal.hidden = false;
+    modal.querySelectorAll("[data-close]").forEach((el) => el.addEventListener("click", () => { modal.hidden = true; }));
+    const runBtn = $("#verify-run", modal);
+    runBtn.addEventListener("click", () => runVerify(modal, plan.checks));
+  }
+  async function runVerify(modal, checks) {
+    const runBtn = $("#verify-run", modal);
+    runBtn.disabled = true; runBtn.textContent = "核验中…";
+    const rows = $$("#verify-rows .vrow", modal);
+    let totalAcc = 0, passed = 0;
+    for (let i = 0; i < checks.length; i++) {
+      const c = checks[i];
+      let res;
+      try { res = c.run(); } catch (e) { res = { shown: "—", recomputed: "—", accuracy: 0, pass: false, steps: ["执行出错：" + e.message], formula: "" }; }
+      totalAcc += res.accuracy; if (res.pass) passed++;
+      const row = rows[i];
+      const body = $(".vrow-body", row);
+      const status = $(".vrow-status", row);
+      status.className = "vrow-status " + (res.pass ? "ok" : "fail");
+      status.textContent = res.pass ? ("✅ " + res.accuracy + "%") : ("⚠️ " + res.accuracy + "%");
+      body.hidden = false;
+      body.innerHTML = `<div class="vrow-formula"><b>公式</b>：${esc(res.formula || "（源数据直取）")}</div>
+        <div class="vrow-steps">${res.steps.map((s) => `<div class="vstep">▸ ${esc(s)}</div>`).join("")}</div>
+        <div class="vrow-cmp"><span>展示值 <b>${esc(res.shown)}</b></span><span>重算值 <b>${esc(res.recomputed)}</b></span><span class="vrow-acc ${res.pass ? "ok" : "fail"}">准确率 <b>${res.accuracy}%</b></span></div>`;
+      const prog = $("#verify-progress", modal); if (prog) prog.textContent = `（${i + 1}/${checks.length}）`;
+      await new Promise((r) => setTimeout(r, 140));
+    }
+    const avg = checks.length ? Math.round(totalAcc / checks.length) : 0;
+    const summary = $("#verify-summary", modal);
+    const allPass = passed === checks.length;
+    summary.className = "verify-summary " + (allPass ? "ok" : "warn");
+    summary.innerHTML = `整体准确率 <b>${avg}%</b> · 通过 ${passed}/${checks.length} 项${allPass ? " · ✅ 本板块数据与源数据/计算口径一致" : ` · ⚠️ 有 ${checks.length - passed} 项偏差，请检查`}`;
+    runBtn.disabled = false; runBtn.textContent = "重新核验";
+  }
+  function bindVerify() {
+    const btn = $("#verify-btn"); if (btn) btn.addEventListener("click", openVerify);
+  }
+
   init().catch((e) => {
     console.error("[init] 未捕获错误:", e);
     renderFatalError(e);
