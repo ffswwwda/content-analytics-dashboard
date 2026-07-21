@@ -67,6 +67,11 @@ const BOARDS = ["library", "reference", "viraldeep", "competitor", "compare", "b
       try { await page.click('#vd-dim-tabs .uv-tab[data-vd-dim="topic"]', { delay: 20 }); } catch (e) {}
       await new Promise((r) => setTimeout(r, 500));
     }
+    // 多竞品横向对比：勾选 3 个品牌以展示对比矩阵
+    if (id === "compare") {
+      try { await page.evaluate(() => { [...document.querySelectorAll(".cmp-chip")].slice(0, 3).forEach((c) => c.click()); }); } catch (e) {}
+      await new Promise((r) => setTimeout(r, 500));
+    }
     // 检测横向溢出
     const overflow = await page.evaluate(() => {
       const de = document.documentElement;

@@ -83,6 +83,12 @@ function report(id, name, extra) {
   if (chip) { chip.click(); await sleep(120); report("competitor:enter", "竞品-进入品牌", { chip: chip.textContent.slice(0, 20) }); }
   else report("competitor:enter", "竞品-进入品牌", { note: "no chip" });
 
+  // 3.5) 多竞品横向对比：勾选 2 个品牌查看矩阵
+  clickBoard("compare"); await sleep(50);
+  const cmpChips = [...document.querySelectorAll(".cmp-chip")];
+  if (cmpChips.length >= 2) { cmpChips.slice(0, 3).forEach((c) => c.click()); await sleep(150); report("compare:select", "多竞品-勾选品牌", { chips: cmpChips.length }); }
+  else report("compare:select", "多竞品-勾选品牌", { note: "chips<2" });
+
   // 4) 品牌用户：进入第一个品牌深度
   clickBoard("branduser"); await sleep(50);
   const bud = document.querySelector("[data-bud]");
