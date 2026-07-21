@@ -554,7 +554,7 @@ body::after {
 .drawer { position: fixed; top: 0; right: 0; height: 100vh; width: 440px; max-width: 92vw; background: var(--glass-bg-strong); backdrop-filter: blur(26px) saturate(180%); -webkit-backdrop-filter: blur(26px) saturate(180%); border-left: 1px solid var(--glass-border); box-shadow: var(--shadow-lg); transform: translateX(100%); transition: transform .26s cubic-bezier(.4,0,.2,1); z-index: 50; display: flex; flex-direction: column; }
 .drawer.show { transform: none; }
 .drawer-head { padding: 18px 22px; border-bottom: 1px solid var(--glass-line); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.drawer-head .dh-text { font-size: 14px; font-weight: 600; line-height: 1.5; }
+.drawer-head .dh-text { font-size: 14px; font-weight: 700; line-height: 1.55; color: var(--text-1); text-shadow: 0 1px 3px rgba(0,0,0,.35); }
 .drawer-close { border: none; background: var(--glass-bg-strong); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 16px; color: var(--text-2); flex-shrink: 0; transition: all .15s; }
 .drawer-close:hover { background: var(--hot-soft); color: var(--hot); }
 .drawer-body { padding: 20px 22px; overflow-y: auto; flex: 1; }
@@ -1461,6 +1461,11 @@ body::after {
 .vd-dash-big.win b { color: var(--hot); }
 .vd-dim-dash-side { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 14px; min-width: 0; }
 .vd-dash-title { font-size: 12px; font-weight: 700; color: var(--text-2); margin-bottom: 7px; }
+.vd-dash-title--sort { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.vd-sort-bar { display: inline-flex; gap: 4px; }
+.vd-sort-btn { border: 1px solid var(--glass-border); background: var(--glass-bg-strong); color: var(--text-3); font-size: 11px; padding: 3px 8px; border-radius: var(--radius-xs); cursor: pointer; transition: all .12s var(--ease); }
+.vd-sort-btn:hover { border-color: var(--accent); color: var(--text); }
+.vd-sort-btn.on { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border-color: transparent; }
 .vd-dash-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .vd-overview-tag { font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: var(--accent-soft); border: 1px solid var(--accent); color: var(--accent-strong); }
 

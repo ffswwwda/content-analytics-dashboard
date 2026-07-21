@@ -216,7 +216,7 @@
     users: null, uvTab: "corpus", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all", uvCorpusMarker: "all", uvLayerDrill: null, uvLayerCmp: false, uvDeep: false, uvSegDeep: false, uvDrillMeta: null,
     brandUserSel: null, brandUserCmp: [], brandUserCompare: false, brandUserRankAll: false,
     libMode: "sort", libQuick: "all", libSource: "all", sortExpanded: false,
-    vdDim: "all",
+    vdDim: "all", vdSortField: "topRate",
     page: 0, pageSize: 100, randList: null, randVisible: 100, randLoading: false,
     compSel: new Set(), cmpSel: new Set(),
     compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false, mode: "all" },
@@ -1829,7 +1829,13 @@ ${topMatches || "（无强匹配）"}
 
     // 整体看板
     const top3 = cards.slice(0, 3).map((c) => `<span class="vd-overview-tag">${esc(c.value)} <b>${c.topRate}%</b></span>`).join("");
-    const distData = cards.slice(0, 8).map((c, i) => ({ name: c.value, y: c.total, topRate: c.topRate }));
+    let distData = cards.slice(0, 8).map((c) => ({ name: c.value, y: c.total, topRate: c.topRate }));
+    if (state.vdSortField === "count") distData.sort((a, b) => b.y - a.y || b.topRate - a.topRate);
+    else if (state.vdSortField === "name") distData.sort((a, b) => String(a.name).localeCompare(String(b.name), "zh-CN"));
+    // default topRate already from cards sort; keep stable fallback
+    else distData.sort((a, b) => b.topRate - a.topRate || b.y - a.y);
+    const sortBtn = (field, label) => `<button class="vd-sort-btn${state.vdSortField === field ? " on" : ""}" data-vd-sort="${field}">${label}</button>`;
+    const sortBar = `<div class="vd-sort-bar">${sortBtn("topRate", "爆款率")}${sortBtn("count", "帖数")}${sortBtn("name", "名称")}</div>`;
     const overviewBars = distData.map((c, i) => `<div class="qc-bar"><span class="qc-name" style="width:100px;font-size:11px">${esc(c.name)}</span><span class="qc-track"><i style="width:${(c.y / Math.max(...distData.map((x) => x.y), 1)) * 100}%;background:${PAL[i % PAL.length]}"></i></span><span class="qc-val" style="min-width:80px;font-size:11px">${fmt(c.y)} 帖<small>爆款率 ${c.topRate}%</small></span></div>`).join("");
     const overview = `<div class="vd-dim-dashboard">
       <div class="vd-dim-dash-main">
@@ -1841,7 +1847,7 @@ ${topMatches || "（无强匹配）"}
       <div class="vd-dim-dash-side">
         <div class="vd-dash-title">爆款率 TOP3 取值</div>
         <div class="vd-dash-tags">${top3 || '<span class="vd-muted">—</span>'}</div>
-        <div class="vd-dash-title" style="margin-top:10px">取值分布 TOP8</div>
+        <div class="vd-dash-title vd-dash-title--sort" style="margin-top:10px"><span>取值分布 TOP8</span>${sortBar}</div>
         ${overviewBars || '<div class="vd-muted">—</div>'}
       </div>
     </div>`;
@@ -1973,6 +1979,11 @@ ${topMatches || "（无强匹配）"}
   function bindViralDeep() {
     $$("#vd-dim-tabs .uv-tab", $("#board")).forEach((b) => b.addEventListener("click", () => {
       state.vdDim = b.dataset.vdDim;
+      renderBoard();
+    }));
+    $$(".vd-sort-btn[data-vd-sort]", $("#board")).forEach((b) => b.addEventListener("click", (e) => {
+      e.stopPropagation();
+      state.vdSortField = b.dataset.vdSort;
       renderBoard();
     }));
     $$(".vd-dim-card[data-dim]", $("#board")).forEach((el) => el.addEventListener("click", (e) => {
@@ -3958,14 +3969,6 @@ ${topMatches || "（无强匹配）"}
           <div class="dr-metric"><div class="dm-k">发布时间</div><div class="dm-v" style="font-size:14px">${c.publishDate}</div></div>
         </div>
         ${Object.keys(qc).length ? `<div class="dr-section-title">评论质量分布</div>${Object.entries(qc).map(([k, v]) => `<div class="qc-bar"><span class="qc-name">${esc(k)}</span><span class="qc-track"><i style="width:${(v / maxQ) * 100}%"></i></span><span class="qc-val">${v}</span></div>`).join("")}` : ""}
-        <div class="dr-section-title">内容属性（真实字段）</div>
-        <div class="dr-attr">
-          <div class="dr-attr-item"><span class="da-k">类目</span><b class="da-v">${esc(c.category || "—")}</b></div>
-          <div class="dr-attr-item"><span class="da-k">内容来源</span><b class="da-v">${esc(c.content_source || "—")}</b></div>
-          <div class="dr-attr-item"><span class="da-k">营销目的</span><b class="da-v">${esc(c.marketing_goal || "—")}</b></div>
-          <div class="dr-attr-item"><span class="da-k">点赞 / 评论 / 转发 / 收藏率</span><b class="da-v">${c.likeRate.toFixed(2)}% / ${c.commentRate.toFixed(2)}% / ${c.shareRate.toFixed(2)}% / ${c.collectRate.toFixed(2)}%</b></div>
-          ${c.post_link ? `<div class="dr-attr-item"><a class="dr-link" href="${esc(c.post_link)}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div>` : ""}
-        </div>
         <div class="handoff" style="margin-top:18px">
           <div class="handoff-text"><b>还想看得更深？</b><br>进入单帖深度分析：看用户怎么讨论它、它的风格/形式、以及同主题关联帖并排对比。</div>
           <button class="btn-primary" id="deep-open">进入单帖深度分析 →</button>

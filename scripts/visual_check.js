@@ -62,6 +62,11 @@ const BOARDS = ["library", "reference", "viraldeep", "competitor", "compare", "b
       if (el) el.click();
     }, id);
     await new Promise((r) => setTimeout(r, 500));
+    // 爆款深度分析默认是「全部」总览，切到「爆款高频主题」维度以展示排序按钮
+    if (id === "viraldeep") {
+      try { await page.click('#vd-dim-tabs .uv-tab[data-vd-dim="topic"]', { delay: 20 }); } catch (e) {}
+      await new Promise((r) => setTimeout(r, 500));
+    }
     // 检测横向溢出
     const overflow = await page.evaluate(() => {
       const de = document.documentElement;
