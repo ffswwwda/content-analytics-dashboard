@@ -4526,7 +4526,6 @@ ${sim || "（无同主题关联帖）"}
         <div class="sdb-sec-head">
           <span class="sdb-sec-title" style="margin:0">视图管理 <span class="sdb-view-count">${state.sourceViews.length}</span></span>
           <div class="sdb-view-tools">
-            <button class="sdb-vt-btn" id="sdb-v-save" title="把当前筛选条件存为新视图">＋保存</button>
             <button class="sdb-vt-btn" id="sdb-v-dl" title="批量下载选中的视图（CSV）">下载</button>
             <button class="sdb-vt-btn" id="sdb-v-cmp" title="对比选中的 2-4 个视图">对比</button>
           </div>
@@ -4541,6 +4540,10 @@ ${sim || "（无同主题关联帖）"}
           <div class="sdb-actions">
             <button class="btn-primary" id="sdb-download">下载当前数据 CSV</button>
           </div>
+        </div>
+        <div class="sdb-save-row">
+          <span class="sdb-save-hint">筛选 / 搜索后，可一键把当前条件存为视图：</span>
+          <button class="btn-primary sdb-save-btn" id="sdb-v-save">＋ 保存为视图</button>
         </div>
         <div class="sdb-filters">
           ${activeBar}
