@@ -4510,8 +4510,33 @@ ${sim || "（无同主题关联帖）"}
     } catch (e) {}
   }
 
+  function renderFatalError(err) {
+    const msg = (err && (err.message || err.stack)) || String(err);
+    const target = document.getElementById("board") || document.body;
+    target.innerHTML = `<div class="fatal-error">
+      <div class="fatal-error-ic">!</div>
+      <h2>页面加载失败</h2>
+      <p class="fatal-error-msg">${esc(msg)}</p>
+      <p class="fatal-error-tip">很可能原因：数据文件（约 8.5MB）加载超时或网络/CDN 抖动。</p>
+      <div class="fatal-error-actions">
+        <button class="btn-primary" onclick="location.reload(true)">重新加载</button>
+        <a class="btn-ghost" href="https://ffswwwda.github.io/content-analytics-dashboard/" target="_blank">打开新页面</a>
+      </div>
+      <p class="fatal-error-note">若反复失败，请按 F12 打开 Console 复制红色报错发我。</p>
+    </div>`;
+  }
+
   async function init() {
-    const data = await DataLoader.load();
+    const boardEl = document.getElementById("board");
+    if (boardEl) boardEl.innerHTML = `<div class="loading-state"><div class="loading-spin"></div><div>正在加载数据（约 8.5MB）…首次稍慢，请稍候</div></div>`;
+    let data;
+    try {
+      data = await DataLoader.load();
+    } catch (e) {
+      console.error("[init] 数据加载失败:", e);
+      renderFatalError(e);
+      return;
+    }
     state.raw = data;
     state.analysis = A.analyze(data.contents);
     computeViralRanks(state.analysis.contents);
@@ -4566,5 +4591,8 @@ ${sim || "（无同主题关联帖）"}
       }
     } catch (e) {}
   }
-  init();
+  init().catch((e) => {
+    console.error("[init] 未捕获错误:", e);
+    renderFatalError(e);
+  });
 })();
