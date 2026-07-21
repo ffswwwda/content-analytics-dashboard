@@ -3577,7 +3577,14 @@ ${topMatches || "（无强匹配）"}
       ? `<div class="uv-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:8px">${voices.slice(0, 6).map((v) => `<div class="uv-card"><div class="uv-top"><span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span><span class="uv-likes">♥ ${fmt(v.likes)}</span></div><div class="uv-text">${esc(dispVoice(v))}</div><a class="uv-link" href="${esc(v.originalLink || "#")}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div>`).join("")}</div>`
       : `<div style="color:var(--text-3);font-size:12.5px;margin-top:6px">暂无该竞品的用户评价数据</div>`;
     const listCap = cf ? items.length : Math.min(items.length, 8);
-    const contentHTML = `<div class="list-rows">${items.slice(0, listCap).map((c) => `<div class="list-row ${c.post_link ? 'has-link' : ''}" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(dispText(c))}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div></div><div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div><div class="lr-num">${fmt(c.engagement)}<small>互动</small></div><div class="lr-num" style="color:var(--hot)" title="爆款指数：该帖「爆款内容指数」在全库的百分位（0–100，越高越爆）"><span>${rate(c)}</span><small>爆款指数</small></div>${c.post_link ? `<a class="lr-link" href="${esc(c.post_link)}" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">原帖↗</a>` : ""}</div>`).join("")}${cf && items.length > listCap ? `<div style="color:var(--text-3);font-size:12px;padding:8px 0;text-align:center">已显示全部 ${items.length} 条（受筛选约束）</div>` : (cf && items.length === 0 ? `<div class="empty-state">当前筛选条件下该品牌暂无匹配帖子</div>` : "")}</div>`;
+    const SORT_OPTIONS = [
+      { key: "viral", label: "爆款指数" },
+      { key: "engagement", label: "互动" },
+      { key: "exposure", label: "浏览/曝光" },
+      { key: "date", label: "最新发布" },
+    ];
+    const sortChips = cf ? `<div class="comp-sort-row"><span class="comp-sort-label">排序</span><span class="vd-sort-bar" id="comp-sort-chips">${SORT_OPTIONS.map((s) => `<span class="vd-sort-btn${cf.sort === s.key ? " on" : ""}" data-sort="${s.key}">${esc(s.label)}</span>`).join("")}</span></div>` : "";
+    const contentHTML = `${sortChips}<div class="list-rows">${items.slice(0, listCap).map((c) => `<div class="list-row ${c.post_link ? 'has-link' : ''}" data-id="${c.id}"><div><div class="lr-text">${c.isTop ? "🔥 " : ""}${esc(dispText(c))}</div><div class="lr-sub">${esc(c.contentType)} · ${esc(c.emotion)} · ${c.publishDate}</div></div><div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div><div class="lr-num">${fmt(c.engagement)}<small>互动</small></div><div class="lr-num" style="color:var(--hot)" title="爆款指数：该帖「爆款内容指数」在全库的百分位（0–100，越高越爆）"><span>${rate(c)}</span><small>爆款指数</small></div>${c.post_link ? `<a class="lr-link" href="${esc(c.post_link)}" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">原帖↗</a>` : ""}</div>`).join("")}${cf && items.length > listCap ? `<div style="color:var(--text-3);font-size:12px;padding:8px 0;text-align:center">已显示全部 ${items.length} 条（受筛选约束）</div>` : (cf && items.length === 0 ? `<div class="empty-state">当前筛选条件下该品牌暂无匹配帖子</div>` : "")}</div>`;
     const typeBreak = groupRate(items, "contentType");
     const topicBreak = groupRate(items, "topicTags", true).slice(0, 8);
     const emotionBreak = groupRate(items, "emotion");
@@ -3659,12 +3666,6 @@ ${topMatches || "（无强匹配）"}
         </div>
       </div>
       <div class="ct-group"><span class="ct-label">形式</span><div class="ct-chips" id="comp-type-chips">${typeChips || '<span style="color:var(--text-3);font-size:12px">无</span>'}</div></div>
-      <div class="ct-group"><span class="ct-label">排序</span><select class="sel" id="comp-sort">
-        <option value="viral"${cf.sort === "viral" ? " selected" : ""}>爆款指数</option>
-        <option value="engagement"${cf.sort === "engagement" ? " selected" : ""}>互动</option>
-        <option value="exposure"${cf.sort === "exposure" ? " selected" : ""}>浏览/曝光</option>
-        <option value="date"${cf.sort === "date" ? " selected" : ""}>最新发布</option>
-      </select></div>
       <div class="ct-group ct-range"><span class="ct-label">爆款指数≥</span><input type="range" id="comp-viral-min" min="0" max="100" value="${cf.viralMin}"><span class="ct-val" id="comp-viral-min-val">${cf.viralMin}</span></div>
       <div class="ct-group"><label class="chk"><input type="checkbox" id="comp-top-only"${cf.topOnly ? " checked" : ""}>只看爆款</label></div>
       <div class="ct-group"><button class="comp-reset" id="comp-reset">重置筛选</button></div>
@@ -3844,7 +3845,12 @@ ${topMatches || "（无强匹配）"}
         if (state.compFilters.types.has(t)) state.compFilters.types.delete(t); else state.compFilters.types.add(t);
         renderBoard();
       });
-      const sort = $("#comp-sort"); if (sort) sort.addEventListener("change", () => { state.compFilters.sort = sort.value; renderBoard(); });
+      const sortChips = $("#comp-sort-chips");
+      if (sortChips) sortChips.addEventListener("click", (e) => {
+        const chip = e.target.closest(".vd-sort-btn"); if (!chip) return;
+        state.compFilters.sort = chip.dataset.sort;
+        renderBoard();
+      });
       const vm = $("#comp-viral-min"); if (vm) vm.addEventListener("input", () => { state.compFilters.viralMin = +vm.value; const v = $("#comp-viral-min-val"); if (v) v.textContent = vm.value; renderBoard(); });
       const to = $("#comp-top-only"); if (to) to.addEventListener("change", () => { state.compFilters.topOnly = to.checked; renderBoard(); });
       const cm = $("#comp-mode"); if (cm) cm.addEventListener("click", (e) => {
