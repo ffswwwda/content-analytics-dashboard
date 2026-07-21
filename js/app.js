@@ -4557,11 +4557,43 @@ ${sim || "（无同主题关联帖）"}
     </div>`;
   }
 
-  function saveSourceView(name) {
+  function generateViewName(cfg, db) {
+    const f = db.filters;
+    const parts = [];
+    for (const fd of cfg.filters) {
+      const sel = f[fd.key];
+      if (!sel || !sel.length) continue;
+      if (fd.type === "bool") {
+        const wantTrue = sel.includes("true");
+        const wantFalse = sel.includes("false");
+        if (wantTrue && wantFalse) continue;
+        const label = wantTrue ? fd.labels.true : fd.labels.false;
+        parts.push(`${fd.label}:${label}`);
+      } else {
+        const vals = sel.slice(0, 3).join("/");
+        const more = sel.length > 3 ? `等${sel.length}项` : "";
+        parts.push(`${fd.label}:${vals}${more}`);
+      }
+    }
+    if (db.search) parts.push(`搜索:${db.search.slice(0, 15)}${db.search.length > 15 ? "…" : ""}`);
+    let name = parts.join(" · ") || "全部数据";
+    if (name.length > 60) name = name.slice(0, 58) + "…";
+    // 去重：同名追加序号
+    const base = name;
+    let n = 2;
+    while (state.sourceViews.some((v) => v.name === name)) {
+      name = `${base} (${n})`;
+      n++;
+    }
+    return name;
+  }
+
+  function saveSourceView() {
     const cfg = SOURCE_DEFS.find((d) => d.id === state.sourceDb.source) || SOURCE_DEFS[0];
+    const name = generateViewName(cfg, state.sourceDb);
     const view = {
       id: "sv_" + Date.now().toString(36),
-      name: name || `视图 ${state.sourceViews.length + 1}`,
+      name,
       source: state.sourceDb.source,
       sort: state.sourceDb.sort,
       search: state.sourceDb.search,
@@ -4958,12 +4990,9 @@ ${sim || "（无同主题关联帖）"}
     // 排序
     const sSort = $("#sdb-sort");
     if (sSort) sSort.addEventListener("change", () => { state.sourceDb.sort = sSort.value; state.sourceDb.page = 0; renderBoard(); });
-    // 保存视图（侧栏「视图管理」内）
+    // 保存视图（侧栏「视图管理」内）：一键保存，按当前筛选条件自动命名
     const sSave = $("#sdb-v-save");
-    if (sSave) sSave.addEventListener("click", () => {
-      const name = prompt("给新视图起个名字：", `视图 ${state.sourceViews.length + 1}`);
-      if (name !== null) saveSourceView(name.trim());
-    });
+    if (sSave) sSave.addEventListener("click", saveSourceView);
     // 下载当前数据 CSV
     const sDownload = $("#sdb-download");
     if (sDownload) sDownload.addEventListener("click", downloadSourceCsv);
