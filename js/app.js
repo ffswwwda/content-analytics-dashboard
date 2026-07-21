@@ -1436,7 +1436,7 @@ ${topMatches || "（无强匹配）"}
 
     // 匹配度分布
     const scoreBuckets = [["90-100", 90, 100], ["80-89", 80, 89], ["70-79", 70, 79], ["60-69", 60, 69], ["<60", 0, 59]];
-    const scoreDist = scoreBuckets.map(([label, lo, hi]) => [label, top.filter((x) => x.score >= lo && x.score <= hi).length, PAL[scoreBuckets.indexOf([label, lo, hi]) % PAL.length]]);
+    const scoreDist = scoreBuckets.map(([label, lo, hi], i) => [label, top.filter((x) => x.score >= lo && x.score <= hi).length, PAL[i % PAL.length]]);
     const scoreBars = uvBars(scoreDist.filter((x) => x[1] > 0));
 
     // 匹配维度命中（type, topic, emotion, platform, keyword, perf）
@@ -1590,10 +1590,10 @@ ${topMatches || "（无强匹配）"}
 
     // ★ 3. 爆款指数分布
     const buckets = [[0,5],[5,10],[10,20],[20,999]];
-    const distRows = buckets.map(([lo, hi]) => {
+    const distRows = buckets.map(([lo, hi], bi) => {
       const cnt = tops.filter((c) => c.viralScore >= lo && c.viralScore < hi).length;
       const pct = Math.round(cnt / tops.length * 100);
-      return `<div class="qc-bar"><span class="qc-name" style="width:80px">${lo}-${hi === 999 ? "50+" : hi}</span><span class="qc-track"><i style="width:${pct}%;background:${PAL[buckets.indexOf([lo, hi]) % PAL.length]}"></i></span><span class="qc-val">${pct}%<small>${cnt}条</small></span></div>`;
+      return `<div class="qc-bar"><span class="qc-name" style="width:80px">${lo}-${hi === 999 ? "50+" : hi}</span><span class="qc-track"><i style="width:${pct}%;background:${PAL[bi % PAL.length]}"></i></span><span class="qc-val">${pct}%<small>${cnt}条</small></span></div>`;
     }).join("");
 
     // ★ 4. 内容模式识别（对标爆款分析报告 4.1 节）
@@ -1722,11 +1722,12 @@ ${topMatches || "（无强匹配）"}
   ];
 
   function vdVals(item, cfg) {
+    const el = cfg.emptyLabel != null ? cfg.emptyLabel : "未标记";
     let vs;
     if (cfg.multi && cfg.split) vs = String(item[cfg.field] || "").split(cfg.split).map((s) => s.trim()).filter(Boolean);
     else if (cfg.multi) vs = (item[cfg.field] || []).filter(Boolean);
-    else vs = [item[cfg.field]].map((v) => (typeof v === "string" && !v.trim() ? cfg.emptyLabel : v));
-    return vs.length ? vs : [cfg.emptyLabel];
+    else vs = [item[cfg.field]].map((v) => (v == null || (typeof v === "string" && !v.trim()) ? el : v));
+    return vs.length ? vs : [el];
   }
   function vdDimRows(items, cfg) {
     const g = {};
@@ -3120,7 +3121,7 @@ ${topMatches || "（无强匹配）"}
     const samples = users.slice(0, 8).flatMap((u) => (u.samples || []).slice(0, 1)).filter(Boolean).map((s) =>
       `<div class="uv-layer-sample">${uvLangTag(s.lang||"")} ${uvSentTag(s.sent||"")} ${uvIntentTag(s.intent||"")} <span class="uv-sample-text">${esc(s.text||"")}</span></div>`
     ).join("");
-    const insight = `${fmt(tot)} 位深度用户合计贡献 ${fmt(totalReplies)} 条回复、${fmt(totalLikes)} 点赞，平均每人 ${Math.round(totalReplies/tot)} 条回复、${avgWords} 词/条。主品牌 <b>${esc(brandData[0]?.[0]||"—")}</b> 占最大声量（${fmt(brandData[0]?.[1]||0)} 条），覆盖 ${brandData.length} 个品牌。意图以 <b>${Object.entries(intentAcc).sort((a,b)=>b[1]-a[1])[0]?.[0]?INTENT_NAME[Object.entries(intentAcc).sort((a,b)=>b[1]-a[1])[0][0]]||Object.entries(intentAcc).sort((a,b)=>b[1]-a[1])[0][0]:"—"}</b> 为主，整体正面情感率 ${sentAcc.pos+neu+neg>0?Math.round(sentAcc.pos/Math.max(sentAcc.pos+sentAcc.neu+sentAcc.neg,1)*100):0}%。`;
+    const insight = `${fmt(tot)} 位深度用户合计贡献 ${fmt(totalReplies)} 条回复、${fmt(totalLikes)} 点赞，平均每人 ${Math.round(totalReplies/tot)} 条回复、${avgWords} 词/条。主品牌 <b>${esc(brandData[0]?.[0]||"—")}</b> 占最大声量（${fmt(brandData[0]?.[1]||0)} 条），覆盖 ${brandData.length} 个品牌。意图以 <b>${Object.entries(intentAcc).sort((a,b)=>b[1]-a[1])[0]?.[0]?INTENT_NAME[Object.entries(intentAcc).sort((a,b)=>b[1]-a[1])[0][0]]||Object.entries(intentAcc).sort((a,b)=>b[1]-a[1])[0][0]:"—"}</b> 为主，整体正面情感率 ${sentAcc.pos+sentAcc.neu+sentAcc.neg>0?Math.round(sentAcc.pos/Math.max(sentAcc.pos+sentAcc.neu+sentAcc.neg,1)*100):0}%。`;
     return `<div class="uv-drill">
       <div class="uv-insight">${insight}</div>
       <div class="dp-section"><div class="dp-sec-title">🏆 品牌声量分布（按贡献回复量）</div>${brandBars}</div>

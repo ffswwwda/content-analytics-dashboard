@@ -21,10 +21,10 @@ import json, re, math
 from collections import Counter, defaultdict
 import openpyxl
 
-XLSX = "/Users/fsw/Downloads/GTM跨境社媒数据监控_已翻译_打标_v2.xlsx"
+XLSX = "/Users/fsw/Downloads/GTM社媒数据_打标全表_爆款版.xlsx"
 OUT = "/Users/fsw/WorkBuddy/2026-07-10-18-44-40/content-analytics-dashboard/data/users_data.json"
 
-def load_sheet(name):
+def load_sheet(name="Sheet1"):
     wb = openpyxl.load_workbook(XLSX, read_only=True, data_only=True)
     ws = wb[name]
     rows = list(ws.iter_rows(values_only=True))
@@ -109,32 +109,34 @@ def detect_intent(t):
 def is_user_reply(author_type):
     return (author_type or "").strip() == "用户"
 
-# ---------- 2. 读取 xlsx，建立原帖索引 + 收集用户回帖 ----------
-ph, posts = load_sheet("全部发帖")
+# ---------- 2. 读取 xlsx（统一表：发帖+回帖），建立原帖索引 + 收集用户回帖 ----------
+# 新数据源为单 sheet 统一表：内容类型 = 发帖 / 回帖
+header, all_rows = load_sheet("Sheet1")
 posts_by_id = {}
-for r in posts:
-    rec = dict(zip(ph, r))
-    pid = rec.get("内容ID")
-    if pid:
-        topic = rec.get("类目") or ""
-        posts_by_id[pid] = {
-            "form": rec.get("发布内容形式") or "未知",
-            "brand": rec.get("品牌") or "",
-            "topic": topic,
-            "topic_tags": [topic] if topic else [],
-        }
-
-rh, replies_raw = load_sheet("用户回帖")
 replies = []
 brand_reply_count = 0
-for r in replies_raw:
-    rec = dict(zip(rh, r))
-    if is_user_reply(rec.get("发布者类型")):
-        replies.append(rec)
-    else:
-        brand_reply_count += 1
+post_count = 0
+for r in all_rows:
+    rec = dict(zip(header, r))
+    ctype = (rec.get("内容类型") or "").strip()
+    if ctype == "发帖":
+        pid = rec.get("内容ID")
+        if pid:
+            topic = rec.get("类目") or ""
+            posts_by_id[pid] = {
+                "form": rec.get("发布内容形式") or "未知",
+                "brand": rec.get("品牌") or "",
+                "topic": topic,
+                "topic_tags": [topic] if topic else [],
+            }
+            post_count += 1
+    elif ctype == "回帖":
+        if is_user_reply(rec.get("发布者类型")):
+            replies.append(rec)
+        else:
+            brand_reply_count += 1
 
-print(f"读入用户回帖 {len(replies)}（过滤品牌官方 {brand_reply_count}），原帖索引 {len(posts_by_id)}")
+print(f"读入发帖 {post_count} 条，用户回帖 {len(replies)}（过滤品牌官方 {brand_reply_count}），原帖索引 {len(posts_by_id)}")
 
 # 真实用户回帖（读取时已按 发布者类型==用户 过滤，这里仅剔除空作者）
 genuine = []
@@ -540,7 +542,16 @@ for r in genuine_win:
 brand_out = []
 for b, be in brand_eval.items():
     rs = be["replies"]
-    quotes = sorted(rs, key=lambda x: -to_int(x.get("Like数")))[:5]
+    # 按点赞排序，并去重相同文本，避免同一高赞回复被多次展示
+    quotes = []; seen = set()
+    for q in sorted(rs, key=lambda x: -to_int(x.get("Like数"))):
+        key = (q.get("内容文本") or "").strip().lower()[:240]
+        if key in seen:
+            continue
+        seen.add(key)
+        quotes.append(q)
+        if len(quotes) >= 5:
+            break
     brand_out.append({
         "brand": b,
         "replyCount": len(rs),
@@ -701,7 +712,15 @@ for r in genuine_win:
 form_out = []
 for f, fe in form_eval.items():
     rs = fe["replies"]
-    quotes = sorted(rs, key=lambda x: -to_int(x.get("Like数")))[:4]
+    quotes = []; seen = set()
+    for q in sorted(rs, key=lambda x: -to_int(x.get("Like数"))):
+        key = (q.get("内容文本") or "").strip().lower()[:200]
+        if key in seen:
+            continue
+        seen.add(key)
+        quotes.append(q)
+        if len(quotes) >= 4:
+            break
     form_out.append({
         "form": f,
         "replyCount": len(rs),

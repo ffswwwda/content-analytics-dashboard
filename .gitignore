@@ -1,0 +1,6 @@
+# 本地无头/视觉检查产物（不入库）
+chrome-headless-shell/
+scripts/_shots/
+node_modules/
+*.log
+.DS_Store
