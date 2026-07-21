@@ -68,6 +68,8 @@
     competitor: '<path d="M4 21V6l8-3 8 3v15M9 21v-6h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
   };
   const BOARDS = [
+    // —— 源数据 ——
+    { id: "sourcedb", name: "源数据看板", group: "源数据", level: 1, desc: "直接访问底层源数据：选择数据源后可叠加筛选、排序、保存为新视图，并下载想要的 CSV。所有字段均来自 xlsx 真实打标表。" },
     // —— 灵感/分析 ——
     { id: "library", name: "灵感库", group: "灵感/分析", level: 1, desc: "全部内容灵感库。随机浏览打破茧房，指标模式支持排序、原创/转发筛选、只看爆款。点卡片看详情。" },
     { id: "reference", name: "评估想法 / 找参考", group: "灵感/分析", level: 1, desc: "两个方向：①评估想法——输入内容想法，左侧即时评估、右侧输出多维度结果；②找参考——没想法有目的时，输入目的，右侧推荐匹配灵感内容。" },
@@ -84,6 +86,112 @@
     { id: "myops", name: "我方运营", group: "我方运营", level: 1, desc: "选一个或多个竞品 → 勾选要参考的维度（节奏 / 选题 / 形式 / 风格 / 指标）→ 生成可执行的运营方案，支持导出。" },
   ];
   const boardDesc = (id) => (BOARDS.find((b) => b.id === id) || {}).desc || "";
+
+  /* ============ 源数据看板配置 ============
+     定义可下载的数据源、筛选维度、排序、表格列与 KPI 卡片。
+     所有字段均直接来自 xlsx 真实打标表，前端仅做筛选聚合。 */
+  const SOURCE_DEFS = [
+    {
+      id: "contents",
+      name: "发帖数据",
+      sub: "3719 条原始发帖",
+      desc: "全部原始发帖（含曝光、互动、四率、类目、形式、情绪、营销目的、来源、作者类型、文本等字段）。",
+      rowCount: () => (state.analysis && state.analysis.contents) ? state.analysis.contents.length : 0,
+      data: () => (state.analysis && state.analysis.contents) || [],
+      filters: [
+        { key: "category", label: "类目", type: "chip" },
+        { key: "contentType", label: "内容形式", type: "chip" },
+        { key: "emotion", label: "情绪风格", type: "chip" },
+        { key: "marketing_goal", label: "营销目的", type: "chip" },
+        { key: "content_source", label: "内容来源", type: "chip" },
+        { key: "author_type", label: "发布者类型", type: "chip" },
+        { key: "platform", label: "平台", type: "chip" },
+        { key: "isTop", label: "是否爆款", type: "bool", labels: { true: "只看爆款", false: "只看非爆款" } },
+      ],
+      sorts: [
+        { key: "viralScore", label: "爆款指数" },
+        { key: "exposure", label: "曝光" },
+        { key: "engagement", label: "互动数" },
+        { key: "engagementRate", label: "综合互动率" },
+        { key: "likes", label: "点赞" },
+        { key: "comments", label: "评论" },
+        { key: "shares", label: "转发" },
+        { key: "collections", label: "收藏" },
+        { key: "publish_time", label: "发布时间" },
+      ],
+      columns: [
+        { key: "account", label: "品牌", width: 110 },
+        { key: "platform", label: "平台", width: 70 },
+        { key: "contentType", label: "形式", width: 80 },
+        { key: "category", label: "类目", width: 110 },
+        { key: "emotion", label: "情绪", width: 80 },
+        { key: "marketing_goal", label: "营销目的", width: 100 },
+        { key: "content_source", label: "来源", width: 70 },
+        { key: "exposure", label: "曝光", width: 90, fmt: (v) => fmt(v) },
+        { key: "engagement", label: "互动", width: 80, fmt: (v) => fmt(v) },
+        { key: "engagementRate", label: "互动率", width: 85, fmt: (v) => (typeof v === "number" ? v.toFixed(2) + "%" : v) },
+        { key: "viralScore", label: "爆款指数", width: 90, fmt: (v) => (typeof v === "number" ? v.toFixed(1) : v) },
+        { key: "isTop", label: "爆款", width: 70, fmt: (v) => v ? "是" : "否" },
+        { key: "publish_time", label: "发布时间", width: 150 },
+        { key: "text_zh", label: "文本（译）", width: 260, wrap: true },
+      ],
+      kpis: (rows) => {
+        const sum = (k) => rows.reduce((s, r) => s + (r[k] || 0), 0);
+        return [
+          { label: "命中条数", value: fmt(rows.length) },
+          { label: "总曝光", value: fmt(sum("exposure")) },
+          { label: "平均曝光", value: rows.length ? fmt(Math.round(sum("exposure") / rows.length)) : "0" },
+          { label: "总互动", value: fmt(sum("engagement")) },
+          { label: "平均互动率", value: rows.length ? (sum("engagementRate") / rows.length).toFixed(2) + "%" : "0%" },
+          { label: "爆款条数", value: fmt(rows.filter((r) => r.isTop).length) },
+          { label: "品牌数", value: fmt(new Set(rows.map((r) => r.account)).size) },
+        ];
+      },
+    },
+    {
+      id: "voices",
+      name: "用户回帖数据",
+      sub: "6793 条用户回帖",
+      desc: "全部用户回帖（含品牌、类目、情绪、回复意图、回复焦点、作者类型、关系、点赞、文本等字段）。",
+      rowCount: () => (state.raw && state.raw.userVoices) ? state.raw.userVoices.length : 0,
+      data: () => (state.raw && state.raw.userVoices) || [],
+      filters: [
+        { key: "category", label: "类目", type: "chip" },
+        { key: "sentiment", label: "情绪", type: "chip" },
+        { key: "reply_intent", label: "回复意图", type: "chip" },
+        { key: "reply_focus", label: "回复焦点", type: "chip" },
+        { key: "author_type", label: "作者类型", type: "chip" },
+        { key: "relationship", label: "关系", type: "chip" },
+      ],
+      sorts: [
+        { key: "likes", label: "点赞" },
+        { key: "publish_time", label: "发布时间" },
+      ],
+      columns: [
+        { key: "account", label: "品牌", width: 110 },
+        { key: "category", label: "类目", width: 110 },
+        { key: "sentiment", label: "情绪", width: 70 },
+        { key: "reply_intent", label: "回复意图", width: 110 },
+        { key: "reply_focus", label: "回复焦点", width: 110 },
+        { key: "author_type", label: "作者类型", width: 90 },
+        { key: "relationship", label: "关系", width: 90 },
+        { key: "likes", label: "点赞", width: 80, fmt: (v) => fmt(v) },
+        { key: "publish_time", label: "发布时间", width: 150 },
+        { key: "text_zh", label: "文本（译）", width: 360, wrap: true },
+      ],
+      kpis: (rows) => {
+        const sum = (k) => rows.reduce((s, r) => s + (r[k] || 0), 0);
+        return [
+          { label: "命中条数", value: fmt(rows.length) },
+          { label: "总点赞", value: fmt(sum("likes")) },
+          { label: "平均点赞", value: rows.length ? fmt(Math.round(sum("likes") / rows.length)) : "0" },
+          { label: "正面情绪", value: rows.length ? Math.round(rows.filter((r) => r.sentiment === "正面").length / rows.length * 100) + "%" : "0%" },
+          { label: "品牌数", value: fmt(new Set(rows.map((r) => r.account)).size) },
+          { label: "意图种数", value: fmt(new Set(rows.map((r) => r.reply_intent).filter(Boolean)).size) },
+        ];
+      },
+    },
+  ];
 
   /* ============ 各板块「数据来源 / 公式计算」配置 ============
      每个指标标注来源类型与准确率评估：
@@ -219,6 +327,8 @@
     vdDim: "all", vdSortField: "topRate",
     page: 0, pageSize: 100, randList: null, randVisible: 100, randLoading: false,
     compSel: new Set(), cmpSel: new Set(), cmpBase: 0,
+    sourceDb: { source: "contents", filters: {}, sort: "viralScore", page: 0, pageSize: 50, search: "", expanded: [] },
+    sourceViews: [],
     compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false, mode: "all" },
     deepId: null, deepCompare: [], deepView: "main",
     opsBrands: [], opsRefs: new Set(["rhythm", "topic", "format", "style", "metric"]),
@@ -456,6 +566,7 @@
     let html = "";
     switch (state.board) {
       case "library": html = renderLibrary(data); break;
+      case "sourcedb": html = renderSourceBoard(); break;
       case "reference": html = renderReference(); break;
       case "competitor": html = renderCompetitorLib(); break;
       case "compare": html = renderCompareBoard(); break;
@@ -4256,6 +4367,254 @@ ${sim || "（无同主题关联帖）"}
     }));
   }
 
+  /* ============ 源数据看板：选择数据源 → 筛选 → 排序 → 保存视图 → 下载 ============ */
+  function renderSourceBoard() {
+    const cfg = SOURCE_DEFS.find((d) => d.id === state.sourceDb.source) || SOURCE_DEFS[0];
+    const all = cfg.data();
+    const f = state.sourceDb.filters;
+    cfg.filters.forEach((fd) => { if (!Array.isArray(f[fd.key])) f[fd.key] = []; });
+
+    // 筛选 + 搜索
+    let rows = all.filter((r) => {
+      for (const fd of cfg.filters) {
+        const sel = f[fd.key];
+        if (!sel || !sel.length) continue;
+        if (fd.type === "bool") {
+          const val = String(!!r[fd.key]);
+          const wantTrue = sel.includes("true");
+          const wantFalse = sel.includes("false");
+          if (wantTrue && wantFalse) continue;
+          if ((wantTrue && val !== "true") || (wantFalse && val !== "false")) return false;
+        } else {
+          const val = String(r[fd.key] || "未标记");
+          if (!sel.includes(val)) return false;
+        }
+      }
+      if (state.sourceDb.search) {
+        const q = state.sourceDb.search.toLowerCase();
+        const hay = [r.text, r.text_zh, r.account, r.marketing_goal, r.category, r.reply_intent, r.reply_focus, r.emotion, r.content_source].map((x) => String(x || "")).join(" ").toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+
+    // 排序
+    const sortKey = state.sourceDb.sort;
+    rows.sort((a, b) => {
+      const av = a[sortKey], bv = b[sortKey];
+      if (typeof av === "string" || typeof bv === "string") return String(bv || "").localeCompare(String(av || ""));
+      return (bv || 0) - (av || 0);
+    });
+
+    // 分页
+    const pageSize = state.sourceDb.pageSize;
+    const total = rows.length;
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    const safePage = Math.min(state.sourceDb.page, totalPages - 1);
+    state.sourceDb.page = safePage;
+    const pageRows = rows.slice(safePage * pageSize, (safePage + 1) * pageSize);
+
+    // 左侧：数据源卡片
+    const sourceCards = SOURCE_DEFS.map((d) => `<div class="sdb-source-card${d.id === cfg.id ? " on" : ""}" data-source="${d.id}">
+      <div class="sdb-sc-name">${esc(d.name)}<span class="sdb-sc-count">${fmt(d.rowCount())}</span></div>
+      <div class="sdb-sc-sub">${esc(d.sub)}</div>
+      <div class="sdb-sc-desc">${esc(d.desc)}</div>
+    </div>`).join("");
+
+    // 左侧：已存视图
+    const viewItems = state.sourceViews.length
+      ? state.sourceViews.map((v) => {
+          const vcfg = SOURCE_DEFS.find((d) => d.id === v.source) || { name: v.source };
+          return `<div class="sdb-view-item${v.id === state.sourceDb.activeView ? " on" : ""}" data-view-id="${v.id}">
+            <span class="sdb-view-name">${esc(v.name)}</span>
+            <span class="sdb-view-meta">${esc(vcfg.name)}</span>
+            <button class="sdb-view-del" data-del="${v.id}">×</button>
+          </div>`;
+        }).join("")
+      : `<div class="sdb-view-empty">筛选后点「保存为新视图」，即可在此保存多组筛选条件。</div>`;
+
+    // 快捷筛选 chips
+    const isExpanded = (key) => state.sourceDb.expanded.includes(key);
+    const filterChipsHTML = cfg.filters.map((fd) => {
+      const active = f[fd.key] || [];
+      if (fd.type === "bool") {
+        const chips = [["true", fd.labels.true], ["false", fd.labels.false]].map(([val, label]) => {
+          const on = active.includes(val);
+          return `<button class="sdb-chip${on ? " on" : ""}" data-filter="${fd.key}" data-val="${val}">${esc(label)}</button>`;
+        }).join("");
+        return `<div class="sdb-filter-group"><span class="sdb-filter-label">${esc(fd.label)}</span><div class="sdb-chips">${chips}</div></div>`;
+      }
+      const vals = [...new Set(all.map((r) => String(r[fd.key] || "未标记")))].sort((a, b) => a.localeCompare(b, "zh-CN"));
+      const showVals = isExpanded(fd.key) ? vals : vals.slice(0, 12);
+      const chips = showVals.map((val) => {
+        const on = active.includes(val);
+        return `<button class="sdb-chip${on ? " on" : ""}" data-filter="${fd.key}" data-val="${esc(val)}">${esc(val)}</button>`;
+      }).join("");
+      const more = vals.length > 12 && !isExpanded(fd.key) ? `<button class="sdb-chip sdb-chip-more" data-expand="${fd.key}">+${vals.length - 12} 项</button>` : "";
+      const collapse = isExpanded(fd.key) ? `<button class="sdb-chip sdb-chip-more" data-collapse="${fd.key}">收起</button>` : "";
+      return `<div class="sdb-filter-group"><span class="sdb-filter-label">${esc(fd.label)} <small>(${vals.length})</small></span><div class="sdb-chips">${chips}${more}${collapse}</div></div>`;
+    }).join("");
+
+    // 排序下拉
+    const sortOptions = cfg.sorts.map((s) => `<option value="${s.key}"${s.key === sortKey ? " selected" : ""}>${esc(s.label)}</option>`).join("");
+
+    // KPI 卡片
+    const kpis = cfg.kpis(rows);
+    const kpiCards = kpis.map((k) => `<div class="sdb-kpi"><div class="sdb-kpi-val">${k.value}</div><div class="sdb-kpi-label">${esc(k.label)}</div></div>`).join("");
+
+    // 表格
+    const thead = `<thead><tr>${cfg.columns.map((c) => `<th style="width:${c.width}px;min-width:${c.width}px">${esc(c.label)}</th>`).join("")}</tr></thead>`;
+    const tbody = pageRows.length
+      ? pageRows.map((r) => `<tr>${cfg.columns.map((c) => {
+          let v = r[c.key];
+          if (c.fmt) v = c.fmt(v);
+          else v = v == null ? "—" : esc(String(v));
+          const cls = c.wrap ? " class=\"sdb-cell-wrap\"" : "";
+          return `<td${cls}>${v}</td>`;
+        }).join("")}</tr>`).join("")
+      : `<tr><td colspan="${cfg.columns.length}" class="sdb-empty-row">没有匹配的数据，请调整筛选条件</td></tr>`;
+
+    // 分页条
+    let pager = "";
+    if (total > pageSize) {
+      const btns = [];
+      btns.push(`<button data-pg="prev"${safePage === 0 ? " disabled" : ""}>上一页</button>`);
+      for (let i = 0; i < totalPages; i++) {
+        if (i === 0 || i === totalPages - 1 || Math.abs(i - safePage) <= 2) btns.push(`<button data-pg="${i}" class="${i === safePage ? "on" : ""}">${i + 1}</button>`);
+        else if (Math.abs(i - safePage) === 3) btns.push(`<span class="sdb-pg-ellipsis">…</span>`);
+      }
+      btns.push(`<button data-pg="next"${safePage >= totalPages - 1 ? " disabled" : ""}>下一页</button>`);
+      pager = `<div class="sdb-pager">${btns.join("")}<span class="sdb-pg-info">${safePage + 1} / ${totalPages} 页 · 共 ${fmt(total)} 条</span></div>`;
+    } else {
+      pager = `<div class="sdb-pager"><span class="sdb-pg-info">共 ${fmt(total)} 条</span></div>`;
+    }
+
+    return `<div class="sdb-layout">
+      <div class="sdb-sidebar">
+        <div class="sdb-sec-title">数据源</div>
+        ${sourceCards}
+        <div class="sdb-sec-title" style="margin-top:18px">视图管理 <span class="sdb-view-count">${state.sourceViews.length}</span></div>
+        <div class="sdb-view-list">${viewItems}</div>
+      </div>
+      <div class="sdb-main">
+        <div class="board-head" style="padding:0"><div class="board-desc">${boardDesc("sourcedb")}</div></div>
+        <div class="sdb-toolbar">
+          <div class="sdb-search"><input type="text" id="sdb-search" placeholder="搜索文本、品牌、营销目的…" value="${esc(state.sourceDb.search)}"></div>
+          <div class="sdb-sort"><label>排序</label><select id="sdb-sort">${sortOptions}</select></div>
+          <div class="sdb-actions">
+            <button class="btn-ghost" id="sdb-save-view">保存为新视图</button>
+            <button class="btn-primary" id="sdb-download">下载当前数据 CSV</button>
+          </div>
+        </div>
+        <div class="sdb-filters">${filterChipsHTML}</div>
+        <div class="sdb-kpis">${kpiCards}</div>
+        <div class="sdb-table-wrap">
+          <div class="sdb-table-scroll">
+            <table class="sdb-table">${thead}<tbody>${tbody}</tbody></table>
+          </div>
+        </div>
+        ${pager}
+      </div>
+    </div>`;
+  }
+
+  function saveSourceView(name) {
+    const cfg = SOURCE_DEFS.find((d) => d.id === state.sourceDb.source) || SOURCE_DEFS[0];
+    const view = {
+      id: "sv_" + Date.now().toString(36),
+      name: name || `视图 ${state.sourceViews.length + 1}`,
+      source: state.sourceDb.source,
+      sort: state.sourceDb.sort,
+      search: state.sourceDb.search,
+      filters: JSON.parse(JSON.stringify(state.sourceDb.filters)),
+      createdAt: new Date().toISOString(),
+    };
+    state.sourceViews.unshift(view);
+    state.sourceDb.activeView = view.id;
+    try { localStorage.setItem("ca_source_views", JSON.stringify(state.sourceViews)); } catch (e) {}
+    renderBoard();
+    toast("已保存视图：" + view.name);
+  }
+
+  function loadSourceView(id) {
+    const v = state.sourceViews.find((x) => x.id === id);
+    if (!v) return;
+    state.sourceDb = {
+      source: v.source,
+      filters: JSON.parse(JSON.stringify(v.filters || {})),
+      sort: v.sort || "viralScore",
+      page: 0,
+      pageSize: state.sourceDb.pageSize,
+      search: v.search || "",
+      expanded: [],
+      activeView: v.id,
+    };
+    renderBoard();
+    toast("已切换视图：" + v.name);
+  }
+
+  function deleteSourceView(id) {
+    state.sourceViews = state.sourceViews.filter((x) => x.id !== id);
+    if (state.sourceDb.activeView === id) state.sourceDb.activeView = null;
+    try { localStorage.setItem("ca_source_views", JSON.stringify(state.sourceViews)); } catch (e) {}
+    renderBoard();
+  }
+
+  function downloadSourceCsv() {
+    const cfg = SOURCE_DEFS.find((d) => d.id === state.sourceDb.source) || SOURCE_DEFS[0];
+    const all = cfg.data();
+    const f = state.sourceDb.filters;
+    cfg.filters.forEach((fd) => { if (!Array.isArray(f[fd.key])) f[fd.key] = []; });
+    const rows = all.filter((r) => {
+      for (const fd of cfg.filters) {
+        const sel = f[fd.key];
+        if (!sel || !sel.length) continue;
+        if (fd.type === "bool") {
+          const val = String(!!r[fd.key]);
+          const wantTrue = sel.includes("true");
+          const wantFalse = sel.includes("false");
+          if (wantTrue && wantFalse) continue;
+          if ((wantTrue && val !== "true") || (wantFalse && val !== "false")) return false;
+        } else {
+          const val = String(r[fd.key] || "未标记");
+          if (!sel.includes(val)) return false;
+        }
+      }
+      if (state.sourceDb.search) {
+        const q = state.sourceDb.search.toLowerCase();
+        const hay = [r.text, r.text_zh, r.account, r.marketing_goal, r.category, r.reply_intent, r.reply_focus, r.emotion, r.content_source].map((x) => String(x || "")).join(" ").toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+    rows.sort((a, b) => {
+      const av = a[state.sourceDb.sort], bv = b[state.sourceDb.sort];
+      if (typeof av === "string" || typeof bv === "string") return String(bv || "").localeCompare(String(av || ""));
+      return (bv || 0) - (av || 0);
+    });
+    const headers = cfg.columns.map((c) => c.label);
+    const escapeCsv = (v) => {
+      if (v == null) return "";
+      const s = String(v).replace(/"/g, '""');
+      return /[",\n\r]/.test(s) ? `"${s}"` : s;
+    };
+    const lines = [headers.join(","), ...rows.map((r) => cfg.columns.map((c) => {
+      let v = r[c.key];
+      if (c.fmt) v = c.fmt(v);
+      return escapeCsv(v);
+    }).join(","))];
+    const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${cfg.id}_filtered_${rows.length}_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    toast(`已下载 ${fmt(rows.length)} 条 CSV`);
+  }
+
   /* ============ 事件绑定 ============ */
   function bindBoard(data) {
     // 帖子卡片/列表点击：灵感库保持「抽屉 → 深度分析」两步；其余板块直接弹出深度分析
@@ -4307,8 +4666,71 @@ ${sim || "（无同主题关联帖）"}
     if (state.board === "branduser") bindBrandUser();
     if (state.board === "usertier") bindUserTier();
     if (state.board === "userseg") bindUserSeg();
+    if (state.board === "sourcedb") bindSourceBoard();
   }
 
+  function bindSourceBoard() {
+    // 切换数据源
+    $$(".sdb-source-card", $("#board")).forEach((el) => el.addEventListener("click", () => {
+      state.sourceDb = { source: el.dataset.source, filters: {}, sort: "viralScore", page: 0, pageSize: 50, search: "", expanded: [], activeView: null };
+      renderBoard();
+    }));
+    // 筛选 chip（可叠加）
+    $$(".sdb-chip[data-filter][data-val]", $("#board")).forEach((el) => el.addEventListener("click", () => {
+      const key = el.dataset.filter, val = el.dataset.val;
+      const arr = state.sourceDb.filters[key] || (state.sourceDb.filters[key] = []);
+      const idx = arr.indexOf(val);
+      if (idx >= 0) arr.splice(idx, 1); else arr.push(val);
+      state.sourceDb.page = 0;
+      state.sourceDb.activeView = null;
+      renderBoard();
+    }));
+    // 展开 / 收起更多筛选值
+    $$(".sdb-chip[data-expand]", $("#board")).forEach((el) => el.addEventListener("click", () => {
+      const key = el.dataset.expand;
+      if (!state.sourceDb.expanded.includes(key)) state.sourceDb.expanded.push(key);
+      renderBoard();
+    }));
+    $$(".sdb-chip[data-collapse]", $("#board")).forEach((el) => el.addEventListener("click", () => {
+      const key = el.dataset.collapse;
+      state.sourceDb.expanded = state.sourceDb.expanded.filter((k) => k !== key);
+      renderBoard();
+    }));
+    // 搜索
+    const sInput = $("#sdb-search");
+    if (sInput) {
+      sInput.addEventListener("input", () => { state.sourceDb.search = sInput.value.trim(); state.sourceDb.page = 0; renderBoard(); });
+    }
+    // 排序
+    const sSort = $("#sdb-sort");
+    if (sSort) sSort.addEventListener("change", () => { state.sourceDb.sort = sSort.value; state.sourceDb.page = 0; renderBoard(); });
+    // 保存视图
+    const sSave = $("#sdb-save-view");
+    if (sSave) sSave.addEventListener("click", () => {
+      const name = prompt("给新视图起个名字：", `视图 ${state.sourceViews.length + 1}`);
+      if (name !== null) saveSourceView(name.trim());
+    });
+    // 下载 CSV
+    const sDownload = $("#sdb-download");
+    if (sDownload) sDownload.addEventListener("click", downloadSourceCsv);
+    // 切换 / 删除视图
+    $$(".sdb-view-item[data-view-id]", $("#board")).forEach((el) => el.addEventListener("click", (e) => {
+      if (e.target.closest(".sdb-view-del")) return;
+      loadSourceView(el.dataset.viewId);
+    }));
+    $$(".sdb-view-del", $("#board")).forEach((el) => el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (confirm("删除该视图？")) deleteSourceView(el.dataset.del);
+    }));
+    // 分页
+    $$(".sdb-pager [data-pg]", $("#board")).forEach((b) => b.addEventListener("click", () => {
+      const v = b.dataset.pg;
+      if (v === "prev") state.sourceDb.page = Math.max(0, state.sourceDb.page - 1);
+      else if (v === "next") state.sourceDb.page = state.sourceDb.page + 1;
+      else state.sourceDb.page = +v;
+      renderBoard();
+    }));
+  }
 
   function bindUserBoard() {
     $$(".uv-tab", $("#board")).forEach((b) => b.addEventListener("click", () => {
@@ -4618,6 +5040,10 @@ ${sim || "（无同主题关联帖）"}
     state.maxExposure = Math.max(...state.analysis.contents.map((c) => c.exposure), 1);
     state.users = await DataLoader.loadUsers();
     state.insights = await DataLoader.loadInsights();
+    try {
+      const sv = JSON.parse(localStorage.getItem("ca_source_views") || "[]");
+      state.sourceViews = Array.isArray(sv) ? sv : [];
+    } catch (e) { state.sourceViews = []; }
     // 数据源标记
     const pill = $("#src-pill");
     if (data.meta && data.meta.source === "feishu") { pill.textContent = "飞书实时"; pill.classList.add("live"); }

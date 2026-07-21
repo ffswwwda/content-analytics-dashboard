@@ -69,8 +69,15 @@ function report(id, name, extra) {
   try { await waitInit(); } catch (e) { console.log("INIT_FAIL:", e.message); process.exit(2); }
 
   // 1) 基础板块点击
-  const boards = ["library", "reference", "viraldeep", "competitor", "compare", "branduser", "userseg", "usertier", "uservoice", "myops"];
+  const boards = ["sourcedb", "library", "reference", "viraldeep", "competitor", "compare", "branduser", "userseg", "usertier", "uservoice", "myops"];
   for (const id of boards) { clickBoard(id); await sleep(70); report(id, id); }
+
+  // 1.5) 源数据看板：点一个筛选 chip + 切到回帖数据源
+  clickBoard("sourcedb"); await sleep(50);
+  const sdbChip = document.querySelector(".sdb-chip[data-filter][data-val]");
+  if (sdbChip) { sdbChip.click(); await sleep(80); report("sourcedb:filter", "源数据-筛选", { chip: sdbChip.textContent.slice(0, 20) }); }
+  const sdbSource2 = document.querySelector(".sdb-source-card[data-source='voices']");
+  if (sdbSource2) { sdbSource2.click(); await sleep(80); report("sourcedb:voices", "源数据-切回帖", {}); }
 
   // 2) 找参考：输入目的并运行
   clickBoard("reference"); await sleep(50);
