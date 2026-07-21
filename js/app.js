@@ -216,7 +216,7 @@
     users: null, uvTab: "corpus", uvCorpusQ: "", uvRankAll: false, uvLocMarker: "all", uvCorpusMarker: "all", uvLayerDrill: null, uvLayerCmp: false, uvDeep: false, uvSegDeep: false, uvDrillMeta: null,
     brandUserSel: null, brandUserCmp: [], brandUserCompare: false, brandUserRankAll: false,
     libMode: "sort", libQuick: "all", libSource: "all", sortExpanded: false,
-    vdDim: "account",
+    vdDim: "all",
     page: 0, pageSize: 100, randList: null, randVisible: 100, randLoading: false,
     compSel: new Set(), cmpSel: new Set(),
     compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false, mode: "all" },
@@ -1705,6 +1705,7 @@ ${topMatches || "（无强匹配）"}
 
   // ===== 爆款内容深度分析 · 维度深度钻取 =====
   const VD_DIMS = [
+    { key: "all",            label: "全部",       field: null,             multi: false, emptyLabel: "—", isOverview: true },
     { key: "account",        label: "按品牌",     field: "account",        multi: false, emptyLabel: "(空)" },
     { key: "contentType",    label: "按内容形式", field: "contentType",    multi: false, emptyLabel: "(空)" },
     { key: "emotion",        label: "按情绪风格", field: "emotion",        multi: false, emptyLabel: "未标记" },
@@ -1741,13 +1742,16 @@ ${topMatches || "（无强匹配）"}
     return `<div class="vd-cross-col"><div class="vd-cross-title">${cfg.label}</div>${bars}</div>`;
   }
   function vdRepCard(c) {
-    return `<div class="list-row vd-rep-row" data-id="${c.id}">
-      <div><div class="lr-text">${esc(dispText(c))}</div><div class="lr-sub">${esc(c.account)} · ${esc(c.contentType)} · ${esc(c.emotion || "—")}</div></div>
-      <div class="lr-num" style="color:var(--hot)">${rate(c)}<small>爆款指数</small></div>
-      <div class="lr-num">${fmt(c.exposure)}<small>曝光</small></div>
+    return `<div class="vd-rep-row" data-id="${c.id}">
+      <div class="vd-rep-main">
+        <div class="vd-rep-text">${esc(dispText(c))}</div>
+        <div class="vd-rep-sub">${esc(c.account)} · ${esc(c.contentType)} · ${esc(c.emotion || "—")}</div>
+      </div>
+      <div class="vd-rep-num" style="color:var(--hot)">${rate(c)}<small>爆款指数</small></div>
+      <div class="vd-rep-num">${fmt(c.exposure)}<small>曝光</small></div>
     </div>`;
   }
-  function vdDimCard(dimCfg, value, items, allLen) {
+  function vdDimCard(dimCfg, value, items, allLen, compact) {
     const total = items.length;
     const top = items.filter((c) => c.isTop).length;
     const topRate = Math.round((top / Math.max(total, 1)) * 100);
@@ -1758,9 +1762,9 @@ ${topMatches || "（无强匹配）"}
     const share = Math.round((total / Math.max(allLen, 1)) * 100);
     const cross = [];
     VD_CROSS.forEach((c) => { if (c.key !== dimCfg.key) { const col = vdCrossCol(items, c, dimCfg.key); if (col) cross.push(col); } });
-    const crossHTML = cross.slice(0, 4).join("");
-    const reps = items.slice().sort((a, b) => b.viralScore - a.viralScore).slice(0, 3).map(vdRepCard).join("");
-    return `<div class="vd-dim-card">
+    const crossHTML = cross.slice(0, compact ? 2 : 4).join("");
+    const reps = items.slice().sort((a, b) => b.viralScore - a.viralScore).slice(0, compact ? 1 : 3).map(vdRepCard).join("");
+    return `<div class="vd-dim-card${compact ? " compact" : ""}" data-dim="${esc(dimCfg.key)}" data-value="${esc(value)}">
       <div class="vd-dim-card-head">
         <span class="vd-dim-card-name">${esc(value)}</span>
         <span class="vd-dim-badge ${topRate >= 20 ? "win" : ""}">爆款率 ${topRate}%</span>
@@ -1777,21 +1781,117 @@ ${topMatches || "（无强匹配）"}
     </div>`;
   }
   function renderDimDeep(dimKey) {
-    const dimCfg = VD_DIMS.find((d) => d.key === dimKey) || VD_DIMS[0];
     const data = getFiltered();
     const allLen = data.length;
+    const tops = data.filter((c) => c.isTop);
+
+    // 「全部」总览：每个维度 top 取值一览
+    if (dimKey === "all") {
+      const sections = VD_DIMS.filter((d) => d.key !== "all").map((d) => {
+        const groups = {};
+        data.forEach((c) => vdVals(c, d).forEach((v) => { (groups[v] = groups[v] || []).push(c); }));
+        const rows = Object.entries(groups).map(([value, items]) => {
+          const total = items.length;
+          const top = items.filter((c) => c.isTop).length;
+          return { value, total, top, topRate: Math.round(top / Math.max(total, 1) * 100), avgExp: Math.round(avg(items, "exposure")) };
+        }).sort((a, b) => (b.topRate - a.topRate) || (b.total - a.total)).slice(0, 5);
+        const dimName = d.label.replace(/^按/, "");
+        const bars = rows.map((r, i) => `<div class="qc-bar"><span class="qc-name" style="width:92px;font-size:11px">${esc(r.value)}</span><span class="qc-track"><i style="width:${Math.max(r.topRate, 5)}%;background:${PAL[i % PAL.length]}"></i></span><span class="qc-val" style="min-width:86px;font-size:11px">爆款率 ${r.topRate}%<small>${r.top}/${r.total}</small></span></div>`).join("");
+        return `<div class="vd-overview-col"><div class="vd-overview-title">${esc(dimName)} TOP5</div><div class="vd-overview-bars">${bars}</div></div>`;
+      }).join("");
+      const head = `<div class="vd-dim-summary">全部维度总览 · 共 ${fmt(allLen)} 帖 · 爆款 ${fmt(tops.length)} 条 · 点击任意维度 tab 或卡片查看详细钻取</div>`;
+      const overview = `<div class="vd-overview-grid">${sections}</div>`;
+      const allCards = `<div class="vd-dim-grid" style="margin-top:14px">${VD_DIMS.filter((d) => d.key !== "all").map((d) => {
+        const groups = {};
+        data.forEach((c) => vdVals(c, d).forEach((v) => { (groups[v] = groups[v] || []).push(c); }));
+        const topValue = Object.entries(groups).map(([value, items]) => ({ value, items, total: items.length, top: items.filter((c) => c.isTop).length }))
+          .sort((a, b) => (b.top / Math.max(b.total, 1)) - (a.top / Math.max(a.total, 1)) || (b.total - a.total))[0];
+        if (!topValue) return "";
+        return vdDimCard(d, topValue.value, topValue.items, allLen, true);
+      }).join("")}</div>`;
+      return head + overview + `<div class="vd-dim-section-title">各维度标杆取值</div>` + allCards;
+    }
+
+    // 单维度：顶部整体看板 + 分卡片
+    const dimCfg = VD_DIMS.find((d) => d.key === dimKey) || VD_DIMS[1];
     const groups = {};
     data.forEach((c) => vdVals(c, dimCfg).forEach((v) => { (groups[v] = groups[v] || []).push(c); }));
     const cards = Object.entries(groups).map(([value, items]) => {
       const total = items.length;
       const top = items.filter((c) => c.isTop).length;
-      const topRate = Math.round((top / Math.max(total, 1)) * 100);
-      return { value, items, total, top, topRate };
+      return { value, items, total, top, topRate: Math.round(top / Math.max(total, 1) * 100) };
     }).sort((a, b) => (b.topRate - a.topRate) || (b.total - a.total));
+    const dimTotal = cards.reduce((s, c) => s + c.total, 0);
+    const dimTop = cards.reduce((s, c) => s + c.top, 0);
+    const avgTopRate = Math.round(dimTop / Math.max(dimTotal, 1) * 100);
     const dimName = dimCfg.label.replace(/^按/, "");
+
+    // 整体看板
+    const top3 = cards.slice(0, 3).map((c) => `<span class="vd-overview-tag">${esc(c.value)} <b>${c.topRate}%</b></span>`).join("");
+    const distData = cards.slice(0, 8).map((c, i) => ({ name: c.value, y: c.total, topRate: c.topRate }));
+    const overviewBars = distData.map((c, i) => `<div class="qc-bar"><span class="qc-name" style="width:100px;font-size:11px">${esc(c.name)}</span><span class="qc-track"><i style="width:${(c.y / Math.max(...distData.map((x) => x.y), 1)) * 100}%;background:${PAL[i % PAL.length]}"></i></span><span class="qc-val" style="min-width:80px;font-size:11px">${fmt(c.y)} 帖<small>爆款率 ${c.topRate}%</small></span></div>`).join("");
+    const overview = `<div class="vd-dim-dashboard">
+      <div class="vd-dim-dash-main">
+        <div class="vd-dash-big"><b>${fmt(cards.length)}</b><span>${esc(dimName)} 取值数</span></div>
+        <div class="vd-dash-big"><b>${fmt(dimTotal)}</b><span>总帖数</span></div>
+        <div class="vd-dash-big"><b>${fmt(dimTop)}</b><span>爆款数</span></div>
+        <div class="vd-dash-big win"><b>${avgTopRate}%</b><span>平均爆款率</span></div>
+      </div>
+      <div class="vd-dim-dash-side">
+        <div class="vd-dash-title">爆款率 TOP3 取值</div>
+        <div class="vd-dash-tags">${top3 || '<span class="vd-muted">—</span>'}</div>
+        <div class="vd-dash-title" style="margin-top:10px">取值分布 TOP8</div>
+        ${overviewBars || '<div class="vd-muted">—</div>'}
+      </div>
+    </div>`;
+
     const head = `<div class="vd-dim-summary">共 <b>${cards.length}</b> 个「${esc(dimName)}」取值 · 按爆款率降序 · 全库 ${fmt(allLen)} 帖（已应用当前筛选）</div>`;
     const grid = `<div class="vd-dim-grid">${cards.map((c) => vdDimCard(dimCfg, c.value, c.items, allLen)).join("")}</div>`;
-    return head + grid;
+    return head + overview + grid;
+  }
+
+  function openVdDrill(dimKey, value) {
+    const dimCfg = VD_DIMS.find((d) => d.key === dimKey);
+    if (!dimCfg || dimCfg.key === "all") return;
+    const data = getFiltered();
+    const items = [];
+    data.forEach((c) => { vdVals(c, dimCfg).forEach((v) => { if (v === value) items.push(c); }); });
+    if (!items.length) return;
+    const total = items.length;
+    const top = items.filter((c) => c.isTop).length;
+    const topRate = Math.round(top / Math.max(total, 1) * 100);
+    const cross = [];
+    VD_CROSS.forEach((c) => { if (c.key !== dimCfg.key) { const col = vdCrossCol(items, c, dimCfg.key); if (col) cross.push(col); } });
+    const crossHTML = cross.slice(0, 4).join("");
+    const topPosts = items.slice().sort((a, b) => b.viralScore - a.viralScore).slice(0, 20).map(vdRepCard).join("");
+    const dimLabel = dimCfg.label.replace(/^按/, "");
+    const drawer = $("#drawer");
+    drawer.innerHTML = `<div class="drawer-head">
+      <div>
+        <div style="font-size:12px;color:var(--text-3)">${esc(dimLabel)} 深度钻取</div>
+        <div class="dh-text">${esc(value)}</div>
+      </div>
+      <button class="drawer-close" id="vd-drill-close">×</button>
+    </div>
+    <div class="drawer-body">
+      <div class="vd-drill-stats">
+        <div><b>${fmt(total)}</b><span>总帖</span></div>
+        <div><b>${fmt(top)}</b><span>爆款</span></div>
+        <div class="win"><b>${topRate}%</b><span>爆款率</span></div>
+        <div><b>${fmt(Math.round(avg(items, "exposure")))}</b><span>均曝光</span></div>
+        <div><b>${fmt(Math.round(avg(items, "engagement")))}</b><span>均互动</span></div>
+        <div><b>${avg(items, "engagementRate").toFixed(2)}%</b><span>均互动率</span></div>
+      </div>
+      <div class="vd-dim-card" style="margin-bottom:14px">
+        <div class="vd-rep"><div class="vd-rep-title">跨维度画像</div><div class="vd-cross-grid">${crossHTML || '<div class="vd-muted">—</div>'}</div></div>
+      </div>
+      <div class="vd-rep"><div class="vd-rep-title">该取值全部爆款内容 TOP20</div>${topPosts || '<div class="vd-muted">暂无</div>'}</div>
+    </div>`;
+    drawer.classList.add("show");
+    $("#drawer-overlay").classList.add("show");
+    $("#vd-drill-close").addEventListener("click", () => { drawer.classList.remove("show"); $("#drawer-overlay").classList.remove("show"); });
+    // 帖子点击直接进深度分析
+    $$(".vd-rep-row[data-id]", drawer).forEach((el) => el.addEventListener("click", () => openDeepAnalysis(el.dataset.id)));
   }
 
   function renderMyOps() {
@@ -1873,6 +1973,11 @@ ${topMatches || "（无强匹配）"}
     $$("#vd-dim-tabs .uv-tab", $("#board")).forEach((b) => b.addEventListener("click", () => {
       state.vdDim = b.dataset.vdDim;
       renderBoard();
+    }));
+    $$(".vd-dim-card[data-dim]", $("#board")).forEach((el) => el.addEventListener("click", (e) => {
+      // 如果点的是内部代表爆款行（有 data-id），不触发卡片下钻
+      if (e.target.closest(".vd-rep-row[data-id]")) return;
+      openVdDrill(el.dataset.dim, el.dataset.value);
     }));
   }
 
