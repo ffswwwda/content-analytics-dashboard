@@ -835,7 +835,8 @@
     const labels = weeks.map((w, i) => `<text x="${pL + (iw / weeks.length) * i + (iw / weeks.length) / 2}" y="${H - 8}" font-size="9" fill="#9099a5" text-anchor="middle">${w.label}</text>`).join("");
     const grid = [0, 25, 50, 75, 100].map((g) => `<line x1="${pL}" y1="${yLine(g)}" x2="${W - pR}" y2="${yLine(g)}" stroke="#eef0f3" stroke-width="1"/><text x="${W - pR + 4}" y="${yLine(g) + 3}" font-size="9" fill="#b8bfca">${g}</text>`).join("");
     const dots = weeks.map((w, i) => `<circle cx="${pL + (iw / weeks.length) * i + (iw / weeks.length) / 2}" cy="${yLine(w.avgRate)}" r="3" fill="#2f6bff"/>`).join("");
-    return `<svg class="freq-chart" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">${grid}${bars}<polyline points="${pts}" fill="none" stroke="#2f6bff" stroke-width="2"/>${dots}${labels}</svg>`;
+    const hits = weeks.map((w, i) => `<rect class="freq-hit" x="${pL + (iw / weeks.length) * i}" y="${pT}" width="${iw / weeks.length}" height="${ih}" fill="transparent" data-label="${esc(w.label)}" data-count="${w.count}" data-rate="${w.avgRate}"/>`).join("");
+    return `<svg class="freq-chart" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">${grid}${bars}<polyline points="${pts}" fill="none" stroke="#2f6bff" stroke-width="2"/>${dots}${labels}${hits}</svg>`;
   }
 
   /* ---------- 类型 ROI ---------- */
@@ -4033,6 +4034,27 @@ ${topMatches || "（无强匹配）"}
         state.compDimSort[dim] = next;
         renderBoard();
       }));
+      const freqChart = $(".freq-chart", $("#board"));
+      if (freqChart) {
+        let tip = $(".freq-tip");
+        if (!tip) {
+          tip = document.createElement("div");
+          tip.className = "freq-tip";
+          document.body.appendChild(tip);
+        }
+        freqChart.addEventListener("mousemove", (e) => {
+          const hit = e.target.closest(".freq-hit");
+          if (!hit) { tip.style.display = "none"; return; }
+          const { label, count, rate } = hit.dataset;
+          tip.innerHTML = `<div class="gt-row gt-head">${esc(label)}</div><div class="gt-row"><i class="gt-dot" style="background:#2f6bff"></i>发布数 ${count}</div><div class="gt-row"><i class="gt-dot" style="background:#ff5d8f"></i>平均爆款指数 ${rate}</div>`;
+          tip.style.display = "block";
+          const x = e.clientX + 12, y = e.clientY - 12;
+          const rect = tip.getBoundingClientRect();
+          tip.style.left = Math.min(window.innerWidth - rect.width - 8, x) + "px";
+          tip.style.top = Math.max(8, y - rect.height) + "px";
+        });
+        freqChart.addEventListener("mouseleave", () => { tip.style.display = "none"; });
+      }
     }
     if (state.board === "compare") {
       $$(".cmp-chip", $("#board")).forEach((el) => el.addEventListener("click", () => {
