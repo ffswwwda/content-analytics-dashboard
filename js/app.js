@@ -332,6 +332,7 @@
     sourceDb: { source: "contents", filters: {}, sort: "viralScore", page: 0, pageSize: 50, search: "", expanded: [], activeView: null, selectedViews: new Set() },
     sourceViews: [],
     compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false, mode: "all" },
+    compDimSort: { type: "count", topic: "count", emotion: "count" },
     deepId: null, deepCompare: [], deepView: "main",
     opsBrands: [], opsRefs: new Set(["rhythm", "topic", "format", "style", "metric"]),
   };
@@ -3643,14 +3644,17 @@ ${topMatches || "（无强匹配）"}
       const vals = multi ? (c[key] || []) : [c[key]];
       vals.forEach((v) => { if (!v) return; if (!map.has(v)) map.set(v, []); map.get(v).push(c); });
     });
+    const total = items.length || 1;
     return Array.from(map.entries()).map(([name, arr]) => ({
       name, count: arr.length,
       avgRate: arr.length ? Math.round(arr.reduce((s, c) => s + rate(c), 0) / arr.length) : 0,
+      pct: Math.round(arr.length / total * 100),
     })).sort((a, b) => b.count - a.count);
   }
   /* 竞品单品牌深度整合：cf=null → 全量紧凑版（全部竞品模式）；cf 提供 → 局部筛选 + 多维面板 */
   function competitorSection(data, name, cf) {
-    const itemsAll = data.filter((c) => c.account === name);
+    const isAll = name === "__all__";
+    const itemsAll = isAll ? data : data.filter((c) => c.account === name);
     if (!itemsAll.length) return "";
     let items = itemsAll;
     if (cf) {
@@ -3682,11 +3686,11 @@ ${topMatches || "（无强匹配）"}
     const repostPct = Math.round(repostCount / denom * 100);
     const replyPct = Math.round(replyCount / denom * 100);
     const activityPct = Math.round(activityCount / denom * 100);
-    const metas = accountMeta(name);
-    const followers = metas.reduce((s, a) => s + (a.followers || 0), 0);
+    const metas = isAll ? [] : accountMeta(name);
+    const followers = isAll ? 0 : metas.reduce((s, a) => s + (a.followers || 0), 0);
     const m0 = metas[0] || {};
-    const handles = metas.map((a) => `<a class="comp-handle" href="${esc(a.account_link || "#")}" target="_blank" rel="noreferrer">${esc(a.handle || a.account)} ↗</a>`).join(" · ");
-    const voices = ((state.raw && state.raw.userVoices) || []).filter((v) => v.account === name).sort((a, b) => b.likes - a.likes);
+    const handles = isAll ? "" : metas.map((a) => `<a class="comp-handle" href="${esc(a.account_link || "#")}" target="_blank" rel="noreferrer">${esc(a.handle || a.account)} ↗</a>`).join(" · ");
+    const voices = ((state.raw && state.raw.userVoices) || []).filter((v) => isAll ? true : v.account === name).sort((a, b) => b.likes - a.likes);
     const voiceHTML = voices.length
       ? `<div class="uv-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:8px">${voices.slice(0, 6).map((v) => `<div class="uv-card"><div class="uv-top"><span class="uv-sent ${esc(v.sentiment)}">${esc(v.sentiment)}</span><span class="uv-likes">♥ ${fmt(v.likes)}</span></div><div class="uv-text">${esc(dispVoice(v))}</div><a class="uv-link" href="${esc(v.originalLink || "#")}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div>`).join("")}</div>`
       : `<div style="color:var(--text-3);font-size:12.5px;margin-top:6px">暂无该竞品的用户评价数据</div>`;
@@ -3702,12 +3706,28 @@ ${topMatches || "（无强匹配）"}
     const typeBreak = groupRate(items, "contentType");
     const topicBreak = groupRate(items, "topicTags", true).slice(0, 8);
     const emotionBreak = groupRate(items, "emotion");
-    const maxRate = Math.max(...typeBreak.map((t) => t.avgRate), 1);
-    const dimCards = [
-      { title: `形式分布（${typeBreak.length}）`, rows: typeBreak },
-      { title: `主题分布（Top8）`, rows: topicBreak },
-      { title: `风格/情绪分布（${emotionBreak.length}）`, rows: emotionBreak },
-    ].map((d) => `<div class="comp-dim-card"><div class="comp-dim-title">${d.title}</div>${d.rows.map((r) => `<div class="qc-bar"><span class="qc-name" style="width:96px">${esc(r.name)}</span><span class="qc-track"><i style="width:${(r.avgRate / maxRate) * 100}%"></i></span><span class="qc-val">${r.count}·${r.avgRate}</span></div>`).join("") || '<div style="color:var(--text-3);font-size:12px">无</div>'}</div>`).join("");
+    const dimSort = state.compDimSort;
+    const sortDimRows = (rows, key) => {
+      if (dimSort[key] === "avgRate") return [...rows].sort((a, b) => b.avgRate - a.avgRate || b.count - a.count);
+      return rows;
+    };
+    const typeRows = sortDimRows(typeBreak, "type");
+    const topicRows = sortDimRows(topicBreak, "topic");
+    const emotionRows = sortDimRows(emotionBreak, "emotion");
+    const maxRate = Math.max(...typeRows.map((t) => t.avgRate), 1);
+    const dimData = [
+      { key: "type", title: `形式分布（${typeRows.length}）`, rows: typeRows },
+      { key: "topic", title: `主题分布（Top8）`, rows: topicRows },
+      { key: "emotion", title: `风格/情绪分布（${emotionRows.length}）`, rows: emotionRows },
+    ];
+    const dimCards = dimData.map((d) => {
+      const next = dimSort[d.key] === "count" ? "avgRate" : "count";
+      const nextLabel = next === "count" ? "帖子数" : "爆款指数";
+      return `<div class="comp-dim-card" data-dim="${d.key}">
+        <div class="comp-dim-head"><div class="comp-dim-title">${d.title}</div><button class="comp-dim-sort" data-dim="${d.key}" data-next="${next}" title="点击切换排序">${esc(nextLabel)} ↕</button></div>
+        ${d.rows.map((r) => `<div class="qc-bar"><span class="qc-name" style="width:96px">${esc(r.name)}</span><span class="qc-track"><i style="width:${(r.avgRate / maxRate) * 100}%"></i></span><span class="qc-val">${r.count} · ${r.pct}%</span></div>`).join("") || '<div style="color:var(--text-3);font-size:12px">无</div>'}
+      </div>`;
+    }).join("");
     const weeks = aggregateWeeks(items);
     const rhythmHTML = weeks.length ? `<div class="panel" style="margin-top:12px"><div class="panel-title">运营节奏 · 频率 × 表现</div><div class="panel-sub">柱=当周发布数 · 线=当周平均爆款指数</div>${comboSVG(weeks)}</div>` : "";
     const bursts = burstsFor(items);
@@ -3745,9 +3765,10 @@ ${topMatches || "（无强匹配）"}
         </div>
       </div>
     </div>`;
+    const displayName = isAll ? `全部竞品（${new Set(itemsAll.map((c) => c.account)).size} 个品牌）` : name;
     const modeTag = cf && cf.mode !== "all" ? `<span class="tag" style="background:var(--accent);color:#fff;margin-left:8px">${cf.mode === "activity" ? "活动" : "日常"}</span>` : "";
     return `<div class="comp-section">
-      <div class="comp-sec-head"><span class="comp-sec-name">${esc(name)}${modeTag}</span><span class="comp-sec-badge">内容 ${items.length} · 平均爆款指数 ${avgRate} · 爆款 ${topCount}</span></div>
+      <div class="comp-sec-head"><span class="comp-sec-name">${esc(displayName)}${modeTag}</span><span class="comp-sec-badge">内容 ${items.length} · 平均爆款指数 ${avgRate} · 爆款 ${topCount}</span></div>
       <div class="comp-meta">${m0.category ? `<span class="tag">${esc(m0.category)}</span>` : ""}${followers ? `<span class="comp-followers">👥 ${fmt(followers)} 粉丝</span>` : ""}${handles ? `<span class="comp-handles">${handles}</span>` : ""}</div>
       <div class="stat-row" style="margin:10px 0">
         <div class="stat"><div class="stat-label">内容量</div><div class="stat-val">${items.length}</div></div>
@@ -3798,10 +3819,10 @@ ${topMatches || "（无强匹配）"}
     const chips = `<span class="chip comp-chip all${allActive ? " on" : ""}" data-brand="__all__">全部竞品 (${brands.length})</span>` +
       brands.map((b) => `<span class="chip comp-chip${state.compSel.has(b.name) ? " on" : ""}" data-brand="${esc(b.name)}">${esc(b.name)} (${b.count})</span>`).join("");
     const note = allActive
-      ? `已选「全部竞品」，下方为各品牌深度整合分析；点上方品牌切换为<b style="color:var(--accent-strong)">单品牌多维视图</b>。`
+      ? `已选「全部竞品」，下方为<b style="color:var(--accent-strong)">全部品牌聚合后的汇总分析</b>（所有品牌内容合并计算）；点上方品牌切换为单品牌多维视图。`
       : `单品牌多维视图：形式 / 数据筛选 + 整体数据 + 内容排序 + 形式·主题·情绪维度 + 用户评价 + 运营节奏 + Campaign 爆发，尽可能多维度。`;
     const body = allActive
-      ? brands.map((b) => competitorSection(data, b.name, null)).join("")
+      ? competitorSection(data, "__all__", null)
       : competitorDeep(data, [...state.compSel][0]);
     return `<div class="board-head"><div class="board-desc">${boardDesc("competitor")}</div></div>
       <div class="comp-selbar">${chips}</div>
@@ -4005,6 +4026,13 @@ ${topMatches || "（无强匹配）"}
         renderBoard();
       });
       const rs = $("#comp-reset"); if (rs) rs.addEventListener("click", () => { state.compFilters = { types: new Set(), sort: "viral", viralMin: 0, topOnly: false, mode: "all" }; renderBoard(); });
+      $$(".comp-dim-sort", $("#board")).forEach((btn) => btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const dim = btn.dataset.dim;
+        const next = btn.dataset.next;
+        state.compDimSort[dim] = next;
+        renderBoard();
+      }));
     }
     if (state.board === "compare") {
       $$(".cmp-chip", $("#board")).forEach((el) => el.addEventListener("click", () => {
@@ -4811,7 +4839,8 @@ ${sim || "（无同主题关联帖）"}
     const dotsViral = months.map((m, i) => `<circle cx="${pL + (iw / months.length) * i + (iw / months.length) / 2}" cy="${yV(m.viral)}" r="2.5" fill="#ff5d8f"/>`).join("");
     const labels = months.map((m, i) => `<text x="${pL + (iw / months.length) * i + (iw / months.length) / 2}" y="${H - 10}" font-size="8.5" fill="#9099a5" text-anchor="middle">${m.ym.slice(2)}</text>`).join("");
     const grid = [0, 0.25, 0.5, 0.75, 1].map((gg) => { const yy = pT + ih - gg * ih; return `<line x1="${pL}" y1="${yy}" x2="${W - pR}" y2="${yy}" stroke="#eef0f3" stroke-width="1"/><text x="${W - pR + 4}" y="${yy + 3}" font-size="9" fill="#b8bfca">${Math.round(gg * maxE / 10000)}万</text>`; }).join("");
-    return `<svg class="growth-chart" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">${shade}${grid}${bars}<polyline points="${postsPts}" fill="none" stroke="#22c55e" stroke-width="2"/>${dotsPosts}<polyline points="${viralPts}" fill="none" stroke="#ff5d8f" stroke-width="2"/>${dotsViral}${labels}</svg>
+    const hits = months.map((m, i) => `<rect class="growth-hit" x="${pL + (iw / months.length) * i}" y="${pT}" width="${iw / months.length}" height="${ih}" fill="transparent" data-ym="${esc(m.ym)}" data-exp="${m.exp}" data-posts="${m.posts}" data-viral="${m.viral}"/>`).join("");
+    return `<svg class="growth-chart" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">${shade}${grid}${bars}<polyline points="${postsPts}" fill="none" stroke="#22c55e" stroke-width="2"/>${dotsPosts}<polyline points="${viralPts}" fill="none" stroke="#ff5d8f" stroke-width="2"/>${dotsViral}${labels}${hits}</svg>
       <div class="growth-legend"><span><i style="background:#2f6bff"></i>曝光（柱·高位月高亮）</span><span><i style="background:#22c55e"></i>帖子数（线）</span><span><i style="background:#ff5d8f"></i>爆款数（线）</span></div>`;
   }
   function renderGrowth() {
@@ -4901,6 +4930,27 @@ ${sim || "（无同主题关联帖）"}
     $$(".gw-chip[data-brand]", $("#board")).forEach((el) => el.addEventListener("click", () => { state.growth.brand = el.dataset.brand; renderBoard(); }));
     $$(".gw-table tbody tr[data-brand]", $("#board")).forEach((el) => el.addEventListener("click", () => { state.growth.brand = el.dataset.brand; renderBoard(); }));
     $$(".gw-post[data-id]", $("#board")).forEach((el) => el.addEventListener("click", () => openDeepAnalysis(el.dataset.id)));
+    const chart = $(".growth-chart", $("#board"));
+    if (chart) {
+      let tip = $(".growth-tip");
+      if (!tip) {
+        tip = document.createElement("div");
+        tip.className = "growth-tip";
+        document.body.appendChild(tip);
+      }
+      chart.addEventListener("mousemove", (e) => {
+        const hit = e.target.closest(".growth-hit");
+        if (!hit) { tip.style.display = "none"; return; }
+        const { ym, exp, posts, viral } = hit.dataset;
+        tip.innerHTML = `<div class="gt-row gt-head">${esc(ym)}</div><div class="gt-row"><i class="gt-dot" style="background:#2f6bff"></i>曝光 ${fmt(+exp)}</div><div class="gt-row"><i class="gt-dot" style="background:#22c55e"></i>帖子数 ${posts}</div><div class="gt-row"><i class="gt-dot" style="background:#ff5d8f"></i>爆款数 ${viral}</div>`;
+        tip.style.display = "block";
+        const x = e.clientX + 12, y = e.clientY - 12;
+        const rect = tip.getBoundingClientRect();
+        tip.style.left = Math.min(window.innerWidth - rect.width - 8, x) + "px";
+        tip.style.top = Math.max(8, y - rect.height) + "px";
+      });
+      chart.addEventListener("mouseleave", () => { tip.style.display = "none"; });
+    }
   }
 
   /* ============ 事件绑定 ============ */
