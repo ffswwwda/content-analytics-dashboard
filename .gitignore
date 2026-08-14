@@ -4,3 +4,8 @@ scripts/_shots/
 node_modules/
 *.log
 .DS_Store
+
+# 数据管线本地备份（不入库，避免撑爆 repo）
+data/*.bak*
+data/*.bak_*
+*.bak

@@ -1230,6 +1230,8 @@ body::after {
 .trend-growth.down { color: #ff5d8f; background: rgba(255,93,143,.12); }
 .trend-spark { display: block; width: 100%; height: 34px; border-radius: 6px; background: rgba(0,0,0,.15); }
 .trend-spark polyline { stroke-width: 2; }
+.trend-xaxis { display: flex; justify-content: space-between; margin-top: 6px; padding: 0 2px; }
+.trend-xaxis span { font-size: 10px; font-weight: 600; color: var(--text-3); font-family: var(--font-mono); }
 
 /* 回复词云 */
 .dp-cloud { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); padding: 16px; box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.06); }

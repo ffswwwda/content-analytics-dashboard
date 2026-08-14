@@ -422,7 +422,7 @@
       const firstVal = values[0];
       const growth = firstVal > 0 ? Math.round(((lastVal - firstVal) / firstVal) * 100) : (lastVal > 0 ? 100 : 0);
       const growthStr = growth >= 0 ? `+${growth}%` : `${growth}%`;
-      return `<div class="trend-row"><div class="trend-meta"><span class="trend-dot" style="background:${m.color}"></span><span class="trend-label">${m.label}</span><span class="trend-val">${fmt(lastVal)}</span><span class="trend-growth ${growth >= 0 ? "up" : "down"}">${growthStr}</span></div>${spark}</div>`;
+      return `<div class="trend-row"><div class="trend-meta"><span class="trend-dot" style="background:${m.color}"></span><span class="trend-label">${m.label}</span><span class="trend-val">${fmt(lastVal)}</span><span class="trend-growth ${growth >= 0 ? "up" : "down"}">${growthStr}</span></div>${spark}<div class="trend-xaxis"><span>D0</span><span>D1</span><span>D2</span><span>D7</span></div></div>`;
     }).filter(Boolean).join("");
     return { html: rows ? `<div class="dp-trend-grid">${rows}</div>` : "", has: !!rows };
   }
