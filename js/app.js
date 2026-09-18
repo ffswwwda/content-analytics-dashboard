@@ -388,27 +388,37 @@
     const band = tier === 10 ? "后10%" : `前${tier * 10}%`;
     return `<span${hot}>${band} · 超越${sur}%</span>`;
   }
-  function trendSpark(data, color, width = 120, height = 34) {
-    const max = Math.max(...data, 1);
-    const pts = data.map((v, i) => {
-      const x = data.length > 1 ? (i / (data.length - 1)) * width : width / 2;
-      const y = height - (v / max) * (height - 2) - 1;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(" ");
-    const area = data.map((v, i) => {
-      const x = data.length > 1 ? (i / (data.length - 1)) * width : width / 2;
-      const y = height - (v / max) * (height - 2) - 1;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(" ") + ` ${width},${height} 0,${height}`;
-    return `<svg width="${width}" height="${height}" class="trend-spark"><defs><linearGradient id="grad-${color.replace(/#/g, '')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.35"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><polygon points="${area}" fill="url(#grad-${color.replace(/#/g, '')})"/><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  // 时序：把 {D0:{...},D7:{...},D32:{...}} 解析成按真实天数排序的点列（key=D{n}，n=发布后第 n 天的真实抓取时点）
+  function trendDayList(ts) {
+    return Object.keys(ts)
+      .map((k) => ({ n: parseInt(k.slice(1), 10), d: ts[k] }))
+      .filter((o) => !isNaN(o.n) && o.d && Object.values(o.d).some((v) => (v || 0) > 0))
+      .sort((a, b) => a.n - b.n);
+  }
+  // 真实天数比例 x 轴的折线图：单点只画圆点（不画伪三角形），悬停命中区带数值/日期数据
+  function trendChartSVG(pts, color, maxDay, metas, W = 240, H = 56, PAD = 7) {
+    const vmax = Math.max(...pts.map((p) => p.v), 1);
+    const x = (n) => PAD + (n / (maxDay || 1)) * (W - PAD * 2);
+    const y = (v) => H - PAD - (v / vmax) * (H - PAD * 2);
+    const coords = pts.map((p) => ({ ...p, cx: x(p.n), cy: y(p.v) }));
+    const gid = "tg-" + color.replace(/[^a-z0-9]/gi, "");
+    const ptStr = coords.map((c) => `${c.cx.toFixed(1)},${c.cy.toFixed(1)}`).join(" ");
+    const multi = coords.length > 1;
+    const area = multi ? `<polygon points="${ptStr} ${coords[coords.length - 1].cx.toFixed(1)},${H - PAD} ${coords[0].cx.toFixed(1)},${H - PAD}" fill="url(#${gid})" stroke="none"/>` : "";
+    const line = multi ? `<polyline points="${ptStr}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` : "";
+    const dots = coords.map((c) => `<circle cx="${c.cx.toFixed(1)}" cy="${c.cy.toFixed(1)}" r="3" fill="${color}" stroke="rgba(0,0,0,.4)" stroke-width="1"/>`).join("");
+    const hits = coords.map((c, i) => {
+      const mt = metas[i] || {};
+      return `<circle class="trend-hit" cx="${c.cx.toFixed(1)}" cy="${c.cy.toFixed(1)}" r="11" fill="transparent" data-val="${mt.val || ""}" data-day="${mt.day || ""}" data-date="${mt.date || ""}" data-pct="${mt.pct || 50}"/>`;
+    }).join("");
+    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" class="trend-chart"><defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity=".28"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>${area}${line}${dots}${hits}</svg>`;
   }
   function trendSectionHTML(c) {
+    const emptyNote = `<div class="trend-empty">该帖无时序抓取数据（发布时点未进入逐日观测窗口）</div>`;
     const ts = c.timeseries;
-    if (!ts) return { html: "", has: false };
-    // 只保留实际有数据的天（源 D0-D7 每帖通常只抓过一次，缺失天不画 0）
-    const allDays = ["D0", "D1", "D2", "D7"];
-    const days = allDays.filter((d) => ts[d] && Object.values(ts[d]).some((v) => (v || 0) > 0));
-    if (!days.length) return { html: "", has: false };
+    const days = ts ? trendDayList(ts) : [];
+    if (!days.length) return { html: emptyNote, has: true };
+    const maxDay = days[days.length - 1].n || 1;
     const metrics = [
       { key: "view", label: "曝光", color: "#0ef" },
       { key: "like", label: "点赞", color: "#ff5d8f" },
@@ -416,22 +426,56 @@
       { key: "repost", label: "转发", color: "#22c55e" },
       { key: "bookmark", label: "收藏", color: "#f59e0b" },
     ];
+    // 真实日历日期 = 发布时间 + 第 n 天（快照点由「抓取日期−发布日期」推得，悬停可见实际日期）
+    const pub = c.publish_time ? new Date(c.publish_time) : null;
+    const pubValid = pub && !isNaN(pub.getTime());
+    const dateOf = (n) => {
+      if (!pubValid) return "";
+      const d = new Date(pub.getTime() + n * 86400000);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`.slice(5);
+    };
+    const xPct = (n) => {
+      const W = 240, PAD = 7;
+      const px = PAD + (n / (maxDay || 1)) * (W - PAD * 2);
+      return Math.min(97, Math.max(3, (px / W) * 100));
+    };
     const rows = metrics.map((m) => {
-      const values = days.map((d) => (ts[d] && ts[d][m.key]) ? ts[d][m.key] : 0);
-      const total = values.reduce((a, b) => a + b, 0);
-      if (total === 0) return "";
-      const spark = trendSpark(values, m.color);
-      const lastVal = values[values.length - 1];
-      const firstVal = values[0];
-      // 仅 1 天无法算增长率 -> 显示 —；多天则按首尾算
-      const growth = days.length > 1 ? (firstVal > 0 ? Math.round(((lastVal - firstVal) / firstVal) * 100) : (lastVal > 0 ? 100 : 0)) : null;
+      const pts = days.map((o) => ({ n: o.n, v: (o.d[m.key] || 0) }));
+      if (!pts.some((p) => p.v > 0)) return "";
+      const lastVal = pts[pts.length - 1].v;
+      const firstVal = pts[0].v;
+      const growth = pts.length > 1 ? (firstVal > 0 ? Math.round(((lastVal - firstVal) / firstVal) * 100) : (lastVal > 0 ? 100 : 0)) : null;
       const growthStr = growth == null ? "—" : (growth >= 0 ? `+${growth}%` : `${growth}%`);
       const growthCls = growth == null ? "" : (growth >= 0 ? "up" : "down");
-      const xaxis = `<div class="trend-xaxis" style="justify-content:${days.length === 1 ? "center" : "space-between"}">${days.map((d) => `<span>${d}</span>`).join("")}</div>`;
-      return `<div class="trend-row"><div class="trend-meta"><span class="trend-dot" style="background:${m.color}"></span><span class="trend-label">${m.label}</span><span class="trend-val">${fmt(lastVal)}</span><span class="trend-growth ${growthCls}">${growthStr}</span></div>${spark}${xaxis}</div>`;
+      const metas = pts.map((p) => ({ pct: xPct(p.n), day: `第${p.n}天`, date: dateOf(p.n), val: Number(p.v).toLocaleString("en-US") }));
+      const svg = trendChartSVG(pts, m.color, maxDay, metas);
+      const xlabels = pts.map((p) => `<span style="left:${xPct(p.n)}%">D${p.n}</span>`).join("");
+      return `<div class="trend-row"><div class="trend-meta"><span class="trend-dot" style="background:${m.color}"></span><span class="trend-label">${m.label}</span><span class="trend-val">${fmt(lastVal)}</span><span class="trend-growth ${growthCls}">${growthStr}</span></div><div class="trend-chartwrap">${svg}<div class="trend-tip"></div><div class="trend-xaxis">${xlabels}</div></div></div>`;
     }).filter(Boolean).join("");
-    return { html: rows ? `<div class="dp-trend-grid">${rows}</div>` : "", has: !!rows };
+    return { html: rows ? `<div class="dp-trend-grid">${rows}</div>` : emptyNote, has: true };
   }
+  // 时序图悬停 tooltip（事件委托到 document，deep-modal 重建 DOM 也生效）
+  document.addEventListener("mouseover", (e) => {
+    const hit = e.target.closest && e.target.closest(".trend-hit");
+    if (!hit) return;
+    const wrap = hit.closest(".trend-chartwrap");
+    const tip = wrap && wrap.querySelector(".trend-tip");
+    if (!tip) return;
+    tip.innerHTML = `<b>${hit.dataset.val}</b><span>${hit.dataset.day}${hit.dataset.date ? " · " + hit.dataset.date : ""}</span>`;
+    // 先显示再量宽，按点数百分比居中并夹取在卡片内（避免左右边缘被裁）
+    tip.style.left = "0px";
+    tip.classList.add("show");
+    const wrapW = wrap.clientWidth;
+    const tipW = tip.offsetWidth;
+    const cx = (parseFloat(hit.dataset.pct) / 100) * wrapW;
+    tip.style.left = Math.max(2, Math.min(wrapW - tipW - 2, cx - tipW / 2)).toFixed(1) + "px";
+  });
+  document.addEventListener("mouseout", (e) => {
+    const hit = e.target.closest && e.target.closest(".trend-hit");
+    if (!hit) return;
+    const tip = hit.closest(".trend-chartwrap") && hit.closest(".trend-chartwrap").querySelector(".trend-tip");
+    if (tip) tip.classList.remove("show");
+  });
   function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("show"), 1900); }
 
   /* ---------- 筛选 ---------- */
@@ -4260,7 +4304,7 @@ ${sim || "（无同主题关联帖）"}
       </div>`;
     // 时序增长趋势
     const trend = trendSectionHTML(c);
-    const trendHTML = trend.has ? `<div class="dp-section"><div class="dp-sec-title">时序增长趋势 <span class="dp-sec-note">D0 → D1 → D2 → D7 数据变化</span></div>${trend.html}</div>` : "";
+    const trendHTML = trend.has ? `<div class="dp-section"><div class="dp-sec-title">时序增长趋势 <span class="dp-sec-note">按实际抓取时点（第 N 天） · 悬停圆点查看数值与日期</span></div>${trend.html}</div>` : "";
     // 该账号形式分布（小条形）
     const typeBreakRows = sc.typeBreak.slice(0, 6).map((t) => {
       const r = t.avgRate;
