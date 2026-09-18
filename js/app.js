@@ -405,7 +405,10 @@
   function trendSectionHTML(c) {
     const ts = c.timeseries;
     if (!ts) return { html: "", has: false };
-    const days = ["D0", "D1", "D2", "D7"];
+    // 只保留实际有数据的天（源 D0-D7 每帖通常只抓过一次，缺失天不画 0）
+    const allDays = ["D0", "D1", "D2", "D7"];
+    const days = allDays.filter((d) => ts[d] && Object.values(ts[d]).some((v) => (v || 0) > 0));
+    if (!days.length) return { html: "", has: false };
     const metrics = [
       { key: "view", label: "曝光", color: "#0ef" },
       { key: "like", label: "点赞", color: "#ff5d8f" },
@@ -420,9 +423,12 @@
       const spark = trendSpark(values, m.color);
       const lastVal = values[values.length - 1];
       const firstVal = values[0];
-      const growth = firstVal > 0 ? Math.round(((lastVal - firstVal) / firstVal) * 100) : (lastVal > 0 ? 100 : 0);
-      const growthStr = growth >= 0 ? `+${growth}%` : `${growth}%`;
-      return `<div class="trend-row"><div class="trend-meta"><span class="trend-dot" style="background:${m.color}"></span><span class="trend-label">${m.label}</span><span class="trend-val">${fmt(lastVal)}</span><span class="trend-growth ${growth >= 0 ? "up" : "down"}">${growthStr}</span></div>${spark}<div class="trend-xaxis"><span>D0</span><span>D1</span><span>D2</span><span>D7</span></div></div>`;
+      // 仅 1 天无法算增长率 -> 显示 —；多天则按首尾算
+      const growth = days.length > 1 ? (firstVal > 0 ? Math.round(((lastVal - firstVal) / firstVal) * 100) : (lastVal > 0 ? 100 : 0)) : null;
+      const growthStr = growth == null ? "—" : (growth >= 0 ? `+${growth}%` : `${growth}%`);
+      const growthCls = growth == null ? "" : (growth >= 0 ? "up" : "down");
+      const xaxis = `<div class="trend-xaxis" style="justify-content:${days.length === 1 ? "center" : "space-between"}">${days.map((d) => `<span>${d}</span>`).join("")}</div>`;
+      return `<div class="trend-row"><div class="trend-meta"><span class="trend-dot" style="background:${m.color}"></span><span class="trend-label">${m.label}</span><span class="trend-val">${fmt(lastVal)}</span><span class="trend-growth ${growthCls}">${growthStr}</span></div>${spark}${xaxis}</div>`;
     }).filter(Boolean).join("");
     return { html: rows ? `<div class="dp-trend-grid">${rows}</div>` : "", has: !!rows };
   }
