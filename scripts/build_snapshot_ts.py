@@ -22,7 +22,10 @@ from datetime import date
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data", "content_data.json")
-CSV_PATH = "/Users/fsw/Downloads/GTM跨境社媒数据监控_内容数据记录-X_Grid View.csv"
+CSV_PATHS = [
+    "/Users/fsw/Downloads/GTM跨境社媒数据监控_内容数据记录-X_Grid View.csv",
+    "/Users/fsw/Downloads/GTM跨境社媒数据监控_内容数据记录-X-续1_Grid View.csv",
+]
 
 DAY_COLS = ["D0", "D1", "D2", "D7"]
 SRC_COLS = {"view": "View数", "like": "Like数", "reply": "Reply数", "repost": "Repost数", "bookmark": "Bookmark数"}
@@ -47,15 +50,22 @@ def main():
         shutil.copy2(DATA, bak)
         print("备份:", bak)
 
-    with open(CSV_PATH, newline="", encoding="utf-8-sig") as f:
-        rows = list(csv.DictReader(f))
     info = {}
-    for r in rows:
-        if r.get("内容类型") not in ("发帖", "被转发原帖"):
+    for p in CSV_PATHS:
+        if not os.path.exists(p):
+            print("跳过(不存在):", p)
             continue
-        cid = (r.get("内容ID") or "").replace("ID:", "")
-        if cid:
-            info[cid] = r
+        with open(p, newline="", encoding="utf-8-sig") as f:
+            rows = list(csv.DictReader(f))
+        n = 0
+        for r in rows:
+            if r.get("内容类型") not in ("发帖", "被转发原帖"):
+                continue
+            cid = (r.get("内容ID") or "").replace("ID:", "")
+            if cid:
+                info[cid] = r
+                n += 1
+        print(f"载入 {os.path.basename(p)}: 发帖类 {n}")
 
     data = json.load(open(DATA, encoding="utf-8"))
     contents = data["contents"]
@@ -102,6 +112,11 @@ def main():
         print("[dry-run] 未写盘")
         return
     json.dump(data, open(DATA, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+    # sample_data.json 是离线全量回退副本，必须同步，否则线上会用到旧那份
+    sample = os.path.join(ROOT, "data", "sample_data.json")
+    if os.path.exists(sample):
+        shutil.copy2(DATA, sample)
+        print("已同步:", sample)
     print("已写盘:", DATA)
 
 
