@@ -11,3 +11,6 @@ data/*.bak_*
 *.bak
 *.bak-*
 __pycache__/
+
+# 本机推送脚本（含 git 凭据，绝不入库）
+push.sh
