@@ -9,3 +9,5 @@ node_modules/
 data/*.bak*
 data/*.bak_*
 *.bak
+*.bak-*
+__pycache__/

@@ -388,12 +388,22 @@
     const band = tier === 10 ? "后10%" : `前${tier * 10}%`;
     return `<span${hot}>${band} · 超越${sur}%</span>`;
   }
-  // 时序：把 {D0:{...},D7:{...},D32:{...}} 解析成按真实天数排序的点列（key=D{n}，n=发布后第 n 天的真实抓取时点）
+  /* 时序口径（唯一口径，两类不共存）：
+     源表只有 D0/D1/D2/D7 四个观测窗，x 轴固定这四档。key 落在四档之外的点，
+     是源表四窗全空时用「抓取日期 − 发布日期」推得的一次性快照，展示时统一归入 D7 槽位，
+     轴标签因此只出现 D0/D1/D2/D7；该点真实是发布后第几天、抓取于哪一天，在悬停提示里照实显示。 */
+  const TS_WINDOWS = [0, 1, 2, 7];
+  const TS_AXIS_MAX = 7;
+  const isTsWindow = (n) => TS_WINDOWS.indexOf(n) !== -1;
+  // 把 {D0:{...},D7:{...},D32:{...}} 解析成点列；a = 轴槽位日（非四档一律归 D7），n = 真实第 n 天
   function trendDayList(ts) {
     return Object.keys(ts)
-      .map((k) => ({ n: parseInt(k.slice(1), 10), d: ts[k] }))
+      .map((k) => {
+        const n = parseInt(k.slice(1), 10);
+        return { n, a: isTsWindow(n) ? n : TS_AXIS_MAX, d: ts[k] };
+      })
       .filter((o) => !isNaN(o.n) && o.d && Object.values(o.d).some((v) => (v || 0) > 0))
-      .sort((a, b) => a.n - b.n);
+      .sort((a, b) => a.a - b.a || a.n - b.n);
   }
   // 真实天数比例 x 轴的折线图：单点只画圆点（不画伪三角形），悬停命中区带数值/日期数据
   function trendChartSVG(pts, color, maxDay, metas, W = 240, H = 56, PAD = 7) {
@@ -418,7 +428,7 @@
     const ts = c.timeseries;
     const days = ts ? trendDayList(ts) : [];
     if (!days.length) return { html: emptyNote, has: true };
-    const maxDay = days[days.length - 1].n || 1;
+    const maxDay = TS_AXIS_MAX;   // 固定 D0..D7 四档口径，不随单帖天数缩放
     const metrics = [
       { key: "view", label: "曝光", color: "#0ef" },
       { key: "like", label: "点赞", color: "#ff5d8f" },
@@ -440,16 +450,27 @@
       return Math.min(97, Math.max(3, (px / W) * 100));
     };
     const rows = metrics.map((m) => {
-      const pts = days.map((o) => ({ n: o.n, v: (o.d[m.key] || 0) }));
+      const pts = days.map((o) => ({ n: o.a, v: (o.d[m.key] || 0) }));
       if (!pts.some((p) => p.v > 0)) return "";
       const lastVal = pts[pts.length - 1].v;
       const firstVal = pts[0].v;
       const growth = pts.length > 1 ? (firstVal > 0 ? Math.round(((lastVal - firstVal) / firstVal) * 100) : (lastVal > 0 ? 100 : 0)) : null;
       const growthStr = growth == null ? "—" : (growth >= 0 ? `+${growth}%` : `${growth}%`);
       const growthCls = growth == null ? "" : (growth >= 0 ? "up" : "down");
-      const metas = pts.map((p) => ({ pct: xPct(p.n), day: `第${p.n}天`, date: dateOf(p.n), val: Number(p.v).toLocaleString("en-US") }));
+      // 轴槽位固定四档；非四档的点在提示里说清「末次观测 + 真实第几天」，避免被读成真第7天值
+      const metas = days.map((o, i) => ({
+        pct: xPct(pts[i].n),
+        day: isTsWindow(o.n) ? `第${o.n}天` : `末次观测 · 实为第${o.n}天`,
+        date: dateOf(o.n),
+        val: Number(pts[i].v).toLocaleString("en-US"),
+      }));
       const svg = trendChartSVG(pts, m.color, maxDay, metas);
-      const xlabels = pts.map((p) => `<span style="left:${xPct(p.n)}%">D${p.n}</span>`).join("");
+      const seenDay = new Set();
+      const xlabels = pts.map((p) => {
+        if (seenDay.has(p.n)) return "";
+        seenDay.add(p.n);
+        return `<span style="left:${xPct(p.n)}%">D${p.n}</span>`;
+      }).join("");
       return `<div class="trend-row"><div class="trend-meta"><span class="trend-dot" style="background:${m.color}"></span><span class="trend-label">${m.label}</span><span class="trend-val">${fmt(lastVal)}</span><span class="trend-growth ${growthCls}">${growthStr}</span></div><div class="trend-chartwrap">${svg}<div class="trend-tip"></div><div class="trend-xaxis">${xlabels}</div></div></div>`;
     }).filter(Boolean).join("");
     return { html: rows ? `<div class="dp-trend-grid">${rows}</div>` : emptyNote, has: true };

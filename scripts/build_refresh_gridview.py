@@ -8,10 +8,14 @@ Grid View 刷新合并：用两个新 CSV（内容数据 Grid View + 账号数�
 - 非重叠的现有记录（168 帖 + 2817 回帖，来自旧监控导出）原样保留。
 - accounts：整体替换为 878 条 handle 级（account=品牌 兼容 accountMeta；新增 handle 字段）。
 - is_top：基于合并后全体阈值重算。
-- 时序口径：D0/D1/D2/D7 每帖通常只被监控抓过一次（源仅 1 天有值），故只保存实际非零的天，
+-   时序口径：D0/D1/D2/D7 每帖通常只被监控抓过一次（源仅 1 天有值），故只保存实际非零的天，
   缺失天不写 0，交由前端只渲染有值的天 + 动态标签，避免“平0跳起”的伪单日曲线。
+  口径契约（见 scripts/ts_purity.py）：源表四窗=口径A，推算单点=口径B，一个帖只允许其一。
+  本脚本对重叠帖是「整体替换」timeseries，因此源表口出现时会自动让推算单点整体让位。
 """
-import csv, json, math, os, re, shutil
+import csv, json, math, os, re, shutil, sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 CONTENT_CSV = "/Users/fsw/Downloads/GTM跨境社媒数据监控_内容数据记录-X_Grid View.csv"
 ACCOUNT_CSV = "/Users/fsw/Downloads/GTM跨境社媒数据监控_账号数据记录-X_Grid View.csv"
@@ -225,6 +229,9 @@ meta.update({
 })
 out = {"meta": meta, "contents": all_c, "userVoices": voices, "accounts": accounts}
 shutil.copy(JSONP, JSONP + ".bak_pre_refresh")
+from ts_purity import assert_pure, report  # noqa: E402
+report(all_c)
+assert_pure(all_c, where="build_refresh_gridview")   # 写盘前口径断言：混用即中止
 for fn in ("content_data.json", "sample_data.json"):
     with open(f"{OUT_DIR}/{fn}", "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))

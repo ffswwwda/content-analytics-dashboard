@@ -249,6 +249,9 @@ def main():
     if dry:
         print("[dry-run] 未写盘")
         return
+    from ts_purity import assert_pure, report
+    report(all_c)
+    assert_pure(all_c, where="build_continuation_csv")   # 写盘前口径断言：混用即中止
     shutil.copy(JSONP, JSONP + ".bak_pre_continuation")
     blob = json.dumps(out, ensure_ascii=False, separators=(",", ":"))
     for fn in ("content_data.json", "sample_data.json"):

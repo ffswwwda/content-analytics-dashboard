@@ -1,4 +1,9 @@
-/* 时序图真浏览器验证：单点快照帖 / 多天帖 / 悬停 tooltip */
+/* 【已被 trend_ui_test.js 取代，保留备查】
+   本脚本依赖 js/app.js 里临时加的一行调试钩子（window.__state / window.__openDeep），
+   而该钩子按约定不允许随代码发布 —— 也就是说它验证的不是待发布文件本身。
+   发布前验证请用 trend_ui_test.js（走真实 UI 路径，无需钩子）。
+
+   时序图真浏览器验证：单点快照帖 / 多天帖 / 悬停 tooltip */
 const puppeteer = require("/Users/fsw/.workbuddy/binaries/node/workspace/node_modules/puppeteer-core");
 const { execSync } = require("child_process");
 const fs = require("fs");
