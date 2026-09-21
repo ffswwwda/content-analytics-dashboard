@@ -19,6 +19,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import tag_new_rule as TAG  # 复用规则打标（无模型粗打）
+from source_cutoff import build_meta_dates  # meta 日期自动派生
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 JSONP = os.path.join(ROOT, "data", "content_data.json")
@@ -233,8 +234,11 @@ def main():
 
     dates = sorted([c["publish_date"] for c in all_c if c.get("publish_date")])
     meta = data.get("meta", {})
+    # 日期自动派生，别再硬编码：updated_at=构建当天，data_cutoff=源表最大抓取日（取较大值防回退）
+    _ups, _cutoff = build_meta_dates(rows, meta.get("data_cutoff"))
     meta.update({
-        "updated_at": "2026-09-18T16:40:00",
+        "updated_at": _ups,
+        "data_cutoff": _cutoff,
         "source": "real",
         "source_note": "Grid View 全量刷新 + 续1 补齐(新帖规则粗打标，needs_llm_tag 待模型精修)",
         "account_count": len(accounts),

@@ -16,6 +16,7 @@ Grid View 刷新合并：用两个新 CSV（内容数据 Grid View + 账号数�
 import csv, json, math, os, re, shutil, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from source_cutoff import build_meta_dates  # noqa: E402
 
 CONTENT_CSV = "/Users/fsw/Downloads/GTM跨境社媒数据监控_内容数据记录-X_Grid View.csv"
 ACCOUNT_CSV = "/Users/fsw/Downloads/GTM跨境社媒数据监控_账号数据记录-X_Grid View.csv"
@@ -217,8 +218,11 @@ print(f"刷新后空标签: contents {empty_cont} / voices {empty_voice}")
 # ---------- 8. meta + 写出 ----------
 dates = sorted([c["publish_date"] for c in all_c if c.get("publish_date")])
 meta = data.get("meta", {})
+# 日期自动派生，别再硬编码：updated_at=构建当天，data_cutoff=源表最大抓取日（取较大值防回退）
+_ups, _cutoff = build_meta_dates(crows, meta.get("data_cutoff"))
 meta.update({
-    "updated_at": "2026-09-18T13:00:00",
+    "updated_at": _ups,
+    "data_cutoff": _cutoff,
     "source": "real",
     "source_note": "Grid View 刷新合并：重叠帖/回帖用新CSV刷新指标+重建时序(仅非零天)；accounts替换为878 handle级；非重叠旧记录保留",
     "account_count": len(accounts),

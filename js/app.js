@@ -5509,12 +5509,19 @@ ${sim || "（无同主题关联帖）"}
     else { pill.textContent = "演示数据"; pill.classList.remove("live"); }
     const lu = $("#last-updated");
     if (lu) {
+      // 徽标显示「更新于 <最近一次更新日>」；数据真实截止日（源表最后抓取批次）放悬停提示，
+      // 二者含义不同：更新日 = 页面/数据最近一次维护，截止日 = 数据本身覆盖到哪天。
       const ua = data.meta && data.meta.updated_at;
+      const cutoff = data.meta && data.meta.data_cutoff;
+      const ymd = (v) => {
+        const d = new Date(v);
+        return isNaN(d) ? String(v) : `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      };
       if (ua) {
-        const d = new Date(ua);
-        lu.textContent = isNaN(d) ? `数据更新 ${ua}` : `数据更新 ${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+        lu.textContent = `更新于 ${ymd(ua)}`;
+        if (cutoff) lu.title = `数据截止 ${ymd(cutoff)}（源监控最后一个抓取批次）`;
       } else {
-        lu.textContent = "数据更新 待同步";
+        lu.textContent = "更新于 待同步";
       }
     }
     // 时间范围默认值
