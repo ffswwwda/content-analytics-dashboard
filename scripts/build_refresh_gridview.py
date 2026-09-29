@@ -17,9 +17,11 @@ import csv, json, math, os, re, shutil, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from source_cutoff import build_meta_dates  # noqa: E402
+from csv_paths import BASE_ACCOUNT, BASE_CONTENT, resolve  # noqa: E402  源表路径自动解析
 
-CONTENT_CSV = "/Users/fsw/Downloads/GTM跨境社媒数据监控_内容数据记录-X_Grid View.csv"
-ACCOUNT_CSV = "/Users/fsw/Downloads/GTM跨境社媒数据监控_账号数据记录-X_Grid View.csv"
+# 路径不再写死：每次从 Downloads 里取该基础名最新的一份（避免脚本指着旧文件）
+CONTENT_CSV = os.environ.get("CONTENT_CSV") or resolve(BASE_CONTENT)
+ACCOUNT_CSV = os.environ.get("ACCOUNT_CSV") or resolve(BASE_ACCOUNT)
 JSONP = "/Users/fsw/WorkBuddy/2026-07-10-18-44-40/content-analytics-dashboard/data/content_data.json"
 OUT_DIR = "/Users/fsw/WorkBuddy/2026-07-10-18-44-40/content-analytics-dashboard/data"
 
@@ -170,17 +172,33 @@ for r in crows:
 print(f"更新 voices(重叠刷新): {upd_voice}; 保留非重叠: {len(voices) - upd_voice}")
 
 
-# ---------- 5. accounts 替换为 878 handle 级 ----------
+# ---------- 5. accounts 重建（handle 级，取每个 handle 的最新快照）----------
+# 关键坑：账号表是「16 个 handle × N 个数据日期」的**每日快照序列**，
+# 同一 (品牌, 账号名) 会出现多行。若按 (品牌, 账号名) 去重时保留**先出现的**那一行，
+# 拿到的是序列里最早的一天（本机实测：全是 2026-07-08），粉丝数会过期两个多月。
+# 必须按数据日期取**最新**的那条快照。
 arows = load_csv(ACCOUNT_CSV)
-accounts = []
-seen = set()
+print(f"账号 CSV 行: {len(arows)}")
+
+
+def _snap_date(r):
+    return norm(r.get("数据日期"))[:10]
+
+
+latest = {}
 for r in arows:
     brand = norm(r.get("品牌"))
     handle = norm(r.get("账号名"))
-    key = (brand, handle)
-    if not brand or key in seen:
+    if not brand:
         continue
-    seen.add(key)
+    key = (brand, handle)
+    cur = latest.get(key)
+    # 取数据日期最新的一条；同日期重复则保留后者（幂等，与输入顺序无关）
+    if cur is None or _snap_date(r) >= _snap_date(cur):
+        latest[key] = r
+
+accounts = []
+for (brand, handle), r in latest.items():
     accounts.append({
         "account": brand,
         "handle": handle,
@@ -190,11 +208,16 @@ for r in arows:
         "followers": to_int(r.get("Followers")),
         "following": to_int(r.get("Following")),
         "total_posts": to_int(r.get("总帖数")),
-        "data_date": norm(r.get("数据日期")),
+        "data_date": _snap_date(r),
         "account_link": norm(r.get("账号链接")),
         "website": norm(r.get("官网链接")),
     })
-print(f"accounts 重建: {len(accounts)} (原 {len(data.get('accounts', []))})")
+# 稳定排序，保证构建可复现
+accounts.sort(key=lambda a: (a["account"], a["handle"]))
+n_snaps = len(set((norm(r.get("品牌")), norm(r.get("账号名"))) for r in arows))
+print(f"accounts 重建: {len(accounts)} 个 handle（源表 {n_snaps} 个 handle × {len(arows) // max(n_snaps, 1)} 期快照，已取最新日）")
+for a in accounts[:3]:
+    print(f"  样本: {a['handle']} 粉丝={a['followers']} 日期={a['data_date']}")
 
 
 # ---------- 6. 重算 is_top（全体）----------
@@ -224,7 +247,7 @@ meta.update({
     "updated_at": _ups,
     "data_cutoff": _cutoff,
     "source": "real",
-    "source_note": "Grid View 刷新合并：重叠帖/回帖用新CSV刷新指标+重建时序(仅非零天)；accounts替换为878 handle级；非重叠旧记录保留",
+    "source_note": "Grid View 刷新合并：重叠帖/回帖用新CSV刷新指标+重建时序(仅非零天)；accounts取每个handle的最新快照；非重叠旧记录保留",
     "account_count": len(accounts),
     "brand_count": len(set(a["account"] for a in accounts)),
     "content_count": len(all_c),

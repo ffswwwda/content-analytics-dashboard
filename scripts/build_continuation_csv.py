@@ -20,10 +20,12 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import tag_new_rule as TAG  # 复用规则打标（无模型粗打）
 from source_cutoff import build_meta_dates  # meta 日期自动派生
+from csv_paths import BASE_CONTENT_CONT, resolve  # 源表路径自动解析（取最新导出）
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 JSONP = os.path.join(ROOT, "data", "content_data.json")
-NEW_CSV = "/Users/fsw/Downloads/GTM跨境社媒数据监控_内容数据记录-X-续1_Grid View.csv"
+# 路径不再写死：每次从 Downloads 里取该基础名最新的一份（避免脚本指着旧文件）
+NEW_CSV = os.environ.get("CONT_CSV") or resolve(BASE_CONTENT_CONT)
 DAY_COLS = ["D0", "D1", "D2", "D7"]
 METRIC_COLS = {"view": "View数", "like": "Like数", "reply": "Reply数", "repost": "Repost数", "bookmark": "Bookmark数"}
 # 时序列后缀没有「数」字：D0-View / D0-Like / ...（与总量列 View数 不同名，勿混用）
@@ -228,9 +230,10 @@ def main():
                              "handle": "", "followers": 0, "following": 0, "total_posts": 0, "data_date": "",
                              "account_link": c["post_link"], "website": ""})
             print("  新增品牌账号:", b)
-    acc_cnt = collections.Counter(c["account"] for c in all_c)
-    for a in accounts:
-        a["total_posts"] = acc_cnt.get(a.get("account"), 0)
+    # 注意：**不要**用「数据集内条数」覆盖 accounts[].total_posts。
+    # total_posts 的语义是「该账号在平台上的总发帖数」，来自账号表快照（可达数万，
+    # 例：@fleshlight 37920）；而数据集内条数（例：599）是另一个量纲，
+    # 覆盖会让页面显示的总帖数与粉丝数互相矛盾。前端也不需要数据集内计数。
 
     dates = sorted([c["publish_date"] for c in all_c if c.get("publish_date")])
     meta = data.get("meta", {})

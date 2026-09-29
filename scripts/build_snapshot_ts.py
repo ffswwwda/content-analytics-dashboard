@@ -27,13 +27,12 @@ from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ts_purity import assert_pure, report  # noqa: E402
+from csv_paths import BASE_CONTENT, BASE_CONTENT_CONT, resolve  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data", "content_data.json")
-CSV_PATHS = [
-    "/Users/fsw/Downloads/GTM跨境社媒数据监控_内容数据记录-X_Grid View.csv",
-    "/Users/fsw/Downloads/GTM跨境社媒数据监控_内容数据记录-X-续1_Grid View.csv",
-]
+# 路径不再写死：每次从 Downloads 里取该基础名最新的一份
+CSV_PATHS = [resolve(BASE_CONTENT), resolve(BASE_CONTENT_CONT)]
 
 DAY_COLS = ["D0", "D1", "D2", "D7"]
 SRC_COLS = {"view": "View数", "like": "Like数", "reply": "Reply数", "repost": "Repost数", "bookmark": "Bookmark数"}
