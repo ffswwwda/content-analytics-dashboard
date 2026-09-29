@@ -94,6 +94,8 @@ const report = [];
   for (const [id, name] of BOARDS) {
     const exists = head.boards.includes(id);
     if (!exists) { report.push({ step: name, board: id, skipped: "导航里没有这个板块" }); continue; }
+    process.stderr.write(`[${i}] ${name} ... `);
+    const tStep = Date.now();
     await page.evaluate((bid) => {
       const el = [...document.querySelectorAll(".nav-item")].find((x) => x.dataset.board === bid);
       if (el) el.click();
@@ -117,7 +119,12 @@ const report = [];
       };
     });
     const file = String(i).padStart(2, "0") + "_" + name + ".png";
-    await page.screenshot({ path: path.join(OUT, file) });
+    // 单张截图限时：某些板块内容极长，screenshot 可能长时间不返回而拖死整轮
+    await Promise.race([
+      page.screenshot({ path: path.join(OUT, file), timeout: 30000 }),
+      new Promise((_, rej) => setTimeout(() => rej(new Error("screenshot timeout 30s")), 32000)),
+    ]).catch((e) => { report.push({ step: name, board: id, shotError: e.message }); process.stderr.write(`截图失败(${e.message}) `); });
+    process.stderr.write(`ok ${Date.now() - tStep}ms\n`);
     report.push({
       step: name, board: id, shot: file, overflowX: m.overflowX, chars: m.chars,
       canvas: m.canvases, svg: m.svgs, badTokens: m.badTokens,

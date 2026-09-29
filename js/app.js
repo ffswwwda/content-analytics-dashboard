@@ -95,7 +95,8 @@
     {
       id: "contents",
       name: "发帖数据",
-      sub: "3719 条原始发帖",
+      // 别在这里写死条数：它随每轮导入变化。真正的行数由下方 rowCount 实时从数据算。
+      sub: "原始发帖记录",
       desc: "全部原始发帖（含曝光、互动、四率、类目、形式、情绪、营销目的、来源、作者类型、文本等字段）。",
       rowCount: () => (state.analysis && state.analysis.contents) ? state.analysis.contents.length : 0,
       data: () => (state.analysis && state.analysis.contents) || [],
@@ -213,11 +214,14 @@
       tip: "灵感库所有指标均来自源表真实字段或其确定性派生；卡片上的「爆款指数」进度条为前端相对百分比（非源字段）。",
       metrics: [
         { name: "曝光", type: "source", acc: 100, formula: "源表「View数」列，脚本 to_int 直拷，无任何重算。" },
-        { name: "互动", type: "source", acc: 100, formula: "源表 Like数+Reply数+Repost数+Bookmark数，逐列直拷后求和（已核对 3719 条零偏差）。" },
+        { name: "互动", type: "source", acc: 100, formula: () => `源表 Like数+Reply数+Repost数+Bookmark数，逐列直拷后求和（已核对全部 ${provStats().contentCountText} 条零偏差）。` },
         { name: "综合/点赞/评论/转发/收藏率", type: "source", acc: 100, formula: "源表「综合互动率/点赞率/评论率/传播率/收藏率」列真实值，前端优先采用、绝不重算。" },
         { name: "爆款指数", type: "source", acc: 100, formula: "源表「爆款内容指数」列（0–100 绝对值），公式=综合互动率×0.4+点赞率×0.3+评论率×0.2+传播率×0.1。" },
         { name: "全库百分位排名", type: "frontend", acc: 100, formula: "由爆款指数全库降序排名派生：前X%/后10% 分档 + 超越X% 帖子（computeViralRanks）。" },
-        { name: "爆款标识 isTop", type: "combined", acc: 100, formula: "综合判定：① 源表「爆款指数TOP10%」且曝光≥1000；② 或曝光进入全库Top10%（阈值21675）。避免低曝光（如几十）的率值噪声被误判为爆款。合计 486 条。" },
+        { name: "爆款标识 isTop", type: "combined", acc: 100, formula: () => {
+          const s = provStats();
+          return `综合判定：① 源表「爆款指数TOP10%」且曝光≥1000；② 或曝光进入全库Top10%（当前阈值 ${fmt(s.exposureTop10Threshold)}）。避免低曝光（如几十）的率值噪声被误判为爆款。当前合计 ${fmt(s.isTopCount)} 条（全库 ${s.contentCountText} 条）。`;
+        } },
         { name: "类目/平台/形式/情绪风格/营销目的/内容来源", type: "source", acc: 100, formula: "源表对应列 1:1 直拷。" },
         { name: "发布时间 / 星期 / 时段", type: "frontend", acc: 100, formula: "由源表「发布时间」解析出 publishDate / weekDay / publishHour。" },
         { name: "ROI（千次曝光互动）", type: "frontend", acc: 100, formula: "互动数 ÷ 曝光 × 1000，输入均为源真实值。" },
@@ -249,7 +253,12 @@
         { name: "整体数据（曝光/互动/各率）", type: "source", acc: 100, formula: "源表字段对该竞品内容聚合求和/均值。" },
         { name: "内容排序列表", type: "frontend", acc: 100, formula: "按爆款指数降序排列（源真实值）。" },
         { name: "形式 / 数据筛选", type: "source", acc: 100, formula: "源表形式/类目等字段直接过滤。" },
-        { name: "用户评价（回帖）", type: "source", acc: 100, formula: "源表 userVoices（按关联帖ID 挂接，6793/6793 命中）。" },
+        { name: "用户评价（回帖）", type: "source", acc: 100, formula: () => {
+          const s = provStats();
+          const pct = s.voicesWithAssoc ? (s.voicesLinked / s.voicesWithAssoc * 100).toFixed(1) : "0.0";
+          // 命中率用精确数字：缩写成「1.9万/1.9万」会把分子分母的差异抹掉，看不出挂接率
+          return `源表 userVoices 按「关联帖ID」挂接到主帖，当前命中 ${s.voicesLinked.toLocaleString("en-US")}/${s.voicesWithAssoc.toLocaleString("en-US")} 条（${pct}%；其余回帖的主帖未在本次监控范围内，或源表未给关联帖ID，故不参与按帖聚合）。`;
+        } },
         { name: "运营节奏 × 表现", type: "frontend", acc: 100, formula: "按发布时段分组聚合表现指标（源字段）。" },
         { name: "Campaign 爆发监测", type: "frontend", acc: 100, formula: "按时间窗口聚合互动增量，识别爆发点（源字段）。" },
       ],
@@ -5352,6 +5361,30 @@ ${sim || "（无同主题关联帖）"}
 
   /* ============ 初始化 ============ */
   /* ============ 数据来源 / 公式计算 弹层 ============ */
+  /* 运行时统计：供「数据来源」文案引用。
+     这些数字（条数、Top10% 阈值、爆款数、挂接命中）每轮导入都会变，
+     写死在文案里必然过期（本文件曾长期写着 3719 条、6793/6793、阈值21675、合计486，
+     全部与当前数据不符）。故一律现算，不硬编码。 */
+  function provStats() {
+    const contents = (state.analysis && state.analysis.contents) || (state.raw && state.raw.contents) || [];
+    const voices = (state.raw && state.raw.userVoices) || [];
+    const n = contents.length;
+    const k = Math.max(1, Math.ceil(n * 0.1));
+    const byExp = [...contents].sort((a, b) => (b.exposure || 0) - (a.exposure || 0));
+    const thrE = byExp[k - 1] ? (byExp[k - 1].exposure || 0) : 0;
+    const ids = new Set(contents.map((c) => c.id));
+    const withAssoc = voices.filter((v) => v.associated_id).length;
+    const linked = voices.filter((v) => v.associated_id && ids.has(v.associated_id)).length;
+    return {
+      contentCount: n,
+      contentCountText: fmt(n),
+      isTopCount: contents.filter((c) => c.isTop).length,
+      exposureTop10Threshold: thrE,
+      voiceCount: voices.length,
+      voicesWithAssoc: withAssoc,
+      voicesLinked: linked,
+    };
+  }
   function renderProvModal() {
     const cfg = BOARD_PROVENANCE[state.board];
     const b = BOARDS.find((x) => x.id === state.board) || {};
@@ -5359,6 +5392,7 @@ ${sim || "（无同主题关联帖）"}
     $("#prov-sub").textContent = `共 ${cfg ? cfg.metrics.length : 0} 项指标`;
     const body = $("#prov-body");
     if (!cfg) { body.innerHTML = `<div class="prov-tip">该板块暂未配置指标明细。</div>`; return; }
+    const ps = provStats();
     const legend = Object.entries(PROV_TYPES).map(([k, v]) => `<span class="lg"><i style="background:${v.color}"></i>${v.label}</span>`).join("");
     const counts = { source: 0, frontend: 0, ai: 0, combined: 0 };
     let flagCount = 0;
@@ -5370,10 +5404,12 @@ ${sim || "（无同主题关联帖）"}
       const isBad = m.flag || m.acc !== 100;
       const accTxt = m.acc === 100 ? "100%" : (m.acc || "未达100%");
       const note = m.note ? `<span class="pr-note">⚠ ${esc(m.note)}</span>` : "";
+      // formula 可为函数：其中含会随数据变化的统计数字（条数/阈值/命中数），必须现算
+      const formulaTxt = typeof m.formula === "function" ? m.formula() : m.formula;
       return `<div class="prov-row${isBad ? " flag" : ""}">
         <div class="pr-name">${esc(m.name)}</div>
         <div class="pr-tag ${m.type}">${t.label}</div>
-        <div class="pr-formula">${esc(m.formula)}${note}</div>
+        <div class="pr-formula">${esc(formulaTxt)}${note}</div>
         <div class="pr-acc ${isBad ? "bad" : "ok"}">${esc(String(accTxt))}</div>
       </div>`;
     }).join("");
