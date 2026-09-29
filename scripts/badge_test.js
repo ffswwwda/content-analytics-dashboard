@@ -52,8 +52,10 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   page.on("pageerror", (e) => errors.push("pageerror: " + e.message));
   page.on("console", (m) => { if (m.type() === "error") errors.push("console: " + m.text()); });
 
-  await page.goto(`${BASE}/index.html`, { waitUntil: "networkidle0", timeout: 120000 });
-  await page.waitForFunction(() => document.querySelectorAll(".nav-item").length > 0 && document.getElementById("board").innerHTML.length > 50, { timeout: 90000 });
+  // 线上模式要拉 ~18MB 数据文件，networkidle0 偶尔会因网络波动超时；
+  // 用 domcontentloaded 进入 + 显式等就绪条件，比死等 networkidle 稳。
+  await page.goto(`${BASE}/index.html`, { waitUntil: LIVE ? "domcontentloaded" : "networkidle0", timeout: LIVE ? 180000 : 120000 });
+  await page.waitForFunction(() => document.querySelectorAll(".nav-item").length > 0 && document.getElementById("board").innerHTML.length > 50, { timeout: 180000 });
 
   const info = await page.evaluate(() => {
     const lu = document.getElementById("last-updated");
