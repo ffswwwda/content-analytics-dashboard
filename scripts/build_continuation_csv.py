@@ -210,14 +210,21 @@ def main():
     all_c = cont + new_cont
     all_v = voices + new_voices
 
-    # is_top：全体阈值重算（新增帖 + 已刷新帖一起重判，旧帖保持既有判定语义）
+    # is_top：按全体阈值重判**所有**帖子。
+    # 曾经的写法只对 new_cont 赋值（阈值却按全体算），导致每轮导入后**老帖不再被重评**：
+    # 阈值随数据集增大而移动，老帖的 is_top 却停在历史判定上，与本文件文档化的公式悄悄漂移。
+    # 实测：5898 条时全量重算命中 647，而库内存量只有 625 —— 38 条被漏判（含曝光 Top10% 级别的爆款）。
+    # 该公式是纯函数、幂等，全量重判不会引入抖动，只会让存量回归正确。
     exp_sorted = sorted(all_c, key=lambda x: x.get("exposure") or 0, reverse=True)
     thr_e = exp_sorted[max(1, math.ceil(len(all_c) * 0.1)) - 1].get("exposure") or 0
     viral_sorted = sorted(all_c, key=lambda x: x.get("viral_score") or 0, reverse=True)
     thr_v = viral_sorted[max(1, math.ceil(len(all_c) * 0.1)) - 1].get("viral_score") or 0
-    for c in new_cont:
+    before_top = sum(1 for c in all_c if c.get("is_top"))
+    for c in all_c:
         c["is_top"] = ((c["viral_score"] >= thr_v and c["exposure"] >= 1000) or c["exposure"] >= thr_e)
-    print(f"is_top 阈值：曝光Top10%>={thr_e} / 爆款指数Top10%>={thr_v} | 新增帖中 is_top={sum(1 for c in new_cont if c['is_top'])}")
+    after_top = sum(1 for c in all_c if c.get("is_top"))
+    print(f"is_top 阈值：曝光Top10%>={thr_e} / 爆款指数Top10%>={thr_v}")
+    print(f"is_top 全量重判：{before_top} -> {after_top}（修正 {after_top - before_top} 条历史漂移）")
 
     # accounts：保留既有条目（含 handle 级，勿按品牌去重，否则 Tantaly 两个 handle 会被合并）+ 补真正的新品牌
     accounts = list(data.get("accounts", []))

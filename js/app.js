@@ -146,14 +146,15 @@
           { label: "总互动", value: fmt(sum("engagement")) },
           { label: "平均互动率", value: rows.length ? (sum("engagementRate") / rows.length).toFixed(2) + "%" : "0%" },
           { label: "爆款条数", value: fmt(rows.filter((r) => r.isTop).length) },
-          { label: "品牌数", value: fmt(new Set(rows.map((r) => r.account)).size) },
+          { label: "品牌数", value: fmt(countBrands(rows)) },
         ];
       },
     },
     {
       id: "voices",
       name: "用户回帖数据",
-      sub: "6793 条用户回帖",
+      // 不写死条数：源表每天都在长，写进文案必然过期（此处曾长期写着 6793，实际已 1.9 万+）
+      sub: "全部用户回帖明细",
       desc: "全部用户回帖（含品牌、类目、情绪、回复意图、回复焦点、作者类型、关系、点赞、文本等字段）。",
       rowCount: () => (state.raw && state.raw.userVoices) ? state.raw.userVoices.length : 0,
       data: () => (state.raw && state.raw.userVoices) || [],
@@ -188,7 +189,7 @@
           { label: "总点赞", value: fmt(sum("likes")) },
           { label: "平均点赞", value: rows.length ? fmt(Math.round(sum("likes") / rows.length)) : "0" },
           { label: "正面情绪", value: rows.length ? Math.round(rows.filter((r) => r.sentiment === "正面").length / rows.length * 100) + "%" : "0%" },
-          { label: "品牌数", value: fmt(new Set(rows.map((r) => r.account)).size) },
+          { label: "品牌数", value: fmt(countBrands(rows)) },
           { label: "意图种数", value: fmt(new Set(rows.map((r) => r.reply_intent).filter(Boolean)).size) },
         ];
       },
@@ -366,6 +367,10 @@
   const dispText = (item) => (state.lang === "zh" && item && (item.text_zh || item.translation) ? (item.text_zh || item.translation) : (item ? item.text : ""));
   const dispVoice = (v) => (state.lang === "zh" && v && (v.text_zh || v.translation) ? (v.text_zh || v.translation) : (v ? v.text : ""));
   const fmt = (n) => (n >= 10000 ? (n / 10000).toFixed(1) + "万" : String(Math.round(n)));
+  /* 品牌计数：必须剔除空值。
+     源表中「被转发原帖」这批没有品牌（品牌/类目列恒空），account 落到空串；
+     若直接 new Set(map(account)).size，空串会被当成「一个品牌」，把品牌数从 15 抬到 16。 */
+  const countBrands = (rows) => new Set((rows || []).map((r) => r && r.account).filter(Boolean)).size;
   const rate = (c) => Math.max(0, Math.min(100, Math.round((c.viralScore / state.maxViral) * 100)));
   // 活动帖判定：优先用 is_activity 真值；否则从 topic_tags/content_topic/文本关键词推断
   function isActivityPost(c) {
@@ -1833,9 +1838,12 @@ ${topMatches || "（无强匹配）"}
     // 提取品牌爆款详情表
     const brandAggs = dimRate("account", 15).match(/<div class="qc-bar">.*?<\/div><\/div>/g) ? [] : [];
     // Build brand table manually
+    // 必须跳过空品牌：源表「被转发原帖」没有品牌（account 为空串），若在此成组，
+    // 会凭空多出一个「空」品牌行，且因爆款率 31% 反而排到 Fleshlight（26%）前面 — 已实测。
     const brandMap = {};
     data.forEach((c) => {
-      const n = c.account; if (!brandMap[n]) brandMap[n] = { total: 0, top: 0, scores: [] };
+      const n = c.account; if (!n) return;
+      if (!brandMap[n]) brandMap[n] = { total: 0, top: 0, scores: [] };
       brandMap[n].total++; if (c.isTop) brandMap[n].top++;
       if (c.viralScore != null) brandMap[n].scores.push(c.viralScore);
     });
@@ -1849,16 +1857,43 @@ ${topMatches || "（无强匹配）"}
     }</tbody></table>`;
 
     // ★ 8. 洞察
-    const compER = avg(tops, "engagementRate")/Math.max(avg(normal, "engagementRate"), 0.0001);
-    const compLR = avg(tops, "likeRate")/Math.max(avg(normal, "likeRate"), 0.0001);
-    const compCR = avg(tops, "commentRate")/Math.max(avg(normal, "commentRate"), 0.0001);
-    const compSR = avg(tops, "shareRate")/Math.max(avg(normal, "shareRate"), 0.0001);
-    const bestBrand = brandTable[0];
+    /* 驱动因素：必须用**聚合总量/总曝光**的加权率来比，不能用逐帖率的算术平均。
+       原因：源表 repost_rate 等逐帖率高度右偏（低曝光帖的率值会有几十倍的噪声），
+       avg() 一平均就被极值带跑，实测会出现「传播率 0.0x」这种不可能的倍数。
+       改用总曝光加权后，倍数稳定且都是正信号。 */
+    const wRate = (rows, key) => {
+      const tot = rows.reduce((s, r) => s + (r.exposure || 0), 0);
+      if (!tot) return 0;
+      return rows.reduce((s, r) => s + (r[key] || 0), 0) / tot * 100;
+    };
+    const drivers = [
+      { name: "曝光", mult: (tops.reduce((s, r) => s + (r.exposure || 0), 0) / Math.max(tops.length, 1)) / Math.max(normal.reduce((s, r) => s + (r.exposure || 0), 0) / Math.max(normal.length, 1), 0.0001) },
+      { name: "点赞率", mult: wRate(tops, "likes") / Math.max(wRate(normal, "likes"), 0.0001) },
+      { name: "评论率", mult: wRate(tops, "comments") / Math.max(wRate(normal, "comments"), 0.0001) },
+      { name: "转发率", mult: wRate(tops, "shares") / Math.max(wRate(normal, "shares"), 0.0001) },
+      { name: "收藏率", mult: wRate(tops, "collections") / Math.max(wRate(normal, "collections"), 0.0001) },
+    ].sort((a, b) => b.mult - a.mult);
+    // 只把「真的更高」的指标称作驱动因素；低于普通帖的一律不并列，避免结论与数字打架
+    const strong = drivers.filter((d) => d.mult > 1);
+    const driverText = (strong.length ? strong : drivers).slice(0, 3)
+      .map((d) => `<b>${d.name} ${d.mult.toFixed(1)}x</b>`).join("、");
+    const driverNames = (strong.length ? strong : drivers).slice(0, 3).map((d) => d.name).join("、");
+    /* 内容模式：原为写死的「89% 爆款为转发媒体型内容…转载型天然具备传播优势」，
+       与数据相反 —— 实测爆款里原创 646 条 / 转发 1 条，转发内容的爆款率仅 0.1%（原创 13.5%）。
+       改为实时计算并给出正确结论。 */
+    const srcOf = (rows) => {
+      const s = rows.filter((c) => c.content_source === "原创" || c.content_source === "转发");
+      const o = s.filter((c) => c.content_source === "原创").length;
+      return { n: s.length, orgPct: s.length ? Math.round(o / s.length * 100) : 0 };
+    };
+    const topSrc = srcOf(tops);
+    const brandCount = brandTable.filter((b) => b.name).length;
+    const bestBrand = brandTable.filter((b) => b.name)[0];
     const insight = `<div style="font-size:13px;line-height:1.7;color:var(--text)">
       <b style="color:var(--accent-strong)">核心发现</b>（基于 TOP10% 爆款 ${tops.length} 条 vs 普通 ${normal.length} 条）<br><br>
-      <b>驱动因素</b>：传播率 <b>${compSR.toFixed(1)}x</b>、评论率 <b>${compCR.toFixed(1)}x</b>、互动率 <b>${compER.toFixed(1)}x</b> 是差距最大的三个指标 → <b style="color:var(--hot)">爆款的核心驱动力来自讨论与转发</b><br>
-      <b>品牌标杆</b>：${esc(bestBrand.name)}（${bestBrand.rate}% · 均爆款指数 ${bestBrand.avgS.toFixed(2)}）<br>
-      <b>内容模式</b>：89% 爆款内容为<b>转发媒体</b>型内容（媒体报道/KOL/用户晒单），说明转载型内容天然具备传播优势<br>
+      <b>驱动因素</b>：${driverText} 是与普通内容差距最大的指标 → <b style="color:var(--hot)">爆款的核心驱动来自${esc(driverNames)}</b><br>
+      <b>品牌标杆</b>：${bestBrand ? `${esc(bestBrand.name)}（${bestBrand.rate}% · 均爆款指数 ${bestBrand.avgS.toFixed(2)}，共 ${brandCount} 个品牌可按爆款率比较）` : "—"}<br>
+      <b>内容模式</b>：爆款中 <b>${topSrc.orgPct}%</b> 为原创（原创内容爆款率高于转发）→ <b>首发/原创比转载更容易出爆款</b><br>
       <b>主题方向</b>：${Object.entries(topTopics).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([t]) => `<b>${esc(t)}</b>`).join("、")}
     </div>`;
 
@@ -1902,7 +1937,7 @@ ${topMatches || "（无强匹配）"}
   // ===== 爆款内容深度分析 · 维度深度钻取 =====
   const VD_DIMS = [
     { key: "all",            label: "全部",       field: null,             multi: false, emptyLabel: "—", isOverview: true },
-    { key: "account",        label: "按品牌",     field: "account",        multi: false, emptyLabel: "(空)" },
+    { key: "account",        label: "按品牌",     field: "account",        multi: false, emptyLabel: "(空)", dropEmpty: true },
     { key: "contentType",    label: "按内容形式", field: "contentType",    multi: false, emptyLabel: "(空)" },
     { key: "emotion",        label: "按情绪风格", field: "emotion",        multi: false, emptyLabel: "未标记" },
     { key: "marketing_goal", label: "按营销目的", field: "marketing_goal", multi: true,  split: /[、,，]/, emptyLabel: "未标记" },
@@ -1927,7 +1962,10 @@ ${topMatches || "（无强匹配）"}
   }
   function vdDimRows(items, cfg) {
     const g = {};
-    items.forEach((it) => vdVals(it, cfg).forEach((v) => { g[v] = (g[v] || 0) + 1; }));
+    items.forEach((it) => vdVals(it, cfg).forEach((v) => {
+      if (cfg.dropEmpty && (!v || v === cfg.emptyLabel)) return;
+      g[v] = (g[v] || 0) + 1;
+    }));
     return Object.entries(g).sort((a, b) => b[1] - a[1]);
   }
   function vdCrossCol(items, cfg, selfKey) {
@@ -1986,7 +2024,12 @@ ${topMatches || "（无强匹配）"}
     if (dimKey === "all") {
       const sections = VD_DIMS.filter((d) => d.key !== "all").map((d) => {
         const groups = {};
-        data.forEach((c) => vdVals(c, d).forEach((v) => { (groups[v] = groups[v] || []).push(c); }));
+        // 品牌维度丢弃空值项：源表「被转发原帖」没有品牌（account 落到空串），
+        // 若参与分组会凭空多出一个「(空)」类目，且爆款率高达 33% 直接登顶 TOP5，把真实品牌挤下去。
+        data.forEach((c) => vdVals(c, d).forEach((v) => {
+          if (d.dropEmpty && (!v || v === d.emptyLabel)) return;
+          (groups[v] = groups[v] || []).push(c);
+        }));
         const rows = Object.entries(groups).map(([value, items]) => {
           const total = items.length;
           const top = items.filter((c) => c.isTop).length;
@@ -2000,7 +2043,10 @@ ${topMatches || "（无强匹配）"}
       const overview = `<div class="vd-overview-grid">${sections}</div>`;
       const allCards = `<div class="vd-dim-grid" style="margin-top:14px">${VD_DIMS.filter((d) => d.key !== "all").map((d) => {
         const groups = {};
-        data.forEach((c) => vdVals(c, d).forEach((v) => { (groups[v] = groups[v] || []).push(c); }));
+        data.forEach((c) => vdVals(c, d).forEach((v) => {
+          if (d.dropEmpty && (!v || v === d.emptyLabel)) return;
+          (groups[v] = groups[v] || []).push(c);
+        }));
         const topValue = Object.entries(groups).map(([value, items]) => ({ value, items, total: items.length, top: items.filter((c) => c.isTop).length }))
           .sort((a, b) => (b.top / Math.max(b.total, 1)) - (a.top / Math.max(a.total, 1)) || (b.total - a.total))[0];
         if (!topValue) return "";
@@ -2012,7 +2058,10 @@ ${topMatches || "（无强匹配）"}
     // 单维度：顶部整体看板 + 分卡片
     const dimCfg = VD_DIMS.find((d) => d.key === dimKey) || VD_DIMS[1];
     const groups = {};
-    data.forEach((c) => vdVals(c, dimCfg).forEach((v) => { (groups[v] = groups[v] || []).push(c); }));
+    data.forEach((c) => vdVals(c, dimCfg).forEach((v) => {
+      if (dimCfg.dropEmpty && (!v || v === dimCfg.emptyLabel)) return;
+      (groups[v] = groups[v] || []).push(c);
+    }));
     const cards = Object.entries(groups).map(([value, items]) => {
       const total = items.length;
       const top = items.filter((c) => c.isTop).length;
@@ -3846,7 +3895,7 @@ ${topMatches || "（无强匹配）"}
         </div>
       </div>
     </div>`;
-    const displayName = isAll ? `全部竞品（${new Set(itemsAll.map((c) => c.account)).size} 个品牌）` : name;
+    const displayName = isAll ? `全部竞品（${countBrands(itemsAll)} 个品牌）` : name;
     const modeTag = cf && cf.mode !== "all" ? `<span class="tag" style="background:var(--accent);color:#fff;margin-left:8px">${cf.mode === "activity" ? "活动" : "日常"}</span>` : "";
     return `<div class="comp-section">
       <div class="comp-sec-head"><span class="comp-sec-name">${esc(displayName)}${modeTag}</span><span class="comp-sec-badge">内容 ${items.length} · 平均爆款指数 ${avgRate} · 爆款 ${topCount}</span></div>
