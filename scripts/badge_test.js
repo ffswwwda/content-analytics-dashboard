@@ -1,5 +1,7 @@
 /* 侧边栏「更新于 / 数据截止」徽标验证（真实 UI，无调试钩子）
-   默认跑本地静态服务；加 --live 则直接跑线上 GitHub Pages（验收发布用）。 */
+   默认跑本地静态服务；加 --live 则直接跑线上 GitHub Pages（验收发布用）。
+   --live --local-data：页面资产取自线上，data/*.json 用本地同名文件代替
+   （本机 Chrome→github.io 拉 20MB 极慢会触发页面 45s 超时；线上文件已用 md5 证明与本地一致）。 */
 const puppeteer = require("/Users/fsw/.workbuddy/binaries/node/workspace/node_modules/puppeteer-core");
 const { execSync } = require("child_process");
 const fs = require("fs");
@@ -24,6 +26,7 @@ const OUT = path.join(ROOT, "scripts", "_shots");
 fs.mkdirSync(OUT, { recursive: true });
 
 const LIVE = process.argv.includes("--live");
+const LOCAL_DATA = process.argv.includes("--local-data");
 const BASE = LIVE ? "https://ffswwwda.github.io/content-analytics-dashboard" : `http://localhost:${PORT}`;
 
 const fails = [];
@@ -51,6 +54,19 @@ function check(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); if (!ok) 
   const errors = [];
   page.on("pageerror", (e) => errors.push("pageerror: " + e.message));
   page.on("console", (m) => { if (m.type() === "error") errors.push("console: " + m.text()); });
+
+  if (LIVE && LOCAL_DATA) {
+    console.log("【模式】线上页面资产 + 本地 data/*.json（仅绕过本机慢链路）");
+    await page.setRequestInterception(true);
+    page.on("request", (req) => {
+      const mm = req.url().match(/\/data\/(content_data|sample_data)\.json/);
+      if (mm) {
+        const f = path.join(ROOT, "data", mm[1] + ".json");
+        if (fs.existsSync(f)) { req.respond({ status: 200, contentType: "application/json", body: fs.readFileSync(f) }); return; }
+      }
+      req.continue();
+    });
+  }
 
   // 线上模式要拉 ~18MB 数据文件，networkidle0 偶尔会因网络波动超时；
   // 用 domcontentloaded 进入 + 显式等就绪条件，比死等 networkidle 稳。

@@ -1,6 +1,10 @@
 // 验证本轮修复（真实浏览器）
 //   默认：本地静态服务（8146），验的是待发布文件
 //   --live：直接跑线上 GitHub Pages，验收发布结果
+//   --live --local-data：页面资产仍从线上取，但把 data/*.json 的响应替换成本地同名文件。
+//     用途：本机 Chrome 到 github.io 拉 20MB payload 极慢（实测 27~63s，而 curl 仅 2.1s），
+//     会触发页面自身 45s 超时而回退/失败 —— 那是本机链路问题，不是站点问题。
+//     因为线上 data/*.json 已用 md5 逐字节证明与本地一致，此处替换只绕过传输、不改变被验内容。
 // 注意：期望值一律从本地 data/content_data.json 现算，不写死，避免下次换数据后必然误报。
 const puppeteer = require("/Users/fsw/.workbuddy/binaries/node/workspace/node_modules/puppeteer-core");
 const http = require("http"), fs = require("fs"), path = require("path");
@@ -9,6 +13,7 @@ const EXEC = path.join(ROOT, "chrome-headless-shell/mac_arm-151.0.7922.34/chrome
 const MIME = { ".html": "text/html", ".js": "application/javascript", ".css": "text/css", ".json": "application/json", ".png": "image/png", ".jpeg": "image/jpeg", ".svg": "image/svg+xml" };
 const PORT = 8146;
 const LIVE = process.argv.includes("--live");
+const LOCAL_DATA = process.argv.includes("--local-data");
 const BASE = LIVE ? "https://ffswwwda.github.io/content-analytics-dashboard" : `http://localhost:${PORT}`;
 let pass = 0, fail = 0;
 function ck(ok, msg) { console.log((ok ? "PASS " : "FAIL ") + msg); ok ? pass++ : fail++; }
@@ -38,6 +43,24 @@ const EXP_VOICES = DATA.userVoices.length;
   const errs = [];
   p.on("pageerror", (e) => errs.push(String(e).slice(0, 160)));
   p.on("console", (m) => { if (m.type() === "error") errs.push("c:" + m.text().slice(0, 160)); });
+
+  if (LIVE && LOCAL_DATA) {
+    console.log("【模式】线上页面资产 + 本地 data/*.json（已证与线上逐字节一致，仅绕过本机慢链路）\n");
+    await p.setRequestInterception(true);
+    p.on("request", (req) => {
+      const u = req.url();
+      const mm = u.match(/\/data\/(content_data|sample_data)\.json/);
+      if (mm) {
+        const f = path.join(ROOT, "data", mm[1] + ".json");
+        if (fs.existsSync(f)) {
+          req.respond({ status: 200, contentType: "application/json", body: fs.readFileSync(f) });
+          return;
+        }
+      }
+      req.continue();
+    });
+  }
+
   await p.setViewport({ width: 1600, height: 1100 });
   // 线上是 18MB 数据，networkidle0 不可靠
   await p.goto(`${BASE}/index.html`, { waitUntil: LIVE ? "domcontentloaded" : "networkidle0", timeout: LIVE ? 180000 : 150000 });
