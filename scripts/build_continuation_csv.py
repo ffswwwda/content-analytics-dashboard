@@ -215,6 +215,26 @@ def main():
     # 阈值随数据集增大而移动，老帖的 is_top 却停在历史判定上，与本文件文档化的公式悄悄漂移。
     # 实测：5898 条时全量重算命中 647，而库内存量只有 625 —— 38 条被漏判（含曝光 Top10% 级别的爆款）。
     # 该公式是纯函数、幂等，全量重判不会引入抖动，只会让存量回归正确。
+    def top_flags(rows):
+        """按给定样本算百分位阈值，返回 (判定函数, thr_e, thr_v)。"""
+        n = len(rows)
+        es = sorted(rows, key=lambda x: x.get("exposure") or 0, reverse=True)
+        vs = sorted(rows, key=lambda x: x.get("viral_score") or 0, reverse=True)
+        te = es[max(1, math.ceil(n * 0.1)) - 1].get("exposure") or 0
+        tv = vs[max(1, math.ceil(n * 0.1)) - 1].get("viral_score") or 0
+        return (lambda c: ((c["viral_score"] >= tv and c["exposure"] >= 1000)
+                           or c["exposure"] >= te)), te, tv
+
+    # 先在**入库前的存量**上自检：存量 is_top 与公式是否一致？这才叫「真实漂移」。
+    # （必须用旧样本算阈值——用新样本会把「样本变大导致阈值移动」误报成漂移。）
+    _, te_old, tv_old = top_flags(cont)
+    drift = sum(1 for c in cont if bool(c.get("is_top")) != bool(top_flags(cont)[0](c)))
+    if drift:
+        print(f"存量自检：{drift} 条与公式不符（真实漂移，旧阈值 曝光>={te_old}/指数>={tv_old}）")
+    else:
+        print(f"存量自检：存量 is_top 与公式完全一致（0 条真实漂移，旧阈值 曝光>={te_old}/指数>={tv_old}）")
+
+    # 再按**合并后全体**重算。计数会移动，是因为样本变大导致百分位阈值平移，不是漂移。
     exp_sorted = sorted(all_c, key=lambda x: x.get("exposure") or 0, reverse=True)
     thr_e = exp_sorted[max(1, math.ceil(len(all_c) * 0.1)) - 1].get("exposure") or 0
     viral_sorted = sorted(all_c, key=lambda x: x.get("viral_score") or 0, reverse=True)
@@ -223,8 +243,9 @@ def main():
     for c in all_c:
         c["is_top"] = ((c["viral_score"] >= thr_v and c["exposure"] >= 1000) or c["exposure"] >= thr_e)
     after_top = sum(1 for c in all_c if c.get("is_top"))
-    print(f"is_top 阈值：曝光Top10%>={thr_e} / 爆款指数Top10%>={thr_v}")
-    print(f"is_top 全量重判：{before_top} -> {after_top}（修正 {after_top - before_top} 条历史漂移）")
+    print(f"is_top 阈值（合并后）：曝光Top10%>={thr_e} / 爆款指数Top10%>={thr_v}（旧 曝光>={te_old}/指数>={tv_old}）")
+    print(f"is_top 重判：{before_top} -> {after_top}（净 {after_top - before_top:+d}；"
+          f"其中真实漂移 {drift} 条，其余为样本变大导致百分位阈值平移的重新分类）")
 
     # accounts：保留既有条目（含 handle 级，勿按品牌去重，否则 Tantaly 两个 handle 会被合并）+ 补真正的新品牌
     accounts = list(data.get("accounts", []))
