@@ -27,6 +27,12 @@ if (!EXEC) { console.error("NO_CHROME"); process.exit(3); }
 
 const ROOT = "/Users/fsw/WorkBuddy/2026-07-10-18-44-40/content-analytics-dashboard";
 const PORT = 8136;
+const LIVE = process.argv.includes("--live");
+/* --live 时页面资产从线上取，只把 data/*.json 换成本地同名文件。
+   原因：本机 Chrome 拉 21MB 的 content_data.json 需 27~63s，会撞页面自身 45s 超时；
+   而 curl 同一 URL 仅 2s。这是链路问题不是站点问题，--local-data 只为绕过传输、不改被验内容。 */
+const LOCAL_DATA = process.argv.includes("--local-data");
+const LIVE_BASE = "https://ffswwwda.github.io/content-analytics-dashboard";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const results = [];
@@ -49,25 +55,40 @@ const check = (name, pass, detail) => {
   console.log("JSON 真实值:", exp);
 
   const http = require("http");
-  const server = http.createServer((req, res) => {
-    let p = decodeURIComponent(req.url.split("?")[0]);
-    if (p === "/") p = "/index.html";
-    const f = path.join(ROOT, p);
-    if (!fs.existsSync(f) || !fs.statSync(f).isFile()) { res.writeHead(404); res.end("nf"); return; }
-    const ext = path.extname(f);
-    const ct = ext === ".html" ? "text/html" : ext === ".js" ? "application/javascript" : ext === ".json" ? "application/json" : ext === ".css" ? "text/css" : "application/octet-stream";
-    res.writeHead(200, { "Content-Type": ct });
-    fs.createReadStream(f).pipe(res);
-  });
-  await new Promise((r) => server.listen(PORT, r));
+  let server = null;
+  if (!LIVE) {
+    server = http.createServer((req, res) => {
+      let p = decodeURIComponent(req.url.split("?")[0]);
+      if (p === "/") p = "/index.html";
+      const f = path.join(ROOT, p);
+      if (!fs.existsSync(f) || !fs.statSync(f).isFile()) { res.writeHead(404); res.end("nf"); return; }
+      const ext = path.extname(f);
+      const ct = ext === ".html" ? "text/html" : ext === ".js" ? "application/javascript" : ext === ".json" ? "application/json" : ext === ".css" ? "text/css" : "application/octet-stream";
+      res.writeHead(200, { "Content-Type": ct });
+      fs.createReadStream(f).pipe(res);
+    });
+    await new Promise((r) => server.listen(PORT, r));
+  }
+  const PAGE_URL = LIVE ? `${LIVE_BASE}/index.html` : `http://localhost:${PORT}/index.html`;
 
   const browser = await puppeteer.launch({ executablePath: EXEC, headless: "shell", args: ["--no-sandbox", "--disable-gpu"] });
   const page = await browser.newPage();
   const errs = [];
   page.on("pageerror", (e) => errs.push(String(e)));
   page.on("console", (m) => { if (m.type() === "error") errs.push("console:" + m.text()); });
+  if (LIVE && LOCAL_DATA) {
+    await page.setRequestInterception(true);
+    page.on("request", (req) => {
+      const mm = req.url().match(/\/data\/(content_data|sample_data)\.json/);
+      if (mm) {
+        const f = path.join(ROOT, "data", mm[1] + ".json");
+        if (fs.existsSync(f)) { req.respond({ status: 200, contentType: "application/json", body: fs.readFileSync(f) }); return; }
+      }
+      req.continue();
+    });
+  }
   await page.setViewport({ width: 1600, height: 1000 });
-  await page.goto(`http://localhost:${PORT}/index.html`, { waitUntil: "networkidle0", timeout: 60000 });
+  await page.goto(PAGE_URL, { waitUntil: "networkidle0", timeout: 90000 });
   await page.waitForFunction(() => document.querySelectorAll(".nav-item").length > 0, { timeout: 45000 });
 
   // 进入竞品内容监测
@@ -188,7 +209,7 @@ const check = (name, pass, detail) => {
   check("无 JS 报错", errs.length === 0, errs.slice(0, 3).join(" | "));
 
   await browser.close();
-  server.close();
+  if (server) server.close();
 
   const failed = results.filter((r) => !r.pass);
   console.log(`\n===== ${results.length - failed.length}/${results.length} 通过 =====`);
