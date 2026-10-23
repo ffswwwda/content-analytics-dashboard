@@ -342,6 +342,9 @@
     sourceDb: { source: "contents", filters: {}, sort: "viralScore", page: 0, pageSize: 50, search: "", expanded: [], activeView: null, selectedViews: new Set() },
     sourceViews: [],
     compFilters: { types: new Set(), sort: "viral", viralMin: 0, topOnly: false, mode: "all" },
+    /* 内容类型（源表 `内容类型` 列）——全局/单品牌两个视图共用，故放在 compFilters 之外：
+       发帖=品牌原创 · 转发=品牌转推(RT) · 被转发原帖=被转的原文(外部作者) */
+    compPostType: "all",
     compDimSort: { type: "count", topic: "count", emotion: "count" },
     deepId: null, deepCompare: [], deepView: "main",
     opsBrands: [], opsRefs: new Set(["rhythm", "topic", "format", "style", "metric"]),
@@ -1878,13 +1881,18 @@ ${topMatches || "（无强匹配）"}
     const driverText = (strong.length ? strong : drivers).slice(0, 3)
       .map((d) => `<b>${d.name} ${d.mult.toFixed(1)}x</b>`).join("、");
     const driverNames = (strong.length ? strong : drivers).slice(0, 3).map((d) => d.name).join("、");
-    /* 内容模式：原为写死的「89% 爆款为转发媒体型内容…转载型天然具备传播优势」，
-       与数据相反 —— 实测爆款里原创 646 条 / 转发 1 条，转发内容的爆款率仅 0.1%（原创 13.5%）。
-       改为实时计算并给出正确结论。 */
+    /* 内容模式：改用源表「内容类型」真值（postType），不再用 content_source 兜底值。
+       原因：content_source 在源表中恒为空，此前整库被兜底成「原创」，导致这句曾误报「100% 为原创」。
+       实测爆款 705 条构成 = 原创 373（52.9%）/ 被转原帖 185（26.2%）/ 品牌转推 147（20.9%）。
+       注意「被转原帖」爆款率 28.4% 远高于原创 9.1%，但这是选择偏差——我方只会去转已经爆了的内容，
+       不能据此得出「转发优于原创」。 */
     const srcOf = (rows) => {
-      const s = rows.filter((c) => c.content_source === "原创" || c.content_source === "转发");
-      const o = s.filter((c) => c.content_source === "原创").length;
-      return { n: s.length, orgPct: s.length ? Math.round(o / s.length * 100) : 0 };
+      const n = rows.length || 1;
+      const pt = (c) => c.postType || "发帖";
+      const o = rows.filter((c) => pt(c) === "发帖").length;
+      const r = rows.filter((c) => pt(c) === "转发").length;
+      const x = rows.filter((c) => pt(c) === "被转发原帖").length;
+      return { n, o, r, x, orgPct: Math.round(o / n * 100), repostPct: Math.round(r / n * 100), quotedPct: Math.round(x / n * 100) };
     };
     const topSrc = srcOf(tops);
     const brandCount = brandTable.filter((b) => b.name).length;
@@ -1893,7 +1901,7 @@ ${topMatches || "（无强匹配）"}
       <b style="color:var(--accent-strong)">核心发现</b>（基于 TOP10% 爆款 ${tops.length} 条 vs 普通 ${normal.length} 条）<br><br>
       <b>驱动因素</b>：${driverText} 是与普通内容差距最大的指标 → <b style="color:var(--hot)">爆款的核心驱动来自${esc(driverNames)}</b><br>
       <b>品牌标杆</b>：${bestBrand ? `${esc(bestBrand.name)}（${bestBrand.rate}% · 均爆款指数 ${bestBrand.avgS.toFixed(2)}，共 ${brandCount} 个品牌可按爆款率比较）` : "—"}<br>
-      <b>内容模式</b>：爆款中 <b>${topSrc.orgPct}%</b> 为原创（原创内容爆款率高于转发）→ <b>首发/原创比转载更容易出爆款</b><br>
+      <b>内容模式</b>：爆款中 <b>${topSrc.orgPct}%</b> 为品牌原创（${topSrc.o} 条）、<b>${topSrc.repostPct}%</b> 为品牌转推（${topSrc.r} 条）、<b>${topSrc.quotedPct}%</b> 为被转原帖（${topSrc.x} 条）<span style="color:var(--text-3)">（被转原帖爆款率更高，源于只转已爆内容的选择偏差，不代表转发优于原创）</span><br>
       <b>主题方向</b>：${Object.entries(topTopics).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([t]) => `<b>${esc(t)}</b>`).join("、")}
     </div>`;
 
@@ -3786,7 +3794,20 @@ ${topMatches || "（无强匹配）"}
     const isAll = name === "__all__";
     const itemsAll = isAll ? data : data.filter((c) => c.account === name);
     if (!itemsAll.length) return "";
-    let items = itemsAll;
+    /* ── 内容类型分档（源表 `内容类型` 列）──
+       全局聚合视图与单品牌视图共用 state.compPostType，所以不放进 compFilters。
+       四档语义：全部 / 发帖(品牌原创) / 转发(品牌转推 RT) / 被转发原帖(被转的原文，作者是外部人)。 */
+    const PT_DEFS = [
+      { key: "all", label: "全部", test: null },
+      { key: "发帖", label: "原创", test: (c) => c.postType === "发帖" },
+      { key: "转发", label: "转推", test: (c) => c.postType === "转发" },
+      { key: "被转发原帖", label: "被转原帖", test: (c) => c.postType === "被转发原帖" },
+    ];
+    const ptCount = {};
+    PT_DEFS.forEach((p) => { ptCount[p.key] = p.test ? itemsAll.filter(p.test).length : itemsAll.length; });
+    const curPT = PT_DEFS.find((p) => p.key === state.compPostType) || PT_DEFS[0];
+    const itemsPT = curPT.test ? itemsAll.filter(curPT.test) : itemsAll;
+    let items = itemsPT;
     if (cf) {
       if (cf.types.size) items = items.filter((c) => cf.types.has(c.contentType));
       if (cf.topOnly) items = items.filter((c) => c.isTop);
@@ -3800,20 +3821,25 @@ ${topMatches || "（无强匹配）"}
         return b.viralScore - a.viralScore;
       });
     } else {
-      items = [...itemsAll].sort((a, b) => b.viralScore - a.viralScore);
+      items = [...itemsPT].sort((a, b) => b.viralScore - a.viralScore);
     }
     const avgRate = items.length ? Math.round(items.reduce((s, c) => s + rate(c), 0) / items.length) : 0;
     const topCount = items.filter((c) => c.isTop).length;
     const totalExp = items.reduce((s, c) => s + c.exposure, 0);
     const avgEng = items.length ? (items.reduce((s, c) => s + c.engagementRate, 0) / items.length).toFixed(2) : "0.00";
     // 内容构成与互动深度指标（基于当前筛选）
-    const originalCount = items.filter((c) => (c.content_source || "") === "原创").length;
-    const repostCount = items.filter((c) => (c.content_source || "") === "转发").length;
+    // 原创/转推改用 postType 真值；分母只取这两类，不含「被转发原帖」——
+    // 后者是别人写的原文，混进来会让两个百分比加起来不到 100%，看着像漏算。
+    const ptOf = (c) => c.postType || "发帖";
+    const originalCount = items.filter((c) => ptOf(c) === "发帖").length;
+    const repostCount = items.filter((c) => ptOf(c) === "转发").length;
+    const quotedCount = items.filter((c) => ptOf(c) === "被转发原帖").length;
     const replyCount = items.filter((c) => (c.brand_replies || 0) > 0).length;
     const activityCount = items.filter((c) => isActivityPost(c)).length;
     const denom = items.length || 1;
-    const originalPct = Math.round(originalCount / denom * 100);
-    const repostPct = Math.round(repostCount / denom * 100);
+    const ownBase = (originalCount + repostCount) || 1;
+    const originalPct = Math.round(originalCount / ownBase * 100);
+    const repostPct = Math.round(repostCount / ownBase * 100);
     const replyPct = Math.round(replyCount / denom * 100);
     const activityPct = Math.round(activityCount / denom * 100);
     const metas = isAll ? [] : accountMeta(name);
@@ -3897,8 +3923,11 @@ ${topMatches || "（无强匹配）"}
     </div>`;
     const displayName = isAll ? `全部竞品（${countBrands(itemsAll)} 个品牌）` : name;
     const modeTag = cf && cf.mode !== "all" ? `<span class="tag" style="background:var(--accent);color:#fff;margin-left:8px">${cf.mode === "activity" ? "活动" : "日常"}</span>` : "";
+    /* 内容类型切换：计数基于 itemsAll（该品牌/全部）而非已筛选集合，
+       这样切档时能看到全貌，不会因当前档位而收缩其它档位的数字。 */
+    const ptTabs = `<span class="posttype-tabs" id="comp-posttype" role="tablist">${PT_DEFS.map((p) => `<button type="button" role="tab" class="posttype-tab${state.compPostType === p.key ? " on" : ""}${ptCount[p.key] ? "" : " is-empty"}" data-pt="${esc(p.key)}" aria-selected="${state.compPostType === p.key}">${esc(p.label)}<b>${fmt(ptCount[p.key])}</b></button>`).join("")}</span>`;
     return `<div class="comp-section">
-      <div class="comp-sec-head"><span class="comp-sec-name">${esc(displayName)}${modeTag}</span><span class="comp-sec-badge">内容 ${items.length} · 平均爆款指数 ${avgRate} · 爆款 ${topCount}</span></div>
+      <div class="comp-sec-head"><span class="comp-sec-name">${esc(displayName)}${modeTag}</span><span class="comp-sec-badge">内容 ${items.length} · 平均爆款指数 ${avgRate} · 爆款 ${topCount}</span>${ptTabs}</div>
       <div class="comp-meta">${m0.category ? `<span class="tag">${esc(m0.category)}</span>` : ""}${followers ? `<span class="comp-followers">👥 ${fmt(followers)} 粉丝</span>` : ""}${handles ? `<span class="comp-handles">${handles}</span>` : ""}</div>
       <div class="stat-row" style="margin:10px 0">
         <div class="stat"><div class="stat-label">内容量</div><div class="stat-val">${items.length}</div></div>
@@ -3906,7 +3935,7 @@ ${topMatches || "（无强匹配）"}
         <div class="stat"><div class="stat-label">爆款数</div><div class="stat-val">${topCount}</div></div>
         <div class="stat"><div class="stat-label">总曝光</div><div class="stat-val">${fmt(totalExp)}</div></div>
         <div class="stat"><div class="stat-label">平均互动率</div><div class="stat-val">${avgEng}%</div></div>
-        <div class="stat"><div class="stat-label">原创 / 转发</div><div class="stat-val">${originalPct}% / ${repostPct}%</div></div>
+        <div class="stat"><div class="stat-label">原创 / 转推</div><div class="stat-val" title="分母只含品牌原创与品牌转推两类；被转原帖（别人写的原文）单独计 ${quotedCount} 条">${originalPct}% / ${repostPct}%</div></div>
         <div class="stat"><div class="stat-label">回复用户占比</div><div class="stat-val">${replyPct}%</div></div>
         <div class="stat"><div class="stat-label">活动帖占比</div><div class="stat-val">${activityPct}%</div></div>
       </div>
@@ -4153,6 +4182,13 @@ ${topMatches || "（无强匹配）"}
       const cm = $("#comp-mode"); if (cm) cm.addEventListener("click", (e) => {
         const b = e.target.closest("button"); if (!b) return;
         state.compFilters.mode = b.dataset.mode;
+        renderBoard();
+      });
+      /* 内容类型切换（全部 / 原创 / 转推 / 被转原帖）——全局与单品牌视图共用 */
+      const ptWrap = $("#comp-posttype");
+      if (ptWrap) ptWrap.addEventListener("click", (e) => {
+        const b = e.target.closest(".posttype-tab"); if (!b) return;
+        state.compPostType = b.dataset.pt;
         renderBoard();
       });
       const rs = $("#comp-reset"); if (rs) rs.addEventListener("click", () => { state.compFilters = { types: new Set(), sort: "viral", viralMin: 0, topOnly: false, mode: "all" }; renderBoard(); });

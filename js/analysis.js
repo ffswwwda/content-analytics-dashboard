@@ -37,6 +37,11 @@ const Analysis = (function () {
         roi,
         // 统一驼峰别名，方便分析引擎使用
         contentType: item.content_type,
+        /* 内容类型（语义维度，区别于上面的 contentType=内容形式）：
+           发帖=品牌原创 / 转发=品牌转推(RT) / 被转发原帖=被转的原文(外部作者)。
+           旧数据可能没有该字段，回退到 content_source 推断。 */
+        postType: item.post_type || (item.content_source === "转发" ? "转发" : "发帖"),
+        rtAuthor: item.rt_author || "",
         topicTags: item.topic_tags || [],
         activityTag: item.activity_tag,
         isActivity: item.is_activity,

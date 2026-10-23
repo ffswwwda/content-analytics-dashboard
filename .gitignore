@@ -10,6 +10,7 @@ data/*.bak*
 data/*.bak_*
 *.bak
 *.bak-*
+backup/
 __pycache__/
 
 # 本机推送脚本（含 git 凭据，绝不入库）

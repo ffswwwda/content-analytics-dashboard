@@ -105,11 +105,14 @@ crows = load_csv(CONTENT_CSV)
 print(f"内容 CSV 行: {len(crows)}")
 
 
-# ---------- 3. 合并更新 contents（发帖/被转发原帖）----------
+# ---------- 3. 合并更新 contents（发帖/转发/被转发原帖）----------
+# 2026-10-23：源系统新增「转发」类型（RT @某人），与「发帖」「被转发原帖」并列。
+# 旧白名单只认后两者，会把 1,278 条转发排除在刷新之外（静默丢指标）。
+# 注意：「转发」的 `账号` 是我方 handle（品牌动作），「被转发原帖」的 `账号` 是外部原作者（被转的原文），二者不同。
 upd_cont = 0
 for r in crows:
     ctype = norm(r.get("内容类型"))
-    if ctype not in ("发帖", "被转发原帖"):
+    if ctype not in ("发帖", "转发", "被转发原帖"):
         continue
     cid = norm(r.get("内容ID"))
     if not cid or cid not in cont_by_id:

@@ -861,6 +861,21 @@ body::after {
 .comp-sec-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .comp-sec-name { font-size: 17px; font-weight: 800; color: var(--accent-strong); }
 .comp-sec-badge { font-size: 12.5px; color: var(--text-3); font-family: var(--font-mono); }
+/* 内容类型切换（全部 / 原创 / 转推 / 被转原帖）——挂在 comp-sec-head 行末，全局与单品牌视图共用 */
+.posttype-tabs { margin-left: auto; display: inline-flex; gap: 6px; align-items: center; align-self: center; flex-wrap: wrap; }
+.posttype-tab {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font); font-size: 12px; font-weight: 600;
+  padding: 4px 10px; border-radius: 20px; white-space: nowrap;
+  background: var(--glass-bg-strong); border: 1px solid var(--glass-line);
+  color: var(--text-2); cursor: pointer; transition: all .14s var(--ease);
+}
+.posttype-tab b { font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; color: var(--text-3); }
+.posttype-tab:hover { border-color: var(--glass-line-strong); transform: translateY(-1px); }
+.posttype-tab.on { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: var(--glow); }
+.posttype-tab.on b { color: rgba(255, 255, 255, .88); }
+.posttype-tab.is-empty { opacity: .42; }
+.posttype-tab.is-empty:hover { opacity: .7; }
 .comp-sub { font-size: 13px; font-weight: 700; color: var(--text-2); margin: 16px 0 8px; padding-left: 10px; border-left: 3px solid var(--accent); }
 .comp-sort-row { display: flex; align-items: center; gap: 8px; margin: -4px 0 10px; flex-wrap: wrap; }
 .comp-sort-label { font-size: 11.5px; color: var(--text-3); font-weight: 600; }
