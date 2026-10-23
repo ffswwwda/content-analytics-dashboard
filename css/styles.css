@@ -860,9 +860,10 @@ body::after {
 .comp-section { background: var(--glass-bg-light); border: 1px solid var(--glass-line); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 18px; }
 .comp-sec-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .comp-sec-name { font-size: 17px; font-weight: 800; color: var(--accent-strong); }
-.comp-sec-badge { font-size: 12.5px; color: var(--text-3); font-family: var(--font-mono); }
-/* 内容类型切换（全部 / 原创 / 转推 / 被转原帖）——挂在 comp-sec-head 行末，全局与单品牌视图共用 */
-.posttype-tabs { margin-left: auto; display: inline-flex; gap: 6px; align-items: center; align-self: center; flex-wrap: wrap; }
+.comp-sec-badge { margin-left: auto; font-size: 12.5px; color: var(--text-3); font-family: var(--font-mono); }
+/* 内容类型切换（全部 / 原创 / 转推 / 被转原帖）——紧贴品牌名右侧，全局与单品牌视图共用；
+   摘要数字（comp-sec-badge）用 margin-left:auto 推到右端。 */
+.posttype-tabs { margin-left: 4px; display: inline-flex; gap: 6px; align-items: center; align-self: center; flex-wrap: wrap; }
 .posttype-tab {
   display: inline-flex; align-items: center; gap: 6px;
   font-family: var(--font); font-size: 12px; font-weight: 600;

@@ -3838,6 +3838,7 @@ ${topMatches || "（无强匹配）"}
     const activityCount = items.filter((c) => isActivityPost(c)).length;
     const denom = items.length || 1;
     const ownBase = (originalCount + repostCount) || 1;
+    const hasOwn = (originalCount + repostCount) > 0;
     const originalPct = Math.round(originalCount / ownBase * 100);
     const repostPct = Math.round(repostCount / ownBase * 100);
     const replyPct = Math.round(replyCount / denom * 100);
@@ -3927,7 +3928,7 @@ ${topMatches || "（无强匹配）"}
        这样切档时能看到全貌，不会因当前档位而收缩其它档位的数字。 */
     const ptTabs = `<span class="posttype-tabs" id="comp-posttype" role="tablist">${PT_DEFS.map((p) => `<button type="button" role="tab" class="posttype-tab${state.compPostType === p.key ? " on" : ""}${ptCount[p.key] ? "" : " is-empty"}" data-pt="${esc(p.key)}" aria-selected="${state.compPostType === p.key}">${esc(p.label)}<b>${fmt(ptCount[p.key])}</b></button>`).join("")}</span>`;
     return `<div class="comp-section">
-      <div class="comp-sec-head"><span class="comp-sec-name">${esc(displayName)}${modeTag}</span><span class="comp-sec-badge">内容 ${items.length} · 平均爆款指数 ${avgRate} · 爆款 ${topCount}</span>${ptTabs}</div>
+      <div class="comp-sec-head"><span class="comp-sec-name">${esc(displayName)}${modeTag}</span>${ptTabs}<span class="comp-sec-badge">内容 ${items.length} · 平均爆款指数 ${avgRate} · 爆款 ${topCount}</span></div>
       <div class="comp-meta">${m0.category ? `<span class="tag">${esc(m0.category)}</span>` : ""}${followers ? `<span class="comp-followers">👥 ${fmt(followers)} 粉丝</span>` : ""}${handles ? `<span class="comp-handles">${handles}</span>` : ""}</div>
       <div class="stat-row" style="margin:10px 0">
         <div class="stat"><div class="stat-label">内容量</div><div class="stat-val">${items.length}</div></div>
@@ -3935,7 +3936,7 @@ ${topMatches || "（无强匹配）"}
         <div class="stat"><div class="stat-label">爆款数</div><div class="stat-val">${topCount}</div></div>
         <div class="stat"><div class="stat-label">总曝光</div><div class="stat-val">${fmt(totalExp)}</div></div>
         <div class="stat"><div class="stat-label">平均互动率</div><div class="stat-val">${avgEng}%</div></div>
-        <div class="stat"><div class="stat-label">原创 / 转推</div><div class="stat-val" title="分母只含品牌原创与品牌转推两类；被转原帖（别人写的原文）单独计 ${quotedCount} 条">${originalPct}% / ${repostPct}%</div></div>
+        <div class="stat"><div class="stat-label">原创 / 转推</div><div class="stat-val" title="${hasOwn ? `分母只含品牌原创与品牌转推两类；被转原帖（别人写的原文）单独计 ${quotedCount} 条` : "当前筛选下只有被转原帖（别人写的原文），没有品牌自己的原创或转推，此项不适用"}">${hasOwn ? `${originalPct}% / ${repostPct}%` : "—"}</div></div>
         <div class="stat"><div class="stat-label">回复用户占比</div><div class="stat-val">${replyPct}%</div></div>
         <div class="stat"><div class="stat-label">活动帖占比</div><div class="stat-val">${activityPct}%</div></div>
       </div>
