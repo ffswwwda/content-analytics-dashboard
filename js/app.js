@@ -5380,9 +5380,28 @@ ${sim || "（无同主题关联帖）"}
     const dCpy = $("#deep-copyimg"); if (dCpy) dCpy.addEventListener("click", () => exportDeepImage("copy"));
   }
 
+  // html2canvas 按需加载：只在首次导出图片时拉取（194KB），不占用首屏
+  let __h2cPromise = null;
+  function ensureHtml2canvas() {
+    if (typeof html2canvas !== "undefined") return Promise.resolve(true);
+    if (__h2cPromise) return __h2cPromise;
+    __h2cPromise = new Promise((resolve) => {
+      const s = document.createElement("script");
+      s.src = "js/lib/html2canvas.min.js?v=1";
+      s.async = true;
+      s.onload = () => resolve(typeof html2canvas !== "undefined");
+      s.onerror = () => resolve(false);
+      document.head.appendChild(s);
+    });
+    return __h2cPromise;
+  }
+
   // 把 #deep-body 渲染成图片（离屏舞台，避免玻璃拟态/透明背景问题）
   async function exportDeepImage(mode) {
-    if (typeof html2canvas === "undefined") { toast("图片库未加载，刷新页面后重试"); return; }
+    if (typeof html2canvas === "undefined") {
+      const ok = await ensureHtml2canvas();
+      if (!ok) { toast("图片库加载失败，请检查网络后重试"); return; }
+    }
     const stage = $("#deep-body");
     if (!stage || !stage.innerHTML.trim()) { toast("暂无可导出的内容"); return; }
     const expBtn = $("#deep-export"), cpyBtn = $("#deep-copyimg");
@@ -5593,7 +5612,7 @@ ${sim || "（无同主题关联帖）"}
       <div class="fatal-error-ic">!</div>
       <h2>页面加载失败</h2>
       <p class="fatal-error-msg">${esc(msg)}</p>
-      <p class="fatal-error-tip">很可能原因：数据文件（约 8.5MB）加载超时或网络/CDN 抖动。</p>
+      <p class="fatal-error-tip">可能是网络抖动或首次下载中断。数据文件约 2.7 MB（压缩后），重试通常即可。</p>
       <div class="fatal-error-actions">
         <button class="btn-primary" onclick="location.reload(true)">重新加载</button>
         <a class="btn-ghost" href="https://ffswwwda.github.io/content-analytics-dashboard/" target="_blank">打开新页面</a>
@@ -5603,23 +5622,59 @@ ${sim || "（无同主题关联帖）"}
   }
 
   async function init() {
+    /* 启动耗时打点：window.__BOOT 可随时在 Console 查看各阶段耗时，
+       用于判断慢在下载、解析、指标计算还是首屏渲染。 */
+    const T0 = performance.now();
+    const boot = { marks: {} };
+    window.__BOOT = boot;
+    const mark = (k) => { boot.marks[k] = Math.round(performance.now() - T0); };
+
     const boardEl = document.getElementById("board");
-    if (boardEl) boardEl.innerHTML = `<div class="loading-state"><div class="loading-spin"></div><div>正在加载数据（约 8.5MB）…首次稍慢，请稍候</div></div>`;
-    let data;
+    // 加载态：显示阶段 + 真实字节进度 + 已用时长（避免长时间只有转圈、看不出是否卡死）
+    let ticker = null;
+    const cur = { stage: "正在下载数据…", bytes: 0, total: 0 };
+    const paintLoading = () => {
+      if (!boardEl) return;
+      const mb = (n) => (n / 1048576).toFixed(1);
+      const pct = cur.total > 0 ? Math.min(100, Math.round(cur.bytes / cur.total * 100)) : 0;
+      const bar = cur.total > 0
+        ? `<div class="loading-bar"><i style="width:${pct}%"></i></div><div class="loading-sub">${mb(cur.bytes)} / ${mb(cur.total)} MB · ${pct}%</div>`
+        : (cur.bytes > 0 ? `<div class="loading-sub">已接收 ${mb(cur.bytes)} MB</div>` : `<div class="loading-sub">压缩后约 2.7 MB · 已缓存时几乎瞬开</div>`);
+      boardEl.innerHTML = `<div class="loading-state"><div class="loading-spin"></div>
+        <div class="loading-stage">${cur.stage}</div>${bar}
+        <div class="loading-sub">已用 <b>${((performance.now() - T0) / 1000).toFixed(1)}</b> 秒</div></div>`;
+    };
+    const setStage = (stage) => { cur.stage = stage; paintLoading(); };
+    const stopTicker = () => { if (ticker) { clearInterval(ticker); ticker = null; } };
+    paintLoading();
+    ticker = setInterval(paintLoading, 250);
+    mark("start");
+
+    let pack;
     try {
-      data = await DataLoader.load();
+      pack = await DataLoader.loadAll((received, total) => {
+        cur.bytes = received; cur.total = total;
+        paintLoading();
+      });
     } catch (e) {
+      stopTicker();
       console.error("[init] 数据加载失败:", e);
       renderFatalError(e);
       return;
     }
+    mark("downloaded");
+    setStage("正在解析并计算指标…");
+
+    const data = pack.data;
     state.raw = data;
     state.analysis = A.analyze(data.contents);
     computeViralRanks(state.analysis.contents);
     state.maxViral = Math.max(...state.analysis.contents.map((c) => c.viralScore), 0.0001);
     state.maxExposure = Math.max(...state.analysis.contents.map((c) => c.exposure), 1);
-    state.users = await DataLoader.loadUsers();
-    state.insights = await DataLoader.loadInsights();
+    mark("analyzed");
+    stopTicker();   // 必须在首次渲染前停掉，否则定时器会把已渲染的看板盖回加载态
+    state.users = pack.users;
+    state.insights = pack.insights;
     try {
       const sv = JSON.parse(localStorage.getItem("ca_source_views") || "[]");
       state.sourceViews = Array.isArray(sv) ? sv : [];
@@ -5655,6 +5710,8 @@ ${sim || "（无同主题关联帖）"}
     syncFilterUI();
     renderActiveFilters();
     renderBoard();
+    mark("firstPaint");
+    if (window.__BOOT) console.info("[boot]", window.__BOOT.marks);
     // 全局浮动按钮：随机、回到顶部、盲盒入口
     createFloatingButtons();
     syncRandFloat();
